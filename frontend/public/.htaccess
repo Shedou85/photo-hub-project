@@ -1,5 +1,5 @@
-<IfModule mod_rewrite.c>
-  2 RewriteEngine On 3 RewriteBase / 4 RewriteRule ^index\.html$ - [L] 5
-  RewriteCond %{REQUEST_FILENAME} !-f 6 RewriteCond %{REQUEST_FILENAME} !-d 7
-  RewriteRule . /index.html [L] 8
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "https://pixelforge.pro" Header set
+  Access-Control-Allow-Headers "Authorization, Content-Type" Header set
+  Access-Control-Allow-Methods "GET, POST, OPTIONS"
 </IfModule>
