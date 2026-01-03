@@ -1,16 +1,18 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1 style={{ color: 'green' }}>Darbai vyksta...</h1>
-        <p>Svetainė netrukus bus prieinama.</p>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/:username" element={<ProfilePage />} />
+    </Routes>
   );
 }
 
 export default App;
-
