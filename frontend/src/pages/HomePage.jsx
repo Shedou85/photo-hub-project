@@ -6,7 +6,7 @@ function HomePage() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1 style={{ color: 'green' }}>Darbai vyksta...</h1>
+        <h1 style={{ color: 'green' }}>PixelForge is under construction</h1>
         <p>Svetainė netrukus bus prieinama.</p>
         <Link to="/login">
           <button style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px' }}>

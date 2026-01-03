@@ -12,7 +12,7 @@ function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('https://pixelforge.pro/backend/api/login', {
+      const response = await fetch('https://api.pixelforge.pro/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
