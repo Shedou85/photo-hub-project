@@ -14,6 +14,7 @@ function LoginPage() {
     try {
       const response = await fetch('https://api.pixelforge.pro/api/login', {
         method: 'POST',
+        credentials: 'include', // Added this line
         headers: {
           'Content-Type': 'application/json',
         },
