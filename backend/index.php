@@ -15,7 +15,8 @@ function generateCuid() {
 
 
 // Set headers for CORS and content type
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: https://pixelforge.pro"); // Leidžiame tik jūsų frontend'o domeną
+header("Access-Control-Allow-Credentials: true"); // Leidžiame siųsti slapukus/autorizacijos antraštes
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
