@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+  2 RewriteEngine On 3 RewriteBase / 4 RewriteRule ^index\.html$ - [L] 5
+  RewriteCond %{REQUEST_FILENAME} !-f 6 RewriteCond %{REQUEST_FILENAME} !-d 7
+  RewriteRule . /index.html [L] 8
+</IfModule>
