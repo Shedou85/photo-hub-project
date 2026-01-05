@@ -1,6 +1,18 @@
 <?php
 // backend/index.php
 
+// Set headers for CORS and content type
+header("Access-Control-Allow-Origin: https://pixelforge.pro");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 require_once __DIR__ . '/db.php';
 
 // Helper function to generate CUIDs (simplified for demonstration)
@@ -13,18 +25,6 @@ function generateCuid() {
     return 'cl' . substr(md5($timestamp . $random . $counter), 0, 22); // 'cl' + 22 chars = 24 chars, similar to Prisma's CUID length
 }
 
-
-// Set headers for CORS and content type
-header("Access-Control-Allow-Origin: https://pixelforge.pro");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 // Simple routing logic
 $requestUri = $_SERVER['REQUEST_URI'];
