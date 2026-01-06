@@ -30,8 +30,12 @@ function LoginPage() {
       setOutput(JSON.stringify(data, null, 2));
 
       // The backend/index.php router returns a user object on success.
-      if (response.ok && data.status === "success" && data.user && data.user.username) {
-        navigate(`/${data.user.username}`); // Navigate to user's profile page
+      if (response.ok && data.status === "success" && data.user) {
+        if (data.user.name) { // Changed from username to name
+            navigate(`/${data.user.name}`); // Navigate to user's profile page using name
+        } else {
+            navigate('/'); // Fallback to homepage if name is null
+        }
       } else {
         // Use the error from the backend if available, otherwise a generic message.
         setError(

@@ -161,7 +161,7 @@ switch ($requestUri) {
                         'message' => 'Login successful!',
                         'user' => [
                             'id' => $user['id'],
-                            'username' => $user['username'],
+                            'name' => $user['name'], // Use 'name' instead of 'username'
                             'email' => $user['email'],
                             'createdAt' => $user['createdAt']
                         ]
@@ -183,17 +183,17 @@ switch ($requestUri) {
 
     case '/user':
         if ($requestMethod == 'GET') {
-            $username = $_GET['username'] ?? '';
-            if (empty($username)) {
+            $name = $_GET['name'] ?? ''; // Query by 'name'
+            if (empty($name)) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Username is required.']);
+                echo json_encode(['error' => 'Name is required.']);
                 exit();
             }
     
             try {
                 $pdo = getDbConnection();
-                $stmt = $pdo->prepare("SELECT email, createdAt FROM `User` WHERE username = ?");
-                $stmt->execute([$username]);
+                $stmt = $pdo->prepare("SELECT email, createdAt FROM `User` WHERE name = ?"); // Select by 'name'
+                $stmt->execute([$name]);
                 $userData = $stmt->fetch();
     
                 if ($userData) {
