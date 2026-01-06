@@ -31,7 +31,7 @@ $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 // Remove sub-folder path from request URI
-$basePath = '/backend/api'; // The path to this script's directory from the web root
+$basePath = '/backend'; // The path to this script's directory from the web root
 if (strpos($requestUri, $basePath) === 0) {
     $requestUri = substr($requestUri, strlen($basePath));
 }

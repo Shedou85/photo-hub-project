@@ -14,27 +14,30 @@ function LoginPage() {
     setOutput("");
 
     try {
-      const response = await fetch(
-        "https://api.pixelforge.pro/auth/login.php",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch("https://api.pixelforge.pro/backend", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
       setOutput(JSON.stringify(data, null, 2));
 
       // The login script auth/login.php returns status: "OK" and a user object on success.
-      if (response.ok && data.status === 'OK' && data.user) {
+      if (response.ok && data.status === "OK" && data.user) {
         navigate("/"); // Navigate to homepage on success
       } else {
         // Use the error from the backend if available, otherwise a generic message.
-        setError(`Login failed: ${data.error || data.message || "The server returned an unexpected response."}`);
+        setError(
+          `Login failed: ${
+            data.error ||
+            data.message ||
+            "The server returned an unexpected response."
+          }`
+        );
       }
     } catch (err) {
       setError(`Network error: ${err.message}`);
