@@ -14,14 +14,17 @@ function LoginPage() {
     setOutput("");
 
     try {
-      const response = await fetch("https://api.pixelforge.pro/backend", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        "https://api.pixelforge.pro/auth/login.php",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await response.json();
       setOutput(JSON.stringify(data, null, 2));
