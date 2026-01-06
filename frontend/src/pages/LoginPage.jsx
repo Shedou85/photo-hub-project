@@ -15,7 +15,7 @@ function LoginPage() {
 
     try {
       const response = await fetch(
-        "https://api.pixelforge.pro/backend/login",
+        "https://api.pixelforge.pro/backend/auth/login",
         {
           method: "POST",
           credentials: "include",
