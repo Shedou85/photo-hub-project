@@ -15,7 +15,7 @@ function LoginPage() {
 
     try {
       const response = await fetch(
-        "https://api.pixelforge.pro/backend/login",
+        "https://api.pixelforge.pro/auth/login.php",
         {
           method: "POST",
           credentials: "include",
@@ -29,8 +29,8 @@ function LoginPage() {
       const data = await response.json();
       setOutput(JSON.stringify(data, null, 2));
 
-      // The backend/index.php router returns status: "success" and a userId on success.
-      if (response.ok && data.status === "success" && data.userId) {
+      // The auth/login.php script returns status: "OK" and a user object on success.
+      if (response.ok && data.status === "OK" && data.user) {
         navigate("/"); // Navigate to homepage on success
       } else {
         // Use the error from the backend if available, otherwise a generic message.
