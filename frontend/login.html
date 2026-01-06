@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login test</title>
+  </head>
+  <body>
+    <h2>Login</h2>
+
+    <input id="email" type="email" value="marius@visaginas.lt" /><br /><br />
+    <input id="password" type="password" value="Slaptazodis123" /><br /><br />
+
+    <button onclick="login()">Login</button>
+
+    <pre id="out"></pre>
+
+    <script>
+      async function login() {
+        const res = await fetch("https://api.pixelforge.pro/auth/login.php", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+          }),
+        });
+
+        const data = await res.json();
+        document.getElementById("out").textContent = JSON.stringify(
+          data,
+          null,
+          2
+        );
+      }
+    </script>
+  </body>
+</html>
