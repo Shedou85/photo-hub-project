@@ -29,10 +29,12 @@ function LoginPage() {
       const data = await response.json();
       setOutput(JSON.stringify(data, null, 2));
 
-      if (response.ok && data.status === 'success') {
-        navigate("/");
+      // The login script auth/login.php returns status: "OK" and a user object on success.
+      if (response.ok && data.status === 'OK' && data.user) {
+        navigate("/"); // Navigate to homepage on success
       } else {
-        setError(`Login failed: ${data.message || "Unknown error"}`);
+        // Use the error from the backend if available, otherwise a generic message.
+        setError(`Login failed: ${data.error || data.message || "The server returned an unexpected response."}`);
       }
     } catch (err) {
       setError(`Network error: ${err.message}`);
