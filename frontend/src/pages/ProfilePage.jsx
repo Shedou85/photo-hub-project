@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 function ProfilePage() {
-  const { name } = useParams(); // Changed from username to name
+  const { username } = useParams(); // The route parameter is named 'username'
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,9 @@ function ProfilePage() {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://api.pixelforge.pro/backend/user?name=${name}`); // Changed to query by name
+        // The backend endpoint expects a 'name' query parameter.
+        // We use the 'username' from the URL as its value.
+        const response = await fetch(`https://api.pixelforge.pro/backend/user?name=${username}`);
         const data = await response.json();
 
         if (response.ok && data.status === 'success') {
@@ -26,8 +28,10 @@ function ProfilePage() {
       }
     };
 
-    fetchUserData();
-  }, [name]); // Changed from username to name
+    if (username) {
+        fetchUserData();
+    }
+  }, [username]);
 
   if (loading) {
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
@@ -39,7 +43,7 @@ function ProfilePage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>{name}'s Profile</h1> {/* Changed from username to name */}
+      <h1>{username}'s Profile</h1>
       {userData ? (
         <div>
           <p><strong>Email:</strong> {userData.email}</p>
