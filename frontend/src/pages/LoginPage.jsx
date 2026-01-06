@@ -2,18 +2,20 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("marius@visaginas.lt");
+  const [password, setPassword] = useState("Slaptazodis123");
   const [error, setError] = useState("");
+  const [output, setOutput] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setOutput("");
 
     try {
       const response = await fetch(
-        "https://api.pixelforge.pro/backend/api/login",
+        "https://api.pixelforge.pro/auth/login.php",
         {
           method: "POST",
           credentials: "include",
@@ -24,13 +26,13 @@ function LoginPage() {
         }
       );
 
-      const text = await response.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await response.json();
+      setOutput(JSON.stringify(data, null, 2));
 
-      if (response.ok) {
-        navigate("/testuser");
+      if (response.ok && data.status === 'success') {
+        navigate("/");
       } else {
-        setError(`Login failed: ${data.error || "Unknown error"}`);
+        setError(`Login failed: ${data.message || "Unknown error"}`);
       }
     } catch (err) {
       setError(`Network error: ${err.message}`);
@@ -78,6 +80,7 @@ function LoginPage() {
       </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
+      {output && <pre>{output}</pre>}
     </div>
   );
 }
