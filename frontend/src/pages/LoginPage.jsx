@@ -32,7 +32,7 @@ function LoginPage() {
       setOutput(JSON.stringify(data, null, 2));
 
       // The backend/index.php router returns a user object on success.
-      if (response.ok && data.status === "success" && data.user) {
+      if (response.ok && data.status === "OK" && data.user) {
         login(data.user);
         navigate('/'); // Navigate to homepage
       } else {
