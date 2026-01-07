@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 function ProfilePage() {
-  const { username } = useParams(); // The route parameter is named 'username'
+  const { username } = useParams(); // naudojam TIK UI pavadinimui
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,44 +11,57 @@ function ProfilePage() {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        // The backend endpoint expects a 'name' query parameter.
-        // We use the 'username' from the URL as its value.
-        const response = await fetch(`https://api.pixelforge.pro/backend/user?name=${username}`);
+
+        const response = await fetch(
+          "https://api.pixelforge.pro/backend/auth/me.php",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Not authenticated");
+        }
+
         const data = await response.json();
 
-        if (response.ok && data.status === 'success') {
-          setUserData(data.user);
-        } else {
-          setError(data.error || 'Failed to fetch user data.');
-        }
+        setUserData(data.user);
       } catch (err) {
-        setError('An error occurred while fetching user data.');
+        setError(err.message || "Failed to load profile");
       } finally {
         setLoading(false);
       }
     };
 
-    if (username) {
-        fetchUserData();
-    }
-  }, [username]);
+    fetchUserData();
+  }, []);
 
   if (loading) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
+    return <div style={{ padding: 20, textAlign: "center" }}>Loading...</div>;
   }
 
   if (error) {
-    return <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>Error: {error}</div>;
+    return (
+      <div style={{ padding: 20, textAlign: "center", color: "red" }}>
+        Error: {error}
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: 20, fontFamily: "sans-serif" }}>
       <h1>{username}'s Profile</h1>
+
       {userData ? (
-        <div>
-          <p><strong>Email:</strong> {userData.email}</p>
-          <p><strong>Member since:</strong> {new Date(userData.createdAt).toLocaleDateString()}</p>
-        </div>
+        <>
+          <p>
+            <strong>Email:</strong> {userData.email}
+          </p>
+          <p>
+            <strong>Member since:</strong>{" "}
+            {new Date(userData.createdAt).toLocaleDateString()}
+          </p>
+        </>
       ) : (
         <p>User data not found.</p>
       )}
