@@ -8,7 +8,7 @@ function ProfilePage() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   if (!user) {
