@@ -20,7 +20,16 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route
+        path="/"
+        element={
+          isAuthenticated() && user ? (
+            <Navigate to={`/${user.name}`} replace />
+          ) : (
+            <HomePage />
+          )
+        }
+      />
       <Route
         path="/login"
         element={isAuthenticated() ? <Navigate to="/" replace /> : <LoginPage />}
