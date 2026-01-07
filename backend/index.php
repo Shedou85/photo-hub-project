@@ -126,55 +126,25 @@ switch ($requestUri) {
 
     case '/login':
         if ($requestMethod == 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
+            require_once __DIR__ . '/auth/login.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
 
-            $email = $data['email'] ?? '';
-            $password = $data['password'] ?? '';
+    case '/auth/me':
+        if ($requestMethod == 'GET') {
+            require_once __DIR__ . '/auth/me.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
 
-            if (empty($email) || empty($password)) {
-                http_response_code(400);
-                echo json_encode(['status' => 'error', 'message' => 'Email and password are required.']);
-                exit();
-            }
-
-            try {
-                $pdo = getDbConnection();
-                
-                $stmt = $pdo->prepare("SELECT * FROM `User` WHERE email = ?");
-                $stmt->execute([$email]);
-                $user = $stmt->fetch();
-
-                if ($user && password_verify($password, $user['password'])) {
-                    session_set_cookie_params([
-                        'lifetime' => 86400, // 24 hours
-                        'path' => '/',
-                        'domain' => '.pixelforge.pro',
-                        'secure' => true,
-                        'httponly' => true,
-                        'samesite' => 'None'
-                    ]);
-                    session_start();
-                    $_SESSION['user_id'] = $user['id'];
-                    
-                    echo json_encode([
-                        'status' => 'success',
-                        'message' => 'Login successful!',
-                        'user' => [
-                            'id' => $user['id'],
-                            'name' => $user['name'], // Use 'name' instead of 'username'
-                            'email' => $user['email'],
-                            'createdAt' => $user['createdAt']
-                        ]
-                    ]);
-                } else {
-                    http_response_code(401);
-                    echo json_encode(['status' => 'error', 'message' => 'Invalid email or password.']);
-                }
-
-            } catch (PDOException $e) {
-                http_response_code(500);
-                echo json_encode(['status' => 'error', 'message' => 'Login failed: ' . $e->getMessage()]);
-            }
+    case '/profile/me':
+        if ($requestMethod == 'PATCH') {
+            require_once __DIR__ . '/profile/me.php';
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
