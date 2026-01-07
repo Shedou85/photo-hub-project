@@ -1,5 +1,18 @@
 <IfModule mod_headers.c>
-  Header set Access-Control-Allow-Origin "https://pixelforge.pro" Header set
-  Access-Control-Allow-Headers "Authorization, Content-Type" Header set
-  Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  Header set Access-Control-Allow-Origin "https://pixelforge.pro"
+  Header set Access-Control-Allow-Headers "Authorization, Content-Type"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Jei failas ar direktorija egzistuoja – atiduodam
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Visa kita – į React
+  RewriteRule ^ index.html [L]
 </IfModule>
