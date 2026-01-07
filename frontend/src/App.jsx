@@ -4,10 +4,11 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import { useAuth } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
-  const { user, login } = useAuth();
+  const { user, login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,8 +21,18 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/:username" element={user ? <ProfilePage /> : <LoginPage />} />
+      <Route
+        path="/login"
+        element={isAuthenticated() ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/:username"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
