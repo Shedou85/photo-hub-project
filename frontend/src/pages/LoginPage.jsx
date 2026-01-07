@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function LoginPage() {
   const [email, setEmail] = useState("marius@visaginas.lt");
@@ -7,6 +8,7 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [output, setOutput] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -31,6 +33,7 @@ function LoginPage() {
 
       // The backend/index.php router returns a user object on success.
       if (response.ok && data.status === "success" && data.user) {
+        login(data.user);
         if (data.user.name) { // Changed from username to name
             navigate(`/${data.user.name}`); // Navigate to user's profile page using name
         } else {
