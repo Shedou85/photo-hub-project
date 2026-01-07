@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
+import CollectionsListPage from './pages/CollectionsListPage';
+import CollectionDetailsPage from './pages/CollectionDetailsPage';
 import ProfilePage from './pages/ProfilePage';
-import CollectionsPage from './pages/CollectionsPage';
 import PaymentsPage from './pages/PaymentsPage';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -23,12 +24,13 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated() && user ? <Navigate to={`/${user.name}`} replace /> : <HomePage />} />
-      <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/" element={isAuthenticated() && user ? <Navigate to="/collections" replace /> : <HomePage />} />
+      <Route path="/login" element={isAuthenticated() ? <Navigate to="/collections" replace /> : <LoginPage />} />
       
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route path="/:username" element={<ProfilePage />} />
-        <Route path="/collections" element={<CollectionsPage />} />
+        <Route path="/:username" element={<ProfilePage />} /> {/* Keep profile page accessible directly via username as well */}
+        <Route path="/collections" element={<CollectionsListPage />} />
+        <Route path="/collection/:id" element={<CollectionDetailsPage />} />
         <Route path="/payments" element={<PaymentsPage />} />
       </Route>
     </Routes>
@@ -36,4 +38,5 @@ function App() {
 }
 
 export default App;
+
 

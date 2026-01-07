@@ -4,7 +4,7 @@
 // Set headers for CORS and content type
 header("Access-Control-Allow-Origin: https://pixelforge.pro");
 header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Handle preflight OPTIONS request
@@ -151,87 +151,17 @@ switch ($requestUri) {
         }
         break;
 
-    case '/user':
-        if ($requestMethod == 'GET') {
-            $name = $_GET['name'] ?? ''; // Query by 'name'
-            if (empty($name)) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Name is required.']);
-                exit();
-            }
-    
-            try {
-                $pdo = getDbConnection();
-                $stmt = $pdo->prepare("SELECT email, createdAt FROM `User` WHERE name = ?"); // Select by 'name'
-                $stmt->execute([$name]);
-                $userData = $stmt->fetch();
-    
-                if ($userData) {
-                    echo json_encode(['status' => 'success', 'user' => $userData]);
-                } else {
-                    http_response_code(404);
-                    echo json_encode(['error' => 'User not found.']);
-                }
-            } catch (PDOException $e) {
-                http_response_code(500);
-                echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
-            }
-        } else {
-            http_response_code(405);
-            echo json_encode(['error' => 'Method Not Allowed']);
-        }
-        break;
-
-    case '/upload':
-        if ($requestMethod == 'POST') {
-            
-            if (isset($_FILES['photo'])) {
-                $file = $_FILES['photo'];
-
-                if ($file['error'] !== UPLOAD_ERR_OK) {
-                    http_response_code(400);
-                    echo json_encode(['status' => 'error', 'message' => 'File upload error. Code: ' . $file['error']]);
-                    exit();
-                }
-
-                $allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
-                if (!in_array($file['type'], $allowedMimes)) {
-                    http_response_code(400);
-                    echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only JPG, PNG, and GIF are allowed.']);
-                    exit();
-                }
-                
-                if ($file['size'] > 5 * 1024 * 1024) {
-                    http_response_code(400);
-                    echo json_encode(['status' => 'error', 'message' => 'File is too large. Maximum size is 5MB.']);
-                    exit();
-                }
-
-                $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $uniqueFilename = uniqid('img_', true) . '.' . $fileExtension;
-                
-                $uploadDir = __DIR__ . '/uploads/';
-                $uploadPath = $uploadDir . $uniqueFilename;
-
-                if (move_uploaded_file($file['tmp_name'], `uploadPath`)) {
-                    $publicUrl = '/backend/api/uploads/' . $uniqueFilename;
-                    echo json_encode(['status' => 'success', 'message' => 'File uploaded successfully.', 'url' => $publicUrl]);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['status' => 'error', 'message' => 'Failed to move uploaded file.']);
-                }
-
-            } else {
-                http_response_code(400);
-                echo json_encode(['status' => 'error', 'message' => 'No file was uploaded. Please use the "photo" field.']);
-            }
-        } else {
-            http_response_code(405);
-            echo json_encode(['error' => 'Method Not Allowed']);
-        }
+    case '/collections':
+        require_once __DIR__ . '/collections/index.php';
         break;
 
     default:
+        // Handle /collections/{id}
+        if (strpos($requestUri, '/collections/') === 0) {
+            require_once __DIR__ . '/collections/id.php';
+            break;
+        }
+
         http_response_code(404);
         echo json_encode(['error' => 'Endpoint Not Found']);
         break;
