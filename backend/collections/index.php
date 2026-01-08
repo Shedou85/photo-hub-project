@@ -54,13 +54,14 @@ try {
             return 'cl' . substr(md5($timestamp . $random . $counter), 0, 22);
         }
         $collectionId = generateCuid();
+        $shareId = bin2hex(random_bytes(8)); // Simple random string for shareId
         $currentDateTime = date('Y-m-d H:i:s.v');
 
         $stmt = $pdo->prepare("
-            INSERT INTO `Collection` (id, name, description, userId, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO `Collection` (id, name, description, userId, createdAt, updatedAt, shareId)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$collectionId, $name, $description, $userId, $currentDateTime, $currentDateTime]);
+        $stmt->execute([$collectionId, $name, $description, $userId, $currentDateTime, $currentDateTime, $shareId]);
 
         echo json_encode([
             "status" => "OK",
