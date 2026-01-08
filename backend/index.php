@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // backend/api/index.php
 
 // Set headers for CORS and content type
@@ -46,7 +50,8 @@ switch ($requestUri) {
     case '/test':
         if ($requestMethod == 'GET') {
             echo json_encode(['status' => 'success', 'data' => 'This is a test response from the PHP backend.']);
-        } else {
+        }
+        else {
             http_response_code(405); // Method Not Allowed
             echo json_encode(['error' => 'Method Not Allowed']);
         }
@@ -127,7 +132,8 @@ switch ($requestUri) {
     case '/login':
         if ($requestMethod == 'POST') {
             require_once __DIR__ . '/auth/login.php';
-        } else {
+        }
+        else {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
         }
@@ -136,7 +142,8 @@ switch ($requestUri) {
     case '/auth/me':
         if ($requestMethod == 'GET') {
             require_once __DIR__ . '/auth/me.php';
-        } else {
+        }
+        else {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
         }
@@ -145,13 +152,15 @@ switch ($requestUri) {
     case '/profile/me':
         if ($requestMethod == 'PATCH') {
             require_once __DIR__ . '/profile/me.php';
-        } else {
+        }
+        else {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
         }
         break;
 
     case '/collections':
+        echo "test"; exit; // Temporary debug statement
         require_once __DIR__ . '/collections/index.php';
         break;
 
