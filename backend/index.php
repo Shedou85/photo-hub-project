@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // backend/api/index.php
 
 // Set headers for CORS and content type
@@ -160,14 +156,13 @@ switch ($requestUri) {
         break;
 
     case '/collections':
-        echo "test"; exit; // Temporary debug statement
-        require_once __DIR__ . '/collections/index.php';
+        require_once __DIR__ . '/_collections/index.php';
         break;
 
     default:
         // Handle /collections/{id}
         if (strpos($requestUri, '/collections/') === 0) {
-            require_once __DIR__ . '/collections/id.php';
+            require_once __DIR__ . '/_collections/id.php';
             break;
         }
 
