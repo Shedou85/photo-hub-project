@@ -21,7 +21,7 @@ function CollectionsListPage() {
 
     const fetchCollections = async () => {
       try {
-        const response = await fetch("https://api.pixelforge.pro/backend/collections", {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
           credentials: "include",
         });
 
@@ -56,7 +56,7 @@ function CollectionsListPage() {
     }
 
     try {
-      const response = await fetch("https://api.pixelforge.pro/backend/collections", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -72,7 +72,7 @@ function CollectionsListPage() {
         setNewCollectionName("");
         setNewCollectionDescription("");
         // Re-fetch collections to update the list
-        const updatedResponse = await fetch("https://api.pixelforge.pro/backend/collections", {
+        const updatedResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
           credentials: "include",
         });
         const updatedData = await updatedResponse.json();

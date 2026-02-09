@@ -17,7 +17,7 @@ function LoginPage() {
 
     try {
       const response = await fetch(
-        "https://api.pixelforge.pro/backend/login",
+        `${import.meta.env.VITE_API_BASE_URL}/login`,
         {
           method: "POST",
           credentials: "include",

@@ -22,7 +22,7 @@ function ProfilePage() {
 
     try {
       const response = await fetch(
-        "https://api.pixelforge.pro/backend/profile/me",
+        `${import.meta.env.VITE_API_BASE_URL}/profile/me`,
         {
           method: "PATCH",
           credentials: "include",

@@ -25,7 +25,7 @@ function PhotoUploader() {
     formData.append('photo', file); // 'photo' must match the key the server expects
 
     try {
-      const response = await fetch('https://pixelforge.pro/backend/api/upload', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
         method: 'POST',
         // Note: Do not set 'Content-Type' header for FormData.
         // The browser will automatically set it to 'multipart/form-data'
@@ -38,7 +38,7 @@ function PhotoUploader() {
       if (response.ok) {
         setMessage(`Upload successful!`);
         // Construct the full URL for display
-        const fullUrl = `https://pixelforge.pro${data.url}`;
+        const fullUrl = `${import.meta.env.VITE_API_BASE_URL}${data.url}`;
         setUploadedImageUrl(fullUrl);
       } else {
         setMessage(`Upload failed: ${data.message}`);

@@ -14,5 +14,6 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
-# dotenv environment variables file
-.env
+# dotenv local overrides (may contain secrets)
+.env.local
+.env.*.local
