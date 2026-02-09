@@ -155,13 +155,13 @@ switch ($requestUri) {
         break;
 
     case '/collections':
-        require_once __DIR__ . '/_collections/index.php';
+        require_once __DIR__ . '/collections/index.php';
         break;
 
     default:
         // Handle /collections/{id}
         if (strpos($requestUri, '/collections/') === 0) {
-            require_once __DIR__ . '/_collections/id.php';
+            require_once __DIR__ . '/collections/id.php';
             break;
         }
 
