@@ -4,6 +4,16 @@
 require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/db.php';
 
+// Set session cookie params once for all handlers
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '.pixelforge.pro',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'None'
+]);
+
 // Helper function to generate CUIDs (simplified for demonstration)
 function generateCuid() {
     // In a real application, consider a more robust CUID library

@@ -1,15 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
 
-// SESSION (būtina cross-domain)
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'domain' => '.pixelforge.pro',
-    'secure' => true,
-    'httponly' => true,
-    'samesite' => 'None'
-]);
 session_start();
 
 // Tik POST
