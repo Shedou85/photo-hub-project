@@ -17,7 +17,7 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Handle GET request - list all collections for the user
         $stmt = $pdo->prepare("
-            SELECT id, name, description, createdAt, updatedAt
+            SELECT id, name, createdAt, updatedAt
             FROM `Collection`
             WHERE userId = ?
             ORDER BY createdAt DESC
@@ -37,7 +37,6 @@ try {
         $data = json_decode(file_get_contents('php://input'), true);
 
         $name = $data['name'] ?? null;
-        $description = $data['description'] ?? null;
 
         if (empty($name)) {
             http_response_code(400);
@@ -57,10 +56,10 @@ try {
         $currentDateTime = date('Y-m-d H:i:s.v');
 
         $stmt = $pdo->prepare("
-            INSERT INTO `Collection` (id, name, description, userId, createdAt, updatedAt, shareId)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO `Collection` (id, name, userId, createdAt, updatedAt, shareId)
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$collectionId, $name, $description, $userId, $currentDateTime, $currentDateTime, $shareId]);
+        $stmt->execute([$collectionId, $name, $userId, $currentDateTime, $currentDateTime, $shareId]);
 
         echo json_encode([
             "status" => "OK",

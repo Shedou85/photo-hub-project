@@ -27,7 +27,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, name, description, createdAt, updatedAt
+        SELECT id, name, createdAt, updatedAt
         FROM `Collection`
         WHERE id = ? AND userId = ?
         LIMIT 1
