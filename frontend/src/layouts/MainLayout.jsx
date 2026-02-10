@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +32,7 @@ const MainLayout = () => {
   const langDropdownRef = useRef(null);
 
   const handleLogout = () => {
-    logout();
+    flushSync(() => logout());
     navigate('/');
   };
 
