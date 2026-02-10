@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 function CollectionsListPage() {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,16 +11,8 @@ function CollectionsListPage() {
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
   const [createError, setCreateError] = useState(null);
   const [createSuccess, setCreateSuccess] = useState(null);
-  const [focusedField, setFocusedField] = useState(null);
-  const [hoveredCollection, setHoveredCollection] = useState(null);
-  const [btnHovered, setBtnHovered] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
-
     const fetchCollections = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
@@ -48,7 +37,7 @@ function CollectionsListPage() {
     };
 
     fetchCollections();
-  }, [isAuthenticated, navigate]);
+  }, []);
 
   const handleCreateCollection = async (event) => {
     event.preventDefault();
@@ -111,19 +100,12 @@ function CollectionsListPage() {
     <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
       {/* ── Page Header ── */}
       <div className="flex items-center mb-7 gap-3.5">
-        {/* Gradient icon circle */}
         <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
           🗂️
         </div>
-
-        <div>
-          <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
-            {t('collections.title')}
-          </h1>
-          <p className="mt-0.5 mb-0 text-[13px] text-gray-500">
-            {t('collections.subtitle', '')}
-          </p>
-        </div>
+        <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
+          {t('collections.title')}
+        </h1>
       </div>
 
       {/* ── Create Collection Card ── */}
@@ -146,14 +128,8 @@ function CollectionsListPage() {
               id="collectionName"
               value={newCollectionName}
               onChange={(e) => setNewCollectionName(e.target.value)}
-              onFocus={() => setFocusedField("collectionName")}
-              onBlur={() => setFocusedField(null)}
               required
-              className={`w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white rounded-[6px] outline-none box-border transition-colors duration-150 font-sans ${
-                focusedField === "collectionName"
-                  ? "border-[1.5px] border-blue-500"
-                  : "border-[1.5px] border-gray-300"
-              }`}
+              className="w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-[6px] outline-none box-border transition-colors duration-150 font-sans"
             />
           </div>
 
@@ -169,14 +145,8 @@ function CollectionsListPage() {
               id="collectionDescription"
               value={newCollectionDescription}
               onChange={(e) => setNewCollectionDescription(e.target.value)}
-              onFocus={() => setFocusedField("collectionDescription")}
-              onBlur={() => setFocusedField(null)}
               rows={3}
-              className={`w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white rounded-[6px] outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5] ${
-                focusedField === "collectionDescription"
-                  ? "border-[1.5px] border-blue-500"
-                  : "border-[1.5px] border-gray-300"
-              }`}
+              className="w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-[6px] outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
             />
           </div>
 
@@ -197,11 +167,7 @@ function CollectionsListPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              onMouseEnter={() => setBtnHovered(true)}
-              onMouseLeave={() => setBtnHovered(false)}
-              className={`py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 ${
-                btnHovered ? "opacity-[0.88]" : "opacity-100"
-              }`}
+              className="py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
             >
               {t('collections.createBtn')}
             </button>
@@ -227,20 +193,8 @@ function CollectionsListPage() {
                 to={`/collection/${collection.id}`}
                 className="no-underline text-inherit"
               >
-                <div
-                  onMouseEnter={() => setHoveredCollection(collection.id)}
-                  onMouseLeave={() => setHoveredCollection(null)}
-                  className={`bg-white rounded-[8px] px-4 py-3.5 cursor-pointer transition-[border-color,box-shadow] duration-150 ${
-                    hoveredCollection === collection.id
-                      ? "border border-blue-500 shadow-[0_1px_4px_rgba(59,130,246,0.10)]"
-                      : "border border-gray-200 shadow-none"
-                  }`}
-                >
-                  <div
-                    className={`text-[15px] font-semibold text-gray-900 ${
-                      collection.description ? "mb-1" : "mb-0"
-                    }`}
-                  >
+                <div className="bg-white rounded-[8px] px-4 py-3.5 cursor-pointer transition-[border-color,box-shadow] duration-150 border border-gray-200 hover:border-blue-500 hover:shadow-[0_1px_4px_rgba(59,130,246,0.10)]">
+                  <div className={`text-[15px] font-semibold text-gray-900 ${collection.description ? "mb-1" : "mb-0"}`}>
                     {collection.name}
                   </div>
 

@@ -72,6 +72,8 @@
   },
   "payments": {
     "title": "Mokėjimai",
+    "subtitle": "Sąskaitų ir mokėjimų istorija",
+    "historyTitle": "Mokėjimų istorija",
     "noPayments": "Šiuo metu mokėjimų nėra."
   }
 }

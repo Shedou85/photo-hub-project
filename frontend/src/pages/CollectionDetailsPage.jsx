@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // --- Sub-component: read-only meta info row ---
@@ -19,19 +18,12 @@ function InfoRow({ label, value }) {
 
 function CollectionDetailsPage() {
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
-
     const fetchCollectionDetails = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
@@ -56,7 +48,7 @@ function CollectionDetailsPage() {
     };
 
     fetchCollectionDetails();
-  }, [id, isAuthenticated, navigate]);
+  }, [id]);
 
   if (loading) {
     return (

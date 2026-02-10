@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 const SIDEBAR_WIDTH = 240;
 const BREAKPOINT = 768;
 
-const NAV_ITEMS = (username) => [
-  { to: `/${username}`, key: 'nav.profile', icon: '👤' },
+const NAV_ITEMS = () => [
+  { to: '/profile', key: 'nav.profile', icon: '👤' },
   { to: '/collections', key: 'nav.collections', icon: '🗂️' },
   { to: '/payments', key: 'nav.payments', icon: '💳' },
 ];
@@ -45,7 +45,7 @@ const MainLayout = () => {
     if (isMobile) setSidebarOpen(false);
   }, [location.pathname, isMobile]);
 
-  const items = NAV_ITEMS(user?.name);
+  const items = NAV_ITEMS();
 
   return (
     // Outer wrapper: column so mobile topbar sits above the row
@@ -78,14 +78,13 @@ const MainLayout = () => {
 
         {/* ── Sidebar ── */}
         <aside
-          className={`bg-[#1a1a2e] flex flex-col top-0 h-screen z-[1003] overflow-y-auto${isMobile ? ` fixed${sidebarOpen ? ' shadow-[4px_0_24px_rgba(0,0,0,0.4)]' : ''}` : ' sticky'}`}
+          className={`bg-[#1a1a2e] flex flex-col top-0 h-screen z-[1003] overflow-y-auto${isMobile ? ' fixed' : ' sticky'}`}
           style={{
             width: SIDEBAR_WIDTH,
             minWidth: SIDEBAR_WIDTH,
-            position: isMobile ? 'fixed' : 'sticky',
             left: isMobile ? (sidebarOpen ? 0 : -SIDEBAR_WIDTH) : 0,
             transition: 'left 0.25s ease',
-            boxShadow: isMobile ? '4px 0 24px rgba(0,0,0,0.4)' : 'none',
+            boxShadow: isMobile && sidebarOpen ? '4px 0 24px rgba(0,0,0,0.4)' : 'none',
           }}
         >
 
@@ -178,7 +177,7 @@ const MainLayout = () => {
 
           {/* Sidebar footer */}
           <div className="py-[14px] px-5 border-t border-white/[0.08] text-[11px] text-[#555e7a]">
-            © 2025 PixelForge
+            © {new Date().getFullYear()} PixelForge
           </div>
         </aside>
 

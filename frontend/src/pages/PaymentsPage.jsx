@@ -20,7 +20,7 @@ const PaymentsPage = () => {
             {t('payments.title')}
           </h1>
           <p className="mt-0.5 mb-0 text-[13px] text-[#6b7280]">
-            Billing &amp; payment history
+            {t('payments.subtitle')}
           </p>
         </div>
       </div>
@@ -28,7 +28,7 @@ const PaymentsPage = () => {
       {/* ── Payment History Card ── */}
       <div className="bg-white border border-[#e5e7eb] rounded-[10px] px-6 py-5 mb-5">
         <h2 className="mt-0 mb-4 text-sm font-bold text-[#374151] uppercase tracking-[0.05em]">
-          Payment History
+          {t('payments.historyTitle')}
         </h2>
 
         {/* Empty state */}

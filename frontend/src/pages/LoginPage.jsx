@@ -4,10 +4,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
 function LoginPage() {
-  const [email, setEmail] = useState("marius@visaginas.lt");
-  const [password, setPassword] = useState("Slaptazodis123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [focusedField, setFocusedField] = useState(null);
   const navigate = useNavigate();
   const { login } = useAuth();
   const { t } = useTranslation();
@@ -31,14 +30,14 @@ function LoginPage() {
 
       if (response.ok && data.status === "OK" && data.user) {
         login(data.user);
-        navigate("/");
+        navigate('/collections');
       } else {
         setError(
-          `${t("login.failed")} ${data.error || data.message || "The server returned an unexpected response."}`
+          `${t('login.failed')} ${data.error || data.message || "The server returned an unexpected response."}`
         );
       }
     } catch (err) {
-      setError(`${t("login.networkError")} ${err.message}`);
+      setError(`${t('login.networkError')} ${err.message}`);
     }
   };
 
@@ -46,69 +45,53 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
       <div className="bg-white border border-gray-200 rounded-[10px] px-8 py-8 w-full max-w-[400px]">
         <h1 className="mt-0 mb-6 text-[22px] font-bold text-gray-900">
-          {t("login.title")}
+          {t('login.title')}
         </h1>
 
         <form onSubmit={handleSubmit}>
           {/* Email field */}
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block mb-[5px] text-[13px] font-semibold text-gray-700"
-            >
-              {t("login.email")}
+            <label htmlFor="email" className="block mb-[5px] text-[13px] font-semibold text-gray-700">
+              {t('login.email')}
             </label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setFocusedField("email")}
-              onBlur={() => setFocusedField(null)}
               required
-              className={`w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] ${
-                focusedField === "email" ? "border-blue-500" : "border-gray-300"
-              } rounded-md outline-none box-border transition-colors duration-150 font-sans`}
+              className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans"
             />
           </div>
 
           {/* Password field */}
           <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block mb-[5px] text-[13px] font-semibold text-gray-700"
-            >
-              {t("login.password")}
+            <label htmlFor="password" className="block mb-[5px] text-[13px] font-semibold text-gray-700">
+              {t('login.password')}
             </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onFocus={() => setFocusedField("password")}
-              onBlur={() => setFocusedField(null)}
               required
-              className={`w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] ${
-                focusedField === "password"
-                  ? "border-blue-500"
-                  : "border-gray-300"
-              } rounded-md outline-none box-border transition-colors duration-150 font-sans`}
+              className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans"
             />
           </div>
 
           {/* Error message */}
           {error && (
-            <div className="mt-4 flex items-start gap-[10px] px-[14px] py-3 bg-red-50 border border-red-200 rounded-md text-[13px] text-red-800 mb-4">
-              <span>{error}</span>
+            <div className="mt-0 flex items-start gap-[10px] px-[14px] py-3 mb-4 bg-red-50 border border-red-200 rounded-md text-[13px] text-red-800">
+              {error}
             </div>
           )}
 
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full py-[9px] px-[22px] text-sm font-semibold text-white rounded-md border-none font-sans cursor-pointer hover:opacity-[0.88] bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] transition-opacity duration-150"
+            className="w-full py-[9px] px-[22px] text-sm font-semibold text-white rounded-md border-none font-sans cursor-pointer hover:opacity-[0.88] transition-opacity duration-150 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
           >
-            {t("login.submit")}
+            {t('login.submit')}
           </button>
         </form>
       </div>

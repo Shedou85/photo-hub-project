@@ -53,9 +53,6 @@ function ProfilePage() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // --- Focused field for input highlight ---
-  const [focusedField, setFocusedField] = useState(null);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
@@ -178,12 +175,8 @@ function ProfilePage() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onFocus={() => setFocusedField("name")}
-              onBlur={() => setFocusedField(null)}
               placeholder={t('profile.namePlaceholder')}
-              className={`w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] ${
-                focusedField === "name" ? "border-blue-500" : "border-gray-300"
-              } rounded-md outline-none box-border transition-colors duration-150 font-sans`}
+              className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans"
             />
           </div>
 
@@ -199,13 +192,9 @@ function ProfilePage() {
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              onFocus={() => setFocusedField("bio")}
-              onBlur={() => setFocusedField(null)}
               placeholder={t('profile.bioPlaceholder')}
               rows={4}
-              className={`w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] ${
-                focusedField === "bio" ? "border-blue-500" : "border-gray-300"
-              } rounded-md outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]`}
+              className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
             />
           </div>
 
