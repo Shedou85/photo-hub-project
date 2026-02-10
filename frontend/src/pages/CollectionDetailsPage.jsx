@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 function CollectionDetailsPage() {
   const { id } = useParams();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,19 +45,19 @@ function CollectionDetailsPage() {
   }, [id, isAuthenticated, navigate]);
 
   if (loading) {
-    return <div style={{ padding: 20, textAlign: "center" }}>Loading collection details...</div>;
+    return <div style={{ padding: 20, textAlign: "center" }}>{t('collection.loading')}</div>;
   }
 
   if (error) {
     return (
       <div style={{ padding: 20, textAlign: "center", color: "red" }}>
-        Error: {error}
+        {t('collection.error')} {error}
       </div>
     );
   }
 
   if (!collection) {
-    return <div style={{ padding: 20, textAlign: "center" }}>Collection not found.</div>;
+    return <div style={{ padding: 20, textAlign: "center" }}>{t('collection.notFound')}</div>;
   }
 
   return (
@@ -63,11 +65,10 @@ function CollectionDetailsPage() {
       <h1>{collection.name}</h1>
       {collection.description && <p>{collection.description}</p>}
       <p>
-        <strong>Sukurta:</strong> {new Date(collection.createdAt).toLocaleDateString()}
+        <strong>{t('collection.createdAt')}</strong> {new Date(collection.createdAt).toLocaleDateString()}
       </p>
-      {/* Add photos belonging to this collection here later */}
-      <h2>Nuotraukos</h2>
-      <p>Nuotraukų dar nėra.</p>
+      <h2>{t('collection.photos')}</h2>
+      <p>{t('collection.noPhotos')}</p>
     </div>
   );
 }

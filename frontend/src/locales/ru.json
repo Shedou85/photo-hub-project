@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "profile": "Профиль",
+    "collections": "Коллекции",
+    "payments": "Оплата",
+    "logout": "Выйти"
+  },
+  "home": {
+    "underConstruction": "PixelForge находится в разработке",
+    "comingSoon": "Сайт скоро будет доступен.",
+    "login": "Войти"
+  },
+  "login": {
+    "title": "Вход",
+    "email": "Эл. почта",
+    "password": "Пароль",
+    "submit": "Войти",
+    "failed": "Ошибка входа:",
+    "networkError": "Ошибка сети:"
+  },
+  "profile": {
+    "subtitle": "Ваш профиль и настройки аккаунта",
+    "accountInfo": "Информация об аккаунте",
+    "email": "Эл. почта",
+    "memberSince": "Участник с",
+    "plan": "Тариф",
+    "role": "Роль",
+    "editProfile": "Редактировать профиль",
+    "displayName": "Имя",
+    "bio": "О себе",
+    "optional": "необязательно",
+    "bioPlaceholder": "Расскажите клиентам немного о себе и своей работе...",
+    "saveChanges": "Сохранить",
+    "saving": "Сохранение...",
+    "updateSuccess": "Профиль успешно обновлён!",
+    "updateFailed": "Ошибка обновления профиля:",
+    "networkError": "Ошибка сети:",
+    "loginRequired": "Войдите, чтобы просмотреть свой профиль.",
+    "namePlaceholder": "Ваше полное имя",
+    "errorPrefix": "Ошибка:",
+    "planLabel": {
+      "FREE_TRIAL": "Пробный",
+      "STANDARD": "Стандартный",
+      "PRO": "Pro"
+    },
+    "roleLabel": {
+      "USER": "Пользователь",
+      "ADMIN": "Администратор"
+    }
+  },
+  "collections": {
+    "title": "Мои коллекции",
+    "createTitle": "Создать новую коллекцию",
+    "nameLabel": "Название коллекции",
+    "descLabel": "Описание (необязательно)",
+    "createBtn": "Создать коллекцию",
+    "empty": "У вас пока нет коллекций.",
+    "createdAt": "Создана:",
+    "createSuccess": "Коллекция успешно создана!",
+    "nameRequired": "Название коллекции не может быть пустым.",
+    "createFailed": "Не удалось создать коллекцию.",
+    "loading": "Загрузка коллекций...",
+    "error": "Ошибка:"
+  },
+  "collection": {
+    "loading": "Загрузка коллекции...",
+    "notFound": "Коллекция не найдена.",
+    "createdAt": "Создана:",
+    "photos": "Фотографии",
+    "noPhotos": "Фотографий пока нет.",
+    "error": "Ошибка:"
+  },
+  "payments": {
+    "title": "Оплата",
+    "noPayments": "Платежей пока нет."
+  }
+}

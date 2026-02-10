@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "profile": "Profile",
+    "collections": "Collections",
+    "payments": "Payments",
+    "logout": "Sign out"
+  },
+  "home": {
+    "underConstruction": "PixelForge is under construction",
+    "comingSoon": "The website will be available soon.",
+    "login": "Login"
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "failed": "Login failed:",
+    "networkError": "Network error:"
+  },
+  "profile": {
+    "subtitle": "Your profile & account settings",
+    "accountInfo": "Account Information",
+    "email": "Email",
+    "memberSince": "Member Since",
+    "plan": "Plan",
+    "role": "Role",
+    "editProfile": "Edit Profile",
+    "displayName": "Display Name",
+    "bio": "Bio",
+    "optional": "optional",
+    "bioPlaceholder": "Tell clients a little about yourself and your work...",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "updateSuccess": "Profile updated successfully!",
+    "updateFailed": "Profile update failed:",
+    "networkError": "Network error:",
+    "loginRequired": "Please log in to view your profile.",
+    "namePlaceholder": "Your full name",
+    "errorPrefix": "Error:",
+    "planLabel": {
+      "FREE_TRIAL": "Free Trial",
+      "STANDARD": "Standard",
+      "PRO": "Pro"
+    },
+    "roleLabel": {
+      "USER": "User",
+      "ADMIN": "Admin"
+    }
+  },
+  "collections": {
+    "title": "My Collections",
+    "createTitle": "Create New Collection",
+    "nameLabel": "Collection Name",
+    "descLabel": "Description (optional)",
+    "createBtn": "Create Collection",
+    "empty": "You have no collections.",
+    "createdAt": "Created:",
+    "createSuccess": "Collection created successfully!",
+    "nameRequired": "Collection name cannot be empty.",
+    "createFailed": "Failed to create collection.",
+    "loading": "Loading collections...",
+    "error": "Error:"
+  },
+  "collection": {
+    "loading": "Loading collection details...",
+    "notFound": "Collection not found.",
+    "createdAt": "Created:",
+    "photos": "Photos",
+    "noPhotos": "No photos yet.",
+    "error": "Error:"
+  },
+  "payments": {
+    "title": "Payments",
+    "noPayments": "No payments at this time."
+  }
+}

@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_WIDTH = 240;
 const BREAKPOINT = 768;
 
-const navItems = (username) => [
-  { to: `/${username}`, label: 'Profilis', icon: '👤' },
-  { to: '/collections', label: 'Kolekcijos', icon: '🗂️' },
-  { to: '/payments', label: 'Mokėjimai', icon: '💳' },
+const NAV_ITEMS = (username) => [
+  { to: `/${username}`, key: 'nav.profile', icon: '👤' },
+  { to: '/collections', key: 'nav.collections', icon: '🗂️' },
+  { to: '/payments', key: 'nav.payments', icon: '💳' },
 ];
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const languages = [
+    { code: 'lt', label: 'LT' },
+    { code: 'en', label: 'EN' },
+    { code: 'ru', label: 'RU' },
+  ];
   const [isMobile, setIsMobile] = useState(window.innerWidth < BREAKPOINT);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -38,7 +46,7 @@ const MainLayout = () => {
     if (isMobile) setSidebarOpen(false);
   }, [location.pathname, isMobile]);
 
-  const items = navItems(user?.name);
+  const items = NAV_ITEMS(user?.name);
 
   return (
     // Outer wrapper: column so mobile topbar sits above the row
@@ -145,7 +153,7 @@ const MainLayout = () => {
 
           {/* Nav links */}
           <nav style={{ padding: '12px', flex: 1 }}>
-            {items.map(({ to, label, icon }) => {
+            {items.map(({ to, key, icon }) => {
               const active = location.pathname === to;
               return (
                 <Link
@@ -167,11 +175,40 @@ const MainLayout = () => {
                   }}
                 >
                   <span style={{ fontSize: 16 }}>{icon}</span>
-                  {label}
+                  {t(key)}
                 </Link>
               );
             })}
           </nav>
+
+          {/* Language switcher */}
+          <div style={{ padding: '0 12px 8px' }}>
+            <div style={{
+              display: 'flex', gap: 6, padding: '8px 14px',
+              borderRadius: 8, background: 'rgba(255,255,255,0.05)',
+            }}>
+              {languages.map(({ code, label }) => (
+                <button
+                  key={code}
+                  onClick={() => i18n.changeLanguage(code)}
+                  style={{
+                    flex: 1,
+                    padding: '5px 0',
+                    borderRadius: 6,
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: i18n.language === code ? '#6366f1' : 'transparent',
+                    color: i18n.language === code ? '#fff' : '#6b7280',
+                    transition: 'background 0.15s, color 0.15s',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Logout button */}
           <div style={{ padding: '12px' }}>
@@ -194,7 +231,7 @@ const MainLayout = () => {
               }}
             >
               <span style={{ fontSize: 16 }}>🚪</span>
-              Atsijungti
+              {t('nav.logout')}
             </button>
           </div>
 

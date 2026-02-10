@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const PaymentsPage = () => {
+  const { t } = useTranslation();
   return (
     <div>
-      <h2>Mokėjimai</h2>
-      <p>Šiuo metu mokėjimų nėra.</p>
+      <h2>{t('payments.title')}</h2>
+      <p>{t('payments.noPayments')}</p>
     </div>
   );
 };

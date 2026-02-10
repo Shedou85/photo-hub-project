@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "profile": "Profilis",
+    "collections": "Kolekcijos",
+    "payments": "Mokėjimai",
+    "logout": "Atsijungti"
+  },
+  "home": {
+    "underConstruction": "PixelForge šiuo metu kuriama",
+    "comingSoon": "Svetainė netrukus bus prieinama.",
+    "login": "Prisijungti"
+  },
+  "login": {
+    "title": "Prisijungimas",
+    "email": "El. paštas",
+    "password": "Slaptažodis",
+    "submit": "Prisijungti",
+    "failed": "Prisijungimas nepavyko:",
+    "networkError": "Tinklo klaida:"
+  },
+  "profile": {
+    "subtitle": "Jūsų profilis ir paskyros nustatymai",
+    "accountInfo": "Paskyros informacija",
+    "email": "El. paštas",
+    "memberSince": "Narys nuo",
+    "plan": "Planas",
+    "role": "Rolė",
+    "editProfile": "Redaguoti profilį",
+    "displayName": "Vardas",
+    "bio": "Aprašymas",
+    "optional": "neprivaloma",
+    "bioPlaceholder": "Papasakokite klientams šiek tiek apie save ir savo darbą...",
+    "saveChanges": "Išsaugoti",
+    "saving": "Saugoma...",
+    "updateSuccess": "Profilis sėkmingai atnaujintas!",
+    "updateFailed": "Profilio atnaujinimas nepavyko:",
+    "networkError": "Tinklo klaida:",
+    "loginRequired": "Prisijunkite, kad peržiūrėtumėte savo profilį.",
+    "namePlaceholder": "Jūsų vardas ir pavardė",
+    "errorPrefix": "Klaida:",
+    "planLabel": {
+      "FREE_TRIAL": "Nemokamas",
+      "STANDARD": "Standartinis",
+      "PRO": "Pro"
+    },
+    "roleLabel": {
+      "USER": "Vartotojas",
+      "ADMIN": "Administratorius"
+    }
+  },
+  "collections": {
+    "title": "Mano Kolekcijos",
+    "createTitle": "Sukurti naują kolekciją",
+    "nameLabel": "Kolekcijos pavadinimas",
+    "descLabel": "Aprašymas (neprivaloma)",
+    "createBtn": "Sukurti kolekciją",
+    "empty": "Jūs neturite jokių kolekcijų.",
+    "createdAt": "Sukurta:",
+    "createSuccess": "Kolekcija sėkmingai sukurta!",
+    "nameRequired": "Kolekcijos pavadinimas negali būti tuščias.",
+    "createFailed": "Nepavyko sukurti kolekcijos.",
+    "loading": "Kraunamos kolekcijos...",
+    "error": "Klaida:"
+  },
+  "collection": {
+    "loading": "Kraunama kolekcija...",
+    "notFound": "Kolekcija nerasta.",
+    "createdAt": "Sukurta:",
+    "photos": "Nuotraukos",
+    "noPhotos": "Nuotraukų dar nėra.",
+    "error": "Klaida:"
+  },
+  "payments": {
+    "title": "Mokėjimai",
+    "noPayments": "Šiuo metu mokėjimų nėra."
+  }
+}

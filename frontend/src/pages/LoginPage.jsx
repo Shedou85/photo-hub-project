@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 function LoginPage() {
   const [email, setEmail] = useState("marius@visaginas.lt");
@@ -9,6 +10,7 @@ function LoginPage() {
   const [output, setOutput] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,9 +23,7 @@ function LoginPage() {
         {
           method: "POST",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         }
       );
@@ -31,63 +31,33 @@ function LoginPage() {
       const data = await response.json();
       setOutput(JSON.stringify(data, null, 2));
 
-      // The backend/index.php router returns a user object on success.
       if (response.ok && data.status === "OK" && data.user) {
         login(data.user);
-        navigate('/'); // Navigate to homepage
+        navigate('/');
       } else {
-        // Use the error from the backend if available, otherwise a generic message.
         setError(
-          `Login failed: ${
-            data.error ||
-            data.message ||
-            "The server returned an unexpected response."
-          }`
+          `${t('login.failed')} ${data.error || data.message || "The server returned an unexpected response."}`
         );
       }
     } catch (err) {
-      setError(`Network error: ${err.message}`);
+      setError(`${t('login.networkError')} ${err.message}`);
     }
   };
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        maxWidth: "400px",
-        margin: "auto",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <h2>Login Page v2</h2>
+    <div style={{ padding: "20px", maxWidth: "400px", margin: "auto", fontFamily: "sans-serif" }}>
+      <h2>{t('login.title')}</h2>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "15px" }}
-      >
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
         <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <label htmlFor="email">{t('login.email')}:</label>
+          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
-
         <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <label htmlFor="password">{t('login.password')}:</label>
+          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-
-        <button type="submit">Login</button>
+        <button type="submit">{t('login.submit')}</button>
       </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}

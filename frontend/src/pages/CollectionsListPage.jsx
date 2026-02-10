@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 function CollectionsListPage() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,7 +53,7 @@ function CollectionsListPage() {
     setCreateSuccess(null);
 
     if (!newCollectionName.trim()) {
-      setCreateError("Collection name cannot be empty.");
+      setCreateError(t('collections.nameRequired'));
       return;
     }
 
@@ -59,19 +61,16 @@ function CollectionsListPage() {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newCollectionName, description: newCollectionDescription }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.status === "OK") {
-        setCreateSuccess("Collection created successfully!");
+        setCreateSuccess(t('collections.createSuccess'));
         setNewCollectionName("");
         setNewCollectionDescription("");
-        // Re-fetch collections to update the list
         const updatedResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
           credentials: "include",
         });
@@ -80,7 +79,7 @@ function CollectionsListPage() {
           setCollections(updatedData.collections);
         }
       } else {
-        setCreateError(data.error || "Failed to create collection.");
+        setCreateError(data.error || t('collections.createFailed'));
       }
     } catch (err) {
       setCreateError(err.message);
@@ -88,25 +87,25 @@ function CollectionsListPage() {
   };
 
   if (loading) {
-    return <div style={{ padding: 20, textAlign: "center" }}>Loading collections...</div>;
+    return <div style={{ padding: 20, textAlign: "center" }}>{t('collections.loading')}</div>;
   }
 
   if (error) {
     return (
       <div style={{ padding: 20, textAlign: "center", color: "red" }}>
-        Error: {error}
+        {t('collections.error')} {error}
       </div>
     );
   }
 
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-      <h1>Mano Kolekcijos</h1>
+      <h1>{t('collections.title')}</h1>
 
-      <h2>Sukurti naują kolekciją</h2>
+      <h2>{t('collections.createTitle')}</h2>
       <form onSubmit={handleCreateCollection} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "400px", marginBottom: "30px" }}>
         <div>
-          <label htmlFor="collectionName">Kolekcijos pavadinimas:</label>
+          <label htmlFor="collectionName">{t('collections.nameLabel')}:</label>
           <input
             type="text"
             id="collectionName"
@@ -116,37 +115,32 @@ function CollectionsListPage() {
           />
         </div>
         <div>
-          <label htmlFor="collectionDescription">Aprašymas (neprivaloma):</label>
+          <label htmlFor="collectionDescription">{t('collections.descLabel')}:</label>
           <textarea
             id="collectionDescription"
             value={newCollectionDescription}
             onChange={(e) => setNewCollectionDescription(e.target.value)}
           />
         </div>
-        <button type="submit">Sukurti kolekciją</button>
+        <button type="submit">{t('collections.createBtn')}</button>
         {createError && <p style={{ color: "red" }}>{createError}</p>}
         {createSuccess && <p style={{ color: "green" }}>{createSuccess}</p>}
       </form>
 
       {collections.length === 0 ? (
-        <p>Jūs neturite jokių kolekcijų.</p>
+        <p>{t('collections.empty')}</p>
       ) : (
         <ul style={{ listStyleType: "none", padding: 0 }}>
           {collections.map((collection) => (
             <li
               key={collection.id}
-              style={{
-                border: "1px solid #ccc",
-                margin: "10px 0",
-                padding: "15px",
-                borderRadius: "5px",
-              }}
+              style={{ border: "1px solid #ccc", margin: "10px 0", padding: "15px", borderRadius: "5px" }}
             >
               <Link to={`/collection/${collection.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                 <h3>{collection.name}</h3>
                 {collection.description && <p>{collection.description}</p>}
                 <p style={{ fontSize: "0.8em", color: "#666" }}>
-                  Sukurta: {new Date(collection.createdAt).toLocaleDateString()}
+                  {t('collections.createdAt')} {new Date(collection.createdAt).toLocaleDateString()}
                 </p>
               </Link>
             </li>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 // --- Helper: derive initials from a display name ---
 function getInitials(name) {
@@ -7,32 +8,6 @@ function getInitials(name) {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0][0].toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-// --- Helper: human-readable plan label ---
-function getPlanLabel(plan) {
-  switch (plan) {
-    case "FREE_TRIAL":
-      return "Free Trial";
-    case "STANDARD":
-      return "Standard";
-    case "PRO":
-      return "Pro";
-    default:
-      return plan || "—";
-  }
-}
-
-// --- Helper: human-readable role label ---
-function getRoleLabel(role) {
-  switch (role) {
-    case "ADMIN":
-      return "Admin";
-    case "USER":
-      return "User";
-    default:
-      return role || "—";
-  }
 }
 
 // --- Sub-component: read-only info row inside the profile info card ---
@@ -99,6 +74,7 @@ function Badge({ children, variant }) {
 // ============================================================
 function ProfilePage() {
   const { user, login } = useAuth();
+  const { t } = useTranslation();
 
   const [name, setName] = useState(user?.name || "");
   const [bio, setBio] = useState(user?.bio || "");
@@ -132,10 +108,10 @@ function ProfilePage() {
 
       if (response.ok && data.status === "OK" && data.user) {
         login(data.user);
-        setSuccess("Profile updated successfully!");
+        setSuccess(t('profile.updateSuccess'));
       } else {
         setError(
-          `Profile update failed: ${
+          `${t('profile.updateFailed')} ${
             data.error ||
             data.message ||
             "The server returned an unexpected response."
@@ -143,7 +119,7 @@ function ProfilePage() {
         );
       }
     } catch (err) {
-      setError(`Network error: ${err.message}`);
+      setError(`${t('profile.networkError')} ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -160,7 +136,7 @@ function ProfilePage() {
           color: "#6b7280",
         }}
       >
-        Please log in to view your profile.
+        {t('profile.loginRequired')}
       </div>
     );
   }
@@ -248,7 +224,7 @@ function ProfilePage() {
                 color: "#6b7280",
               }}
             >
-              Your profile &amp; account settings
+              {t('profile.subtitle')}
             </p>
           </div>
         </div>
@@ -275,7 +251,7 @@ function ProfilePage() {
             letterSpacing: "0.05em",
           }}
         >
-          Account Information
+          {t('profile.accountInfo')}
         </h2>
 
         <div
@@ -285,9 +261,9 @@ function ProfilePage() {
             gap: "18px",
           }}
         >
-          <InfoRow label="Email" value={user.email} />
+          <InfoRow label={t('profile.email')} value={user.email} />
           <InfoRow
-            label="Member since"
+            label={t('profile.memberSince')}
             value={new Date(user.createdAt).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
@@ -304,9 +280,9 @@ function ProfilePage() {
                 color: "#9ca3af",
               }}
             >
-              Plan
+              {t('profile.plan')}
             </span>
-            <Badge variant="plan">{getPlanLabel(user.plan)}</Badge>
+            <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
             <span
@@ -318,10 +294,10 @@ function ProfilePage() {
                 color: "#9ca3af",
               }}
             >
-              Role
+              {t('profile.role')}
             </span>
             <Badge variant={user.role === "ADMIN" ? "admin" : "role"}>
-              {getRoleLabel(user.role)}
+              {t(`profile.roleLabel.${user.role}`, user.role)}
             </Badge>
           </div>
         </div>
@@ -346,14 +322,14 @@ function ProfilePage() {
             letterSpacing: "0.05em",
           }}
         >
-          Edit Profile
+          {t('profile.editProfile')}
         </h2>
 
         <form onSubmit={handleSubmit}>
           {/* Name field */}
           <div style={{ marginBottom: "16px" }}>
             <label htmlFor="name" style={labelStyle}>
-              Display Name
+              {t('profile.displayName')}
             </label>
             <input
               type="text"
@@ -362,7 +338,7 @@ function ProfilePage() {
               onChange={(e) => setName(e.target.value)}
               onFocus={() => setFocusedField("name")}
               onBlur={() => setFocusedField(null)}
-              placeholder="Your full name"
+              placeholder={t('profile.namePlaceholder')}
               style={inputStyle("name")}
             />
           </div>
@@ -370,11 +346,11 @@ function ProfilePage() {
           {/* Bio field */}
           <div style={{ marginBottom: "24px" }}>
             <label htmlFor="bio" style={labelStyle}>
-              Bio
+              {t('profile.bio')}
               <span
                 style={{ fontWeight: "400", color: "#9ca3af", marginLeft: "6px" }}
               >
-                (optional)
+                ({t('profile.optional')})
               </span>
             </label>
             <textarea
@@ -383,7 +359,7 @@ function ProfilePage() {
               onChange={(e) => setBio(e.target.value)}
               onFocus={() => setFocusedField("bio")}
               onBlur={() => setFocusedField(null)}
-              placeholder="Tell clients a little about yourself and your work..."
+              placeholder={t('profile.bioPlaceholder')}
               rows={4}
               style={{
                 ...inputStyle("bio"),
@@ -409,7 +385,7 @@ function ProfilePage() {
                 color: "#991b1b",
               }}
             >
-              <span style={{ flexShrink: 0, fontWeight: "700" }}>Error:</span>
+              <span style={{ flexShrink: 0, fontWeight: "700" }}>{t('profile.errorPrefix')}</span>
               <span>{error}</span>
             </div>
           )}
@@ -451,7 +427,7 @@ function ProfilePage() {
                   color: "#6b7280",
                 }}
               >
-                Saving...
+                {t('profile.saving')}
               </span>
             )}
             <button
@@ -478,7 +454,7 @@ function ProfilePage() {
                 if (!loading) e.currentTarget.style.opacity = "1";
               }}
             >
-              {loading ? "Saving..." : "Save Changes"}
+              {loading ? t('profile.saving') : t('profile.saveChanges')}
             </button>
           </div>
         </form>
