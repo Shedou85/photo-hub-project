@@ -17,3 +17,5 @@ Thumbs.db
 # dotenv local overrides (may contain secrets)
 .env.local
 .env.*.local
+
+cookies.txt
