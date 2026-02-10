@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 // --- Helper: derive initials from a display name ---
@@ -99,8 +98,7 @@ function Badge({ children, variant }) {
 // ProfilePage
 // ============================================================
 function ProfilePage() {
-  const { user, logout, login } = useAuth();
-  const navigate = useNavigate();
+  const { user, login } = useAuth();
 
   const [name, setName] = useState(user?.name || "");
   const [bio, setBio] = useState(user?.bio || "");
@@ -110,11 +108,6 @@ function ProfilePage() {
 
   // --- Focused field for input highlight ---
   const [focusedField, setFocusedField] = useState(null);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -260,32 +253,6 @@ function ProfilePage() {
           </div>
         </div>
 
-        {/* Logout button — top-right */}
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "8px 16px",
-            fontSize: "13px",
-            fontWeight: "600",
-            color: "#374151",
-            background: "#ffffff",
-            border: "1.5px solid #d1d5db",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontFamily: "sans-serif",
-            whiteSpace: "nowrap",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#f9fafb";
-            e.currentTarget.style.borderColor = "#9ca3af";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#ffffff";
-            e.currentTarget.style.borderColor = "#d1d5db";
-          }}
-        >
-          Sign out
-        </button>
       </div>
 
       {/* ── Profile Information Card (read-only) ── */}

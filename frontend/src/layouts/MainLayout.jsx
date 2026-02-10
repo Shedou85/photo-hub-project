@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const SIDEBAR_WIDTH = 240;
@@ -12,10 +12,16 @@ const navItems = (username) => [
 ];
 
 const MainLayout = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < BREAKPOINT);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -166,6 +172,31 @@ const MainLayout = () => {
               );
             })}
           </nav>
+
+          {/* Logout button */}
+          <div style={{ padding: '12px' }}>
+            <button
+              onClick={handleLogout}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '10px 14px',
+                borderRadius: 8,
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.2)',
+                color: '#f87171',
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <span style={{ fontSize: 16 }}>🚪</span>
+              Atsijungti
+            </button>
+          </div>
 
           {/* Sidebar footer */}
           <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: '#555e7a' }}>
