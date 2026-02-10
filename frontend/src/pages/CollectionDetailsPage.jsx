@@ -6,31 +6,11 @@ import { useTranslation } from "react-i18next";
 // --- Sub-component: read-only meta info row ---
 function InfoRow({ label, value }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "3px",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "11px",
-          fontWeight: "600",
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          color: "#9ca3af",
-        }}
-      >
+    <div className="flex flex-col gap-[3px]">
+      <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
         {label}
       </span>
-      <span
-        style={{
-          fontSize: "14px",
-          color: "#1f2937",
-          fontWeight: "500",
-        }}
-      >
+      <span className="text-sm text-gray-800 font-medium">
         {value}
       </span>
     </div>
@@ -80,14 +60,7 @@ function CollectionDetailsPage() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          padding: "40px 20px",
-          textAlign: "center",
-          fontFamily: "sans-serif",
-          color: "#6b7280",
-        }}
-      >
+      <div className="py-10 px-5 text-center font-sans text-gray-500">
         {t('collection.loading')}
       </div>
     );
@@ -95,24 +68,8 @@ function CollectionDetailsPage() {
 
   if (error) {
     return (
-      <div
-        style={{
-          padding: "28px 24px",
-          fontFamily: "sans-serif",
-          maxWidth: "720px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            color: "#991b1b",
-            background: "#fef2f2",
-            border: "1px solid #fecaca",
-            borderRadius: "6px",
-            padding: "12px 14px",
-            fontSize: "13px",
-          }}
-        >
+      <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
+        <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-[14px] py-3 text-[13px]">
           {t('collection.error')} {error}
         </div>
       </div>
@@ -121,75 +78,27 @@ function CollectionDetailsPage() {
 
   if (!collection) {
     return (
-      <div
-        style={{
-          padding: "40px 20px",
-          textAlign: "center",
-          fontFamily: "sans-serif",
-          color: "#6b7280",
-        }}
-      >
+      <div className="py-10 px-5 text-center font-sans text-gray-500">
         {t('collection.notFound')}
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        padding: "28px 24px",
-        fontFamily: "sans-serif",
-        maxWidth: "720px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
       {/* ── Page Header ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "28px",
-          gap: "14px",
-        }}
-      >
+      <div className="flex items-center mb-7 gap-[14px]">
         {/* Icon gradient circle */}
-        <div
-          style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "22px",
-            flexShrink: 0,
-            userSelect: "none",
-          }}
-        >
+        <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
           🗂️
         </div>
 
         <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "22px",
-              fontWeight: "700",
-              color: "#111827",
-              lineHeight: 1.2,
-            }}
-          >
+          <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
             {collection.name}
           </h1>
           {collection.description && (
-            <p
-              style={{
-                margin: "2px 0 0",
-                fontSize: "13px",
-                color: "#6b7280",
-              }}
-            >
+            <p className="mt-0.5 mb-0 text-[13px] text-gray-500">
               {collection.description}
             </p>
           )}
@@ -197,35 +106,12 @@ function CollectionDetailsPage() {
       </div>
 
       {/* ── Collection Info Card ── */}
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "10px",
-          padding: "20px 24px",
-          marginBottom: "20px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 16px",
-            fontSize: "14px",
-            fontWeight: "700",
-            color: "#374151",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('collection.createdAt')}
         </h2>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-            gap: "18px",
-          }}
-        >
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]">
           <InfoRow
             label={t('collection.createdAt')}
             value={new Date(collection.createdAt).toLocaleDateString()}
@@ -234,37 +120,12 @@ function CollectionDetailsPage() {
       </div>
 
       {/* ── Photos Card ── */}
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "10px",
-          padding: "20px 24px",
-          marginBottom: "20px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 16px",
-            fontSize: "14px",
-            fontWeight: "700",
-            color: "#374151",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('collection.photos')}
         </h2>
 
-        <p
-          style={{
-            margin: 0,
-            fontSize: "14px",
-            color: "#6b7280",
-            textAlign: "center",
-            padding: "20px 0",
-          }}
-        >
+        <p className="m-0 text-sm text-gray-500 text-center py-5">
           {t('collection.noPhotos')}
         </p>
       </div>

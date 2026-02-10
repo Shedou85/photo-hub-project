@@ -13,31 +13,11 @@ function getInitials(name) {
 // --- Sub-component: read-only info row inside the profile info card ---
 function InfoRow({ label, value }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "3px",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "11px",
-          fontWeight: "600",
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          color: "#9ca3af",
-        }}
-      >
+    <div className="flex flex-col gap-[3px]">
+      <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
         {label}
       </span>
-      <span
-        style={{
-          fontSize: "14px",
-          color: "#1f2937",
-          fontWeight: "500",
-        }}
-      >
+      <span className="text-sm text-gray-800 font-medium">
         {value}
       </span>
     </div>
@@ -46,24 +26,15 @@ function InfoRow({ label, value }) {
 
 // --- Sub-component: inline badge for plan / role ---
 function Badge({ children, variant }) {
-  const colors = {
-    plan: { background: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe" },
-    role: { background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0" },
-    admin: { background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" },
+  const variantClasses = {
+    plan: "bg-blue-50 text-blue-700 border border-blue-200",
+    role: "bg-green-50 text-green-700 border border-green-200",
+    admin: "bg-amber-50 text-amber-800 border border-amber-200",
   };
-  const style = colors[variant] || colors.plan;
+  const classes = variantClasses[variant] || variantClasses.plan;
 
   return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "2px 10px",
-        borderRadius: "9999px",
-        fontSize: "12px",
-        fontWeight: "600",
-        ...style,
-      }}
-    >
+    <span className={`inline-block px-[10px] py-[2px] rounded-full text-xs font-semibold ${classes}`}>
       {children}
     </span>
   );
@@ -128,139 +99,42 @@ function ProfilePage() {
   // --- Unauthenticated guard ---
   if (!user) {
     return (
-      <div
-        style={{
-          padding: "40px 20px",
-          textAlign: "center",
-          fontFamily: "sans-serif",
-          color: "#6b7280",
-        }}
-      >
+      <div className="py-10 px-5 text-center font-sans text-gray-500">
         {t('profile.loginRequired')}
       </div>
     );
   }
 
-  // --- Shared input style factory ---
-  const inputStyle = (fieldName) => ({
-    width: "100%",
-    padding: "9px 12px",
-    fontSize: "14px",
-    color: "#1f2937",
-    background: "#ffffff",
-    border: focusedField === fieldName ? "1.5px solid #3b82f6" : "1.5px solid #d1d5db",
-    borderRadius: "6px",
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.15s",
-    fontFamily: "sans-serif",
-  });
-
-  const labelStyle = {
-    display: "block",
-    marginBottom: "5px",
-    fontSize: "13px",
-    fontWeight: "600",
-    color: "#374151",
-  };
-
   return (
-    <div
-      style={{
-        padding: "28px 24px",
-        fontFamily: "sans-serif",
-        maxWidth: "720px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
       {/* ── Page Header ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "28px",
-          flexWrap: "wrap",
-          gap: "12px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+      <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
+        <div className="flex items-center gap-[14px]">
           {/* Avatar initials circle */}
           <div
-            style={{
-              width: "52px",
-              height: "52px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              fontSize: "18px",
-              fontWeight: "700",
-              flexShrink: 0,
-              userSelect: "none",
-            }}
+            className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[18px] font-bold shrink-0 select-none bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
           >
             {getInitials(user.name)}
           </div>
 
           <div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "22px",
-                fontWeight: "700",
-                color: "#111827",
-                lineHeight: 1.2,
-              }}
-            >
+            <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
               {user.name}
             </h1>
-            <p
-              style={{
-                margin: "2px 0 0",
-                fontSize: "13px",
-                color: "#6b7280",
-              }}
-            >
+            <p className="mt-[2px] mb-0 text-[13px] text-gray-500">
               {t('profile.subtitle')}
             </p>
           </div>
         </div>
-
       </div>
 
       {/* ── Profile Information Card (read-only) ── */}
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "10px",
-          padding: "20px 24px",
-          marginBottom: "20px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 16px",
-            fontSize: "14px",
-            fontWeight: "700",
-            color: "#374151",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('profile.accountInfo')}
         </h2>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-            gap: "18px",
-          }}
-        >
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]">
           <InfoRow label={t('profile.email')} value={user.email} />
           <InfoRow
             label={t('profile.memberSince')}
@@ -270,30 +144,14 @@ function ProfilePage() {
               day: "numeric",
             })}
           />
-          <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: "600",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: "#9ca3af",
-              }}
-            >
+          <div className="flex flex-col gap-[3px]">
+            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
               {t('profile.plan')}
             </span>
             <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: "600",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: "#9ca3af",
-              }}
-            >
+          <div className="flex flex-col gap-[3px]">
+            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
               {t('profile.role')}
             </span>
             <Badge variant={user.role === "ADMIN" ? "admin" : "role"}>
@@ -304,31 +162,15 @@ function ProfilePage() {
       </div>
 
       {/* ── Edit Profile Card ── */}
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "10px",
-          padding: "20px 24px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 20px",
-            fontSize: "14px",
-            fontWeight: "700",
-            color: "#374151",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5">
+        <h2 className="mt-0 mb-5 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('profile.editProfile')}
         </h2>
 
         <form onSubmit={handleSubmit}>
           {/* Name field */}
-          <div style={{ marginBottom: "16px" }}>
-            <label htmlFor="name" style={labelStyle}>
+          <div className="mb-4">
+            <label htmlFor="name" className="block mb-[5px] text-[13px] font-semibold text-gray-700">
               {t('profile.displayName')}
             </label>
             <input
@@ -339,17 +181,17 @@ function ProfilePage() {
               onFocus={() => setFocusedField("name")}
               onBlur={() => setFocusedField(null)}
               placeholder={t('profile.namePlaceholder')}
-              style={inputStyle("name")}
+              className={`w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] ${
+                focusedField === "name" ? "border-blue-500" : "border-gray-300"
+              } rounded-md outline-none box-border transition-colors duration-150 font-sans`}
             />
           </div>
 
           {/* Bio field */}
-          <div style={{ marginBottom: "24px" }}>
-            <label htmlFor="bio" style={labelStyle}>
+          <div className="mb-6">
+            <label htmlFor="bio" className="block mb-[5px] text-[13px] font-semibold text-gray-700">
               {t('profile.bio')}
-              <span
-                style={{ fontWeight: "400", color: "#9ca3af", marginLeft: "6px" }}
-              >
+              <span className="font-normal text-gray-400 ml-[6px]">
                 ({t('profile.optional')})
               </span>
             </label>
@@ -361,98 +203,41 @@ function ProfilePage() {
               onBlur={() => setFocusedField(null)}
               placeholder={t('profile.bioPlaceholder')}
               rows={4}
-              style={{
-                ...inputStyle("bio"),
-                resize: "vertical",
-                lineHeight: "1.5",
-              }}
+              className={`w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] ${
+                focusedField === "bio" ? "border-blue-500" : "border-gray-300"
+              } rounded-md outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]`}
             />
           </div>
 
           {/* ── Feedback messages ── */}
           {error && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "10px",
-                padding: "12px 14px",
-                marginBottom: "16px",
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
-                borderRadius: "6px",
-                fontSize: "13px",
-                color: "#991b1b",
-              }}
-            >
-              <span style={{ flexShrink: 0, fontWeight: "700" }}>{t('profile.errorPrefix')}</span>
+            <div className="flex items-start gap-[10px] px-[14px] py-3 mb-4 bg-red-50 border border-red-200 rounded-md text-[13px] text-red-800">
+              <span className="shrink-0 font-bold">{t('profile.errorPrefix')}</span>
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "12px 14px",
-                marginBottom: "16px",
-                background: "#f0fdf4",
-                border: "1px solid #bbf7d0",
-                borderRadius: "6px",
-                fontSize: "13px",
-                color: "#15803d",
-                fontWeight: "500",
-              }}
-            >
+            <div className="flex items-center gap-[10px] px-[14px] py-3 mb-4 bg-green-50 border border-green-200 rounded-md text-[13px] text-green-700 font-medium">
               {success}
             </div>
           )}
 
           {/* ── Save Button Area ── */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              gap: "12px",
-              paddingTop: "4px",
-            }}
-          >
+          <div className="flex items-center justify-end gap-3 pt-1">
             {loading && (
-              <span
-                style={{
-                  fontSize: "13px",
-                  color: "#6b7280",
-                }}
-              >
+              <span className="text-[13px] text-gray-500">
                 {t('profile.saving')}
               </span>
             )}
             <button
               type="submit"
               disabled={loading}
-              style={{
-                padding: "9px 22px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: loading ? "#a1a1aa" : "#ffffff",
-                background: loading
-                  ? "#e4e4e7"
-                  : "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)",
-                border: "none",
-                borderRadius: "6px",
-                cursor: loading ? "not-allowed" : "pointer",
-                fontFamily: "sans-serif",
-                transition: "opacity 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) e.currentTarget.style.opacity = "0.88";
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) e.currentTarget.style.opacity = "1";
-              }}
+              className={`py-[9px] px-[22px] text-sm font-semibold rounded-md border-none font-sans transition-opacity duration-150 ${
+                loading
+                  ? "text-zinc-400 bg-zinc-200 cursor-not-allowed"
+                  : "text-white cursor-pointer hover:opacity-[0.88] bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
+              }`}
             >
               {loading ? t('profile.saving') : t('profile.saveChanges')}
             </button>

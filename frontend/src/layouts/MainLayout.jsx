@@ -41,7 +41,6 @@ const MainLayout = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Close sidebar on route change on mobile
   useEffect(() => {
     if (isMobile) setSidebarOpen(false);
   }, [location.pathname, isMobile]);
@@ -50,78 +49,57 @@ const MainLayout = () => {
 
   return (
     // Outer wrapper: column so mobile topbar sits above the row
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f5f6fa' }}>
+    <div className="flex flex-col min-h-screen bg-[#f5f6fa]">
 
       {/* ── Mobile top bar ── */}
       {isMobile && (
-        <header style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '12px 16px',
-          background: '#1a1a2e',
-          color: '#fff',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1001,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-        }}>
+        <header className="flex items-center gap-3 px-4 py-3 bg-[#1a1a2e] text-white sticky top-0 z-[1001] shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
           <button
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
-            style={{ background: 'none', border: 'none', color: '#fff', fontSize: 24, cursor: 'pointer', lineHeight: 1, padding: '0 4px' }}
+            className="bg-transparent border-none text-white text-2xl cursor-pointer leading-none px-1"
           >
             ☰
           </button>
-          <span style={{ fontWeight: 700, fontSize: 16 }}>PixelForge</span>
+          <span className="font-bold text-base">PixelForge</span>
         </header>
       )}
 
       {/* ── Row: sidebar + content ── */}
-      <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+      <div className="flex flex-1 relative">
 
         {/* Overlay (mobile) */}
         {isMobile && sidebarOpen && (
           <div
             onClick={() => setSidebarOpen(false)}
-            style={{
-              position: 'fixed', inset: 0,
-              background: 'rgba(0,0,0,0.5)',
-              zIndex: 1002,
-            }}
+            className="fixed inset-0 bg-black/50 z-[1002]"
           />
         )}
 
         {/* ── Sidebar ── */}
-        <aside style={{
-          width: SIDEBAR_WIDTH,
-          minWidth: SIDEBAR_WIDTH,
-          background: '#1a1a2e',
-          display: 'flex',
-          flexDirection: 'column',
-          // Desktop: sticky so it stays while page scrolls
-          // Mobile: fixed, slides in/out
-          position: isMobile ? 'fixed' : 'sticky',
-          top: 0,
-          left: isMobile ? (sidebarOpen ? 0 : -SIDEBAR_WIDTH) : 0,
-          height: '100vh',
-          zIndex: 1003,
-          transition: 'left 0.25s ease',
-          overflowY: 'auto',
-          boxShadow: isMobile ? '4px 0 24px rgba(0,0,0,0.4)' : 'none',
-        }}>
+        <aside
+          className={`bg-[#1a1a2e] flex flex-col top-0 h-screen z-[1003] overflow-y-auto${isMobile ? ` fixed${sidebarOpen ? ' shadow-[4px_0_24px_rgba(0,0,0,0.4)]' : ''}` : ' sticky'}`}
+          style={{
+            width: SIDEBAR_WIDTH,
+            minWidth: SIDEBAR_WIDTH,
+            position: isMobile ? 'fixed' : 'sticky',
+            left: isMobile ? (sidebarOpen ? 0 : -SIDEBAR_WIDTH) : 0,
+            transition: 'left 0.25s ease',
+            boxShadow: isMobile ? '4px 0 24px rgba(0,0,0,0.4)' : 'none',
+          }}
+        >
 
           {/* Sidebar header */}
-          <div style={{ padding: '24px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontWeight: 800, fontSize: 18, color: '#fff', letterSpacing: 0.5 }}>
+          <div className="pt-6 px-5 pb-4 border-b border-white/[0.08]">
+            <div className="flex items-center justify-between">
+              <span className="font-extrabold text-lg text-white tracking-[0.5px]">
                 PixelForge
               </span>
               {isMobile && (
                 <button
                   onClick={() => setSidebarOpen(false)}
                   aria-label="Close menu"
-                  style={{ background: 'none', border: 'none', color: '#9ca3c4', fontSize: 20, cursor: 'pointer' }}
+                  className="bg-transparent border-none text-[#9ca3c4] text-xl cursor-pointer"
                 >
                   ✕
                 </button>
@@ -130,20 +108,15 @@ const MainLayout = () => {
 
             {/* User info */}
             {user && (
-              <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0,
-                }}>
+              <div className="mt-[14px] flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                   {user.name ? user.name[0].toUpperCase() : '?'}
                 </div>
-                <div style={{ overflow: 'hidden' }}>
-                  <div style={{ color: '#fff', fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div className="overflow-hidden">
+                  <div className="text-white font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
                     {user.name}
                   </div>
-                  <div style={{ color: '#8b8fa8', fontSize: 11, marginTop: 1 }}>
+                  <div className="text-[#8b8fa8] text-[11px] mt-px">
                     {user.plan?.replace('_', ' ')}
                   </div>
                 </div>
@@ -152,29 +125,20 @@ const MainLayout = () => {
           </div>
 
           {/* Nav links */}
-          <nav style={{ padding: '12px', flex: 1 }}>
+          <nav className="p-3 flex-1">
             {items.map(({ to, key, icon }) => {
               const active = location.pathname === to;
               return (
                 <Link
                   key={to}
                   to={to}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '10px 14px',
-                    borderRadius: 8,
-                    marginBottom: 4,
-                    textDecoration: 'none',
-                    color: active ? '#fff' : '#9ca3c4',
-                    background: active ? 'rgba(99,102,241,0.25)' : 'transparent',
-                    fontWeight: active ? 600 : 400,
-                    fontSize: 14,
-                    borderLeft: `3px solid ${active ? '#6366f1' : 'transparent'}`,
-                  }}
+                  className={`flex items-center gap-3 py-2.5 px-3.5 rounded-lg mb-1 no-underline text-sm border-l-[3px]${
+                    active
+                      ? ' text-white bg-indigo-500/25 font-semibold border-indigo-500'
+                      : ' text-[#9ca3c4] bg-transparent font-normal border-transparent'
+                  }`}
                 >
-                  <span style={{ fontSize: 16 }}>{icon}</span>
+                  <span className="text-base">{icon}</span>
                   {t(key)}
                 </Link>
               );
@@ -182,27 +146,18 @@ const MainLayout = () => {
           </nav>
 
           {/* Language switcher */}
-          <div style={{ padding: '0 12px 8px' }}>
-            <div style={{
-              display: 'flex', gap: 6, padding: '8px 14px',
-              borderRadius: 8, background: 'rgba(255,255,255,0.05)',
-            }}>
+          <div className="px-3 pb-2">
+            <div className="flex gap-1.5 py-2 px-3.5 rounded-lg bg-white/5">
               {languages.map(({ code, label }) => (
                 <button
                   key={code}
                   onClick={() => i18n.changeLanguage(code)}
-                  style={{
-                    flex: 1,
-                    padding: '5px 0',
-                    borderRadius: 6,
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: i18n.language === code ? '#6366f1' : 'transparent',
-                    color: i18n.language === code ? '#fff' : '#6b7280',
-                    transition: 'background 0.15s, color 0.15s',
-                  }}
+                  className={`flex-1 py-[5px] rounded-md border-none cursor-pointer text-xs font-bold${
+                    i18n.language === code
+                      ? ' bg-indigo-500 text-white'
+                      : ' bg-transparent text-gray-500'
+                  }`}
+                  style={{ transition: 'background 0.15s, color 0.15s' }}
                 >
                   {label}
                 </button>
@@ -211,42 +166,24 @@ const MainLayout = () => {
           </div>
 
           {/* Logout button */}
-          <div style={{ padding: '12px' }}>
+          <div className="p-3">
             <button
               onClick={handleLogout}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 14px',
-                borderRadius: 8,
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.2)',
-                color: '#f87171',
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
+              className="w-full flex items-center gap-2.5 py-2.5 px-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium cursor-pointer text-left"
             >
-              <span style={{ fontSize: 16 }}>🚪</span>
+              <span className="text-base">🚪</span>
               {t('nav.logout')}
             </button>
           </div>
 
           {/* Sidebar footer */}
-          <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: '#555e7a' }}>
+          <div className="py-[14px] px-5 border-t border-white/[0.08] text-[11px] text-[#555e7a]">
             © 2025 PixelForge
           </div>
         </aside>
 
         {/* ── Page content ── */}
-        <main style={{
-          flex: 1,
-          minWidth: 0,
-          padding: isMobile ? '16px' : '28px 32px',
-        }}>
+        <main className={`flex-1 min-w-0${isMobile ? ' p-4' : ' py-7 px-8'}`}>
           <Outlet />
         </main>
 

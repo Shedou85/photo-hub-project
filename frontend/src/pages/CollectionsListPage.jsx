@@ -89,39 +89,9 @@ function CollectionsListPage() {
     }
   };
 
-  // --- Shared input style factory ---
-  const inputStyle = (fieldName) => ({
-    width: "100%",
-    padding: "9px 12px",
-    fontSize: "14px",
-    color: "#1f2937",
-    background: "#ffffff",
-    border: focusedField === fieldName ? "1.5px solid #3b82f6" : "1.5px solid #d1d5db",
-    borderRadius: "6px",
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.15s",
-    fontFamily: "sans-serif",
-  });
-
-  const labelStyle = {
-    display: "block",
-    marginBottom: "5px",
-    fontSize: "13px",
-    fontWeight: "600",
-    color: "#374151",
-  };
-
   if (loading) {
     return (
-      <div
-        style={{
-          padding: "40px 20px",
-          textAlign: "center",
-          fontFamily: "sans-serif",
-          color: "#6b7280",
-        }}
-      >
+      <div className="py-10 px-5 text-center font-sans text-gray-500">
         {t('collections.loading')}
       </div>
     );
@@ -129,25 +99,8 @@ function CollectionsListPage() {
 
   if (error) {
     return (
-      <div
-        style={{
-          padding: "40px 20px",
-          textAlign: "center",
-          fontFamily: "sans-serif",
-          color: "#6b7280",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-block",
-            padding: "12px 14px",
-            background: "#fef2f2",
-            border: "1px solid #fecaca",
-            borderRadius: "6px",
-            fontSize: "13px",
-            color: "#991b1b",
-          }}
-        >
+      <div className="py-10 px-5 text-center font-sans text-gray-500">
+        <div className="inline-block px-3.5 py-3 bg-red-50 border border-red-200 rounded-md text-[13px] text-red-800">
           {t('collections.error')} {error}
         </div>
       </div>
@@ -155,92 +108,37 @@ function CollectionsListPage() {
   }
 
   return (
-    <div
-      style={{
-        padding: "28px 24px",
-        fontFamily: "sans-serif",
-        maxWidth: "720px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
       {/* ── Page Header ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "28px",
-          gap: "14px",
-        }}
-      >
+      <div className="flex items-center mb-7 gap-3.5">
         {/* Gradient icon circle */}
-        <div
-          style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "22px",
-            flexShrink: 0,
-            userSelect: "none",
-          }}
-        >
+        <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
           🗂️
         </div>
 
         <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "22px",
-              fontWeight: "700",
-              color: "#111827",
-              lineHeight: 1.2,
-            }}
-          >
+          <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
             {t('collections.title')}
           </h1>
-          <p
-            style={{
-              margin: "2px 0 0",
-              fontSize: "13px",
-              color: "#6b7280",
-            }}
-          >
+          <p className="mt-0.5 mb-0 text-[13px] text-gray-500">
             {t('collections.subtitle', '')}
           </p>
         </div>
       </div>
 
       {/* ── Create Collection Card ── */}
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "10px",
-          padding: "20px 24px",
-          marginBottom: "20px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 16px",
-            fontSize: "14px",
-            fontWeight: "700",
-            color: "#374151",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-[14px] font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('collections.createTitle')}
         </h2>
 
         <form onSubmit={handleCreateCollection}>
           {/* Name field */}
-          <div style={{ marginBottom: "16px" }}>
-            <label htmlFor="collectionName" style={labelStyle}>
+          <div className="mb-4">
+            <label
+              htmlFor="collectionName"
+              className="block mb-[5px] text-[13px] font-semibold text-gray-700"
+            >
               {t('collections.nameLabel')}
             </label>
             <input
@@ -251,13 +149,20 @@ function CollectionsListPage() {
               onFocus={() => setFocusedField("collectionName")}
               onBlur={() => setFocusedField(null)}
               required
-              style={inputStyle("collectionName")}
+              className={`w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white rounded-[6px] outline-none box-border transition-colors duration-150 font-sans ${
+                focusedField === "collectionName"
+                  ? "border-[1.5px] border-blue-500"
+                  : "border-[1.5px] border-gray-300"
+              }`}
             />
           </div>
 
           {/* Description field */}
-          <div style={{ marginBottom: "24px" }}>
-            <label htmlFor="collectionDescription" style={labelStyle}>
+          <div className="mb-6">
+            <label
+              htmlFor="collectionDescription"
+              className="block mb-[5px] text-[13px] font-semibold text-gray-700"
+            >
               {t('collections.descLabel')}
             </label>
             <textarea
@@ -267,67 +172,36 @@ function CollectionsListPage() {
               onFocus={() => setFocusedField("collectionDescription")}
               onBlur={() => setFocusedField(null)}
               rows={3}
-              style={{
-                ...inputStyle("collectionDescription"),
-                resize: "vertical",
-                lineHeight: "1.5",
-              }}
+              className={`w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white rounded-[6px] outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5] ${
+                focusedField === "collectionDescription"
+                  ? "border-[1.5px] border-blue-500"
+                  : "border-[1.5px] border-gray-300"
+              }`}
             />
           </div>
 
           {/* Feedback messages */}
           {createError && (
-            <div
-              style={{
-                padding: "12px 14px",
-                marginBottom: "16px",
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
-                borderRadius: "6px",
-                fontSize: "13px",
-                color: "#991b1b",
-              }}
-            >
+            <div className="px-3.5 py-3 mb-4 bg-red-50 border border-red-200 rounded-[6px] text-[13px] text-red-800">
               {createError}
             </div>
           )}
 
           {createSuccess && (
-            <div
-              style={{
-                padding: "12px 14px",
-                marginBottom: "16px",
-                background: "#f0fdf4",
-                border: "1px solid #bbf7d0",
-                borderRadius: "6px",
-                fontSize: "13px",
-                color: "#15803d",
-                fontWeight: "500",
-              }}
-            >
+            <div className="px-3.5 py-3 mb-4 bg-green-50 border border-green-200 rounded-[6px] text-[13px] text-green-700 font-medium">
               {createSuccess}
             </div>
           )}
 
           {/* Submit button */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div className="flex justify-end">
             <button
               type="submit"
               onMouseEnter={() => setBtnHovered(true)}
               onMouseLeave={() => setBtnHovered(false)}
-              style={{
-                padding: "9px 22px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#ffffff",
-                background: "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontFamily: "sans-serif",
-                transition: "opacity 0.15s",
-                opacity: btnHovered ? 0.88 : 1,
-              }}
+              className={`py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 ${
+                btnHovered ? "opacity-[0.88]" : "opacity-100"
+              }`}
             >
               {t('collections.createBtn')}
             </button>
@@ -336,94 +210,47 @@ function CollectionsListPage() {
       </div>
 
       {/* ── Collections List Card ── */}
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "10px",
-          padding: "20px 24px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 16px",
-            fontSize: "14px",
-            fontWeight: "700",
-            color: "#374151",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5">
+        <h2 className="mt-0 mb-4 text-[14px] font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('collections.title')}
         </h2>
 
         {collections.length === 0 ? (
-          <div
-            style={{
-              padding: "40px 20px",
-              textAlign: "center",
-              color: "#6b7280",
-              fontSize: "14px",
-            }}
-          >
+          <div className="py-10 px-5 text-center text-gray-500 text-[14px]">
             {t('collections.empty')}
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div className="flex flex-col gap-2.5">
             {collections.map((collection) => (
               <Link
                 key={collection.id}
                 to={`/collection/${collection.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
+                className="no-underline text-inherit"
               >
                 <div
                   onMouseEnter={() => setHoveredCollection(collection.id)}
                   onMouseLeave={() => setHoveredCollection(null)}
-                  style={{
-                    background: "#ffffff",
-                    border: hoveredCollection === collection.id
-                      ? "1px solid #3b82f6"
-                      : "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    padding: "14px 16px",
-                    cursor: "pointer",
-                    transition: "border-color 0.15s, box-shadow 0.15s",
-                    boxShadow: hoveredCollection === collection.id
-                      ? "0 1px 4px rgba(59, 130, 246, 0.10)"
-                      : "none",
-                  }}
+                  className={`bg-white rounded-[8px] px-4 py-3.5 cursor-pointer transition-[border-color,box-shadow] duration-150 ${
+                    hoveredCollection === collection.id
+                      ? "border border-blue-500 shadow-[0_1px_4px_rgba(59,130,246,0.10)]"
+                      : "border border-gray-200 shadow-none"
+                  }`}
                 >
                   <div
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: "600",
-                      color: "#111827",
-                      marginBottom: collection.description ? "4px" : "0",
-                    }}
+                    className={`text-[15px] font-semibold text-gray-900 ${
+                      collection.description ? "mb-1" : "mb-0"
+                    }`}
                   >
                     {collection.name}
                   </div>
 
                   {collection.description && (
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "#6b7280",
-                        marginBottom: "6px",
-                        lineHeight: "1.4",
-                      }}
-                    >
+                    <div className="text-[13px] text-gray-500 mb-1.5 leading-[1.4]">
                       {collection.description}
                     </div>
                   )}
 
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "#9ca3af",
-                      marginTop: "6px",
-                    }}
-                  >
+                  <div className="text-[12px] text-gray-400 mt-1.5">
                     {t('collections.createdAt')}{" "}
                     {new Date(collection.createdAt).toLocaleDateString()}
                   </div>
