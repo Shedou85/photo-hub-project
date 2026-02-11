@@ -88,27 +88,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UPLOAD-01 | — | Pending |
-| UPLOAD-02 | — | Pending |
-| UPLOAD-03 | — | Pending |
-| GALLERY-01 | — | Pending |
-| GALLERY-02 | — | Pending |
-| GALLERY-03 | — | Pending |
-| SHARE-01 | — | Pending |
-| SHARE-02 | — | Pending |
-| SHARE-03 | — | Pending |
-| SELEC-01 | — | Pending |
-| SELEC-02 | — | Pending |
-| REVIEW-01 | — | Pending |
-| REVIEW-02 | — | Pending |
-| REVIEW-03 | — | Pending |
-| DELIV-01 | — | Pending |
+| UPLOAD-01 | Phase 1 | Pending |
+| UPLOAD-02 | Phase 1 | Pending |
+| UPLOAD-03 | Phase 1 | Pending |
+| GALLERY-01 | Phase 3 | Pending |
+| GALLERY-02 | Phase 3 | Pending |
+| GALLERY-03 | Phase 3 | Pending |
+| SHARE-01 | Phase 2 | Pending |
+| SHARE-02 | Phase 2 | Pending |
+| SHARE-03 | Phase 2 | Pending |
+| SELEC-01 | Phase 3 | Pending |
+| SELEC-02 | Phase 3 | Pending |
+| REVIEW-01 | Phase 4 | Pending |
+| REVIEW-02 | Phase 4 | Pending |
+| REVIEW-03 | Phase 4 | Pending |
+| DELIV-01 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️ (populated by roadmapper)
+- Mapped to phases: 15
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-11*
-*Last updated: 2026-02-11 after initial definition*
+*Last updated: 2026-02-11 after roadmap creation*
