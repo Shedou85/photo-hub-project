@@ -230,6 +230,7 @@ function CollectionDetailsPage() {
 
   const handleDeletePhoto = (photoId) => {
     toast(t("collection.confirmDelete"), {
+      position: "bottom-center",
       action: {
         label: t("collection.deletePhoto"),
         onClick: () => doDeletePhoto(photoId),

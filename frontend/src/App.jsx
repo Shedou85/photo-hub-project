@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-    <Toaster position="top-right" richColors />
+    <Toaster position="bottom-right" richColors />
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />

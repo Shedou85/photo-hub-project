@@ -110,6 +110,7 @@ function CollectionsListPage() {
 
   const handleDeleteCollection = (id) => {
     toast(t('collections.confirmDeleteCollection'), {
+      position: 'bottom-center',
       action: {
         label: t('collections.deleteCollection'),
         onClick: () => doDeleteCollection(id),
@@ -127,6 +128,7 @@ function CollectionsListPage() {
     const shareUrl = `${window.location.origin}/share/${shareId}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       setCopiedId(id);
+      toast.success(t('collections.linkCopied'));
       setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000);
     });
   };
@@ -205,15 +207,16 @@ function CollectionsListPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((collection) => (
-              <Link
+              <div
                 key={collection.id}
-                to={`/collection/${collection.id}`}
-                className="block no-underline text-inherit"
+                className="bg-white rounded-[10px] shadow-md hover:shadow-lg overflow-hidden group rotate-[0.5deg] hover:rotate-[1.5deg] hover:-translate-y-1 transition-all duration-300 ease-out"
               >
-                <div className="bg-white rounded-[10px] shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden relative group transform hover:-translate-y-1 rotate-[0.5deg] hover:rotate-[1.5deg] transition-all duration-300 ease-out">
-                  {/* Photo Area */}
+                {/* Photo Area — clickable link */}
+                <Link
+                  to={`/collection/${collection.id}`}
+                  className="block no-underline text-inherit"
+                >
                   <div className="relative w-full h-48 bg-gray-100 overflow-hidden border-b-4 border-white">
-                    {/* Assuming collection.coverPhotoPath exists if collection.coverPhotoId is set by backend */}
                     {collection.coverPhotoPath ? (
                       <img
                         src={photoUrl(collection.coverPhotoPath)}
@@ -225,32 +228,46 @@ function CollectionsListPage() {
                         {collection.name.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    {/* Hover Overlay - for future actions if needed, currently just visual */}
                     <div className="absolute inset-0 bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <span className="text-white text-lg font-semibold px-4 py-2 bg-black bg-opacity-50 rounded-md">
                         {t('collections.viewCollection')}
                       </span>
                     </div>
                   </div>
+                </Link>
 
-                  {/* Text Area (Polaroid-like bottom part) */}
-                  <div className="p-4 bg-white">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
-                      {collection.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {t('collections.createdAt')}{" "}
-                      {new Date(collection.createdAt).toLocaleDateString()}
-                    </p>
-                    {/* Assuming collection.photoCount is available for display */}
-                    {/* {collection.photoCount && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        📸 {collection.photoCount} photos
-                      </p>
-                    )} */}
+                {/* Text + Actions */}
+                <div className="p-4 bg-white">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
+                    {collection.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    {t('collections.createdAt')}{" "}
+                    {new Date(collection.createdAt).toLocaleDateString()}
+                  </p>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => handleShareCollection(collection.id, collection.shareId)}
+                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-[5px] transition-colors duration-150"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                      {copiedId === collection.id ? t('collections.linkCopied') : t('collections.shareCollection')}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCollection(collection.id)}
+                      disabled={deletingId === collection.id}
+                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-[5px] transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      {t('collections.deleteCollection')}
+                    </button>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
