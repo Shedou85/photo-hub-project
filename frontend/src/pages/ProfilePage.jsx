@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 // --- Helper: derive initials from a display name ---
 function getInitials(name) {
@@ -49,48 +50,38 @@ function ProfilePage() {
 
   const [name, setName] = useState(user?.name || "");
   const [bio, setBio] = useState(user?.bio || "");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setError("");
-    setSuccess("");
     setLoading(true);
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/profile/me`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name, bio }),
-        }
-      );
-
+    const savePromise = fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/profile/me`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, bio }),
+      }
+    ).then(async (response) => {
       const data = await response.json();
-
       if (response.ok && data.status === "OK" && data.user) {
         login(data.user);
-        setSuccess(t('profile.updateSuccess'));
       } else {
-        setError(
-          `${t('profile.updateFailed')} ${
-            data.error ||
-            data.message ||
-            "The server returned an unexpected response."
-          }`
+        throw new Error(
+          data.error || data.message || "The server returned an unexpected response."
         );
       }
-    } catch (err) {
-      setError(`${t('profile.networkError')} ${err.message}`);
-    } finally {
+    }).finally(() => {
       setLoading(false);
-    }
+    });
+
+    toast.promise(savePromise, {
+      loading: t('profile.saving'),
+      success: t('profile.updateSuccess'),
+      error: (err) => `${t('profile.updateFailed')} ${err.message}`,
+    });
   };
 
   // --- Unauthenticated guard ---
@@ -197,20 +188,6 @@ function ProfilePage() {
               className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
             />
           </div>
-
-          {/* ── Feedback messages ── */}
-          {error && (
-            <div className="flex items-start gap-[10px] px-[14px] py-3 mb-4 bg-red-50 border border-red-200 rounded-md text-[13px] text-red-800">
-              <span className="shrink-0 font-bold">{t('profile.errorPrefix')}</span>
-              <span>{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div className="flex items-center gap-[10px] px-[14px] py-3 mb-4 bg-green-50 border border-green-200 rounded-md text-[13px] text-green-700 font-medium">
-              {success}
-            </div>
-          )}
 
           {/* ── Save Button Area ── */}
           <div className="flex items-center justify-end gap-3 pt-1">

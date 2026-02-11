@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 function InfoRow({ label, value }) {
   return (
@@ -37,7 +38,21 @@ function CollectionDetailsPage() {
   const [photos, setPhotos] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploadStates, setUploadStates] = useState({});
-  const [actionError, setActionError] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handler = (e) => {
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowLeft")
+        setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
+      if (e.key === "ArrowRight")
+        setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIndex, photos.length]);
 
   const fetchPhotos = useCallback(async () => {
     try {
@@ -87,6 +102,7 @@ function CollectionDetailsPage() {
     const batchId = ++uploadBatchCounter.current;
     const validFiles = [];
     const keys = [];
+    let hasValidationErrors = false;
 
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
@@ -95,13 +111,19 @@ function CollectionDetailsPage() {
 
       if (!ALLOWED_TYPES.includes(file.type)) {
         setUploadStates((prev) => ({ ...prev, [key]: "invalid-type" }));
+        hasValidationErrors = true;
         continue;
       }
       if (file.size > MAX_FILE_SIZE) {
         setUploadStates((prev) => ({ ...prev, [key]: "too-large" }));
+        hasValidationErrors = true;
         continue;
       }
       validFiles.push({ file, key });
+    }
+
+    if (hasValidationErrors) {
+      toast.error(t("collection.uploadValidationError"));
     }
 
     // Mark valid files as uploading
@@ -115,6 +137,7 @@ function CollectionDetailsPage() {
 
     // Upload with concurrency limiter
     let idx = 0;
+    let successCount = 0;
     const uploadNext = async () => {
       while (idx < validFiles.length) {
         const current = idx++;
@@ -126,6 +149,7 @@ function CollectionDetailsPage() {
             `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos`,
             { method: "POST", credentials: "include", body: formData }
           );
+          if (res.ok) successCount++;
           setUploadStates((prev) => ({
             ...prev,
             [key]: res.ok ? "done" : "error",
@@ -143,6 +167,10 @@ function CollectionDetailsPage() {
     await Promise.all(workers);
 
     await fetchPhotos();
+
+    if (successCount > 0) {
+      toast.success(t("collection.uploadSuccess"));
+    }
 
     // Clear done/validation states after a short delay
     setTimeout(() => {
@@ -176,10 +204,7 @@ function CollectionDetailsPage() {
 
   const handleDragLeave = () => setDragOver(false);
 
-  const handleDeletePhoto = async (photoId) => {
-    if (!window.confirm(t("collection.confirmDelete"))) return;
-
-    setActionError(null);
+  const doDeletePhoto = async (photoId) => {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos/${photoId}`,
@@ -193,16 +218,31 @@ function CollectionDetailsPage() {
             ? { ...prev, coverPhotoId: null }
             : prev
         );
+        // Close lightbox if open
+        setLightboxIndex(null);
       } else {
-        setActionError(t("collection.deleteError"));
+        toast.error(t("collection.deleteError"));
       }
     } catch {
-      setActionError(t("collection.deleteError"));
+      toast.error(t("collection.deleteError"));
     }
   };
 
+  const handleDeletePhoto = (photoId) => {
+    toast(t("collection.confirmDelete"), {
+      action: {
+        label: t("collection.deletePhoto"),
+        onClick: () => doDeletePhoto(photoId),
+      },
+      cancel: {
+        label: t("common.cancel"),
+        onClick: () => {},
+      },
+      duration: 8000,
+    });
+  };
+
   const handleSetCover = async (photoId) => {
-    setActionError(null);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
@@ -216,10 +256,10 @@ function CollectionDetailsPage() {
       if (res.ok) {
         setCollection((prev) => ({ ...prev, coverPhotoId: photoId }));
       } else {
-        setActionError(t("collection.setCoverError"));
+        toast.error(t("collection.setCoverError"));
       }
     } catch {
-      setActionError(t("collection.setCoverError"));
+      toast.error(t("collection.setCoverError"));
     }
   };
 
@@ -264,6 +304,17 @@ function CollectionDetailsPage() {
 
   return (
     <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
+      {/* ── Back link ── */}
+      <Link
+        to="/collections"
+        className="inline-flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-blue-600 no-underline mb-5 transition-colors"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        {t("collection.backToCollections")}
+      </Link>
+
       {/* ── Page Header ── */}
       <div className="flex items-center mb-7 gap-[14px]">
         <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
@@ -275,20 +326,6 @@ function CollectionDetailsPage() {
           </h1>
         </div>
       </div>
-
-      {/* ── Action Error Banner ── */}
-      {actionError && (
-        <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-[14px] py-3 text-[13px] mb-5 flex items-center justify-between">
-          <span>{actionError}</span>
-          <button
-            onClick={() => setActionError(null)}
-            className="ml-3 text-red-600 hover:text-red-800 font-bold text-sm bg-transparent border-none cursor-pointer"
-            aria-label={t("collection.dismissError")}
-          >
-            ×
-          </button>
-        </div>
-      )}
 
       {/* ── Collection Info Card ── */}
       <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
@@ -370,25 +407,32 @@ function CollectionDetailsPage() {
       {photos.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-            {photos.map((photo) => (
+            {photos.map((photo, index) => (
               <div key={photo.id} className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100">
-                <img
-                  src={photoUrl(photo.storagePath)}
-                  alt={photo.filename}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                {/* Thumbnail — click opens lightbox */}
+                <button
+                  onClick={() => setLightboxIndex(index)}
+                  className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
+                  aria-label={photo.filename}
+                >
+                  <img
+                    src={photoUrl(photo.storagePath)}
+                    alt={photo.filename}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
                 {/* Cover badge */}
                 {collection.coverPhotoId === photo.id && (
-                  <div className="absolute top-1 left-1 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white text-[10px] font-bold px-[6px] py-[2px] rounded-full leading-tight">
+                  <div className="absolute top-1 left-1 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white text-[10px] font-bold px-[6px] py-[2px] rounded-full leading-tight pointer-events-none">
                     ★
                   </div>
                 )}
                 {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1">
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto">
                   {/* Delete button */}
                   <button
-                    onClick={() => handleDeletePhoto(photo.id)}
+                    onClick={(e) => { e.stopPropagation(); handleDeletePhoto(photo.id); }}
                     title={t("collection.deletePhoto")}
                     aria-label={t("collection.deletePhoto")}
                     className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors"
@@ -398,7 +442,7 @@ function CollectionDetailsPage() {
                   {/* Set cover button */}
                   {collection.coverPhotoId !== photo.id && (
                     <button
-                      onClick={() => handleSetCover(photo.id)}
+                      onClick={(e) => { e.stopPropagation(); handleSetCover(photo.id); }}
                       title={t("collection.setCover")}
                       aria-label={t("collection.setCover")}
                       className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors"
@@ -419,6 +463,64 @@ function CollectionDetailsPage() {
           <p className="m-0 text-sm text-gray-500 text-center py-5">
             {t("collection.noPhotos")}
           </p>
+        </div>
+      )}
+
+      {/* ── Lightbox ── */}
+      {lightboxIndex !== null && photos[lightboxIndex] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center"
+          onClick={() => setLightboxIndex(null)}
+        >
+          {/* Prev arrow */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
+            }}
+            aria-label={t("collection.lightboxPrev")}
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-colors z-10"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Image */}
+          <img
+            src={photoUrl(photos[lightboxIndex].storagePath)}
+            alt={photos[lightboxIndex].filename}
+            className="max-w-[88vw] max-h-[88vh] object-contain rounded-[4px] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next arrow */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
+            }}
+            aria-label={t("collection.lightboxNext")}
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-colors z-10"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxIndex(null)}
+            aria-label={t("collection.lightboxClose")}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center font-bold text-lg transition-colors z-10"
+          >
+            ×
+          </button>
+
+          {/* Counter */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/60 text-sm select-none">
+            {lightboxIndex + 1} / {photos.length}
+          </div>
         </div>
       )}
     </div>

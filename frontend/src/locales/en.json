@@ -1,4 +1,7 @@
 {
+  "common": {
+    "cancel": "Cancel"
+  },
   "nav": {
     "profile": "Profile",
     "collections": "Collections",
@@ -101,11 +104,18 @@
     "createBtn": "Create Collection",
     "empty": "You have no collections.",
     "createdAt": "Created:",
+    "creating": "Creating collection...",
     "createSuccess": "Collection created successfully!",
     "nameRequired": "Collection name cannot be empty.",
     "createFailed": "Failed to create collection.",
     "loading": "Loading collections...",
-    "error": "Error:"
+    "error": "Error:",
+    "deleteCollection": "Delete",
+    "confirmDeleteCollection": "Are you sure you want to delete this collection and all its photos? This cannot be undone.",
+    "deleteCollectionFailed": "Failed to delete collection.",
+    "deleteCollectionSuccess": "Collection deleted.",
+    "shareCollection": "Share",
+    "linkCopied": "Copied!"
   },
   "collection": {
     "loading": "Loading collection details...",
@@ -119,14 +129,18 @@
     "uploading": "Uploading...",
     "uploadError": "Upload failed",
     "uploadValidationError": "Invalid file (wrong type or too large)",
+    "uploadSuccess": "Photos uploaded successfully!",
     "deletePhoto": "Delete photo",
     "confirmDelete": "Are you sure you want to delete this photo? This action cannot be undone.",
     "deleteError": "Failed to delete photo. Please try again.",
     "setCover": "Set as cover",
     "setCoverError": "Failed to set cover photo. Please try again.",
-    "dismissError": "Dismiss error",
     "photosCount_one": "{{count}} photo",
-    "photosCount_other": "{{count}} photos"
+    "photosCount_other": "{{count}} photos",
+    "backToCollections": "Back to Collections",
+    "lightboxClose": "Close",
+    "lightboxPrev": "Previous photo",
+    "lightboxNext": "Next photo"
   },
   "payments": {
     "title": "Payments",

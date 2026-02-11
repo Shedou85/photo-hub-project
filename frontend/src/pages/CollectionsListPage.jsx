@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 function CollectionsListPage() {
   const { t } = useTranslation();
@@ -8,8 +9,8 @@ function CollectionsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
-  const [createError, setCreateError] = useState(null);
-  const [createSuccess, setCreateSuccess] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     const fetchCollections = async () => {
@@ -38,28 +39,24 @@ function CollectionsListPage() {
     fetchCollections();
   }, []);
 
-  const handleCreateCollection = async (event) => {
+  const handleCreateCollection = (event) => {
     event.preventDefault();
-    setCreateError(null);
-    setCreateSuccess(null);
 
     if (!newCollectionName.trim()) {
-      setCreateError(t('collections.nameRequired'));
+      toast.error(t('collections.nameRequired'));
       return;
     }
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newCollectionName }),
-      });
+    const name = newCollectionName;
 
+    const createPromise = fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    }).then(async (response) => {
       const data = await response.json();
-
       if (response.ok && data.status === "OK") {
-        setCreateSuccess(t('collections.createSuccess'));
         setNewCollectionName("");
         const updatedResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
           credentials: "include",
@@ -69,11 +66,57 @@ function CollectionsListPage() {
           setCollections(updatedData.collections);
         }
       } else {
-        setCreateError(data.error || t('collections.createFailed'));
+        throw new Error(data.error || t('collections.createFailed'));
       }
-    } catch (err) {
-      setCreateError(err.message);
+    });
+
+    toast.promise(createPromise, {
+      loading: t('collections.creating'),
+      success: t('collections.createSuccess'),
+      error: (err) => err.message,
+    });
+  };
+
+  const doDeleteCollection = async (id) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setCollections((prev) => prev.filter((c) => c.id !== id));
+        toast.success(t('collections.deleteCollectionSuccess'));
+      } else {
+        toast.error(t('collections.deleteCollectionFailed'));
+      }
+    } catch {
+      toast.error(t('collections.deleteCollectionFailed'));
+    } finally {
+      setDeletingId(null);
     }
+  };
+
+  const handleDeleteCollection = (id) => {
+    toast(t('collections.confirmDeleteCollection'), {
+      action: {
+        label: t('collections.deleteCollection'),
+        onClick: () => doDeleteCollection(id),
+      },
+      cancel: {
+        label: t('common.cancel'),
+        onClick: () => {},
+      },
+      duration: 8000,
+    });
+  };
+
+  const handleShareCollection = (id, shareId) => {
+    const shareUrl = `${window.location.origin}/share/${shareId}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000);
+    });
   };
 
   if (loading) {
@@ -131,19 +174,6 @@ function CollectionsListPage() {
             />
           </div>
 
-          {/* Feedback messages */}
-          {createError && (
-            <div className="px-3.5 py-3 mb-4 bg-red-50 border border-red-200 rounded-[6px] text-[13px] text-red-800">
-              {createError}
-            </div>
-          )}
-
-          {createSuccess && (
-            <div className="px-3.5 py-3 mb-4 bg-green-50 border border-green-200 rounded-[6px] text-[13px] text-green-700 font-medium">
-              {createSuccess}
-            </div>
-          )}
-
           {/* Submit button */}
           <div className="flex justify-end">
             <button
@@ -169,22 +199,67 @@ function CollectionsListPage() {
         ) : (
           <div className="flex flex-col gap-2.5">
             {collections.map((collection) => (
-              <Link
+              <div
                 key={collection.id}
-                to={`/collection/${collection.id}`}
-                className="no-underline text-inherit"
+                className="bg-white rounded-[8px] px-4 py-3.5 border border-gray-200 hover:border-blue-400 hover:shadow-[0_1px_4px_rgba(59,130,246,0.10)] transition-[border-color,box-shadow] duration-150 flex items-center gap-3"
               >
-                <div className="bg-white rounded-[8px] px-4 py-3.5 cursor-pointer transition-[border-color,box-shadow] duration-150 border border-gray-200 hover:border-blue-500 hover:shadow-[0_1px_4px_rgba(59,130,246,0.10)]">
-                  <div className="text-[15px] font-semibold text-gray-900 mb-0">
+                {/* Clickable name/date area */}
+                <Link
+                  to={`/collection/${collection.id}`}
+                  className="no-underline text-inherit flex-1 min-w-0"
+                >
+                  <div className="text-[15px] font-semibold text-gray-900 truncate">
                     {collection.name}
                   </div>
-
-                  <div className="text-[12px] text-gray-400 mt-1.5">
+                  <div className="text-[12px] text-gray-400 mt-1">
                     {t('collections.createdAt')}{" "}
                     {new Date(collection.createdAt).toLocaleDateString()}
                   </div>
+                </Link>
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {/* Share / Copy link */}
+                  <button
+                    onClick={() => handleShareCollection(collection.id, collection.shareId)}
+                    title={t('collections.shareCollection')}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium border transition-colors duration-150 cursor-pointer
+                      ${copiedId === collection.id
+                        ? "bg-green-50 border-green-300 text-green-700"
+                        : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
+                      }`}
+                  >
+                    {copiedId === collection.id ? (
+                      <>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {t('collections.linkCopied')}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        {t('collections.shareCollection')}
+                      </>
+                    )}
+                  </button>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDeleteCollection(collection.id)}
+                    disabled={deletingId === collection.id}
+                    title={t('collections.deleteCollection')}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium border bg-gray-50 border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors duration-150 cursor-pointer disabled:opacity-50"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    {t('collections.deleteCollection')}
+                  </button>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

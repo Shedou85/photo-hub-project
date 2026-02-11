@@ -1,4 +1,7 @@
 {
+  "common": {
+    "cancel": "Отмена"
+  },
   "nav": {
     "profile": "Профиль",
     "collections": "Коллекции",
@@ -101,11 +104,18 @@
     "createBtn": "Создать коллекцию",
     "empty": "У вас пока нет коллекций.",
     "createdAt": "Создана:",
+    "creating": "Создание коллекции...",
     "createSuccess": "Коллекция успешно создана!",
     "nameRequired": "Название коллекции не может быть пустым.",
     "createFailed": "Не удалось создать коллекцию.",
     "loading": "Загрузка коллекций...",
-    "error": "Ошибка:"
+    "error": "Ошибка:",
+    "deleteCollection": "Удалить",
+    "confirmDeleteCollection": "Вы уверены, что хотите удалить эту коллекцию и все её фото? Это действие нельзя отменить.",
+    "deleteCollectionFailed": "Не удалось удалить коллекцию.",
+    "deleteCollectionSuccess": "Коллекция удалена.",
+    "shareCollection": "Поделиться",
+    "linkCopied": "Скопировано!"
   },
   "collection": {
     "loading": "Загрузка коллекции...",
@@ -119,16 +129,20 @@
     "uploading": "Загрузка...",
     "uploadError": "Ошибка загрузки",
     "uploadValidationError": "Неверный файл (неподдерживаемый тип или слишком большой)",
+    "uploadSuccess": "Фото успешно загружены!",
     "deletePhoto": "Удалить фото",
     "confirmDelete": "Вы уверены, что хотите удалить это фото? Это действие нельзя отменить.",
     "deleteError": "Не удалось удалить фото. Попробуйте ещё раз.",
     "setCover": "Сделать обложкой",
     "setCoverError": "Не удалось установить обложку. Попробуйте ещё раз.",
-    "dismissError": "Закрыть сообщение",
     "photosCount_one": "{{count}} фото",
     "photosCount_few": "{{count}} фото",
     "photosCount_many": "{{count}} фото",
-    "photosCount_other": "{{count}} фото"
+    "photosCount_other": "{{count}} фото",
+    "backToCollections": "К коллекциям",
+    "lightboxClose": "Закрыть",
+    "lightboxPrev": "Предыдущее фото",
+    "lightboxNext": "Следующее фото"
   },
   "payments": {
     "title": "Оплата",

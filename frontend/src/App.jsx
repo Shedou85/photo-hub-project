@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import CollectionsListPage from './pages/CollectionsListPage';
@@ -14,6 +15,8 @@ function App() {
   const { isAuthenticated } = useAuth();
 
   return (
+    <>
+    <Toaster position="top-right" richColors />
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />
@@ -25,6 +28,7 @@ function App() {
         <Route path="/payments" element={<PaymentsPage />} />
       </Route>
     </Routes>
+    </>
   );
 }
 

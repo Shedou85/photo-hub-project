@@ -1,4 +1,7 @@
 {
+  "common": {
+    "cancel": "Atšaukti"
+  },
   "nav": {
     "profile": "Profilis",
     "collections": "Kolekcijos",
@@ -101,11 +104,18 @@
     "createBtn": "Sukurti kolekciją",
     "empty": "Jūs neturite jokių kolekcijų.",
     "createdAt": "Sukurta:",
+    "creating": "Kuriama kolekcija...",
     "createSuccess": "Kolekcija sėkmingai sukurta!",
     "nameRequired": "Kolekcijos pavadinimas negali būti tuščias.",
     "createFailed": "Nepavyko sukurti kolekcijos.",
     "loading": "Kraunamos kolekcijos...",
-    "error": "Klaida:"
+    "error": "Klaida:",
+    "deleteCollection": "Ištrinti",
+    "confirmDeleteCollection": "Ar tikrai norite ištrinti šią kolekciją ir visas jos nuotraukas? Šio veiksmo negalima atšaukti.",
+    "deleteCollectionFailed": "Nepavyko ištrinti kolekcijos.",
+    "deleteCollectionSuccess": "Kolekcija ištrinta.",
+    "shareCollection": "Dalytis",
+    "linkCopied": "Nukopijuota!"
   },
   "collection": {
     "loading": "Kraunama kolekcija...",
@@ -119,16 +129,20 @@
     "uploading": "Įkeliama...",
     "uploadError": "Įkėlimas nepavyko",
     "uploadValidationError": "Netinkamas failas (blogas tipas arba per didelis)",
+    "uploadSuccess": "Nuotraukos sėkmingai įkeltos!",
     "deletePhoto": "Ištrinti nuotrauką",
     "confirmDelete": "Ar tikrai norite ištrinti šią nuotrauką? Šio veiksmo negalima atšaukti.",
     "deleteError": "Nepavyko ištrinti nuotraukos. Bandykite dar kartą.",
     "setCover": "Nustatyti kaip viršelį",
     "setCoverError": "Nepavyko nustatyti viršelio nuotraukos. Bandykite dar kartą.",
-    "dismissError": "Uždaryti pranešimą",
     "photosCount_one": "{{count}} nuotrauka",
     "photosCount_few": "{{count}} nuotraukos",
     "photosCount_many": "{{count}} nuotraukų",
-    "photosCount_other": "{{count}} nuotraukų"
+    "photosCount_other": "{{count}} nuotraukų",
+    "backToCollections": "Grįžti į kolekcijas",
+    "lightboxClose": "Uždaryti",
+    "lightboxPrev": "Ankstesnė nuotrauka",
+    "lightboxNext": "Kita nuotrauka"
   },
   "payments": {
     "title": "Mokėjimai",
