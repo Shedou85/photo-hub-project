@@ -22,3 +22,8 @@ cookies.txt
 
 # DB credentials — keep real config off git
 backend/config.php
+
+# Claude Code local files
+.claude/
+Api problem.txt
+nul
