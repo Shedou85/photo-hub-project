@@ -118,10 +118,15 @@
     "uploadZoneHint": "JPEG, PNG or WEBP · Max 20 MB per file",
     "uploading": "Uploading...",
     "uploadError": "Upload failed",
+    "uploadValidationError": "Invalid file (wrong type or too large)",
     "deletePhoto": "Delete photo",
+    "confirmDelete": "Are you sure you want to delete this photo? This action cannot be undone.",
+    "deleteError": "Failed to delete photo. Please try again.",
     "setCover": "Set as cover",
-    "photosCount": "{{count}} photo",
-    "photosCount_plural": "{{count}} photos"
+    "setCoverError": "Failed to set cover photo. Please try again.",
+    "dismissError": "Dismiss error",
+    "photosCount_one": "{{count}} photo",
+    "photosCount_other": "{{count}} photos"
   },
   "payments": {
     "title": "Payments",

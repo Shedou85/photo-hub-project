@@ -118,10 +118,17 @@
     "uploadZoneHint": "JPEG, PNG или WEBP · Макс. 20 МБ на файл",
     "uploading": "Загрузка...",
     "uploadError": "Ошибка загрузки",
+    "uploadValidationError": "Неверный файл (неподдерживаемый тип или слишком большой)",
     "deletePhoto": "Удалить фото",
+    "confirmDelete": "Вы уверены, что хотите удалить это фото? Это действие нельзя отменить.",
+    "deleteError": "Не удалось удалить фото. Попробуйте ещё раз.",
     "setCover": "Сделать обложкой",
-    "photosCount": "{{count}} фото",
-    "photosCount_plural": "{{count}} фото"
+    "setCoverError": "Не удалось установить обложку. Попробуйте ещё раз.",
+    "dismissError": "Закрыть сообщение",
+    "photosCount_one": "{{count}} фото",
+    "photosCount_few": "{{count}} фото",
+    "photosCount_many": "{{count}} фото",
+    "photosCount_other": "{{count}} фото"
   },
   "payments": {
     "title": "Оплата",

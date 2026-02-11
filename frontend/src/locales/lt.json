@@ -118,10 +118,17 @@
     "uploadZoneHint": "JPEG, PNG arba WEBP · Maks. 20 MB vienai bylai",
     "uploading": "Įkeliama...",
     "uploadError": "Įkėlimas nepavyko",
+    "uploadValidationError": "Netinkamas failas (blogas tipas arba per didelis)",
     "deletePhoto": "Ištrinti nuotrauką",
+    "confirmDelete": "Ar tikrai norite ištrinti šią nuotrauką? Šio veiksmo negalima atšaukti.",
+    "deleteError": "Nepavyko ištrinti nuotraukos. Bandykite dar kartą.",
     "setCover": "Nustatyti kaip viršelį",
-    "photosCount": "{{count}} nuotrauka",
-    "photosCount_plural": "{{count}} nuotraukų"
+    "setCoverError": "Nepavyko nustatyti viršelio nuotraukos. Bandykite dar kartą.",
+    "dismissError": "Uždaryti pranešimą",
+    "photosCount_one": "{{count}} nuotrauka",
+    "photosCount_few": "{{count}} nuotraukos",
+    "photosCount_many": "{{count}} nuotraukų",
+    "photosCount_other": "{{count}} nuotraukų"
   },
   "payments": {
     "title": "Mokėjimai",

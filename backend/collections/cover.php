@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../utils.php';
 
 session_start();
 
@@ -16,15 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
 }
 
 // Parse URI: /collections/{collectionId}/cover
-$requestUri = $_SERVER['REQUEST_URI'];
-$requestUri = strtok($requestUri, '?');
-$basePath = '/backend';
-if (strpos($requestUri, $basePath) === 0) {
-    $requestUri = substr($requestUri, strlen($basePath));
-}
-$requestUri = rtrim($requestUri, '/');
-
-$parts = explode('/', ltrim($requestUri, '/'));
+$parts = parseRouteParts();
 $collectionId = $parts[1] ?? '';
 
 if (empty($collectionId)) {
@@ -33,9 +26,22 @@ if (empty($collectionId)) {
     exit;
 }
 
+// Validate ID format to prevent injection
+if (!isValidId($collectionId)) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid collection ID format."]);
+    exit;
+}
+
 $userId = $_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true) ?? [];
 $photoId = $data['photoId'] ?? null;
+
+if ($photoId !== null && !isValidId($photoId)) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid photo ID format."]);
+    exit;
+}
 
 try {
     $pdo = getDbConnection();
@@ -75,6 +81,7 @@ try {
     echo json_encode(["status" => "OK", "collection" => $collection]);
 
 } catch (Throwable $e) {
+    error_log("Cover handler error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["error" => "Server error", "details" => $e->getMessage()]);
+    echo json_encode(["error" => "Server error"]);
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -15,20 +15,29 @@ function InfoRow({ label, value }) {
   );
 }
 
-const photoUrl = (storagePath) =>
-  `${import.meta.env.VITE_API_BASE_URL}/${storagePath}`;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+const MAX_CONCURRENT_UPLOADS = 3;
+
+const photoUrl = (storagePath) => {
+  const base = import.meta.env.VITE_API_BASE_URL;
+  const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
+  return `${base}/${path}`;
+};
 
 function CollectionDetailsPage() {
   const { id } = useParams();
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
+  const uploadBatchCounter = useRef(0);
 
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [dragOver, setDragOver] = useState(false);
-  const [uploadStates, setUploadStates] = useState({}); // { [filename+idx]: 'uploading'|'done'|'error' }
+  const [uploadStates, setUploadStates] = useState({});
+  const [actionError, setActionError] = useState(null);
 
   const fetchPhotos = useCallback(async () => {
     try {
@@ -74,16 +83,42 @@ function CollectionDetailsPage() {
     const fileArray = Array.from(files);
     if (!fileArray.length) return;
 
-    const keys = fileArray.map((f, i) => `${f.name}-${i}`);
-    setUploadStates((prev) => {
-      const next = { ...prev };
-      keys.forEach((k) => (next[k] = "uploading"));
-      return next;
-    });
+    // Client-side validation before uploading
+    const batchId = ++uploadBatchCounter.current;
+    const validFiles = [];
+    const keys = [];
 
-    await Promise.all(
-      fileArray.map(async (file, i) => {
-        const key = keys[i];
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const key = `${batchId}-${file.name}-${i}`;
+      keys.push(key);
+
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setUploadStates((prev) => ({ ...prev, [key]: "invalid-type" }));
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setUploadStates((prev) => ({ ...prev, [key]: "too-large" }));
+        continue;
+      }
+      validFiles.push({ file, key });
+    }
+
+    // Mark valid files as uploading
+    if (validFiles.length > 0) {
+      setUploadStates((prev) => {
+        const next = { ...prev };
+        validFiles.forEach(({ key }) => (next[key] = "uploading"));
+        return next;
+      });
+    }
+
+    // Upload with concurrency limiter
+    let idx = 0;
+    const uploadNext = async () => {
+      while (idx < validFiles.length) {
+        const current = idx++;
+        const { file, key } = validFiles[current];
         const formData = new FormData();
         formData.append("file", file);
         try {
@@ -98,21 +133,29 @@ function CollectionDetailsPage() {
         } catch {
           setUploadStates((prev) => ({ ...prev, [key]: "error" }));
         }
-      })
-    );
+      }
+    };
+
+    const workers = [];
+    for (let w = 0; w < Math.min(MAX_CONCURRENT_UPLOADS, validFiles.length); w++) {
+      workers.push(uploadNext());
+    }
+    await Promise.all(workers);
 
     await fetchPhotos();
 
-    // Clear done states after a short delay
+    // Clear done/validation states after a short delay
     setTimeout(() => {
       setUploadStates((prev) => {
         const next = { ...prev };
         keys.forEach((k) => {
-          if (next[k] === "done") delete next[k];
+          if (next[k] === "done" || next[k] === "invalid-type" || next[k] === "too-large") {
+            delete next[k];
+          }
         });
         return next;
       });
-    }, 2000);
+    }, 3000);
   };
 
   const handleFileChange = (e) => {
@@ -134,6 +177,9 @@ function CollectionDetailsPage() {
   const handleDragLeave = () => setDragOver(false);
 
   const handleDeletePhoto = async (photoId) => {
+    if (!window.confirm(t("collection.confirmDelete"))) return;
+
+    setActionError(null);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos/${photoId}`,
@@ -141,13 +187,22 @@ function CollectionDetailsPage() {
       );
       if (res.ok) {
         setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+        // Clear cover if the deleted photo was the cover
+        setCollection((prev) =>
+          prev.coverPhotoId === photoId
+            ? { ...prev, coverPhotoId: null }
+            : prev
+        );
+      } else {
+        setActionError(t("collection.deleteError"));
       }
     } catch {
-      // ignore
+      setActionError(t("collection.deleteError"));
     }
   };
 
   const handleSetCover = async (photoId) => {
+    setActionError(null);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
@@ -160,14 +215,26 @@ function CollectionDetailsPage() {
       );
       if (res.ok) {
         setCollection((prev) => ({ ...prev, coverPhotoId: photoId }));
+      } else {
+        setActionError(t("collection.setCoverError"));
       }
     } catch {
-      // ignore
+      setActionError(t("collection.setCoverError"));
     }
   };
 
-  const anyUploading = Object.values(uploadStates).some((s) => s === "uploading");
-  const uploadErrors = Object.values(uploadStates).filter((s) => s === "error").length;
+  const anyUploading = useMemo(
+    () => Object.values(uploadStates).some((s) => s === "uploading"),
+    [uploadStates]
+  );
+  const uploadErrors = useMemo(
+    () => Object.values(uploadStates).filter((s) => s === "error").length,
+    [uploadStates]
+  );
+  const validationErrors = useMemo(
+    () => Object.values(uploadStates).filter((s) => s === "invalid-type" || s === "too-large").length,
+    [uploadStates]
+  );
 
   if (loading) {
     return (
@@ -209,6 +276,20 @@ function CollectionDetailsPage() {
         </div>
       </div>
 
+      {/* ── Action Error Banner ── */}
+      {actionError && (
+        <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-[14px] py-3 text-[13px] mb-5 flex items-center justify-between">
+          <span>{actionError}</span>
+          <button
+            onClick={() => setActionError(null)}
+            className="ml-3 text-red-600 hover:text-red-800 font-bold text-sm bg-transparent border-none cursor-pointer"
+            aria-label={t("collection.dismissError")}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* ── Collection Info Card ── */}
       <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
         <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
@@ -237,6 +318,7 @@ function CollectionDetailsPage() {
         <div
           role="button"
           tabIndex={0}
+          aria-label={t("collection.uploadZoneLabel")}
           onClick={() => fileInputRef.current?.click()}
           onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
           onDrop={handleDrop}
@@ -264,7 +346,12 @@ function CollectionDetailsPage() {
           )}
           {uploadErrors > 0 && !anyUploading && (
             <p className="m-0 text-xs text-red-500 font-medium">
-              {uploadErrors}× {t("collection.uploadError")}
+              {uploadErrors}x {t("collection.uploadError")}
+            </p>
+          )}
+          {validationErrors > 0 && !anyUploading && (
+            <p className="m-0 text-xs text-amber-600 font-medium">
+              {validationErrors}x {t("collection.uploadValidationError")}
             </p>
           )}
         </div>
@@ -297,12 +384,13 @@ function CollectionDetailsPage() {
                     ★
                   </div>
                 )}
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1">
+                {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1">
                   {/* Delete button */}
                   <button
                     onClick={() => handleDeletePhoto(photo.id)}
                     title={t("collection.deletePhoto")}
+                    aria-label={t("collection.deletePhoto")}
                     className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors"
                   >
                     ×
@@ -312,6 +400,7 @@ function CollectionDetailsPage() {
                     <button
                       onClick={() => handleSetCover(photo.id)}
                       title={t("collection.setCover")}
+                      aria-label={t("collection.setCover")}
                       className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors"
                     >
                       ★

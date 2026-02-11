@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../utils.php';
 
 session_start();
 
@@ -10,22 +11,25 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Parse URI: /collections/{collectionId}/edited[/{editedPhotoId}]
-$requestUri = $_SERVER['REQUEST_URI'];
-$requestUri = strtok($requestUri, '?');
-$basePath = '/backend';
-if (strpos($requestUri, $basePath) === 0) {
-    $requestUri = substr($requestUri, strlen($basePath));
-}
-$requestUri = rtrim($requestUri, '/');
-
-$parts = explode('/', ltrim($requestUri, '/'));
-// parts: ['collections', collectionId, 'edited', ?editedPhotoId]
+$parts = parseRouteParts();
 $collectionId = $parts[1] ?? '';
 $editedPhotoId = $parts[3] ?? '';
 
 if (empty($collectionId)) {
     http_response_code(400);
     echo json_encode(["error" => "Collection ID is required."]);
+    exit;
+}
+
+// Validate ID formats to prevent path traversal
+if (!isValidId($collectionId)) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid collection ID format."]);
+    exit;
+}
+if (!empty($editedPhotoId) && !isValidId($editedPhotoId)) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid edited photo ID format."]);
     exit;
 }
 
@@ -60,58 +64,23 @@ try {
             exit;
         }
 
-        $file = $_FILES['file'];
-
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            http_response_code(400);
-            echo json_encode(["error" => "File upload error: " . $file['error']]);
+        $result = handleFileUpload($_FILES['file'], $collectionId, 'edited');
+        if (!$result['ok']) {
+            http_response_code($result['code']);
+            echo json_encode(["error" => $result['error']]);
             exit;
         }
 
-        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($file['tmp_name']);
-        if (!in_array($mimeType, $allowedMimes, true)) {
-            http_response_code(400);
-            echo json_encode(["error" => "Only JPEG, PNG, and WEBP files are allowed."]);
-            exit;
-        }
-
-        $maxSize = 20 * 1024 * 1024;
-        if ($file['size'] > $maxSize) {
-            http_response_code(400);
-            echo json_encode(["error" => "File size exceeds 20 MB limit."]);
-            exit;
-        }
-
-        $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-        $ext = $extMap[$mimeType];
-        $newId = generateCuid();
-        $storagePath = "uploads/{$collectionId}/edited/{$newId}.{$ext}";
-
-        $uploadDir = __DIR__ . '/../uploads/' . $collectionId . '/edited';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        if (!move_uploaded_file($file['tmp_name'], __DIR__ . '/../' . $storagePath)) {
-            http_response_code(500);
-            echo json_encode(["error" => "Failed to save file."]);
-            exit;
-        }
-
-        $originalFilename = basename($file['name']);
         $createdAt = date('Y-m-d H:i:s.v');
-
         $stmt = $pdo->prepare("INSERT INTO `EditedPhoto` (id, filename, storagePath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$newId, $originalFilename, $storagePath, $collectionId, $createdAt]);
+        $stmt->execute([$result['id'], $result['filename'], $result['storagePath'], $collectionId, $createdAt]);
 
         echo json_encode([
             "status" => "OK",
             "editedPhoto" => [
-                "id" => $newId,
-                "filename" => $originalFilename,
-                "storagePath" => $storagePath,
+                "id" => $result['id'],
+                "filename" => $result['filename'],
+                "storagePath" => $result['storagePath'],
                 "createdAt" => $createdAt
             ]
         ]);
@@ -135,10 +104,8 @@ try {
             exit;
         }
 
-        $filePath = __DIR__ . '/../' . $editedPhoto['storagePath'];
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
+        // Delete file from disk (validates path is within uploads directory)
+        safeDeleteUploadedFile($editedPhoto['storagePath']);
 
         $pdo->prepare("DELETE FROM `EditedPhoto` WHERE id = ? AND collectionId = ?")->execute([$editedPhotoId, $collectionId]);
 
@@ -150,6 +117,7 @@ try {
     echo json_encode(["error" => "Method not allowed"]);
 
 } catch (Throwable $e) {
+    error_log("Edited photo handler error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["error" => "Server error", "details" => $e->getMessage()]);
+    echo json_encode(["error" => "Server error"]);
 }
