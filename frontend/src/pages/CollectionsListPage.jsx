@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import Accordion from "../components/Accordion";
+
 function CollectionsListPage() {
   const { t } = useTranslation();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [newCollectionName, setNewCollectionName] = useState("");
   const [deletingId, setDeletingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [newCollectionName, setNewCollectionName] = useState("");
 
   useEffect(() => {
     const fetchCollections = async () => {
@@ -149,12 +151,8 @@ function CollectionsListPage() {
         </h1>
       </div>
 
-      {/* ── Create Collection Card ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-[14px] font-bold text-gray-700 uppercase tracking-[0.05em]">
-          {t('collections.createTitle')}
-        </h2>
-
+      {/* ── Create Collection Accordion ── */}
+      <Accordion title={t('collections.createTitle')}>
         <form onSubmit={handleCreateCollection}>
           {/* Name field */}
           <div className="mb-6">
@@ -184,7 +182,7 @@ function CollectionsListPage() {
             </button>
           </div>
         </form>
-      </div>
+      </Accordion>
 
       {/* ── Collections List Card ── */}
       <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5">

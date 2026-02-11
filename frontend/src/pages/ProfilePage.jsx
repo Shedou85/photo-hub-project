@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import Accordion from "../components/Accordion"; // Import Accordion component
 
 // --- Helper: derive initials from a display name ---
 function getInitials(name) {
@@ -116,45 +117,8 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* ── Profile Information Card (read-only) ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
-          {t('profile.accountInfo')}
-        </h2>
-
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]">
-          <InfoRow label={t('profile.email')} value={user.email} />
-          <InfoRow
-            label={t('profile.memberSince')}
-            value={new Date(user.createdAt).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          />
-          <div className="flex flex-col gap-[3px]">
-            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
-              {t('profile.plan')}
-            </span>
-            <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
-          </div>
-          <div className="flex flex-col gap-[3px]">
-            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
-              {t('profile.role')}
-            </span>
-            <Badge variant={user.role === "ADMIN" ? "admin" : "role"}>
-              {t(`profile.roleLabel.${user.role}`, user.role)}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Edit Profile Card ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5">
-        <h2 className="mt-0 mb-5 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
-          {t('profile.editProfile')}
-        </h2>
-
+      {/* ── Edit Profile Accordion ── */}
+      <Accordion title={t('profile.editProfile')}>
         <form onSubmit={handleSubmit}>
           {/* Name field */}
           <div className="mb-4">
@@ -209,9 +173,43 @@ function ProfilePage() {
             </button>
           </div>
         </form>
+      </Accordion>
+
+      {/* ── Profile Information Card (read-only) ── */}
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+          {t('profile.accountInfo')}
+        </h2>
+
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]">
+          <InfoRow label={t('profile.email')} value={user.email} />
+          <InfoRow
+            label={t('profile.memberSince')}
+            value={new Date(user.createdAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          />
+          <div className="flex flex-col gap-[3px]">
+            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
+              {t('profile.plan')}
+            </span>
+            <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
+          </div>
+          <div className="flex flex-col gap-[3px]">
+            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
+              {t('profile.role')}
+            </span>
+            <Badge variant={user.role === "ADMIN" ? "admin" : "role"}>
+              {t(`profile.roleLabel.${user.role}`, user.role)}
+            </Badge>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 export default ProfilePage;
+
