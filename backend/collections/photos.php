@@ -95,12 +95,12 @@ try {
         $newId = generateCuid();
         $storagePath = "uploads/{$collectionId}/{$newId}.{$ext}";
 
-        $uploadDir = __DIR__ . '/../../uploads/' . $collectionId;
+        $uploadDir = __DIR__ . '/../uploads/' . $collectionId;
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
 
-        if (!move_uploaded_file($file['tmp_name'], __DIR__ . '/../../' . $storagePath)) {
+        if (!move_uploaded_file($file['tmp_name'], __DIR__ . '/../' . $storagePath)) {
             http_response_code(500);
             echo json_encode(["error" => "Failed to save file."]);
             exit;
@@ -142,7 +142,7 @@ try {
         }
 
         // Delete file from disk
-        $filePath = __DIR__ . '/../../' . $photo['storagePath'];
+        $filePath = __DIR__ . '/../' . $photo['storagePath'];
         if (file_exists($filePath)) {
             unlink($filePath);
         }

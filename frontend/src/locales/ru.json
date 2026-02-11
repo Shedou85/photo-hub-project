@@ -113,7 +113,15 @@
     "createdAt": "Создана:",
     "photos": "Фотографии",
     "noPhotos": "Фотографий пока нет.",
-    "error": "Ошибка:"
+    "error": "Ошибка:",
+    "uploadZoneLabel": "Перетащите фото сюда или нажмите для выбора",
+    "uploadZoneHint": "JPEG, PNG или WEBP · Макс. 20 МБ на файл",
+    "uploading": "Загрузка...",
+    "uploadError": "Ошибка загрузки",
+    "deletePhoto": "Удалить фото",
+    "setCover": "Сделать обложкой",
+    "photosCount": "{{count}} фото",
+    "photosCount_plural": "{{count}} фото"
   },
   "payments": {
     "title": "Оплата",

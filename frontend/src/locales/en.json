@@ -113,7 +113,15 @@
     "createdAt": "Created:",
     "photos": "Photos",
     "noPhotos": "No photos yet.",
-    "error": "Error:"
+    "error": "Error:",
+    "uploadZoneLabel": "Drag & drop photos here, or click to browse",
+    "uploadZoneHint": "JPEG, PNG or WEBP · Max 20 MB per file",
+    "uploading": "Uploading...",
+    "uploadError": "Upload failed",
+    "deletePhoto": "Delete photo",
+    "setCover": "Set as cover",
+    "photosCount": "{{count}} photo",
+    "photosCount_plural": "{{count}} photos"
   },
   "payments": {
     "title": "Payments",

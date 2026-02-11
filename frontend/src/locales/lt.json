@@ -113,7 +113,15 @@
     "createdAt": "Sukurta:",
     "photos": "Nuotraukos",
     "noPhotos": "Nuotraukų dar nėra.",
-    "error": "Klaida:"
+    "error": "Klaida:",
+    "uploadZoneLabel": "Vilkite nuotraukas čia arba spustelėkite norėdami pasirinkti",
+    "uploadZoneHint": "JPEG, PNG arba WEBP · Maks. 20 MB vienai bylai",
+    "uploading": "Įkeliama...",
+    "uploadError": "Įkėlimas nepavyko",
+    "deletePhoto": "Ištrinti nuotrauką",
+    "setCover": "Nustatyti kaip viršelį",
+    "photosCount": "{{count}} nuotrauka",
+    "photosCount_plural": "{{count}} nuotraukų"
   },
   "payments": {
     "title": "Mokėjimai",
