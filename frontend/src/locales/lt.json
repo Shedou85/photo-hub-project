@@ -6,9 +6,53 @@
     "logout": "Atsijungti"
   },
   "home": {
-    "underConstruction": "PixelForge šiuo metu kuriama",
-    "comingSoon": "Svetainė netrukus bus prieinama.",
-    "login": "Prisijungti"
+    "navLogin": "Prisijungti",
+    "hero": {
+      "eyebrow": "Profesionaliems fotografams",
+      "headline1": "Pristatykite savo",
+      "headline2": "geriausius darbus.",
+      "subtext": "PixelForge suteikia profesionaliems fotografams paprastą būdą organizuoti, dalytis ir pristatyti nuotraukų kolekcijas klientams.",
+      "cta": "Pradėti nemokamai",
+      "ctaSecondary": "Žiūrėti funkcijas"
+    },
+    "features": {
+      "title": "Viskas, ko reikia pristatymui",
+      "subtitle": "Nuo pirmojo kadro iki galutinio pristatymo — PixelForge rūpinasi darbo eiga.",
+      "f1Title": "Išmanios kolekcijos",
+      "f1Desc": "Organizuokite kiekvieną fotosesiją į tvarkingą kolekciją. Sekite statusą nuo juodraščio iki pristatymo.",
+      "f2Title": "Klientų atrankos",
+      "f2Desc": "Leiskite klientams pažymėti mėgstamiausius tiesiai galerijoje. Jokių el. laiškų pirmyn atgal.",
+      "f3Title": "Švarus pristatymas",
+      "f3Desc": "Pristatykite galutinius redagavimus elegantiška patirtimi, kurią klientai tikrai įvertins."
+    },
+    "plans": {
+      "title": "Paprasta, aiški kainodara",
+      "subtitle": "Pradėkite nemokamai. Tobulinkite, kai verslas auga.",
+      "free": "Nemokama versija",
+      "freePrice": "Nemokamai",
+      "standard": "Standartinis",
+      "standardPrice": "$12",
+      "pro": "Pro",
+      "proPrice": "$29",
+      "perMonth": "/ mėn.",
+      "freeCta": "Pradėti nemokamai",
+      "standardCta": "Pasirinkti standartinį",
+      "proCta": "Pasirinkti Pro",
+      "freeF1": "3 aktyvios kolekcijos",
+      "freeF2": "50 nuotraukų per kolekciją",
+      "freeF3": "Klientų atrankos įrankiai",
+      "standardF1": "20 aktyvių kolekcijų",
+      "standardF2": "500 nuotraukų per kolekciją",
+      "standardF3": "Individualizuotas dizainas",
+      "proF1": "Neribojamos kolekcijos",
+      "proF2": "Neribojamas nuotraukų skaičius",
+      "proF3": "Prioritetinė pagalba",
+      "popular": "Populiariausia"
+    },
+    "footer": {
+      "tagline": "Profesionalus nuotraukų pristatymas moderniems fotografams.",
+      "rights": "© 2025 PixelForge. Visos teisės saugomos."
+    }
   },
   "login": {
     "title": "Prisijungimas",
@@ -16,7 +60,8 @@
     "password": "Slaptažodis",
     "submit": "Prisijungti",
     "failed": "Prisijungimas nepavyko:",
-    "networkError": "Tinklo klaida:"
+    "networkError": "Tinklo klaida:",
+    "backHome": "Pradžia"
   },
   "profile": {
     "subtitle": "Jūsų profilis ir paskyros nustatymai",

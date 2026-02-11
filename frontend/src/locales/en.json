@@ -6,9 +6,53 @@
     "logout": "Sign out"
   },
   "home": {
-    "underConstruction": "PixelForge is under construction",
-    "comingSoon": "The website will be available soon.",
-    "login": "Login"
+    "navLogin": "Login",
+    "hero": {
+      "eyebrow": "For professional photographers",
+      "headline1": "Deliver your",
+      "headline2": "best work.",
+      "subtext": "PixelForge gives professional photographers a seamless way to organize, share, and deliver photo collections to clients.",
+      "cta": "Get started free",
+      "ctaSecondary": "See features"
+    },
+    "features": {
+      "title": "Everything you need to deliver",
+      "subtitle": "From the first shot to final delivery — PixelForge handles the workflow.",
+      "f1Title": "Smart Collections",
+      "f1Desc": "Organize every shoot into a clean collection. Track status from draft to delivery at a glance.",
+      "f2Title": "Client Selections",
+      "f2Desc": "Let clients mark their favorites directly in the gallery. No more back-and-forth emails.",
+      "f3Title": "Clean Delivery",
+      "f3Desc": "Deliver final edits in a polished branded experience your clients will actually enjoy."
+    },
+    "plans": {
+      "title": "Simple, honest pricing",
+      "subtitle": "Start for free. Upgrade when your business grows.",
+      "free": "Free Trial",
+      "freePrice": "Free",
+      "standard": "Standard",
+      "standardPrice": "$12",
+      "pro": "Pro",
+      "proPrice": "$29",
+      "perMonth": "/ month",
+      "freeCta": "Start free",
+      "standardCta": "Get Standard",
+      "proCta": "Go Pro",
+      "freeF1": "3 active collections",
+      "freeF2": "50 photos per collection",
+      "freeF3": "Client selection tools",
+      "standardF1": "20 active collections",
+      "standardF2": "500 photos per collection",
+      "standardF3": "Custom branding",
+      "proF1": "Unlimited collections",
+      "proF2": "Unlimited photos",
+      "proF3": "Priority support",
+      "popular": "Most popular"
+    },
+    "footer": {
+      "tagline": "Professional photo delivery for modern photographers.",
+      "rights": "© 2025 PixelForge. All rights reserved."
+    }
   },
   "login": {
     "title": "Login",
@@ -16,7 +60,8 @@
     "password": "Password",
     "submit": "Login",
     "failed": "Login failed:",
-    "networkError": "Network error:"
+    "networkError": "Network error:",
+    "backHome": "Home"
   },
   "profile": {
     "subtitle": "Your profile & account settings",
