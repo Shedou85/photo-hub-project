@@ -26,7 +26,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, email, password, role, status, name, createdAt, bio
+        SELECT id, email, password, role, status, name, createdAt, bio, plan, subscriptionStatus
         FROM `User`
         WHERE email = ?
         LIMIT 1
@@ -59,7 +59,9 @@ try {
             "role" => $user['role'],
             "name" => $user['name'],
             "createdAt" => $user['createdAt'],
-            "bio" => $user['bio']
+            "bio" => $user['bio'],
+            "plan" => $user['plan'],
+            "subscriptionStatus" => $user['subscriptionStatus']
         ]
     ]);
 

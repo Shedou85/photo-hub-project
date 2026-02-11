@@ -17,7 +17,7 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Handle GET request - list all collections for the user
         $stmt = $pdo->prepare("
-            SELECT id, name, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, coverPhotoId, createdAt, updatedAt
             FROM `Collection`
             WHERE userId = ?
             ORDER BY createdAt DESC
@@ -45,12 +45,6 @@ try {
         }
 
         // Generate CUID for the new collection
-        function generateCuid() {
-            $timestamp = round(microtime(true) * 1000);
-            $random = bin2hex(random_bytes(8));
-            $counter = uniqid();
-            return 'cl' . substr(md5($timestamp . $random . $counter), 0, 22);
-        }
         $collectionId = generateCuid();
         $shareId = bin2hex(random_bytes(8)); // Simple random string for shareId
         $currentDateTime = date('Y-m-d H:i:s.v');

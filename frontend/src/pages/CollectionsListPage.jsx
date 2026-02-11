@@ -8,7 +8,6 @@ function CollectionsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
-  const [newCollectionDescription, setNewCollectionDescription] = useState("");
   const [createError, setCreateError] = useState(null);
   const [createSuccess, setCreateSuccess] = useState(null);
 
@@ -54,7 +53,7 @@ function CollectionsListPage() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newCollectionName, description: newCollectionDescription }),
+        body: JSON.stringify({ name: newCollectionName }),
       });
 
       const data = await response.json();
@@ -62,7 +61,6 @@ function CollectionsListPage() {
       if (response.ok && data.status === "OK") {
         setCreateSuccess(t('collections.createSuccess'));
         setNewCollectionName("");
-        setNewCollectionDescription("");
         const updatedResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
           credentials: "include",
         });
@@ -116,7 +114,7 @@ function CollectionsListPage() {
 
         <form onSubmit={handleCreateCollection}>
           {/* Name field */}
-          <div className="mb-4">
+          <div className="mb-6">
             <label
               htmlFor="collectionName"
               className="block mb-[5px] text-[13px] font-semibold text-gray-700"
@@ -130,23 +128,6 @@ function CollectionsListPage() {
               onChange={(e) => setNewCollectionName(e.target.value)}
               required
               className="w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-[6px] outline-none box-border transition-colors duration-150 font-sans"
-            />
-          </div>
-
-          {/* Description field */}
-          <div className="mb-6">
-            <label
-              htmlFor="collectionDescription"
-              className="block mb-[5px] text-[13px] font-semibold text-gray-700"
-            >
-              {t('collections.descLabel')}
-            </label>
-            <textarea
-              id="collectionDescription"
-              value={newCollectionDescription}
-              onChange={(e) => setNewCollectionDescription(e.target.value)}
-              rows={3}
-              className="w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-[6px] outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
             />
           </div>
 
@@ -194,15 +175,9 @@ function CollectionsListPage() {
                 className="no-underline text-inherit"
               >
                 <div className="bg-white rounded-[8px] px-4 py-3.5 cursor-pointer transition-[border-color,box-shadow] duration-150 border border-gray-200 hover:border-blue-500 hover:shadow-[0_1px_4px_rgba(59,130,246,0.10)]">
-                  <div className={`text-[15px] font-semibold text-gray-900 ${collection.description ? "mb-1" : "mb-0"}`}>
+                  <div className="text-[15px] font-semibold text-gray-900 mb-0">
                     {collection.name}
                   </div>
-
-                  {collection.description && (
-                    <div className="text-[13px] text-gray-500 mb-1.5 leading-[1.4]">
-                      {collection.description}
-                    </div>
-                  )}
 
                   <div className="text-[12px] text-gray-400 mt-1.5">
                     {t('collections.createdAt')}{" "}

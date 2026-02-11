@@ -89,11 +89,6 @@ function CollectionDetailsPage() {
           <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
             {collection.name}
           </h1>
-          {collection.description && (
-            <p className="mt-0.5 mb-0 text-[13px] text-gray-500">
-              {collection.description}
-            </p>
-          )}
         </div>
       </div>
 

@@ -9,11 +9,18 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Extract collection ID from the URL (e.g., /backend/collections/cl123...)
+// Extract collection ID from the URL: /collections/{id}
 $requestUri = $_SERVER['REQUEST_URI'];
-// Assuming the ID is the last segment of the URL after /backend/collections/
-$parts = explode('/', $requestUri);
-$collectionId = end($parts);
+$requestUri = strtok($requestUri, '?');
+$basePath = '/backend';
+if (strpos($requestUri, $basePath) === 0) {
+    $requestUri = substr($requestUri, strlen($basePath));
+}
+$requestUri = rtrim($requestUri, '/');
+
+$parts = explode('/', ltrim($requestUri, '/'));
+// parts: ['collections', collectionId]
+$collectionId = $parts[1] ?? '';
 
 if (empty($collectionId)) {
     http_response_code(400);
@@ -22,34 +29,116 @@ if (empty($collectionId)) {
 }
 
 $userId = $_SESSION['user_id'];
+$method = $_SERVER['REQUEST_METHOD'];
 
 try {
     $pdo = getDbConnection();
 
-    $stmt = $pdo->prepare("
-        SELECT id, name, createdAt, updatedAt
-        FROM `Collection`
-        WHERE id = ? AND userId = ?
-        LIMIT 1
-    ");
-    $stmt->execute([$collectionId, $userId]);
-    $collection = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($method === 'GET') {
+        $stmt = $pdo->prepare("
+            SELECT id, name, status, clientName, clientEmail, shareId, coverPhotoId, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            FROM `Collection`
+            WHERE id = ? AND userId = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$collectionId, $userId]);
+        $collection = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$collection) {
-        http_response_code(404);
-        echo json_encode(["error" => "Collection not found or you don't have permission to access it."]);
+        if (!$collection) {
+            http_response_code(404);
+            echo json_encode(["error" => "Collection not found."]);
+            exit;
+        }
+
+        echo json_encode(["status" => "OK", "collection" => $collection]);
         exit;
     }
 
-    echo json_encode([
-        "status" => "OK",
-        "collection" => $collection
-    ]);
+    if ($method === 'PATCH') {
+        // Verify ownership first
+        $stmt = $pdo->prepare("SELECT id FROM `Collection` WHERE id = ? AND userId = ? LIMIT 1");
+        $stmt->execute([$collectionId, $userId]);
+        if (!$stmt->fetch()) {
+            http_response_code(404);
+            echo json_encode(["error" => "Collection not found."]);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        $validStatuses = ['DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'ARCHIVED'];
+        $allowed = ['name', 'clientName', 'clientEmail', 'expiresAt', 'allowPromotionalUse'];
+
+        $setParts = [];
+        $params = [];
+
+        foreach ($allowed as $field) {
+            if (array_key_exists($field, $data)) {
+                $setParts[] = "`$field` = ?";
+                $params[] = $data[$field];
+            }
+        }
+
+        if (array_key_exists('status', $data)) {
+            if (!in_array($data['status'], $validStatuses, true)) {
+                http_response_code(400);
+                echo json_encode(["error" => "Invalid status value."]);
+                exit;
+            }
+            $setParts[] = "`status` = ?";
+            $params[] = $data['status'];
+        }
+
+        if (array_key_exists('password', $data)) {
+            $setParts[] = "`password` = ?";
+            $params[] = $data['password'] !== null ? password_hash($data['password'], PASSWORD_DEFAULT) : null;
+        }
+
+        if (empty($setParts)) {
+            http_response_code(400);
+            echo json_encode(["error" => "No valid fields to update."]);
+            exit;
+        }
+
+        $setParts[] = "`updatedAt` = ?";
+        $params[] = date('Y-m-d H:i:s.v');
+        $params[] = $collectionId;
+        $params[] = $userId;
+
+        $pdo->prepare("UPDATE `Collection` SET " . implode(', ', $setParts) . " WHERE id = ? AND userId = ?")
+            ->execute($params);
+
+        $stmt = $pdo->prepare("
+            SELECT id, name, status, clientName, clientEmail, shareId, coverPhotoId, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            FROM `Collection`
+            WHERE id = ? AND userId = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$collectionId, $userId]);
+        $collection = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        echo json_encode(["status" => "OK", "collection" => $collection]);
+        exit;
+    }
+
+    if ($method === 'DELETE') {
+        $stmt = $pdo->prepare("DELETE FROM `Collection` WHERE id = ? AND userId = ?");
+        $stmt->execute([$collectionId, $userId]);
+
+        if ($stmt->rowCount() === 0) {
+            http_response_code(404);
+            echo json_encode(["error" => "Collection not found."]);
+            exit;
+        }
+
+        echo json_encode(["status" => "OK"]);
+        exit;
+    }
+
+    http_response_code(405);
+    echo json_encode(["error" => "Method not allowed"]);
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode([
-        "error" => "Server error",
-        "details" => $e->getMessage()
-    ]);
+    echo json_encode(["error" => "Server error", "details" => $e->getMessage()]);
 }

@@ -31,7 +31,15 @@ const MainLayout = () => {
 
   const langDropdownRef = useRef(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (_) {
+      // ignore network errors — still log out locally
+    }
     flushSync(() => logout());
     navigate('/');
   };

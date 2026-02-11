@@ -13,14 +13,14 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT name, email, bio, createdAt
+        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus
         FROM `User`
         WHERE id = ?
         LIMIT 1
     ");
     $stmt->execute([$_SESSION['user_id']]);
 
-    $user = $stmt->fetch();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     echo json_encode([
         "status" => "OK",

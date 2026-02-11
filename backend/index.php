@@ -140,6 +140,16 @@ switch ($requestUri) {
         }
         break;
 
+    case '/logout':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/auth/logout.php';
+        }
+        else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     case '/auth/me':
         if ($requestMethod == 'GET') {
             require_once __DIR__ . '/auth/me.php';
@@ -165,9 +175,32 @@ switch ($requestUri) {
         break;
 
     default:
-        // Handle /collections/{id}
+        // Handle /collections/{id} and sub-routes
         if (strpos($requestUri, '/collections/') === 0) {
-            require_once __DIR__ . '/collections/id.php';
+            $uriParts = explode('/', ltrim($requestUri, '/'));
+            // uriParts: ['collections', collectionId, ?subRoute, ?subId]
+            $subRoute = $uriParts[2] ?? '';
+
+            switch ($subRoute) {
+                case '':
+                    require_once __DIR__ . '/collections/id.php';
+                    break;
+                case 'photos':
+                    require_once __DIR__ . '/collections/photos.php';
+                    break;
+                case 'cover':
+                    require_once __DIR__ . '/collections/cover.php';
+                    break;
+                case 'selections':
+                    require_once __DIR__ . '/collections/selections.php';
+                    break;
+                case 'edited':
+                    require_once __DIR__ . '/collections/edited.php';
+                    break;
+                default:
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Endpoint Not Found']);
+            }
             break;
         }
 
