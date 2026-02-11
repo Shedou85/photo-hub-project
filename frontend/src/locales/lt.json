@@ -115,7 +115,8 @@
     "deleteCollectionFailed": "Nepavyko ištrinti kolekcijos.",
     "deleteCollectionSuccess": "Kolekcija ištrinta.",
     "shareCollection": "Dalytis",
-    "linkCopied": "Nukopijuota!"
+    "linkCopied": "Nukopijuota!",
+    "viewCollection": "Peržiūrėti Kolekciją"
   },
   "collection": {
     "loading": "Kraunama kolekcija...",

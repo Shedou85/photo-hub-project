@@ -115,7 +115,8 @@
     "deleteCollectionFailed": "Не удалось удалить коллекцию.",
     "deleteCollectionSuccess": "Коллекция удалена.",
     "shareCollection": "Поделиться",
-    "linkCopied": "Скопировано!"
+    "linkCopied": "Скопировано!",
+    "viewCollection": "Посмотреть коллекцию"
   },
   "collection": {
     "loading": "Загрузка коллекции...",

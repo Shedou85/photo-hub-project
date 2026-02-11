@@ -115,7 +115,8 @@
     "deleteCollectionFailed": "Failed to delete collection.",
     "deleteCollectionSuccess": "Collection deleted.",
     "shareCollection": "Share",
-    "linkCopied": "Copied!"
+    "linkCopied": "Copied!",
+    "viewCollection": "View Collection"
   },
   "collection": {
     "loading": "Loading collection details...",

@@ -14,6 +14,15 @@ function CollectionsListPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
 
+  // Helper function to get photo URL
+  const photoUrl = (storagePath) => {
+    const base = import.meta.env.VITE_API_BASE_URL;
+    // Assuming storagePath is relative, like "uploads/collectionId/photoId.jpg"
+    // And that the backend serves these from a base URL like VITE_API_BASE_URL
+    const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
+    return `${base}/${path}`;
+  };
+
   useEffect(() => {
     const fetchCollections = async () => {
       try {
@@ -113,6 +122,7 @@ function CollectionsListPage() {
     });
   };
 
+  // This function is no longer directly used on the card but remains for the collection details page.
   const handleShareCollection = (id, shareId) => {
     const shareUrl = `${window.location.origin}/share/${shareId}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
@@ -186,78 +196,61 @@ function CollectionsListPage() {
 
       {/* ── Collections List Card ── */}
       <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5">
-        <h2 className="mt-0 mb-4 text-[14px] font-bold text-gray-700 uppercase tracking-[0.05em]">
-          {t('collections.title')}
-        </h2>
+
 
         {collections.length === 0 ? (
           <div className="py-10 px-5 text-center text-gray-500 text-[14px]">
             {t('collections.empty')}
           </div>
         ) : (
-          <div className="flex flex-col gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((collection) => (
-              <div
+              <Link
                 key={collection.id}
-                className="bg-white rounded-[8px] px-4 py-3.5 border border-gray-200 hover:border-blue-400 hover:shadow-[0_1px_4px_rgba(59,130,246,0.10)] transition-[border-color,box-shadow] duration-150 flex items-center gap-3"
+                to={`/collection/${collection.id}`}
+                className="block no-underline text-inherit"
               >
-                {/* Clickable name/date area */}
-                <Link
-                  to={`/collection/${collection.id}`}
-                  className="no-underline text-inherit flex-1 min-w-0"
-                >
-                  <div className="text-[15px] font-semibold text-gray-900 truncate">
-                    {collection.name}
-                  </div>
-                  <div className="text-[12px] text-gray-400 mt-1">
-                    {t('collections.createdAt')}{" "}
-                    {new Date(collection.createdAt).toLocaleDateString()}
-                  </div>
-                </Link>
-
-                {/* Action buttons */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {/* Share / Copy link */}
-                  <button
-                    onClick={() => handleShareCollection(collection.id, collection.shareId)}
-                    title={t('collections.shareCollection')}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium border transition-colors duration-150 cursor-pointer
-                      ${copiedId === collection.id
-                        ? "bg-green-50 border-green-300 text-green-700"
-                        : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
-                      }`}
-                  >
-                    {copiedId === collection.id ? (
-                      <>
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {t('collections.linkCopied')}
-                      </>
+                <div className="bg-white rounded-[10px] shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden relative group transform hover:-translate-y-1 rotate-[0.5deg] hover:rotate-[1.5deg] transition-all duration-300 ease-out">
+                  {/* Photo Area */}
+                  <div className="relative w-full h-48 bg-gray-100 overflow-hidden border-b-4 border-white">
+                    {/* Assuming collection.coverPhotoPath exists if collection.coverPhotoId is set by backend */}
+                    {collection.coverPhotoPath ? (
+                      <img
+                        src={photoUrl(collection.coverPhotoPath)}
+                        alt={collection.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
                     ) : (
-                      <>
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        {t('collections.shareCollection')}
-                      </>
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-5xl font-bold">
+                        {collection.name.charAt(0).toUpperCase()}
+                      </div>
                     )}
-                  </button>
+                    {/* Hover Overlay - for future actions if needed, currently just visual */}
+                    <div className="absolute inset-0 bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <span className="text-white text-lg font-semibold px-4 py-2 bg-black bg-opacity-50 rounded-md">
+                        {t('collections.viewCollection')}
+                      </span>
+                    </div>
+                  </div>
 
-                  {/* Delete */}
-                  <button
-                    onClick={() => handleDeleteCollection(collection.id)}
-                    disabled={deletingId === collection.id}
-                    title={t('collections.deleteCollection')}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] text-[12px] font-medium border bg-gray-50 border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors duration-150 cursor-pointer disabled:opacity-50"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    {t('collections.deleteCollection')}
-                  </button>
+                  {/* Text Area (Polaroid-like bottom part) */}
+                  <div className="p-4 bg-white">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
+                      {collection.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {t('collections.createdAt')}{" "}
+                      {new Date(collection.createdAt).toLocaleDateString()}
+                    </p>
+                    {/* Assuming collection.photoCount is available for display */}
+                    {/* {collection.photoCount && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        📸 {collection.photoCount} photos
+                      </p>
+                    )} */}
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
