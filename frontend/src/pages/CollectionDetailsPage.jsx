@@ -138,6 +138,7 @@ function CollectionDetailsPage() {
     // Upload with concurrency limiter
     let idx = 0;
     let successCount = 0;
+    let autoCoverPhotoId = null;
     const uploadNext = async () => {
       while (idx < validFiles.length) {
         const current = idx++;
@@ -149,7 +150,17 @@ function CollectionDetailsPage() {
             `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos`,
             { method: "POST", credentials: "include", body: formData }
           );
-          if (res.ok) successCount++;
+          if (res.ok) {
+            successCount++;
+            try {
+              const data = await res.json();
+              if (data.autoSetCover && data.photo?.id) {
+                autoCoverPhotoId = data.photo.id;
+              }
+            } catch {
+              // non-critical: response parse failure doesn't block upload
+            }
+          }
           setUploadStates((prev) => ({
             ...prev,
             [key]: res.ok ? "done" : "error",
@@ -165,6 +176,10 @@ function CollectionDetailsPage() {
       workers.push(uploadNext());
     }
     await Promise.all(workers);
+
+    if (autoCoverPhotoId) {
+      setCollection((prev) => ({ ...prev, coverPhotoId: autoCoverPhotoId }));
+    }
 
     await fetchPhotos();
 
@@ -417,7 +432,7 @@ function CollectionDetailsPage() {
                   aria-label={photo.filename}
                 >
                   <img
-                    src={photoUrl(photo.storagePath)}
+                    src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                     alt={photo.filename}
                     className="w-full h-full object-cover"
                     loading="lazy"
