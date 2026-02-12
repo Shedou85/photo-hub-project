@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Photographer can open any photo fullscreen with prev/next navigation
   4. The collection cover is automatically set to the first uploaded photo
   5. Photographer can override the collection cover by selecting a different photo
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 01-01: Backend upload handler (MIME validation, random filenames, thumbnail generation via GD, directory access control)
-- [ ] 01-02: Frontend upload UI (react-dropzone, progress feedback, photo grid with react-photo-album)
-- [ ] 01-03: Lightbox integration and cover photo management (yet-another-react-lightbox, cover override UI)
+- [ ] 01-01: Backend thumbnail generation + auto-cover + schema migration (Wave 1)
+- [ ] 01-02: Frontend grid + state updates for thumbnails and auto-cover (Wave 2, depends on 01-01)
+- [ ] 01-03: Lightbox verification + cover management polish (Wave 3, depends on 01-02)
 
 ### Phase 2: Sharing and Status
 **Goal**: Photographer can generate a share link and collection cards visually communicate workflow status
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Photo Upload | 0/3 | Not started | - |
+| 1. Photo Upload | 0/3 | Planned | - |
 | 2. Sharing and Status | 0/2 | Not started | - |
 | 3. Client Gallery and Selection | 0/2 | Not started | - |
 | 4. Review and Delivery | 0/2 | Not started | - |
