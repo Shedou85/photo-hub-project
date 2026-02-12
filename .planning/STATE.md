@@ -11,27 +11,27 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 Phase: 1 of 4 (Photo Upload)
 Plan: 3 of 3 in current phase
-Status: Awaiting human checkpoint
-Last activity: 2026-02-12 — Auto tasks of 01-03 complete (lightbox verified, cover auto-promotion added); paused at human-verify checkpoint
+Status: Phase 1 complete — ready for Phase 2
+Last activity: 2026-02-12 — 01-03 complete; human verification APPROVED; lightbox overlay click fix applied (ef4193c)
 
-Progress: [██░░░░░░░░] 21%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 8.5 min
-- Total execution time: 0.28 hours
+- Total plans completed: 3
+- Average duration: 10.7 min
+- Total execution time: 0.53 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-photo-upload | 2/3 | 17 min | 8.5 min |
+| 01-photo-upload | 3/3 | 32 min | 10.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (15 min), 01-02 (2 min)
-- Trend: Faster
+- Last 5 plans: 01-01 (15 min), 01-02 (2 min), 01-03 (15 min)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -53,6 +53,7 @@ Recent decisions affecting current work:
 - Cover badge update is optimistic: parse autoSetCover from POST /collections/{id}/photos, no extra GET needed
 - ESLint config: react/prop-types off (project style), react-refresh rule off (AuthContext hook+provider in same file)
 - Cover auto-promotion on deletion: promotes photo at same grid index as deleted; optimistic UI + PATCH to backend; fire-and-forget (non-blocking)
+- Lightbox overlay click fix: hover overlay set pointer-events-none so clicks reach underlying image (found during human verification of 01-03)
 
 ### Pending Todos
 
@@ -68,5 +69,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: 01-03-PLAN.md Task 3 (checkpoint:human-verify) — auto tasks complete, awaiting user verification in browser
+Stopped at: Phase 1 complete — 01-03-PLAN.md fully done including human verification
 Resume file: None
