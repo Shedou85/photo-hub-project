@@ -95,6 +95,7 @@ CREATE TABLE `Photo` (
   `id` VARCHAR(191) NOT NULL,
   `filename` VARCHAR(191) NOT NULL,
   `storagePath` VARCHAR(191) NOT NULL,
+  `thumbnailPath` VARCHAR(191) NULL DEFAULT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `collectionId` VARCHAR(191) NOT NULL,
   PRIMARY KEY (`id`),
@@ -193,3 +194,9 @@ ALTER TABLE `Selection`
 ALTER TABLE `PromotionalPhoto`
   ADD CONSTRAINT `PromotionalPhoto_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `PromotionalPhoto_photoId_fkey` FOREIGN KEY (`photoId`) REFERENCES `Photo` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- --------------------------------------------------------
+--
+-- Migration: Add thumbnailPath to Photo table (run on existing databases)
+--
+-- ALTER TABLE `Photo` ADD COLUMN `thumbnailPath` VARCHAR(191) NULL DEFAULT NULL AFTER `storagePath`;
