@@ -470,7 +470,7 @@ function CollectionDetailsPage() {
                   </div>
                 )}
                 {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto">
+                <div onClick={() => setLightboxIndex(index)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto">
                   {/* Delete button */}
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeletePhoto(photo.id); }}
