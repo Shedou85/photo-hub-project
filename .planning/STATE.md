@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 1 of 4 (Photo Upload)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Completed 01-01 (backend thumbnails + auto-cover)
+Last activity: 2026-02-12 — Completed 01-02 (frontend thumbnail grid + auto-cover state)
 
-Progress: [█░░░░░░░░░] 8%
+Progress: [██░░░░░░░░] 17%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 15 min
-- Total execution time: 0.25 hours
+- Total plans completed: 2
+- Average duration: 8.5 min
+- Total execution time: 0.28 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-photo-upload | 1/3 | 15 min | 15 min |
+| 01-photo-upload | 2/3 | 17 min | 8.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (15 min)
-- Trend: —
+- Last 5 plans: 01-01 (15 min), 01-02 (2 min)
+- Trend: Faster
 
 *Updated after each plan completion*
 
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - WebP fallback: thumbnailPath is null if GD WebP unavailable — upload always succeeds (graceful degradation)
 - Auto-cover only on first upload (coverPhotoId IS NULL) — subsequent uploads do not override photographer's manual cover choice
 - Large image skip: width x height > 25,000,000 px skips thumbnail to prevent PHP memory exhaustion
+- Grid images: thumbnailPath ?? storagePath — null/undefined triggers fallback to original, never show broken images
+- Cover badge update is optimistic: parse autoSetCover from POST /collections/{id}/photos, no extra GET needed
+- ESLint config: react/prop-types off (project style), react-refresh rule off (AuthContext hook+provider in same file)
 
 ### Pending Todos
 
@@ -64,5 +67,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 01-01-PLAN.md — backend thumbnail generation and auto-cover implemented
+Stopped at: Completed 01-02-PLAN.md — frontend thumbnail grid, auto-cover state update, ESLint config
 Resume file: None
