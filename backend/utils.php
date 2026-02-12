@@ -57,12 +57,146 @@ function safeDeleteUploadedFile($storagePath) {
 }
 
 /**
- * Handle a file upload: validate MIME type and size, move file to destination.
+ * Generate a JPEG thumbnail at 400px width for an uploaded image.
  *
- * @param array $file The $_FILES['file'] entry
+ * Supports JPEG, PNG, and WebP source images. If WebP is not supported by the
+ * installed GD build, the thumbnail is skipped and null is returned. Very large
+ * images (width × height > 25,000,000 px) are also skipped to prevent memory
+ * exhaustion. Failures always degrade gracefully — the original upload is never
+ * affected.
+ *
+ * @param string $sourcePath  Absolute path to the uploaded source file
+ * @param string $mimeType    Validated MIME type: image/jpeg, image/png, or image/webp
+ * @param string $collectionId  Collection ID used to build the thumbs directory path
+ * @param string $photoId     Photo ID used as the thumbnail filename stem
+ * @return string|null  Relative thumbnail path (e.g. "uploads/{collId}/thumbs/{id}_thumb.jpg"),
+ *                      or null if generation was skipped or failed
+ */
+function generateThumbnail($sourcePath, $mimeType, $collectionId, $photoId) {
+    // Require GD extension
+    if (!function_exists('imagecreatefromjpeg')) {
+        error_log("Thumbnail skipped: GD extension not available");
+        return null;
+    }
+
+    // Determine source image dimensions without fully loading into memory
+    $imageSize = @getimagesize($sourcePath);
+    if ($imageSize === false) {
+        error_log("Thumbnail skipped: getimagesize() failed for {$sourcePath}");
+        return null;
+    }
+
+    $srcWidth  = $imageSize[0];
+    $srcHeight = $imageSize[1];
+
+    // Skip very large images to prevent memory exhaustion
+    if ($srcWidth * $srcHeight > 25000000) {
+        error_log("Thumbnail skipped: image too large ({$srcWidth}x{$srcHeight})");
+        return null;
+    }
+
+    // Load source image into GD resource
+    $srcImage = null;
+    try {
+        switch ($mimeType) {
+            case 'image/jpeg':
+                $srcImage = @imagecreatefromjpeg($sourcePath);
+                break;
+
+            case 'image/png':
+                $srcImage = @imagecreatefrompng($sourcePath);
+                break;
+
+            case 'image/webp':
+                if (!function_exists('imagecreatefromwebp')) {
+                    error_log("Thumbnail skipped: imagecreatefromwebp() not available (GD built without WebP support)");
+                    return null;
+                }
+                $srcImage = @imagecreatefromwebp($sourcePath);
+                break;
+
+            default:
+                return null;
+        }
+    } catch (Throwable $e) {
+        error_log("Thumbnail skipped: GD load error — " . $e->getMessage());
+        return null;
+    }
+
+    if ($srcImage === false || $srcImage === null) {
+        error_log("Thumbnail skipped: GD could not load {$sourcePath}");
+        return null;
+    }
+
+    // Compute thumbnail dimensions preserving aspect ratio (max 400px wide)
+    $thumbWidth  = min(400, $srcWidth);
+    $thumbHeight = (int) round($srcHeight * ($thumbWidth / $srcWidth));
+
+    // Create thumbnail canvas and resample
+    $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+    if ($thumbImage === false) {
+        imagedestroy($srcImage);
+        error_log("Thumbnail skipped: imagecreatetruecolor() failed");
+        return null;
+    }
+
+    // Fill with white background (handles PNG transparency)
+    $white = imagecolorallocate($thumbImage, 255, 255, 255);
+    imagefill($thumbImage, 0, 0, $white);
+
+    $resampleOk = imagecopyresampled(
+        $thumbImage, $srcImage,
+        0, 0, 0, 0,
+        $thumbWidth, $thumbHeight,
+        $srcWidth, $srcHeight
+    );
+
+    imagedestroy($srcImage);
+
+    if (!$resampleOk) {
+        imagedestroy($thumbImage);
+        error_log("Thumbnail skipped: imagecopyresampled() failed");
+        return null;
+    }
+
+    // Ensure thumbs directory exists
+    $thumbsDir = getUploadsBasePath() . '/' . $collectionId . '/thumbs';
+    if (!is_dir($thumbsDir)) {
+        mkdir($thumbsDir, 0755, true);
+    }
+
+    $thumbRelativePath = "uploads/{$collectionId}/thumbs/{$photoId}_thumb.jpg";
+    $thumbAbsPath      = __DIR__ . '/' . $thumbRelativePath;
+
+    // Save as JPEG (quality 85 — good balance of size vs. fidelity)
+    $saved = @imagejpeg($thumbImage, $thumbAbsPath, 85);
+    imagedestroy($thumbImage);
+
+    if (!$saved) {
+        error_log("Thumbnail skipped: imagejpeg() could not write to {$thumbAbsPath}");
+        return null;
+    }
+
+    return $thumbRelativePath;
+}
+
+/**
+ * Handle a file upload: validate MIME type and size, move file to destination,
+ * and generate a JPEG thumbnail at 400px width.
+ *
+ * @param array  $file         The $_FILES['file'] entry
  * @param string $collectionId The collection ID
  * @param string $subdirectory Optional subdirectory within the collection (e.g. 'edited')
- * @return array ['ok' => bool, 'id' => string, 'storagePath' => string, 'filename' => string, 'error' => string|null]
+ * @return array {
+ *   'ok'            => bool,
+ *   'id'            => string,
+ *   'storagePath'   => string,
+ *   'thumbnailPath' => string|null,
+ *   'filename'      => string,
+ *   'createdAt'     => string,
+ *   'error'         => string|null,
+ *   'code'          => int|null
+ * }
  */
 function handleFileUpload($file, $collectionId, $subdirectory = '') {
     if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -100,12 +234,26 @@ function handleFileUpload($file, $collectionId, $subdirectory = '') {
     }
 
     $originalFilename = basename($file['name']);
+    $createdAt = date('Y-m-d H:i:s.v');
+
+    // Generate thumbnail (only for main uploads, not edited subdirectory)
+    $thumbnailPath = null;
+    if (empty($subdirectory)) {
+        $thumbnailPath = generateThumbnail(
+            __DIR__ . '/' . $storagePath,
+            $mimeType,
+            $collectionId,
+            $newId
+        );
+    }
 
     return [
-        'ok' => true,
-        'id' => $newId,
-        'storagePath' => $storagePath,
-        'filename' => $originalFilename,
-        'error' => null
+        'ok'            => true,
+        'id'            => $newId,
+        'storagePath'   => $storagePath,
+        'thumbnailPath' => $thumbnailPath,
+        'filename'      => $originalFilename,
+        'createdAt'     => $createdAt,
+        'error'         => null,
     ];
 }
