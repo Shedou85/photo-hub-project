@@ -12,7 +12,7 @@ This milestone delivers the complete photographer-to-client workflow: a photogra
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Photo Upload** - Photographer can upload photos; thumbnails generated; photos display in grid with lightbox
+- [x] **Phase 1: Photo Upload** - Photographer can upload photos; thumbnails generated; photos display in grid with lightbox — *Completed 2026-02-12*
 - [ ] **Phase 2: Sharing and Status** - Photographer can generate a share link; collection cards reflect status with color coding
 - [ ] **Phase 3: Client Gallery and Selection** - Client can browse and select photos via share link without an account
 - [ ] **Phase 4: Review and Delivery** - Photographer reviews selections and uploads edited finals; collection is delivered
@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 01-01: Backend thumbnail generation + auto-cover + schema migration (Wave 1)
-- [ ] 01-02: Frontend grid + state updates for thumbnails and auto-cover (Wave 2, depends on 01-01)
-- [ ] 01-03: Lightbox verification + cover management polish (Wave 3, depends on 01-02)
+- [x] 01-01: Backend thumbnail generation + auto-cover + schema migration (Wave 1)
+- [x] 01-02: Frontend grid + state updates for thumbnails and auto-cover (Wave 2, depends on 01-01)
+- [x] 01-03: Lightbox verification + cover management polish (Wave 3, depends on 01-02)
 
 ### Phase 2: Sharing and Status
 **Goal**: Photographer can generate a share link and collection cards visually communicate workflow status
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Photo Upload | 0/3 | Planned | - |
+| 1. Photo Upload | 3/3 | ✓ Complete | 2026-02-12 |
 | 2. Sharing and Status | 0/2 | Not started | - |
 | 3. Client Gallery and Selection | 0/2 | Not started | - |
 | 4. Review and Delivery | 0/2 | Not started | - |
