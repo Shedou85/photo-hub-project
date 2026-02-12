@@ -49,7 +49,7 @@ try {
     }
 
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT id, filename, storagePath, createdAt FROM `Photo` WHERE collectionId = ? ORDER BY createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, createdAt FROM `Photo` WHERE collectionId = ? ORDER BY createdAt ASC");
         $stmt->execute([$collectionId]);
         $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -76,18 +76,51 @@ try {
         }
 
         $createdAt = date('Y-m-d H:i:s.v');
-        $stmt = $pdo->prepare("INSERT INTO `Photo` (id, filename, storagePath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$result['id'], $result['filename'], $result['storagePath'], $collectionId, $createdAt]);
+        $stmt = $pdo->prepare(
+            "INSERT INTO `Photo` (id, filename, storagePath, thumbnailPath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
+        );
+        $stmt->execute([
+            $result['id'],
+            $result['filename'],
+            $result['storagePath'],
+            $result['thumbnailPath'],
+            $collectionId,
+            $createdAt,
+        ]);
 
-        echo json_encode([
+        // Auto-cover logic: set coverPhotoId on the collection if it is currently NULL
+        $wasAutoCoverSet = false;
+        $coverStmt = $pdo->prepare("SELECT coverPhotoId FROM `Collection` WHERE id = ? LIMIT 1");
+        $coverStmt->execute([$collectionId]);
+        $collection = $coverStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($collection && $collection['coverPhotoId'] === null) {
+            $updateCover = $pdo->prepare(
+                "UPDATE `Collection` SET coverPhotoId = ?, updatedAt = ? WHERE id = ?"
+            );
+            $updateCover->execute([$result['id'], date('Y-m-d H:i:s.v'), $collectionId]);
+            $wasAutoCoverSet = true;
+        }
+
+        $response = [
             "status" => "OK",
             "photo" => [
-                "id" => $result['id'],
-                "filename" => $result['filename'],
-                "storagePath" => $result['storagePath'],
-                "createdAt" => $createdAt
-            ]
-        ]);
+                "id"            => $result['id'],
+                "filename"      => $result['filename'],
+                "storagePath"   => $result['storagePath'],
+                "thumbnailPath" => $result['thumbnailPath'],
+                "createdAt"     => $createdAt,
+            ],
+        ];
+
+        if ($wasAutoCoverSet) {
+            $response["autoSetCover"] = [
+                "photoId"      => $result['id'],
+                "coverPhotoId" => $result['id'],
+            ];
+        }
+
+        echo json_encode($response);
         exit;
     }
 
@@ -98,7 +131,7 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("SELECT id, storagePath FROM `Photo` WHERE id = ? AND collectionId = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, storagePath, thumbnailPath FROM `Photo` WHERE id = ? AND collectionId = ? LIMIT 1");
         $stmt->execute([$photoId, $collectionId]);
         $photo = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -108,8 +141,13 @@ try {
             exit;
         }
 
-        // Delete file from disk (validates path is within uploads directory)
+        // Delete original file from disk (validates path is within uploads directory)
         safeDeleteUploadedFile($photo['storagePath']);
+
+        // Delete thumbnail from disk if it exists
+        if (!empty($photo['thumbnailPath'])) {
+            safeDeleteUploadedFile($photo['thumbnailPath']);
+        }
 
         $pdo->prepare("DELETE FROM `Photo` WHERE id = ? AND collectionId = ?")->execute([$photoId, $collectionId]);
 
