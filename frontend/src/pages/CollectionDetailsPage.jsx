@@ -226,13 +226,38 @@ function CollectionDetailsPage() {
         { method: "DELETE", credentials: "include" }
       );
       if (res.ok) {
-        setPhotos((prev) => prev.filter((p) => p.id !== photoId));
-        // Clear cover if the deleted photo was the cover
-        setCollection((prev) =>
-          prev.coverPhotoId === photoId
-            ? { ...prev, coverPhotoId: null }
-            : prev
-        );
+        const remaining = photos.filter((p) => p.id !== photoId);
+        setPhotos(remaining);
+
+        // Auto-promote cover if the deleted photo was the cover
+        if (collection.coverPhotoId === photoId && remaining.length > 0) {
+          // Find the next photo: the one after the deleted photo in the original list, or first if deleted was last
+          const deletedIndex = photos.findIndex((p) => p.id === photoId);
+          const promotedIndex = deletedIndex < remaining.length ? deletedIndex : 0;
+          const promotedId = remaining[promotedIndex].id;
+
+          // Update local state immediately (optimistic)
+          setCollection((prev) => ({ ...prev, coverPhotoId: promotedId }));
+
+          // Persist to backend
+          try {
+            await fetch(
+              `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
+              {
+                method: "PATCH",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ photoId: promotedId }),
+              }
+            );
+          } catch {
+            // Non-critical: cover badge already updated in UI; backend will be consistent on next load
+          }
+        } else if (collection.coverPhotoId === photoId) {
+          // No remaining photos — clear the cover
+          setCollection((prev) => ({ ...prev, coverPhotoId: null }));
+        }
+
         // Close lightbox if open
         setLightboxIndex(null);
       } else {
