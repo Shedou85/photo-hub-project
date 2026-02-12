@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 1 of 4 (Photo Upload)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Completed 01-02 (frontend thumbnail grid + auto-cover state)
+Plan: 3 of 3 in current phase
+Status: Awaiting human checkpoint
+Last activity: 2026-02-12 — Auto tasks of 01-03 complete (lightbox verified, cover auto-promotion added); paused at human-verify checkpoint
 
-Progress: [██░░░░░░░░] 17%
+Progress: [██░░░░░░░░] 21%
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Recent decisions affecting current work:
 - Grid images: thumbnailPath ?? storagePath — null/undefined triggers fallback to original, never show broken images
 - Cover badge update is optimistic: parse autoSetCover from POST /collections/{id}/photos, no extra GET needed
 - ESLint config: react/prop-types off (project style), react-refresh rule off (AuthContext hook+provider in same file)
+- Cover auto-promotion on deletion: promotes photo at same grid index as deleted; optimistic UI + PATCH to backend; fire-and-forget (non-blocking)
 
 ### Pending Todos
 
@@ -67,5 +68,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 01-02-PLAN.md — frontend thumbnail grid, auto-cover state update, ESLint config
+Stopped at: 01-03-PLAN.md Task 3 (checkpoint:human-verify) — auto tasks complete, awaiting user verification in browser
 Resume file: None
