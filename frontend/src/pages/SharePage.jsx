@@ -179,7 +179,7 @@ function SharePage() {
                   className={`relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100 cursor-pointer ${
                     isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''
                   }`}
-                  onClick={() => canSelect ? toggleSelection(photo.id) : setLightboxIndex(index)}
+                  onClick={() => setLightboxIndex(index)}
                 >
                   <img
                     src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
@@ -190,31 +190,25 @@ function SharePage() {
                     draggable={false}
                   />
 
-                  {/* Checkbox overlay — only in SELECTING status */}
+                  {/* Clickable checkbox overlay — only in SELECTING status */}
                   {canSelect && (
-                    <div className={`absolute top-2 right-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
-                      isSelected
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'bg-white/80 border-gray-300 group-hover:border-blue-400'
-                    }`}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSelection(photo.id);
+                      }}
+                      className={`absolute top-2 right-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'bg-white/80 border-gray-300 group-hover:border-blue-400'
+                      }`}
+                      aria-label={isSelected ? t('share.selected') : t('share.select')}
+                    >
                       {isSelected && (
                         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
-                    </div>
-                  )}
-
-                  {/* Lightbox open button — show magnifying glass on hover in SELECTING mode */}
-                  {canSelect && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setLightboxIndex(index); }}
-                      className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label={t('share.viewPhoto')}
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
                     </button>
                   )}
                 </div>
