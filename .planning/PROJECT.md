@@ -8,6 +8,16 @@ Photo Hub is a collection management app for professional photographers at pixel
 
 The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
 
+## Current Milestone: v2.0 Delivery & Polish
+
+**Goal:** Enable client delivery of edited photos with flexible download options (ZIP + individual) and improve UI/UX across the photographer workflow.
+
+**Target features:**
+- Separate delivery link system for edited finals
+- ZIP download all finals + individual photo downloads
+- DOWNLOADED status tracking (collection lifecycle: DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED)
+- UI polish: hide upload dropzone after first upload, reorganize collection details and share page buttons, improve action flow clarity
+
 ## Requirements
 
 ### Validated
@@ -37,7 +47,14 @@ The photographer can hand a client a link — the client selects photos for edit
 
 <!-- Current scope. Building toward these. -->
 
-(Empty — next milestone not yet planned. Use `/gsd:new-milestone` to define next scope.)
+- [ ] Client can download edited photos as ZIP file
+- [ ] Client can download individual edited photos
+- [ ] Photographer can generate separate delivery link for client
+- [ ] Selection link redirects to delivery page after DELIVERED status
+- [ ] Collection transitions to DOWNLOADED status after client downloads
+- [ ] Upload dropzone hides after first photo upload
+- [ ] Collection details page has improved button organization
+- [ ] Share page has improved client action layout
 
 ### Out of Scope
 
@@ -45,11 +62,9 @@ The photographer can hand a client a link — the client selects photos for edit
 
 - Cloud storage (S3 / Cloudflare R2) — deferred; using backend/uploads/ for now, migration planned for future milestone when storage costs justify migration effort
 - Client accounts / authentication — deliberate; client access is link-only by design to maintain zero-friction workflow
-- Email notifications — not in scope; photographers share links manually
+- Email notifications — deferred; photographers share links manually, email integration planned for future milestone
 - Real-time updates (WebSockets) — not needed; manual refresh is sufficient for this workflow
-- ZIP download delivery — deferred to v2.0; requires testing Hostinger max_execution_time limits and server-side streaming implementation
-- ARCHIVED status workflow — deferred to v2.0; not needed for initial release
-- Collection delivery links separate from share links — deferred to v2.0; current workflow uses single share link for entire lifecycle
+- ARCHIVED status workflow — deferred; not needed for v2.0 release
 
 ## Context
 
@@ -86,4 +101,4 @@ The photographer can hand a client a link — the client selects photos for edit
 | Single share link for entire lifecycle | Simpler UX than separate gallery/delivery links | ✓ Good — Shipped, may revisit for v2.0 if client feedback requests separation |
 
 ---
-*Last updated: 2026-02-13 after v1.0 milestone completion*
+*Last updated: 2026-02-13 after v2.0 milestone initialization*

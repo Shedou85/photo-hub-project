@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Planning next milestone — use `/gsd:new-milestone` to define v1.1 or v2.0 scope
+**Current focus:** Milestone v2.0 Delivery & Polish
 
 ## Current Position
 
-Milestone: v1.0 MVP — COMPLETED 2026-02-13
-Phases: 4/4 complete (9/9 plans)
-Status: Milestone archived, ready for next milestone planning
-Last activity: 2026-02-13 — Completed v1.0 milestone archival
-
-Progress: v1.0 [██████████] 100% ✓ SHIPPED
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-13 — Milestone v2.0 started
 
 ## Performance Metrics
 
