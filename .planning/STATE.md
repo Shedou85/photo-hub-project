@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-11)
+See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Phase 4 - Review and Delivery
+**Current focus:** Planning next milestone — use `/gsd:new-milestone` to define v1.1 or v2.0 scope
 
 ## Current Position
 
-Phase: 4 of 4 (Review and Delivery)
-Plan: 2 of 2 in current phase
-Status: Phase 4 complete — all plans executed successfully
-Last activity: 2026-02-13 — Completed 04-02-PLAN.md (edited finals upload and delivery)
+Milestone: v1.0 MVP — COMPLETED 2026-02-13
+Phases: 4/4 complete (9/9 plans)
+Status: Milestone archived, ready for next milestone planning
+Last activity: 2026-02-13 — Completed v1.0 milestone archival
 
-Progress: [██████████] 100%
+Progress: v1.0 [██████████] 100% ✓ SHIPPED
 
 ## Performance Metrics
 
@@ -96,14 +96,16 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 04-02-PLAN.md (edited finals upload and delivery). Phase 4 complete. All 9 plans executed successfully.
+Stopped at: v1.0 milestone archived. Ready for next milestone planning with `/gsd:new-milestone`.
 Resume file: None
 
-## Phase 4 Complete
+## v1.0 Milestone Complete
 
-All plans in Review and Delivery phase complete:
-- ✓ 04-01: Photographer selection review UI with filter tabs and badges
-- ✓ 04-02: Edited finals upload and DELIVERED status transition
+**Shipped:** Complete photographer-to-client workflow
+- 4 phases (9 plans)
+- 15/15 requirements satisfied
+- 100% cross-phase integration
+- E2E flows verified
 
 **Full collection lifecycle implemented:**
 DRAFT → SELECTING → REVIEWING → DELIVERED
@@ -112,4 +114,5 @@ DRAFT → SELECTING → REVIEWING → DELIVERED
 - Photographer: Upload proofs → share link → review selections → upload finals → deliver
 - Client: View gallery → select photos → submit selections
 
-**Production readiness:** All core features implemented. ZIP download deferred to v2.
+**Archives:** See `.planning/milestones/v1.0-*` for full details
+**Next steps:** Run `/gsd:new-milestone` to define v1.1 or v2.0 scope

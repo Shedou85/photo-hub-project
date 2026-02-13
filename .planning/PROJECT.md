@@ -14,48 +14,55 @@ The photographer can hand a client a link — the client selects photos for edit
 
 <!-- Shipped and confirmed valuable. -->
 
-- ✓ User can register with email and password — existing
-- ✓ User can log in and session persists across browser refresh — existing
-- ✓ User can update their profile (name, bio) — existing
-- ✓ User can create a collection — existing
-- ✓ User can view their collections as Polaroid-style cards — existing
-- ✓ User can view collection details — existing
-- ✓ User can delete a collection — existing
-- ✓ UI supports Lithuanian, English, and Russian — existing
+- ✓ User can register with email and password — pre-v1.0
+- ✓ User can log in and session persists across browser refresh — pre-v1.0
+- ✓ User can update their profile (name, bio) — pre-v1.0
+- ✓ User can create a collection — pre-v1.0
+- ✓ User can view their collections as Polaroid-style cards — pre-v1.0
+- ✓ User can view collection details — pre-v1.0
+- ✓ User can delete a collection — pre-v1.0
+- ✓ UI supports Lithuanian, English, and Russian — pre-v1.0
+- ✓ Photographer can upload photos to a collection with GD thumbnail generation — v1.0
+- ✓ Collection cover is automatically set to the first uploaded photo; photographer can override it — v1.0
+- ✓ Collection card color reflects status (blue=SELECTING, green=REVIEWING) — v1.0
+- ✓ Photographer can generate a shareable client link (token-based, no client account required) — v1.0
+- ✓ Client can browse collection photos in a responsive viewer (grid + fullscreen lightbox) — v1.0
+- ✓ Client can mark photos for editing (selection stage) with optimistic updates — v1.0
+- ✓ Client cannot download any photos during the selection stage — v1.0
+- ✓ Photographer can view which photos the client selected, with All/Selected/Not Selected filter tabs — v1.0
+- ✓ Photographer can upload edited (final) versions of photos — v1.0
+- ✓ Collection transitions through complete lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED) — v1.0
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] Photographer can upload photos to a collection (stored in backend/uploads/)
-- [ ] Collection cover is automatically set to the first uploaded photo; photographer can override it
-- [ ] Collection card color reflects status (default = grey/white, SELECTING = blue, REVIEWING = green, DELIVERED = purple)
-- [ ] Photographer can generate a shareable client link (token-based, no client account required)
-- [ ] Client can browse collection photos in a responsive viewer (grid + fullscreen modes)
-- [ ] Client can mark photos for editing (selection stage)
-- [ ] Client cannot download any photos during the selection stage
-- [ ] Photographer can view which photos the client selected, with selected/not-selected filter
-- [ ] Photographer can upload edited (final) versions of photos
-- [ ] Photographer can send a delivery link to the client
-- [ ] Client can download individual photos from the delivery view
-- [ ] Client can download all delivered photos as a ZIP archive (server-side ZIP via PHP)
+(Empty — next milestone not yet planned. Use `/gsd:new-milestone` to define next scope.)
 
 ### Out of Scope
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
 
-- Cloud storage (S3 / Cloudflare R2) — deferred; using backend/uploads/ for now, migration planned for a future milestone
-- Client accounts / authentication — deliberate; client access is link-only by design
-- Email notifications — not in scope for this milestone
-- Real-time updates (WebSockets) — not needed; polling or manual refresh is sufficient
+- Cloud storage (S3 / Cloudflare R2) — deferred; using backend/uploads/ for now, migration planned for future milestone when storage costs justify migration effort
+- Client accounts / authentication — deliberate; client access is link-only by design to maintain zero-friction workflow
+- Email notifications — not in scope; photographers share links manually
+- Real-time updates (WebSockets) — not needed; manual refresh is sufficient for this workflow
+- ZIP download delivery — deferred to v2.0; requires testing Hostinger max_execution_time limits and server-side streaming implementation
+- ARCHIVED status workflow — deferred to v2.0; not needed for initial release
+- Collection delivery links separate from share links — deferred to v2.0; current workflow uses single share link for entire lifecycle
 
 ## Context
 
-- Stack: React 18 + Vite 5 frontend, vanilla PHP backend, MySQL database
-- Hosting: Hostinger server; backend/uploads/ for file storage (S3 migration planned later)
-- Cross-domain: frontend on pixelforge.pro, API on api.pixelforge.pro/backend/ — session cookies scoped to .pixelforge.pro
-- DB schema already includes: Photo, EditedPhoto, Selection, PromotionalPhoto tables and collection status enum (DRAFT → SELECTING → REVIEWING → DELIVERED → ARCHIVED)
-- Codebase map exists at .planning/codebase/ — architecture, stack, conventions documented
+**Current State (after v1.0):**
+- **Shipped:** Complete photographer-to-client workflow with photo upload, token-based sharing, client selection, and delivery
+- **Codebase:** 2,886 lines JS/JSX frontend + 1,777 lines PHP backend
+- **Requirements:** 15/15 v1.0 requirements validated, 100% cross-phase integration, E2E flows verified
+- **Tech stack:** React 18 + Vite 5 frontend, vanilla PHP backend with PDO, MySQL database
+- **Hosting:** Hostinger server; backend/uploads/ for file storage (S3 migration planned for future milestone)
+- **Cross-domain:** frontend on pixelforge.pro, API on api.pixelforge.pro/backend/ — session cookies scoped to .pixelforge.pro
+- **DB schema:** Photo, EditedPhoto, Selection, PromotionalPhoto tables; collection status lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED → ARCHIVED)
+- **Known tech debt:** GD WebP support verification needed on Hostinger; ZIP download delivery deferred to v2.0
+- **Codebase map:** Architecture and conventions documented at .planning/codebase/
 
 ## Constraints
 
@@ -69,10 +76,14 @@ The photographer can hand a client a link — the client selects photos for edit
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Local file storage (backend/uploads/) | Simplest path to ship; cloud migration planned but not needed now | — Pending |
-| Token-based client access (no accounts) | Friction-free for clients; photographers share one link | — Pending |
-| Server-side ZIP generation (PHP) | Avoids large client-side memory usage for many/large files | — Pending |
-| Status color coding on collection cards | Visual status at a glance without opening each collection | — Pending |
+| Local file storage (backend/uploads/) | Simplest path to ship; cloud migration planned but not needed now | ✓ Good — Shipped in v1.0, works well for initial scale |
+| Token-based client access (no accounts) | Friction-free for clients; photographers share one link | ✓ Good — Core feature shipped, validated by audit |
+| Server-side ZIP generation (PHP) | Avoids large client-side memory usage for many/large files | — Deferred to v2.0 — Not needed for core workflow |
+| Status color coding on collection cards | Visual status at a glance without opening each collection | ✓ Good — Blue=SELECTING, green=REVIEWING shipped in v1.0 |
+| GD-based thumbnail generation (400px JPEG) | Faster grid load, reduces bandwidth; PHP GD widely available | ✓ Good — Shipped, requires Hostinger WebP verification |
+| Optimistic UI updates for selections | Instant feedback without waiting for API responses | ✓ Good — Shipped with error rollback pattern |
+| Filter tabs for photographer review | Clear separation of All/Selected/Not Selected photos | ✓ Good — Shipped with accurate counts |
+| Single share link for entire lifecycle | Simpler UX than separate gallery/delivery links | ✓ Good — Shipped, may revisit for v2.0 if client feedback requests separation |
 
 ---
-*Last updated: 2026-02-11 after initialization*
+*Last updated: 2026-02-13 after v1.0 milestone completion*
