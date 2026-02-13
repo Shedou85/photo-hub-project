@@ -143,6 +143,21 @@
     "backToCollections": "Grįžti į kolekcijas",
     "lightboxClose": "Uždaryti",
     "lightboxPrev": "Ankstesnė nuotrauka",
+    "lightboxNext": "Kita nuotrauka",
+    "copyShareLink": "Kopijuoti nuorodą",
+    "linkCopied": "Nuoroda nukopijuota!"
+  },
+  "share": {
+    "loading": "Kraunama galerija...",
+    "notFound": "Ši galerija nerasta arba gali būti nebepasiekiama.",
+    "photos": "Nuotraukos",
+    "photosCount_one": "{{count}} nuotrauka",
+    "photosCount_few": "{{count}} nuotraukos",
+    "photosCount_many": "{{count}} nuotraukų",
+    "photosCount_other": "{{count}} nuotraukų",
+    "poweredBy": "Sukurta su PixelForge",
+    "lightboxClose": "Uždaryti",
+    "lightboxPrev": "Ankstesnė nuotrauka",
     "lightboxNext": "Kita nuotrauka"
   },
   "payments": {

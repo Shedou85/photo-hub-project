@@ -141,6 +141,19 @@
     "backToCollections": "Back to Collections",
     "lightboxClose": "Close",
     "lightboxPrev": "Previous photo",
+    "lightboxNext": "Next photo",
+    "copyShareLink": "Copy share link",
+    "linkCopied": "Share link copied!"
+  },
+  "share": {
+    "loading": "Loading gallery...",
+    "notFound": "This gallery could not be found or may no longer be available.",
+    "photos": "Photos",
+    "photosCount_one": "{{count}} photo",
+    "photosCount_other": "{{count}} photos",
+    "poweredBy": "Powered by PixelForge",
+    "lightboxClose": "Close",
+    "lightboxPrev": "Previous photo",
     "lightboxNext": "Next photo"
   },
   "payments": {

@@ -304,6 +304,13 @@ function CollectionDetailsPage() {
     }
   };
 
+  const handleCopyShareLink = () => {
+    const url = `${window.location.origin}/share/${collection.shareId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(t("collection.linkCopied"));
+    });
+  };
+
   const anyUploading = useMemo(
     () => Object.values(uploadStates).some((s) => s === "uploading"),
     [uploadStates]
@@ -379,6 +386,15 @@ function CollectionDetailsPage() {
             value={new Date(collection.createdAt).toLocaleDateString()}
           />
         </div>
+        <button
+          onClick={handleCopyShareLink}
+          className="mt-4 inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          {t("collection.copyShareLink")}
+        </button>
       </div>
 
       {/* ── Upload Card ── */}

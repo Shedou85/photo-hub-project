@@ -143,6 +143,21 @@
     "backToCollections": "К коллекциям",
     "lightboxClose": "Закрыть",
     "lightboxPrev": "Предыдущее фото",
+    "lightboxNext": "Следующее фото",
+    "copyShareLink": "Скопировать ссылку",
+    "linkCopied": "Ссылка скопирована!"
+  },
+  "share": {
+    "loading": "Загрузка галереи...",
+    "notFound": "Эта галерея не найдена или больше недоступна.",
+    "photos": "Фотографии",
+    "photosCount_one": "{{count}} фото",
+    "photosCount_few": "{{count}} фото",
+    "photosCount_many": "{{count}} фото",
+    "photosCount_other": "{{count}} фото",
+    "poweredBy": "Создано с PixelForge",
+    "lightboxClose": "Закрыть",
+    "lightboxPrev": "Предыдущее фото",
     "lightboxNext": "Следующее фото"
   },
   "payments": {
