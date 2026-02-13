@@ -175,6 +175,17 @@ switch ($requestUri) {
         break;
 
     default:
+        // Handle /share/{shareId} (public endpoint)
+        if (strpos($requestUri, '/share/') === 0) {
+            if ($requestMethod === 'GET') {
+                require_once __DIR__ . '/collections/share.php';
+            } else {
+                http_response_code(405);
+                echo json_encode(['error' => 'Method Not Allowed']);
+            }
+            break;
+        }
+
         // Handle /collections/{id} and sub-routes
         if (strpos($requestUri, '/collections/') === 0) {
             $uriParts = explode('/', ltrim($requestUri, '/'));
