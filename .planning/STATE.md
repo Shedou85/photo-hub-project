@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 4 of 4 (Review and Delivery)
-Plan: 0 of 2 in current phase
-Status: Phase 4 planned — 2 plans in 2 waves ready for execution
-Last activity: 2026-02-13 — Created 04-01-PLAN.md and 04-02-PLAN.md
+Plan: 1 of 2 in current phase
+Status: Phase 4 in progress — 04-01 complete, 04-02 ready for execution
+Last activity: 2026-02-13 — Completed 04-01-PLAN.md (photographer selection review UI)
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 10.4 min
-- Total execution time: 1.2 hours
+- Total plans completed: 8
+- Average duration: 11.4 min
+- Total execution time: 1.5 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [███████░░░] 70%
 | 01-photo-upload | 3/3 | 32 min | 10.7 min |
 | 02-sharing-and-status | 2/2 | 30 min | 15.0 min |
 | 03-client-gallery-and-selection | 2/2 | 27 min | 13.5 min |
+| 04-review-and-delivery | 1/2 | 21 min | 21.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (9 min), 02-02 (21 min), 03-01 (2 min), 03-02 (25 min)
-- Trend: Phase 3 complete - fast API creation followed by iterative UI refinement
+- Last 5 plans: 02-02 (21 min), 03-01 (2 min), 03-02 (25 min), 04-01 (21 min)
+- Trend: Consistent UI refinement pattern with verification checkpoints catching usability issues
 
 *Updated after each plan completion*
 
@@ -69,6 +70,12 @@ Recent decisions affecting current work:
 - Client selection checkbox sizing: 24px outlined square with 16px checkmark - optimal balance of visibility and subtlety
 - Download prevention on share pages: Always active regardless of collection status (right-click, drag, select-all blocked)
 - Optimistic selection updates: UI changes before API response with error rollback pattern for instant feedback
+- Filter tabs visibility: Only show when selections.length > 0 to avoid empty UI on DRAFT collections
+- Lightbox navigation scope: prev/next uses full photos array regardless of active filter for seamless browsing
+- Filter reset on collection change: useEffect pattern resets filter to 'all' when navigating between collections
+- Selection badge positioning: Blue checkmark at top-right (8px margin) for visibility without overlapping cover badge
+- UI focus outlines: Completely removed from filter buttons and lightbox controls per user preference for cleaner look
+- Lightbox arrow visibility: Black backgrounds (bg-black/60) instead of white for better contrast on light photos
 
 ### Pending Todos
 
@@ -84,5 +91,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Created Phase 4 plans (04-01 and 04-02). Ready for execution.
+Stopped at: Completed 04-01-PLAN.md (photographer selection review UI). Ready for 04-02 execution.
 Resume file: None
