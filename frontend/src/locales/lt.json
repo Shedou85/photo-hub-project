@@ -195,7 +195,12 @@
     "selectionError": "Nepavyko atnaujinti pasirinkimo. Bandykite dar kartą.",
     "select": "Pasirinkti",
     "selected": "Pasirinkta",
-    "viewPhoto": "Peržiūrėti nuotrauką"
+    "viewPhoto": "Peržiūrėti nuotrauką",
+    "submitSelections": "Pateikti Pasirinkimus ({{count}})",
+    "submitSelectionsSuccess": "Jūsų pasirinkimai pateikti! Fotografas dabar paruoš redaguotas nuotraukas.",
+    "submitSelectionsError": "Nepavyko pateikti pasirinkimų. Bandykite dar kartą.",
+    "selectionsSubmitted": "Pasirinkimai pateikti",
+    "selectionsSubmittedMessage": "Ačiū! Jūsų fotografas peržiūrės pasirinkimus ir paruoš galutinius redaguotus failus."
   },
   "payments": {
     "title": "Mokėjimai",

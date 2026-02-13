@@ -19,6 +19,8 @@ function SharePage() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState(new Set());
   const [requestsInFlight, setRequestsInFlight] = useState(new Set());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const canSelect = collection?.status === 'SELECTING';
 
@@ -64,6 +66,36 @@ function SharePage() {
         next.delete(photoId);
         return next;
       });
+    }
+  };
+
+  const submitSelections = async () => {
+    if (isSubmitting || selectedPhotoIds.size === 0) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const res = await fetch(`${baseUrl}/share/${shareId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'REVIEWING' }),
+      });
+
+      if (!res.ok) throw new Error('Submit failed');
+
+      const data = await res.json();
+      if (data.status === 'OK') {
+        setCollection(prev => ({ ...prev, status: 'REVIEWING' }));
+        setIsSubmitted(true);
+        toast.success(t('share.submitSelectionsSuccess'));
+      } else {
+        throw new Error('Invalid response');
+      }
+    } catch {
+      toast.error(t('share.submitSelectionsError'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -224,8 +256,33 @@ function SharePage() {
           </div>
         )}
 
+        {/* Submit selections section — only show in SELECTING status with selections */}
+        {canSelect && selectedPhotoIds.size > 0 && !isSubmitted && (
+          <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-4 px-6 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] mt-8">
+            <button
+              onClick={submitSelections}
+              disabled={isSubmitting}
+              className="w-full max-w-[400px] mx-auto block bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-[14px] px-6 rounded-[10px] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isSubmitting ? t('share.submitting') || 'Submitting...' : t('share.submitSelections', { count: selectedPhotoIds.size })}
+            </button>
+          </div>
+        )}
+
+        {/* Success message after submission */}
+        {isSubmitted && (
+          <div className="bg-green-50 border border-green-200 rounded-[10px] p-5 mt-8 text-center">
+            <div className="text-green-600 font-semibold text-base mb-2">
+              {t('share.selectionsSubmitted')}
+            </div>
+            <p className="text-sm text-green-700 m-0">
+              {t('share.selectionsSubmittedMessage')}
+            </p>
+          </div>
+        )}
+
         {/* Footer branding */}
-        <div className="text-center text-xs text-gray-400 py-5 border-t border-gray-200">
+        <div className="text-center text-xs text-gray-400 py-5 border-t border-gray-200 mt-8">
           {t("share.poweredBy")}
         </div>
       </div>

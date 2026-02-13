@@ -195,7 +195,12 @@
     "selectionError": "Не удалось обновить выбор. Попробуйте ещё раз.",
     "select": "Выбрать",
     "selected": "Выбрано",
-    "viewPhoto": "Посмотреть фото"
+    "viewPhoto": "Посмотреть фото",
+    "submitSelections": "Отправить выбор ({{count}})",
+    "submitSelectionsSuccess": "Ваш выбор отправлен! Фотограф подготовит отредактированные фотографии.",
+    "submitSelectionsError": "Не удалось отправить выбор. Попробуйте ещё раз.",
+    "selectionsSubmitted": "Выбор отправлен",
+    "selectionsSubmittedMessage": "Спасибо! Ваш фотограф рассмотрит ваш выбор и подготовит готовые файлы."
   },
   "payments": {
     "title": "Оплата",

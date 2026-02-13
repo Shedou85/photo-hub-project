@@ -188,7 +188,7 @@ switch ($requestUri) {
                 break;
             }
             // Base share route: /share/{shareId}
-            if ($requestMethod === 'GET') {
+            if (in_array($requestMethod, ['GET', 'PATCH'])) {
                 require_once __DIR__ . '/collections/share.php';
             } else {
                 http_response_code(405);

@@ -189,7 +189,12 @@
     "selectionError": "Failed to update selection. Please try again.",
     "select": "Select",
     "selected": "Selected",
-    "viewPhoto": "View photo"
+    "viewPhoto": "View photo",
+    "submitSelections": "Submit My Selections ({{count}})",
+    "submitSelectionsSuccess": "Your selections have been submitted! The photographer will now prepare your edited photos.",
+    "submitSelectionsError": "Failed to submit selections. Please try again.",
+    "selectionsSubmitted": "Selections submitted",
+    "selectionsSubmittedMessage": "Thank you! Your photographer will review your selections and prepare the final edited photos."
   },
   "payments": {
     "title": "Payments",
