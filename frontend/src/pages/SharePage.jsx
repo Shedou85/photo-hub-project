@@ -141,7 +141,7 @@ function SharePage() {
       {/* Lightbox */}
       {lightboxIndex !== null && photos[lightboxIndex] && (
         <div
-          className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           onClick={() => setLightboxIndex(null)}
         >
           {/* Prev arrow */}
@@ -151,7 +151,7 @@ function SharePage() {
               setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
             }}
             aria-label={t("share.lightboxPrev")}
-            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-colors z-10"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 backdrop-blur-sm text-white flex items-center justify-center transition-colors z-10"
           >
             <svg
               className="w-5 h-5"
@@ -185,7 +185,7 @@ function SharePage() {
               );
             }}
             aria-label={t("share.lightboxNext")}
-            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-colors z-10"
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 backdrop-blur-sm text-white flex items-center justify-center transition-colors z-10"
           >
             <svg
               className="w-5 h-5"
@@ -206,7 +206,7 @@ function SharePage() {
           <button
             onClick={() => setLightboxIndex(null)}
             aria-label={t("share.lightboxClose")}
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center font-bold text-lg transition-colors z-10"
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/25 hover:bg-white/40 backdrop-blur-sm text-white flex items-center justify-center font-bold text-lg transition-colors z-10"
           >
             ×
           </button>
