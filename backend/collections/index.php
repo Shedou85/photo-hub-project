@@ -17,10 +17,13 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Handle GET request - list all collections for the user
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, coverPhotoId, createdAt, updatedAt
-            FROM `Collection`
-            WHERE userId = ?
-            ORDER BY createdAt DESC
+            SELECT c.id, c.name, c.status, c.clientName, c.clientEmail, c.shareId,
+                   c.coverPhotoId, c.createdAt, c.updatedAt,
+                   p.thumbnailPath as coverPhotoPath
+            FROM `Collection` c
+            LEFT JOIN `Photo` p ON c.coverPhotoId = p.id
+            WHERE c.userId = ?
+            ORDER BY c.createdAt DESC
         ");
         $stmt->execute([$userId]);
         $collections = $stmt->fetchAll(PDO::FETCH_ASSOC);
