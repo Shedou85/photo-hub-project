@@ -1,222 +1,434 @@
 # Pitfalls Research
 
-**Domain:** Photo delivery / client gallery app — PHP file uploads, token-based sharing, download protection, server-side ZIP, React photo viewer
-**Researched:** 2026-02-11
+**Domain:** Adding delivery links, ZIP downloads, and download tracking to existing photo management system
+**Researched:** 2026-02-13 (Updated for v2.0 delivery features)
 **Confidence:** HIGH
 
+**Context:** This research focuses on pitfalls when **adding delivery and download features to an existing v1.0 selection workflow**. See original v1.0 pitfalls research (2026-02-11) for foundational security issues. This update addresses integration challenges when extending the system with separate delivery tokens, server-side ZIP generation, individual photo downloads, DOWNLOADED status tracking, and UI polish.
+
 ---
 
-## Critical Pitfalls
+## Critical Pitfalls (v2.0 Delivery Features)
 
-### Pitfall 1: Files Stored in a Web-Accessible Directory
+### Pitfall 1: Token Confusion Between Sharing and Delivery
 
 **What goes wrong:**
-Photos uploaded to `backend/uploads/` are served directly by Apache via URL. Any person who knows — or guesses — the file path (e.g. `https://api.pixelforge.pro/backend/uploads/abc123.jpg`) can download it without any authentication or token check. All download-protection logic in PHP becomes irrelevant if the files themselves are directly reachable.
+Reusing the existing `shareId` token for delivery downloads creates security risks. Clients who receive delivery links can still modify selections or change collection status. If delivery tokens leak, anyone can download the photos AND make changes to the collection. The selection workflow becomes insecure after delivery.
 
 **Why it happens:**
-Developers store files in a folder under the web root for convenience and immediately test that uploads "work" by visiting the URL. They implement download protection later — but the direct URL path is never closed.
+The existing `shareId` system worked fine for v1.0 selection workflow. Developers assume extending the same token for delivery is simpler than creating separate tokens. "It's already there" feels efficient. No one wants to add another column.
 
 **How to avoid:**
-Store uploads *outside* the Apache document root or block direct access with `.htaccess`. Two options for this project:
-- Move `uploads/` to a sibling of the web root (e.g. `/home/user/uploads/`) so Apache never serves it directly.
-- If the directory must stay in the web root, add a `.htaccess` file inside `backend/uploads/` that denies all direct requests:
-  ```apache
-  Options -Indexes
-  deny from all
+- Create a **separate** `deliveryToken` column in Collection table:
+  ```sql
+  ALTER TABLE `Collection` ADD COLUMN `deliveryToken` VARCHAR(191) NULL UNIQUE;
   ```
-  Then serve every file through a PHP proxy script (`/download?token=...`) that validates the token and status before reading the file with `readfile()`.
+- Generate deliveryToken **only** when status transitions to DELIVERED (not on collection creation)
+- Use cryptographically random generation: `bin2hex(random_bytes(32))` (64 hex chars minimum)
+- Delivery endpoints (`/delivery/{deliveryToken}`) must be READ-ONLY — no selection changes, no status updates
+- Sharing endpoints (`/share/{shareId}`) remain read-write for selection during SELECTING/REVIEWING
+- Validate token type in endpoint logic: sharing routes REJECT deliveryToken, delivery routes REJECT shareId
+- Delivery token should have separate expiration from share token
 
 **Warning signs:**
-- You can open `https://api.pixelforge.pro/backend/uploads/somefile.jpg` in a browser and the photo appears without any token in the URL.
-- Apache directory listing is enabled (`Options +Indexes`) on the uploads folder.
+- Delivery routes use the same handler as share routes
+- No separate permission checks for download vs. selection
+- Token generation happens on collection creation instead of status transition
+- Same token appears in both client gallery URL and delivery email
+- Code like `if ($shareId === $deliveryToken)` exists anywhere
 
 **Phase to address:**
-Phase 1 (Photo Upload) — before any photos are uploaded to production. Fix the directory access policy before writing a single upload handler.
+Phase 1: Separate Delivery Token (early architecture decision prevents cascading security issues)
+
+**Sources:**
+- [Token Best Practices (Auth0)](https://auth0.com/docs/secure/tokens/token-best-practices) — Separate tokens for different scopes
+- [Key Approaches to Token Sharing (Curity)](https://curity.io/resources/learn/token-sharing/) — Token exchange vs embedded patterns
 
 ---
 
-### Pitfall 2: Token-Based Sharing With Guessable or Reusable Tokens
+### Pitfall 2: ZIP Generation Exceeding Hostinger Limits
 
 **What goes wrong:**
-If `shareId` (the `Collection.shareId` column) is generated with a weak source of randomness — or if it is the same as the collection's primary `id` — attackers can enumerate or guess valid share links. Additionally, if a token never expires and is never revokable, a photographer cannot invalidate a link once shared.
+Server-side ZIP creation for large collections (50+ high-res photos) hits Hostinger's `max_execution_time` limit (180 seconds maximum) or `memory_limit`, causing timeouts. Half-generated ZIP files corrupt downloads. Users receive "Download failed" with no explanation. Photographer reputation suffers.
 
 **Why it happens:**
-Developers reuse the collection `id` as the share token (already a CUID in this schema — which is fine for uniqueness but was not designed as a secret). Or they generate tokens with `rand()` or `mt_rand()` which are not cryptographically random.
+Developers test with 5-10 small photos locally. Native `ZipArchive` loads entire archive into memory on shared hosting. No one tests with 100 edited photos (10MB each = 1GB total) until production. Hostinger's limits aren't discovered until client complaints.
 
 **How to avoid:**
-- Generate `shareId` with `bin2hex(random_bytes(24))` (48 hex chars). This is cryptographically random and not guessable.
-- Never expose the internal collection `id` in the public-facing client URL — use only `shareId`.
-- The `Collection.expiresAt` column already exists in the schema: enforce expiry in every PHP handler that accepts a `shareId`. Return 410 Gone when expired.
-- Add a "Regenerate link" action for photographers to invalidate the old `shareId` and create a new one.
-
-**Warning signs:**
-- The public collection URL contains the same ID that appears in the photographer's `/collection/:id` route.
-- Token generation uses PHP's `rand()`, `mt_rand()`, `uniqid()`, or any non-cryptographic function.
-- `expiresAt` column is never read in the share-token validation handler.
-
-**Phase to address:**
-Phase 2 (Token-Based Sharing) — validate token generation and expiry enforcement before the feature ships.
-
----
-
-### Pitfall 3: Download Protection Enforced Only by the Frontend
-
-**What goes wrong:**
-The React app hides download buttons or disables right-click during the SELECTING stage. A client opens DevTools, finds the direct photo URL from a `<img src="...">` tag or a network request, and downloads every photo. The protection is entirely cosmetic.
-
-**Why it happens:**
-Frontend download blocking is easy to implement and looks correct during demos. Developers assume users won't inspect network traffic. The actual file URL is always visible to the browser.
-
-**How to avoid:**
-Every photo served during SELECTING must be delivered through a PHP proxy endpoint that checks collection status before streaming:
-
-```php
-// GET /photo?id=<photoId>&token=<shareId>
-// 1. Look up collection via shareId — verify status != DELIVERED for raw photos
-// 2. If status is SELECTING/REVIEWING, return 403 for direct download requests
-// 3. Only stream the image bytes when the request is a browser display (not download)
-```
-
-For the viewer to show images without allowing download:
-- Serve photos as data-URI blobs through the PHP endpoint (adds latency but prevents URL leakage).
-- Or use a short-lived signed token per request so the URL in the `<img src>` expires after seconds — making saved URLs useless.
-- Set `Content-Disposition: inline` (not `attachment`) and `X-Content-Type-Options: nosniff` to prevent the browser treating the response as a download.
-- The `<img>` element naturally prevents "Save image" from saving the original-resolution file only when you serve a lower-resolution proxy — serve thumbnails for the viewer grid and fullscreen, never the original during SELECTING.
-
-**Warning signs:**
-- Photo URLs in network requests during SELECTING point directly to `uploads/` with no token.
-- Right-click disable is implemented in JavaScript on the photo grid.
-- No server-side check of collection status when a photo is requested.
-
-**Phase to address:**
-Phase 3 (Client Selection Workflow) — must be enforced at the PHP level before the selection feature is considered done. Frontend UI changes alone do not count.
-
----
-
-### Pitfall 4: PHP File Upload Accepting Dangerous Files
-
-**What goes wrong:**
-The upload handler trusts the MIME type sent by the browser (`$_FILES['file']['type']`) or only checks the file extension. An attacker uploads a PHP file named `shell.php.jpg` or a JPEG with embedded PHP code. When the file is later served (or if PHP processing is enabled in the uploads directory), the attacker achieves remote code execution.
-
-**Why it happens:**
-`$_FILES['file']['type']` is browser-supplied and trivially spoofable. Extension checks on `$_FILES['file']['name']` can be bypassed with double extensions.
-
-**How to avoid:**
-- Validate MIME type server-side using `finfo_file()` (reads actual file magic bytes, not browser header).
-- Whitelist only: `image/jpeg`, `image/png`, `image/webp`, `image/gif`.
-- Strip the original filename entirely — generate a new random filename with a safe extension derived from the validated MIME type (e.g. `bin2hex(random_bytes(16)) . '.jpg'`). Never use the client-supplied filename.
-- Add `php_flag engine off` to `backend/uploads/.htaccess` to disable PHP execution in the uploads directory even if a PHP file is somehow saved there.
-- Validate file size server-side (`$_FILES['file']['size']`) before saving — do not rely only on `upload_max_filesize` in `php.ini`.
-
-**Warning signs:**
-- Upload handler uses `$_FILES['file']['type']` without `finfo_file()` verification.
-- Stored filename is derived from `$_FILES['file']['name']` even partially.
-- No `.htaccess` with `php_flag engine off` in the uploads directory.
-
-**Phase to address:**
-Phase 1 (Photo Upload) — validate and harden before the first file is accepted in any environment.
-
----
-
-### Pitfall 5: Server-Side ZIP Generation Timing Out or Exhausting Memory on Shared Hosting
-
-**What goes wrong:**
-A photographer delivers 200 high-resolution JPEG files (~5 MB each = ~1 GB). The PHP ZIP handler reads all files into memory or processes them sequentially within a single HTTP request. The request times out (Hostinger shared hosting default: 30–60 seconds), or PHP hits its memory limit, and the client receives an error with a partial or no ZIP.
-
-**Why it happens:**
-PHP's `ZipArchive` is simple to use for small file sets. Developers test with 5–10 photos and ship it. Real deliveries have 50–300 files. Shared hosting does not allow increasing `max_execution_time` or `memory_limit` beyond platform caps.
-
-**How to avoid:**
-- Use streaming ZIP generation with `ZipStream-PHP` (maennchen/zipstream-php) or implement chunked streaming with PHP's `ZipArchive` + `ob_flush()` / `flush()` to keep the connection alive while writing.
-- Add `set_time_limit(0)` and `ini_set('memory_limit', '256M')` at the start of the ZIP handler (these work even on shared hosting within reason).
-- For very large collections: generate the ZIP asynchronously. Store the path in `Collection.processedZipPath` (this column already exists in the schema). The client polls a `/zip-status?token=...` endpoint; when ready, they download the pre-built file. Trigger ZIP generation when the photographer marks the collection as DELIVERED.
-- Alternatively, generate the ZIP progressively: each time an EditedPhoto is uploaded, append it to a persistent ZIP file on disk rather than building it all at once on demand.
-- Set `Apache TimeOut` and `php_value max_execution_time` in `.htaccess` if Hostinger allows per-directory config.
-
-**Warning signs:**
-- ZIP handler reads every file with `file_get_contents()` or `addFromString()` instead of `addFile()` (which streams from disk).
-- No `set_time_limit(0)` in the ZIP handler.
-- `Collection.processedZipPath` column is never used and ZIP is always generated on-demand.
-- Testing done only with 3–5 small test images.
-
-**Phase to address:**
-Phase 5 (ZIP Delivery) — validate with a realistic data set (50+ files, 10+ MB each) on the actual Hostinger environment before marking the phase done.
-
----
-
-### Pitfall 6: Serving Full-Resolution Images in the React Grid Viewer
-
-**What goes wrong:**
-The photo grid renders `<img src="/photo?id=...">` pointing to the original uploaded files (5–25 MB JPEG each). Loading a collection of 80 photos triggers 80 parallel requests each fetching megabytes of data. The page hangs, the mobile experience is broken, and Hostinger bandwidth limits are hammered on every page load.
-
-**Why it happens:**
-Thumbnails require server-side image processing (GD or ImageMagick), which adds complexity. Developers defer this to "later" but the grid is built against the full-resolution endpoint — and "later" never comes.
-
-**How to avoid:**
-Generate thumbnails on upload. In the PHP upload handler, after saving the original, use GD (`imagecreatefromjpeg` + `imagecopyresampled` + `imagejpeg`) to write a `_thumb.jpg` at 400px wide. Store both paths in the `Photo` table (or derive the thumb path by convention). The grid always loads thumbnails; the fullscreen lightbox loads the original (and only when opened).
-
-Fallback if GD is unavailable: serve photos through a proxy endpoint that accepts a `?w=400` parameter and resizes on the fly with caching (store the resized version on first request).
-
-**Warning signs:**
-- Photo grid `<img>` elements request the same endpoint as the fullscreen lightbox.
-- No `_thumb` or `/thumbnail/` path exists in the Photo `storagePath` column values.
-- Page load with 20+ photos takes more than 3 seconds on a reasonable connection.
-
-**Phase to address:**
-Phase 1 (Photo Upload) — generate thumbnails at upload time. Retrofitting thumbnails for existing photos is expensive.
-
----
-
-### Pitfall 7: CORS and Cookie Configuration Breaking the Token-Based Public Route
-
-**What goes wrong:**
-The existing session cookie is configured with `SameSite=None; Secure; Domain=.pixelforge.pro`. Authenticated photographer pages work because the browser sends the cookie on cross-domain requests. But the public client view (accessed via share token, no login) hits CORS issues because the browser sends a preflight for the OPTIONS request, the PHP backend responds with CORS headers only for whitelisted origins, and the client's browser (on a different domain or no domain) gets blocked.
-
-**Why it happens:**
-CORS is set up for the `pixelforge.pro` ↔ `api.pixelforge.pro` pair. The public share page is accessed from `pixelforge.pro` (same pair, so this works), but during development from `localhost:5173` — which is already whitelisted. The real risk is if the client URL is ever served from a different subdomain or if the OPTIONS preflight handler is missing for new endpoints.
-
-**How to avoid:**
-- Every new PHP endpoint must include `backend/cors.php` before any output. Verify with browser DevTools that OPTIONS preflights return `200` and the correct `Access-Control-Allow-Methods` header.
-- The public share endpoints (those authenticated by `shareId` token rather than PHP session) must not require a session cookie. Confirm that `session_start()` is not mandatory for public endpoints — or that missing sessions are handled gracefully without a 500 error.
-- Test the public share URL from an incognito window on a device with no existing session to confirm it loads without auth errors.
-
-**Warning signs:**
-- New endpoint added to `backend/index.php` without a corresponding `require_once 'cors.php'` at the top of the handler.
-- Public share page fails to load photos in incognito mode.
-- Browser DevTools shows `Access-Control-Allow-Origin` missing on OPTIONS preflight responses for new routes.
-
-**Phase to address:**
-Phase 2 (Token-Based Sharing) and Phase 3 (Client Selection Workflow) — test each new public endpoint from incognito/fresh session.
-
----
-
-### Pitfall 8: No Path Traversal Protection in File Download Endpoint
-
-**What goes wrong:**
-A download endpoint reads a file path from the database and calls `readfile($storagePath)`. If an attacker manipulates `storagePath` in the database — or if there is any endpoint that accepts a user-supplied path — they can traverse to read `/etc/passwd`, `backend/config.php`, or any file on the server.
-
-**Why it happens:**
-Developers trust that database values are safe. But if the upload handler ever stores a user-controlled filename (even partially), or if the download endpoint accepts a path as a query parameter, path traversal becomes possible.
-
-**How to avoid:**
-- The download endpoint must never accept a raw filesystem path as input. Accept only a `photoId` (the database ID), look up the `storagePath` from the database, and then validate the resolved path before serving:
+- **Use ZipStream-PHP library** instead of native ZipArchive:
+  ```bash
+  composer require maennchen/zipstream-php
+  ```
+- ZipStream streams directly to client with NO memory buffering — processes one file at a time
+- Implement chunked streaming: `set_time_limit(0)` for download scripts (allowed for delivery endpoints, not API)
+- Add collection size validation BEFORE offering ZIP download:
   ```php
-  $realPath = realpath($storagePath);
-  $allowedDir = realpath('/home/user/uploads/');
-  if (strpos($realPath, $allowedDir) !== 0) {
-      http_response_code(403); exit;
+  $totalSize = $pdo->prepare("SELECT SUM(fileSize) FROM EditedPhoto WHERE collectionId = ?")->execute([$collectionId])->fetchColumn();
+  if ($totalSize > 2_000_000_000) { // 2GB limit
+      // Offer async generation or reject
   }
-  readfile($realPath);
   ```
-- Filenames stored in the database must be the server-generated random names, never the client-supplied originals.
+- Display estimated download size and time to users: "Download size: 1.2 GB - Estimated time: 3 min on WiFi"
+- For collections exceeding threshold (e.g., 2GB), generate ZIP asynchronously via background process and email download link when ready
+- Test with realistic photo sizes: 10MB per edited photo minimum, 50+ files
 
 **Warning signs:**
-- Download endpoint accepts `?path=...` or `?file=...` as a query parameter.
-- `storagePath` in the database contains a value like `../uploads/photo.jpg` (relative path with traversal).
-- No `realpath()` validation before `readfile()`.
+- Using `ZipArchive::open()` and `ZipArchive::close()` pattern (buffers in memory)
+- No size checks before ZIP generation
+- Timeout errors in production logs: "Maximum execution time of 180 seconds exceeded"
+- Users report "ZIP file is corrupted" or "Download interrupted at 90%"
+- No background job system for large archives
+- Testing only with small sample datasets
 
 **Phase to address:**
-Phase 1 (Photo Upload) — establish safe path storage conventions before any files are written.
+Phase 2: Server-Side ZIP Generation (core implementation must handle constraints from day one)
+
+**Sources:**
+- [ZipStream-PHP Memory Issues Discussion](https://github.com/maennchen/ZipStream-PHP/discussions/185) — Memory exhaustion with 300+ files
+- [PHP ZipArchive vs ZipStream Performance](https://github.com/maennchen/ZipStream-PHP/issues/40) — Streaming avoids memory limits
+- [Hostinger PHP Memory Limits](https://www.hostinger.com/support/1583711-what-is-php-memory-limit-at-hostinger/) — Fixed per-plan memory limits
+- [Hostinger max_execution_time](https://www.hostinger.com/tutorials/how-to-fix-maximum-execution-time-exceeded-error-wordpress) — 180s maximum via .htaccess
+
+---
+
+### Pitfall 3: Download Tracking Double-Counting
+
+**What goes wrong:**
+Every browser preflight, partial download, or resume request increments download counter. One client downloading a ZIP appears as 5-10 downloads. Analytics become meaningless. Photographers can't trust download reports. If billing is ever based on download counts, users are overcharged.
+
+**Why it happens:**
+Naive implementation: log every request to `/download/{token}` endpoint. HTTP range requests (206 Partial Content) for resume trigger multiple hits. Browser preflight OPTIONS requests count as downloads. No deduplication logic exists.
+
+**How to avoid:**
+- Track downloads at **session + collection + date** granularity, not per-request
+- Create DownloadLog table with unique constraint:
+  ```sql
+  CREATE TABLE `DownloadLog` (
+    `id` VARCHAR(191) PRIMARY KEY,
+    `collectionId` VARCHAR(191) NOT NULL,
+    `sessionId` VARCHAR(191) NOT NULL,
+    `downloadedAt` DATE NOT NULL,
+    `createdAt` DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    UNIQUE KEY `unique_download` (`collectionId`, `sessionId`, `downloadedAt`),
+    FOREIGN KEY (`collectionId`) REFERENCES `Collection`(`id`) ON DELETE CASCADE
+  );
+  ```
+- Use database transaction with `INSERT IGNORE` or `ON DUPLICATE KEY UPDATE` to prevent race conditions:
+  ```php
+  $pdo->beginTransaction();
+  $stmt = $pdo->prepare("INSERT IGNORE INTO DownloadLog (id, collectionId, sessionId, downloadedAt) VALUES (?, ?, ?, CURDATE())");
+  $stmt->execute([generateCuid(), $collectionId, session_id(), date('Y-m-d')]);
+  $pdo->commit();
+  ```
+- Exclude OPTIONS, HEAD requests from download counting
+- For range requests: only count the **first** request (HTTP 200 or 206 with `Range: bytes=0-`), not subsequent chunks
+- Generate download session token on first request, reuse for subsequent chunks
+
+**Warning signs:**
+- Download count = 10x actual users in analytics
+- Every partial download increments counter independently
+- No uniqueness constraint in DownloadLog table
+- Logging happens before file streaming starts (failures don't decrement, inflating counts)
+- No distinction between preview thumbnails and full ZIP downloads
+- Code logs downloads in simple counter increment without session tracking
+
+**Phase to address:**
+Phase 3: Download Tracking (database schema design must prevent double-counting from start)
+
+**Sources:**
+- [GA4 Download Tracking Duplicate Events](https://www.analyticsmania.com/post/duplicate-events-in-google-analytics-4-and-how-to-fix-them/) — Double-counting from Enhanced Measurement + GTM
+- [How to Track File Downloads in GA4](https://www.analyticsmania.com/post/track-file-downloads-with-google-analytics-4/) — Proper deduplication patterns
+
+---
+
+### Pitfall 4: ZIP Path Traversal Vulnerability (Zip Slip)
+
+**What goes wrong:**
+When generating ZIP files, malicious photo filenames like `../../../etc/passwd` allow attackers to write files outside intended directory during extraction on client machines. Or worse: when processing uploaded photos, path traversal in filenames lets users overwrite server files during ZIP creation.
+
+**Why it happens:**
+Direct use of user-supplied filenames in ZIP entries without sanitization. Code assumes `filename` column contains safe values, but v1.0 upload endpoint may not have validated paths thoroughly. Developer trusts database content without verification.
+
+**How to avoid:**
+- Sanitize filenames when adding to ZIP: `basename($filename)` to strip directory traversal characters
+- Use incremental filenames for ZIP entries: `edited_001.jpg`, `edited_002.jpg` instead of original filenames
+- Validate filenames on upload (v1.0 audit): reject filenames containing `/`, `\`, `..`, null bytes, control characters
+- Apply allowlist for file extensions: `.jpg`, `.jpeg`, `.png`, `.heic` only
+- For existing data: run migration to sanitize Photo.filename column:
+  ```php
+  UPDATE Photo SET filename = CONCAT('photo_', id, '.jpg') WHERE filename LIKE '%..%' OR filename LIKE '%/%';
+  ```
+- Never trust `EditedPhoto.filename` column directly — always sanitize before ZIP entry
+
+**Warning signs:**
+- Filenames in ZIP match user-uploaded filenames exactly without sanitization
+- No path sanitization in ZIP generation code: `$zip->addFile($storagePath, $filename)` uses raw filename
+- Upload endpoint accepts any filename without validation
+- Database contains filenames with directory separators (`/`, `\`)
+- Code uses `$_FILES['file']['name']` directly in storage path
+
+**Phase to address:**
+Phase 2: Server-Side ZIP Generation (validate before implementing ZIP creation)
+
+**Sources:**
+- [Zip Slip Vulnerability (Snyk)](https://security.snyk.io/research/zip-slip-vulnerability) — Path traversal in archive extraction
+- [Zip Path Traversal (Android Developers)](https://developer.android.com/privacy-and-security/risks/zip-path-traversal) — Prevention patterns
+- [CVE-2026-22685 DevToys](https://github.com/DevToys-app/DevToys/security/advisories/GHSA-ggxr-h6fm-p2qh) — Recent 2026 path traversal in ZIP extraction
+
+---
+
+### Pitfall 5: Temporary ZIP Files Exhausting Disk Space
+
+**What goes wrong:**
+Generated ZIP files stored in `/tmp` or `backend/uploads/temp/` never get cleaned up. After 100 deliveries, server runs out of disk space. New uploads fail with "No space left on device". Download generation fails. Hosting provider suspends account.
+
+**Why it happens:**
+ZIP generation creates temp file for pre-generation approach. Script completes successfully, but cleanup code never runs due to errors, timeouts, or exceptions. No cron job configured to purge old temp files. Developers forget cleanup is needed.
+
+**How to avoid:**
+**If using pre-generated ZIPs (async approach):**
+- Store in dedicated directory: `backend/uploads/zips/{collectionId}.zip`
+- Add `processedZipPath` column to Collection table (already exists in schema!)
+- Delete old ZIP when regenerating (e.g., when edited photos change):
+  ```php
+  if ($collection['processedZipPath'] && file_exists($collection['processedZipPath'])) {
+      unlink($collection['processedZipPath']);
+  }
+  ```
+- Implement cron job: delete ZIPs older than 30 days if collection status = DELIVERED:
+  ```bash
+  0 2 * * * find /path/to/uploads/zips -name "*.zip" -mtime +30 -delete
+  ```
+- Add database trigger: when Collection deleted, unlink processedZipPath file before row deletion
+- Monitor disk usage with alerts
+
+**If using streaming approach (recommended):**
+- No temp files needed — stream directly to client via ZipStream-PHP
+- Eliminates cleanup problem entirely
+- No cron jobs needed
+- No disk space risk
+
+**Warning signs:**
+- Disk usage grows without bound over time
+- `/tmp` directory fills up with .zip files
+- No file cleanup logic in ZIP generation code
+- No cron jobs configured for maintenance
+- Logs show "No space left on device" errors
+- `backend/uploads/zips/` directory has hundreds of old files
+
+**Phase to address:**
+Phase 2: Server-Side ZIP Generation (architecture decision) + Phase 5: Production Readiness (operational hardening)
+
+**Sources:**
+- [Cron Job Storage Cleanup](https://www.hostinger.com/tutorials/cron-job) — Automated file cleanup
+- [Removing Log Files with Cron](https://www.baeldung.com/linux/cron-logograte-delete-log-files) — Cleanup patterns
+- [Cron Job Monitoring Guide](https://uptimerobot.com/knowledge-hub/cron-monitoring/cron-job-guide/) — Ensuring cleanup runs
+
+---
+
+### Pitfall 6: Missing HTTP Range Request Support
+
+**What goes wrong:**
+Client downloads 500MB ZIP, connection drops at 90%. Browser attempts to resume download, but server doesn't support HTTP Range requests. Client must restart from 0%. After 3 failed attempts, delivery fails completely. Client contacts photographer frustrated.
+
+**Why it happens:**
+Simple file streaming code: `readfile($filePath)` or `file_get_contents()` doesn't handle `Range:` header. Developer tests on local network (fast, reliable connection), never encounters resume scenario. Mobile clients on unstable connections suffer.
+
+**How to avoid:**
+- Implement HTTP 206 Partial Content support:
+  ```php
+  $fileSize = filesize($filePath);
+  header('Accept-Ranges: bytes');
+
+  if (isset($_SERVER['HTTP_RANGE'])) {
+      preg_match('/bytes=(\d+)-(\d*)/', $_SERVER['HTTP_RANGE'], $matches);
+      $start = $matches[1];
+      $end = $matches[2] ?: $fileSize - 1;
+
+      http_response_code(206);
+      header("Content-Range: bytes $start-$end/$fileSize");
+      header("Content-Length: " . ($end - $start + 1));
+
+      $fp = fopen($filePath, 'rb');
+      fseek($fp, $start);
+      echo fread($fp, $end - $start + 1);
+      fclose($fp);
+  } else {
+      http_response_code(200);
+      header("Content-Length: $fileSize");
+      readfile($filePath);
+  }
+  ```
+- Use `If-Range` header to validate file hasn't changed (check Last-Modified or ETag)
+- Set `Accept-Ranges: bytes` header on ALL download responses
+- Test with `curl -r` flag: `curl -r 0-1000 {url}` should return 206, not 200
+- Test with interrupted download simulation
+
+**Warning signs:**
+- Download scripts use `readfile()` or `echo file_get_contents()` without range handling
+- No handling of `$_SERVER['HTTP_RANGE']`
+- Response always returns 200 OK, never 206 Partial Content
+- Large downloads can't be resumed in browser (restart from beginning)
+- Users report having to restart failed downloads multiple times
+- No `Accept-Ranges: bytes` header in download responses
+
+**Phase to address:**
+Phase 2: Server-Side ZIP Generation (must be in initial implementation for large files)
+
+**Sources:**
+- [HTTP Range Requests (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests) — Official specification
+- [HTTP 206 Partial Content Guide](https://apidog.com/blog/status-code-206-partial-content/) — Implementation examples
+- [Apache Byte-Ranges for Resumable Downloads](https://linux.goeszen.com/apache-and-byte-ranges-for-resumable-downloads.html) — Server configuration
+
+---
+
+### Pitfall 7: Race Condition on DOWNLOADED Status Update
+
+**What goes wrong:**
+Client downloads ZIP via browser AND mobile app simultaneously. Two requests hit `PATCH /delivery/{token}` to mark status = DOWNLOADED at the same time. Both check status (DELIVERED), both execute UPDATE. Database reports success for both, but only one update happens, or worse: constraint violation errors occur.
+
+**Why it happens:**
+Check-then-update pattern without transaction isolation:
+```php
+// WRONG: Race condition
+$status = getCollectionStatus($id);
+if ($status === 'DELIVERED') {
+    updateStatus($id, 'DOWNLOADED');
+}
+```
+Gap between SELECT and UPDATE allows concurrent requests to both pass the check.
+
+**How to avoid:**
+- Use database transaction with row locking:
+```php
+$pdo->beginTransaction();
+$stmt = $pdo->prepare("SELECT status FROM Collection WHERE id = ? FOR UPDATE");
+$stmt->execute([$collectionId]);
+$status = $stmt->fetchColumn();
+
+if ($status === 'DELIVERED') {
+    $pdo->prepare("UPDATE Collection SET status = 'DOWNLOADED', updatedAt = NOW(3) WHERE id = ?")
+        ->execute([$collectionId]);
+}
+$pdo->commit();
+```
+- Or use conditional UPDATE (simpler, no explicit locking):
+```php
+$stmt = $pdo->prepare("UPDATE Collection SET status = 'DOWNLOADED', updatedAt = NOW(3) WHERE id = ? AND status = 'DELIVERED'");
+$stmt->execute([$collectionId]);
+if ($stmt->rowCount() === 0) {
+    // Already DOWNLOADED or invalid state transition
+}
+```
+- Check `rowCount()` to verify update succeeded
+- Status transitions should be **idempotent**: DOWNLOADED → DOWNLOADED is safe (no error)
+- Prevent backwards transitions: DOWNLOADED → DELIVERED should be rejected
+
+**Warning signs:**
+- No database transactions in status update code
+- Separate SELECT and UPDATE statements with gap between them
+- No row locking (`FOR UPDATE`)
+- Duplicate constraint violations in logs during concurrent access
+- Status transitions don't check current state in WHERE clause
+- Code assumes single-threaded execution
+
+**Phase to address:**
+Phase 3: Download Tracking (fix during implementation of status tracking)
+
+**Sources:**
+- [Transactional Locking to Prevent Race Conditions](https://sqlfordevs.com/transaction-locking-prevent-race-condition) — FOR UPDATE pattern
+- [Database Race Conditions Catalog](https://www.ketanbhatt.com/p/db-concurrency-defects) — Common concurrency bugs
+- [How to Prevent Race Conditions in Database](https://medium.com/@doniantoro34/how-to-prevent-race-conditions-in-database-3aac965bf47b) — Pessimistic locking
+
+---
+
+### Pitfall 8: Delivery Token in Email Logs
+
+**What goes wrong:**
+Delivery email contains link `pixelforge.pro/delivery/{deliveryToken}`. Email server logs full URL. SMTP provider (SendGrid, Mailgun) indexes all URLs for click tracking. Anyone with log access (support staff, compromised account) can download all client photos. Email forwarding multiplies exposure.
+
+**Why it happens:**
+Standard practice: put download link directly in email body. Developers don't consider email as untrusted logging layer. Email services log everything for analytics. Email forwarding creates copies in multiple inboxes indefinitely.
+
+**How to avoid:**
+- Use **two-step delivery**: Email contains short-lived landing page link with temporary token:
+  ```
+  Email: pixelforge.pro/delivery-verify/{emailToken}
+  Landing page: Requires button click → reveals actual deliveryToken
+  Actual download: pixelforge.pro/delivery/{deliveryToken}
+  ```
+- Or: Email contains `{baseUrl}/delivery-access/{emailToken}`, which validates then redirects to `{baseUrl}/delivery/{deliveryToken}` after validation
+- Implement token expiration hierarchy:
+  - `deliveryToken`: valid for 30 days (long-lived for client convenience)
+  - `emailToken`: valid for 7 days (short-lived for email security)
+- Add rate limiting on delivery endpoints: max 10 downloads per hour per token
+- Consider password-protected deliveries for sensitive collections (optional client protection)
+- Log only token prefix in server logs: `substr($token, 0, 8) . '...'`
+
+**Warning signs:**
+- Delivery email body contains actual deliveryToken in URL
+- No distinction between email-safe tokens and download tokens
+- Tokens never expire
+- No rate limiting on delivery endpoints
+- Email templates hardcode full download URLs like `<a href="https://pixelforge.pro/delivery/abc123...">`
+- SMTP logs show full deliveryToken in click tracking
+
+**Phase to address:**
+Phase 4: Email Notifications (email integration must consider token security)
+
+**Sources:**
+- [Magic Link Security Best Practices](https://guptadeepak.com/mastering-magic-link-security-a-deep-dive-for-developers/) — Token exposure in email
+- [Link Sharing Best Practices](https://blog.box.com/link-sharing-best-practices) — Expiration and access controls
+- [The Dangers of Shared Links](https://www.varonis.com/blog/the-dangers-of-shared-links) — Link leakage patterns
+
+---
+
+## Critical Pitfalls (v1.0 Foundation — Previously Documented)
+
+### Pitfall 9: Files Stored in Web-Accessible Directory
+
+**What goes wrong:**
+Photos uploaded to `backend/uploads/` are served directly by Apache via URL. Any person who knows — or guesses — the file path can download it without authentication or token check. All download-protection logic in PHP becomes irrelevant if the files themselves are directly reachable.
+
+**How to avoid:**
+Store uploads *outside* the Apache document root or block direct access with `.htaccess`:
+```apache
+Options -Indexes
+deny from all
+```
+Serve every file through a PHP proxy script that validates token and status before `readfile()`.
+
+**Phase to address:**
+Phase 1 (Photo Upload) — before any photos are uploaded to production.
+
+---
+
+### Pitfall 10: PHP File Upload Accepting Dangerous Files
+
+**What goes wrong:**
+The upload handler trusts the MIME type sent by the browser (`$_FILES['file']['type']`). An attacker uploads a PHP file named `shell.php.jpg`. When served (if PHP execution is enabled in uploads directory), the attacker achieves remote code execution.
+
+**How to avoid:**
+- Validate MIME type server-side using `finfo_file()` (reads actual file magic bytes, not browser header)
+- Whitelist only: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
+- Strip the original filename entirely — generate random filename: `bin2hex(random_bytes(16)) . '.jpg'`
+- Add `php_flag engine off` to `backend/uploads/.htaccess` to disable PHP execution
+
+**Phase to address:**
+Phase 1 (Photo Upload) — validate and harden before the first file is accepted.
+
+---
+
+### Pitfall 11: Serving Full-Resolution Images in React Grid Viewer
+
+**What goes wrong:**
+The photo grid renders `<img src="/photo?id=...">` pointing to original uploaded files (5–25 MB each). Loading a collection of 80 photos triggers 80 parallel requests fetching gigabytes of data. Page hangs, mobile experience is broken, Hostinger bandwidth limits are hammered.
+
+**How to avoid:**
+Generate thumbnails on upload. Use GD (`imagecreatefromjpeg` + `imagecopyresampled`) to write `_thumb.jpg` at 400px wide. Grid always loads thumbnails; fullscreen lightbox loads original only when opened.
+
+**Phase to address:**
+Phase 1 (Photo Upload) — generate thumbnails at upload time. Retrofitting is expensive.
 
 ---
 
@@ -224,121 +436,148 @@ Phase 1 (Photo Upload) — establish safe path storage conventions before any fi
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Store original filename in DB and on disk | Simple, no rename logic needed | Path traversal risk; double-extension exploit; exposes client filenames | Never — always generate server-side random names |
-| Generate ZIP on every download request | No background jobs needed | Times out on large collections; hits memory limits; repeated work on same data | Only for MVP with < 20 small files, very early testing |
-| Serve photos directly from uploads/ URL without proxy | Zero latency overhead | Cannot enforce download protection; status checks bypassed; directory enumeration | Never — defeats the entire access control model |
-| Use `$_FILES['file']['type']` for MIME validation | One line of code | Trivially spoofable; allows malicious file upload | Never |
-| Skip thumbnail generation | Faster to build | Mobile unusable on large collections; bandwidth costs; Hostinger quota exceeded | Only for initial local testing; must be addressed before any real photos |
-| Build ZIP synchronously in request lifecycle | No async complexity | Hard timeout on shared hosting; terrible UX for large deliveries | Acceptable for < 30 small files during beta; must be replaced with async before launch |
-| Same shareId and collection id | One fewer column to manage | Exposes internal IDs in public URLs; shareId rotation breaks collection routing | Never |
-
----
+| Reuse shareId for delivery | No schema migration needed | Security holes, can't revoke delivery without breaking shares, permissions leak | **Never** — creates fundamental security flaw |
+| Use ZipArchive instead of ZipStream | Simpler code (native PHP) | Memory exhaustion, timeouts on large collections (50+ photos) | Only for MVP if collection size < 500MB AND user count < 10 |
+| Skip Range request support | 50 lines less code | Failed downloads for large files (>100MB), poor mobile UX | Only if all files < 10MB guaranteed |
+| Pre-generate ZIPs on DELIVERED transition | Instant downloads for clients | Disk space exhaustion, stale ZIPs when edited photos change | Acceptable if cleanup cron + storage monitoring implemented |
+| Log download on every request | Simple analytics, 3 lines of code | Inflated metrics (10x actual), meaningless reports, broken billing | **Never** — makes analytics worthless from day one |
+| Inline ZIP generation in API endpoint | No background job infrastructure | Timeouts (180s limit), no progress feedback, blocked requests | Only for collections < 100 photos AND Hostinger limits confirmed |
+| Store original filename in ZIP | Preserves client filenames | Zip Slip vulnerability, path traversal on extraction | Never — use sanitized sequential names |
+| Single-use deliveryToken | Simpler validation logic | Client can't re-download after 1st attempt | Only if explicitly designed as one-time download |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| PHP `ZipArchive` on Hostinger | Calling `addFromString()` which loads file content into memory | Use `addFile($diskPath)` so ZipArchive streams from disk; set `set_time_limit(0)` |
-| PHP GD for thumbnails | Calling `imagecreatefromjpeg()` on a TIFF or WebP file without checking actual type | Use `finfo_file()` to determine image type before choosing the correct `imagecreatefrom*()` function |
-| PHP file download proxy with `readfile()` | Not setting correct headers before calling `readfile()`, causing browser to display binary instead of download | Set `Content-Type`, `Content-Length`, `Content-Disposition` before `readfile()`; call `ob_clean()` first to clear any buffered output |
-| React `<img>` with blob URLs | Creating `URL.createObjectURL()` and never revoking it | Always call `URL.revokeObjectURL()` when the component unmounts to prevent memory leaks in the photo viewer |
-| PHP session on public share routes | Calling `session_start()` unconditionally, creating a session for anonymous clients and hitting session storage limits | Only call `session_start()` on authenticated routes; public token-based routes should not create sessions |
-| Hostinger PHP upload limits | `upload_max_filesize` and `post_max_size` default to 8 MB on shared plans | Set these in `backend/.htaccess` via `php_value upload_max_filesize 50M` and `php_value post_max_size 55M`; test actual limits before committing to a max file size in the UI |
-
----
+| Existing shareId system | Assuming shareId can serve both selection AND delivery | Create separate deliveryToken with read-only permissions, different expiration |
+| Existing status lifecycle | Adding DOWNLOADED status without validating transitions | Only allow DELIVERED → DOWNLOADED, make it idempotent, prevent DOWNLOADED → earlier states |
+| File storage structure | Assuming backend/uploads/ structure supports ZIPs | Create separate backend/uploads/zips/ directory OR stream without temp files |
+| Session-based auth | Delivery downloads require session cookies | Delivery endpoints must work WITHOUT session — use token-only auth |
+| CORS configuration | Forgetting to allow Range headers in CORS | Add `Access-Control-Allow-Headers: Range, If-Range` to cors.php |
+| Collection.processedZipPath | Forgetting column already exists in schema | Use existing column, don't add duplicate; clean up old ZIPs when regenerating |
+| PHP ZipArchive on Hostinger | Calling `addFromString()` which loads file content into memory | Use `addFile($diskPath)` so ZipArchive streams from disk; set `set_time_limit(0)` |
 
 ## Performance Traps
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Full-resolution images in photo grid | Grid page load > 5s; mobile browsers crash or go blank | Generate thumbnails on upload; serve `_thumb.jpg` in grid | 10+ photos at 5 MB each |
-| N+1 photo queries per collection | Collection details page gets slower the more photos it has; each photo triggers a separate DB query | Fetch all photos in a single `WHERE collectionId = ?` query; join Selection table in one query | 50+ photos |
+| Loading all photo paths into memory before ZIP | Script timeout, "memory exhausted" errors | Stream file entries one-by-one with ZipStream-PHP, process 1 file at a time | >50 photos OR >2GB total size |
+| Generating thumbnail for every photo in ZIP preview | Slow page load on delivery landing page | Use existing thumbnailPath column from Photo table (already generated at upload) | >100 photos in collection |
+| No progress indicator for ZIP generation | Users close browser, thinking it's frozen | Implement async job + polling endpoint OR streaming with chunked encoding | ZIP generation >30 seconds |
+| Checking download count on every request | Slow delivery page load (N+1 query problem) | Cache count in Collection.downloadCount column, update async via trigger | >1000 downloads tracked |
+| No index on Collection.deliveryToken | Slow delivery page load (full table scan) | Add UNIQUE index on deliveryToken column during migration | >10,000 collections |
+| Full-resolution images in photo grid | Grid page load > 5s; mobile browsers crash | Generate thumbnails on upload; serve `_thumb.jpg` in grid | 10+ photos at 5 MB each |
 | On-demand ZIP generation per request | Client waits 30–120 seconds; server returns 504 Gateway Timeout | Pre-generate ZIP on DELIVERED transition; store path in `processedZipPath`; serve pre-built file | 30+ edited photos |
-| Loading all photos into React state at once | Browser memory spike; UI freeze during fullscreen lightbox navigation | Virtualize the photo grid (use windowing); only load visible photos | 100+ photos in a collection |
-| Synchronous file deletion on collection delete | Deleting large collections hangs the HTTP request or times out | Queue file deletion or do it in a background process; respond immediately with 200 and clean up asynchronously | Collections with 500+ photos |
-
----
 
 ## Security Mistakes
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Photos accessible directly via URL without auth check | Any person who learns the URL can download protected photos, bypassing all stage-based protection | Block direct access with `.htaccess deny from all` in uploads/; serve all files through PHP proxy with status check |
-| Using the collection `id` as the share token | Internal IDs exposed in public URLs; if the ID format is predictable, collection enumeration is possible | Use a separate cryptographically random `shareId` generated with `bin2hex(random_bytes(24))` |
-| Trusting browser-supplied MIME type (`$_FILES['type']`) | Attackers upload PHP scripts disguised as JPEG files; remote code execution possible | Use `finfo_file()` on the saved file; whitelist only image/* MIME types; disable PHP execution in uploads directory |
-| No ownership check on download endpoints | Authenticated photographer A can download photos from photographer B's collection by guessing photo IDs | Every photo fetch must JOIN through Collection to verify `Collection.userId = session user_id` |
-| ZIP endpoint not checking collection status | Client downloads ZIP during SELECTING stage when only raw (unedited) photos exist | ZIP endpoint must verify `Collection.status = 'DELIVERED'` before allowing download |
-| Storing original client-supplied filename on disk | Double-extension bypass (`evil.php.jpg`); exposes client filenames in server paths; path traversal risk | Generate server-side random filenames; store original name in DB metadata only if needed for display |
-| No expiry on share tokens | Revoked client relationships still have active links indefinitely | Enforce `Collection.expiresAt` on every token-authenticated request; provide a "Regenerate link" action |
-
----
+| Using predictable deliveryToken format | Token enumeration attack, unauthorized downloads | Use cryptographically random tokens: `bin2hex(random_bytes(32))` minimum (64 hex chars) |
+| No token expiration | Permanent access to photos via old delivery links | Add expiresAt check: refuse downloads if `NOW() > expiresAt` |
+| Delivery endpoints require authentication | Clients can't download without photographer account | Delivery must work with token-only auth, no session required |
+| Exposing internal collection IDs in delivery URLs | Enumeration of all collections via sequential IDs | Use opaque tokens, never expose database IDs in public URLs |
+| No rate limiting on delivery downloads | Bandwidth exhaustion, scraping attacks, DDOS | Limit downloads per token: 10/hour OR 100/day via rate limiting table |
+| Filename injection in ZIP entries | Path traversal on client extraction (Zip Slip) | Sanitize with `basename()`, use safe sequential names: `edited_001.jpg` |
+| Logging deliveryToken in server logs | Token leakage via log access (support staff, breaches) | Log only token prefix: `substr($token, 0, 8) . '...'` |
+| Photos accessible directly via URL without auth check | Anyone who learns the URL can download protected photos, bypassing stage-based protection | Block direct access with `.htaccess deny from all` in uploads/; serve via PHP proxy with status check |
+| Using collection `id` as share token | Internal IDs exposed; if ID format is predictable, collection enumeration possible | Use separate cryptographically random `shareId`: `bin2hex(random_bytes(24))` |
+| Trusting browser-supplied MIME type (`$_FILES['type']`) | Attackers upload PHP scripts disguised as JPEG files; remote code execution | Use `finfo_file()` on saved file; whitelist only image/* MIME types; disable PHP execution in uploads |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| No upload progress indication | Photographer thinks the upload froze; refreshes page; loses partial progress | Track per-file upload progress with `XMLHttpRequest` `progress` event (not `fetch`); display progress bar per file |
-| No thumbnail during selection — only full-res | Client on mobile data cannot browse 300 photos; selection becomes unusable | Serve thumbnails in selection grid; load original only in fullscreen lightbox on demand |
-| ZIP download starts with no feedback | Client clicks "Download all" and nothing happens for 30 seconds; they click again | Show loading state immediately on ZIP download button; if ZIP is pre-generated, the wait is short; if not, show progress |
+| No download size estimate before ZIP | Client starts download, realizes it's 5GB on mobile data, abandons | Display "Download size: 1.2 GB - Estimated time: 3 min on WiFi" before download button |
+| Generic "Download failed" error | Client doesn't know if it's their connection, server issue, or file corruption | Specific errors: "File too large for browser", "Connection timeout - resume supported", "Server timeout - try again" |
+| Forcing ZIP download for single photo | Client wants 1 photo, must download 500-photo ZIP (1GB) | Offer individual photo download + "Download all as ZIP" option |
+| No download progress for large ZIPs | Client thinks page froze, closes browser at 50% complete | Use streaming with chunked encoding + Content-Length header for browser progress bar |
+| Delivery link expires without warning | Client receives link Friday, tries to download Monday (expired Sunday), link dead | Email warning 3 days before expiration + "Extend link" button for photographer |
+| No mobile-friendly delivery page | Client can't download 2GB ZIP on phone, frustrated experience | Detect mobile, show warning: "Large download (2GB) - WiFi recommended. Mobile data may incur charges." |
+| No upload progress indication | Photographer thinks upload froze; refreshes page; loses partial progress | Track per-file upload progress with `XMLHttpRequest` `progress` event; display progress bar |
 | No confirmation when changing collection status | Photographer accidentally transitions from SELECTING to REVIEWING; client loses ability to change selections | Status transitions are one-way and irreversible; require explicit confirmation dialog with status explanation |
-| Selection UI allows zero photos selected | Client accidentally submits empty selection; photographer receives notification of 0 selected photos | Validate minimum 1 selection before allowing status transition from SELECTING; show clear count badge |
-| No "copy link" affordance on share link | Photographer manually selects and copies URL from a text field; prone to partial selection errors | Dedicated "Copy link" button with clipboard API + toast confirmation |
-| Fullscreen lightbox with no keyboard navigation | Keyboard users and photographers reviewing selections cannot use arrow keys | Implement `keydown` handler for ArrowLeft/ArrowRight/Escape in the lightscreen component |
-
----
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Photo upload:** Upload handler saves file to disk and creates DB row — but verify `php_flag engine off` is set in `uploads/.htaccess` so a malicious file cannot execute even if it bypasses MIME validation.
-- [ ] **Token-based share:** Share URL loads in the browser — but verify it works in **incognito mode** with no existing session cookie, from a device that has never visited the site.
-- [ ] **Download protection:** Download button is hidden during SELECTING — but verify that the photo URL itself (from the `<img src>` in network requests) returns `403` when accessed directly without a valid delivery token.
-- [ ] **ZIP generation:** ZIP downloads successfully in local testing — but verify it completes without timeout for a realistic payload (50+ files, 100+ MB total) on **Hostinger** specifically, not local dev.
-- [ ] **Status transitions:** Collection transitions to DELIVERED — but verify that raw photos (`/uploads/originals/...`) remain inaccessible after delivery; only edited photos should be downloadable.
-- [ ] **Share token regeneration:** New share link can be generated — but verify the old link returns `404` or `410` immediately after regeneration.
-- [ ] **Thumbnail generation:** Thumbnails are created on upload — but verify they are generated for all supported formats (JPEG, PNG, WebP) and that a corrupt upload does not crash the handler without cleanup.
-- [ ] **Responsive photo viewer:** Grid displays correctly on desktop — but verify on a 375px-wide mobile viewport with 50+ photos, and that the fullscreen lightbox closes correctly with the back button on Android.
-
----
+- [ ] **ZIP Generation:** Works with 5 test photos BUT fails with 100 production photos — verify with realistic dataset (50+ photos, 10MB each)
+- [ ] **Download Tracking:** Counts requests BUT double-counts resumed downloads — verify with `curl -r` range request simulation (should show 1 download, not 5)
+- [ ] **Token Security:** deliveryToken generated BUT uses shareId format (only 8 chars) — verify cryptographic randomness (32+ bytes, 64 hex chars)
+- [ ] **Error Handling:** Shows "Download ready" BUT ZIP generation failed silently — verify error state propagates to UI
+- [ ] **Status Transitions:** DELIVERED → DOWNLOADED works BUT DOWNLOADED → DELIVERED allowed — verify all invalid transitions rejected
+- [ ] **File Cleanup:** ZIP generated successfully BUT never deleted — verify cron job configured AND logs show cleanup runs
+- [ ] **Range Requests:** Download starts BUT can't resume after disconnect — verify 206 Partial Content response with `curl -r 0-1000`
+- [ ] **Email Security:** Delivery email sent BUT contains raw deliveryToken — verify two-step token approach or expiring email tokens
+- [ ] **Mobile UX:** Desktop download works BUT mobile times out or crashes — verify file size warnings and streaming implementation
+- [ ] **Expiration:** Token expiration set BUT not enforced in download endpoint — verify expired token returns 410 Gone, not 200 OK
+- [ ] **Token Separation:** Delivery route accepts deliveryToken BUT also accepts shareId — verify token type validation rejects wrong token type
+- [ ] **Race Conditions:** Single download updates status correctly BUT concurrent downloads cause errors — verify transaction isolation or conditional UPDATE
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Files stored in web-accessible directory (already in production) | MEDIUM | Add `deny from all` to `uploads/.htaccess` immediately; audit access logs for unauthorized direct-URL access; rotate any share tokens that were active during the exposure window |
-| Weak share tokens discovered in production | MEDIUM | Regenerate all existing `shareId` values with cryptographically random bytes; invalidate old tokens; notify photographers that old links are now dead |
-| ZIP generation timing out in production | LOW | Enable `processedZipPath` workflow: generate ZIP on status transition to DELIVERED in a background-style PHP call; serve pre-built file on download requests |
-| Full-resolution images causing bandwidth overages | MEDIUM | Write a one-time migration script to generate thumbnails for all existing photos using GD; update Photo table to store thumb path; update frontend to use thumb endpoint |
-| Path traversal vulnerability found | HIGH | Immediately take download endpoint offline; audit server filesystem for unexpected file access in logs; patch with `realpath()` validation; review all stored paths in DB for anomalies |
-| PHP file execution in uploads directory | CRITICAL | Take site offline; remove all files in uploads/; add `php_flag engine off` and `deny from all` to `.htaccess`; audit for webshell indicators in server logs; rotate all credentials |
-
----
+| Shared shareId/deliveryToken | **HIGH** | 1. Add deliveryToken column 2. Migrate: generate deliveryToken for status=DELIVERED collections 3. Update all delivery endpoints 4. Email clients new links 5. Deprecate old share links for delivery |
+| ZipArchive memory exhaustion | **MEDIUM** | 1. `composer require maennchen/zipstream-php` 2. Rewrite ZIP generation with ZipStream 3. Remove ZipArchive code 4. Test with large collections 5. No data migration needed |
+| Double-counted downloads | **LOW** | 1. Add sessionId to DownloadLog 2. Add unique constraint (collectionId, sessionId, date) 3. Historical data can't be fixed — reset counts or accept inflated legacy data |
+| Missing Range support | **LOW** | 1. Add Range header handling to download script 2. Test with `curl -r` 3. No schema changes needed |
+| Disk exhaustion from temp ZIPs | **LOW** | 1. Configure cron: `0 2 * * * find /path/to/zips -mtime +30 -delete` 2. Clear existing temp files manually 3. Monitor disk usage |
+| Zip Slip vulnerability | **MEDIUM** | 1. Audit existing Photo.filename data for path traversal 2. Sanitize ZIP generation code with `basename()` 3. Run migration to clean filenames 4. Add upload validation |
+| Race condition on status update | **LOW** | 1. Wrap status updates in transactions with FOR UPDATE 2. Or use conditional UPDATE with WHERE clause 3. No schema changes needed |
+| Token in email logs | **HIGH** | 1. Implement two-step token system (emailToken → deliveryToken) 2. Generate new emailTokens for active deliveries 3. Re-send delivery emails 4. Deprecate direct deliveryToken URLs |
+| Files in web-accessible directory | **MEDIUM** | Add `deny from all` to `uploads/.htaccess` immediately; audit access logs for unauthorized direct-URL access; rotate any share tokens active during exposure |
+| PHP file execution in uploads | **CRITICAL** | Take site offline; remove all files in uploads/; add `php_flag engine off` to `.htaccess`; audit for webshell indicators; rotate all credentials |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Files in web-accessible directory | Phase 1 — Photo Upload | `curl https://api.pixelforge.pro/backend/uploads/<filename>` returns 403 |
-| Guessable share tokens | Phase 2 — Token-Based Sharing | Confirm token is 48+ hex chars; confirm `expiresAt` check present in handler |
-| Frontend-only download protection | Phase 3 — Client Selection Workflow | `curl` the photo URL with a valid `shareId` during SELECTING status returns 403 |
-| Dangerous file upload (no MIME validation) | Phase 1 — Photo Upload | Upload a `.php` file disguised as JPEG; verify it is rejected at MIME check |
-| ZIP timeout on shared hosting | Phase 5 — ZIP Delivery | Test with 50+ files totaling 200 MB on Hostinger; confirm no 504 timeout |
-| Full-resolution images in grid | Phase 1 — Photo Upload | Confirm thumbnail path exists in DB after upload; grid `<img>` requests return < 100 KB responses |
-| CORS broken on public routes | Phase 2 — Token-Based Sharing | Open share URL in browser incognito; check network tab for CORS errors |
-| Path traversal in download endpoint | Phase 1 — Photo Upload | Confirm `realpath()` guard exists in download handler; no raw path accepted as query param |
-
----
+| Token confusion (shareId reuse) | Phase 1: Separate Delivery Token | Query shows distinct shareId and deliveryToken for each DELIVERED collection |
+| ZIP timeout/memory limits | Phase 2: Server-Side ZIP Generation | Generate ZIP with 100 photos (10MB each) completes in <30 sec without errors |
+| Double-counting downloads | Phase 3: Download Tracking | Simulate 5 resumed downloads with curl -r, verify DownloadLog shows 1 entry |
+| Zip Slip vulnerability | Phase 2: Server-Side ZIP Generation | Upload photo with filename `../../test.jpg`, verify rejected OR sanitized to `test.jpg` |
+| Temp file exhaustion | Phase 5: Production Readiness | Cron log shows cleanup runs nightly, disk usage stable over 7 days of testing |
+| Missing Range support | Phase 2: Server-Side ZIP Generation | `curl -r 0-1000 <url>` returns 206 Partial Content with `Content-Range` header |
+| Race condition on status | Phase 3: Download Tracking | Simulate 10 concurrent PATCH requests, verify single status update via logs |
+| Token in email logs | Phase 4: Email Notifications | Email body inspection shows NO deliveryToken in URLs, only emailToken |
+| No download size estimate | Phase 4: Email Notifications + Phase 2 | Delivery page shows "Download size: X GB" before download button |
+| No mobile warnings | Phase 5: Production Readiness (UI polish) | Mobile browser shows "Large file - WiFi recommended" for >100MB downloads |
 
 ## Sources
 
-- PHP manual — `ZipArchive`, `finfo_file`, `readfile`, `set_time_limit`: https://www.php.net/manual/
-- OWASP — Unrestricted File Upload: https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload
-- OWASP — Path Traversal: https://owasp.org/www-community/attacks/Path_Traversal
-- Hostinger Knowledge Base — PHP configuration limits on shared hosting (upload limits, execution time)
-- ZipStream-PHP (maennchen/zipstream-php) — streaming ZIP without memory accumulation: https://github.com/maennchen/ZipStream-PHP
-- Known pattern from client gallery apps (Pixieset, Pic-Time, ShootProof post-mortems in developer communities) — download protection bypass via direct URL is the #1 reported vulnerability class in this category
-- Personal / domain knowledge: PHP file upload security, token-based auth patterns, shared hosting constraints
+### High Confidence (Official Docs + Technical Sources)
+- [ZipStream-PHP Memory Issues Discussion](https://github.com/maennchen/ZipStream-PHP/discussions/185) — Memory exhaustion patterns with 300+ files
+- [PHP ZipArchive vs ZipStream Performance](https://github.com/maennchen/ZipStream-PHP/issues/40) — Architecture decision rationale for streaming
+- [Hostinger PHP Memory Limits](https://www.hostinger.com/support/1583711-what-is-php-memory-limit-at-hostinger/) — Fixed per-plan memory limits, can only decrease
+- [Hostinger PHP Time Limits](https://www.hostinger.com/tutorials/how-to-fix-maximum-execution-time-exceeded-error-wordpress) — max_execution_time = 180s maximum via ToS
+- [Zip Slip Vulnerability (Snyk)](https://security.snyk.io/research/zip-slip-vulnerability) — Path traversal attack patterns in ZIP extraction
+- [Zip Path Traversal (Android)](https://developer.android.com/privacy-and-security/risks/zip-path-traversal) — ZIP entry sanitization
+- [HTTP Range Requests (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests) — 206 Partial Content official spec
+- [Database Race Conditions Catalog](https://www.ketanbhatt.com/p/db-concurrency-defects) — Transaction isolation patterns
+- [Transactional Locking](https://sqlfordevs.com/transaction-locking-prevent-race-condition) — FOR UPDATE usage in MySQL
+- [HTTP 206 Partial Content Guide](https://apidog.com/blog/status-code-206-partial-content/) — Implementation examples
+- [CVE-2026-22685 DevToys](https://github.com/DevToys-app/DevToys/security/advisories/GHSA-ggxr-h6fm-p2qh) — Recent 2026 path traversal in ZIP
+
+### Medium Confidence (Industry Best Practices)
+- [Photo Delivery Guide for Professional Photographers](https://www.sendphoto.io/blog/client-photo-delivery-guide-professional-photographers) — UX expectations for delivery
+- [How to Deliver Photos Without Losing Quality](https://fotoowl.ai/blogs/how-to-deliver-photos-to-clients-without-compromising-quality) — Download UX patterns
+- [GA4 Download Tracking Duplicate Events](https://www.analyticsmania.com/post/duplicate-events-in-google-analytics-4-and-how-to-fix-them/) — Double-counting prevention in analytics
+- [How to Track File Downloads in GA4](https://www.analyticsmania.com/post/track-file-downloads-with-google-analytics-4/) — Deduplication strategies
+- [Token Best Practices (Auth0)](https://auth0.com/docs/secure/tokens/token-best-practices) — Token security patterns
+- [Key Approaches to Token Sharing (Curity)](https://curity.io/resources/learn/token-sharing/) — Token exchange vs embedded
+- [Magic Link Security Best Practices](https://guptadeepak.com/mastering-magic-link-security-a-deep-dive-for-developers/) — Token exposure in email
+- [Link Sharing Best Practices (Box)](https://blog.box.com/link-sharing-best-practices) — Expiration and access controls
+- [Cron Job Storage Cleanup](https://www.hostinger.com/tutorials/cron-job) — Automated file cleanup strategies
+- [Apache Byte-Ranges for Resumable Downloads](https://linux.goeszen.com/apache-and-byte-ranges-for-resumable-downloads.html) — Server configuration
+
+### Project-Specific Observations
+- Existing v1.0 shareId system: Single token serves selection AND viewing (share.php lines 72-94)
+- Collection schema already includes `processedZipPath` column (database_schema.sql line 74) — suggests pre-generation was considered
+- No expiration enforcement in share.php (expiresAt column exists but not validated in handler)
+- Hostinger shared hosting confirmed via project context (max_execution_time and memory_limit constraints apply)
+- No deliveryToken column exists yet — integration pitfall risk is HIGH
 
 ---
 
-*Pitfalls research for: PHP/React photo delivery app — file uploads, token sharing, download protection, ZIP delivery, React photo viewer*
-*Researched: 2026-02-11*
+*Pitfalls research for: Photo Hub v2.0 Delivery and Download Features (extending v1.0 selection workflow)*
+*Original v1.0 research: 2026-02-11*
+*Updated for v2.0 delivery features: 2026-02-13*

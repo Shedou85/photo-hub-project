@@ -1,189 +1,204 @@
 # Project Research Summary
 
-**Project:** Photo Hub (pixelforge.pro)
-**Domain:** Photographer client gallery / photo delivery web app
-**Researched:** 2026-02-11
+**Project:** Photo Hub v2.0 Delivery System
+**Domain:** Photo delivery and download management for professional photographers
+**Researched:** 2026-02-13
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Photo Hub is a professional photographer delivery tool that enables the end-to-end proofing and delivery workflow: photographer uploads originals, client browses and selects favorites via a share link (no client account required), photographer uploads edited finals, and client downloads the delivered set. This is a well-understood product category with established competitors (Pixieset, ShootProof, Pic-Time), which means the feature set, user expectations, and failure modes are all well-documented. The recommended approach is to build sequentially along the feature dependency chain — upload first, then token-based sharing, then client selection, then delivery — because nothing downstream can be built or tested without the upstream pieces.
+This research focuses on extending Photo Hub's existing v1.0 selection workflow with delivery and download features. The v1.0 system already handles photo upload, token-based client galleries, photo selection, and status lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED). Version 2.0 adds a separate delivery token system, server-side ZIP generation for bulk downloads, individual photo downloads, download tracking analytics, and UI polish to complete the photographer-to-client workflow.
 
-The existing codebase already has a strong foundation: authentication, collections CRUD, a `CollectionDetailsPage` with photo upload, and an `EditedPhoto` table. What is missing is the client-facing side: the public gallery page accessible via `shareId`, the selection workflow, and the ZIP delivery endpoint. The recommended stack additions are minimal and mature: `react-photo-album@^3.4` + `yet-another-react-lightbox@^3.25` + `react-dropzone@^15.0` on the frontend, and `maennchen/zipstream-php@^3.1` on the backend. No framework changes, no new auth systems, no cloud storage yet.
+The recommended approach uses **separate tokens** for selection (shareId) and delivery (deliveryToken) to maintain security boundaries. ZIP generation should use **streaming architecture** (maennchen/zipstream-php) instead of native ZipArchive to avoid Hostinger's memory and timeout limits. Download tracking requires a **dedicated table** with deduplication to prevent double-counting from browser resume requests. The existing Collection.status lifecycle extends with automatic DELIVERED status when delivery tokens are generated.
 
-The dominant risk pattern in this domain is security shortcuts that appear to work in demos but expose photos to unauthorized access. The three critical risks are: (1) photos accessible via direct URL without token or status check, (2) download protection enforced only in React (not on the server), and (3) PHP upload handlers trusting browser-supplied MIME types. All three are easily avoided with established PHP patterns but commonly missed because they are invisible in early testing. These must be addressed in Phase 1, not deferred.
-
----
+Key risks center on integration complexity—reusing shareId for delivery creates security holes; naive ZIP generation hits resource limits on collections with 50+ photos; poor download tracking inflates metrics by 10x. All risks are mitigated through architectural decisions in Phase 1 (separate tokens) and Phase 2 (streaming ZIP generation).
 
 ## Key Findings
 
 ### Recommended Stack
 
-The existing React 18 + vanilla PHP + MySQL stack requires no architectural changes. Three frontend libraries solve the hard UI problems: `react-photo-album` provides the justified grid layout with a composable render prop API ideal for adding selection overlays; `yet-another-react-lightbox` handles fullscreen viewing with keyboard/touch navigation and a plugin system; `react-dropzone` handles drag-and-drop file input with React 18 hooks. On the backend, `maennchen/zipstream-php` is the only non-trivial addition — it streams ZIP archives without writing to disk, which is essential on Hostinger shared hosting where disk quota and execution time limits would cause `ZipArchive`-based solutions to fail on large deliveries.
+**v2.0 additions to existing PHP/MySQL/React stack:**
 
 **Core technologies:**
-- `react-photo-album@^3.4`: Responsive justified/masonry grid — composable render prop required for selection overlay and right-click blocking
-- `yet-another-react-lightbox@^3.25`: Fullscreen lightbox — keyboard/swipe navigation, plugin architecture, React 18 compatible
-- `react-dropzone@^15.0`: Drag-and-drop upload zone — returns `File` objects, pairs with custom fetch uploader, no Uppy overhead needed
-- `maennchen/zipstream-php@^3.1`: Server-side ZIP streaming — no temp disk file, avoids Hostinger quota exhaustion (requires PHP 8.1+; fall back to `^2.4` if PHP 8.0)
-- PHP `random_bytes()` + `bin2hex()`: Token generation — 256-bit entropy, cryptographically secure, no Composer dependency
-- PHP `finfo_file()`: MIME validation — reads actual file magic bytes, not browser-supplied header
-- PHP GD Library: Thumbnail generation — universally available on Hostinger, sufficient for JPEG/PNG/WebP resize
+- **maennchen/zipstream-php 3.2**: Server-side streaming ZIP generation — Prevents memory exhaustion and timeout issues on Hostinger by streaming files one-by-one to client without buffering entire archive. Handles 100+ photo collections that would crash native ZipArchive.
+- **random_bytes() + bin2hex()**: Delivery token generation — PHP's cryptographically secure CSPRNG produces 64-character hex tokens with 256 bits entropy. No dependencies, faster than UUID libraries, meets security requirements for unguessable access tokens.
+- **file-saver 2.0.5**: Client-side individual photo downloads — Handles cross-browser quirks (Safari, Firefox filename handling). Mature library (feature-complete since 2019), 1.5KB gzipped, simple API for Blob downloads.
+
+**Database schema changes:**
+- `Collection.deliveryToken` (VARCHAR 64, UNIQUE): Separate token from shareId, generated only on DELIVERED transition
+- `Collection.deliveredAt` (DATETIME): Timestamp for delivery tracking and expiration calculation
+- `Download` table: Tracks ZIP and individual photo downloads with deduplication (sessionId + date uniqueness)
+
+**What NOT to add:** Cloud storage SDK (defer to v3.0), queue system (unnecessary at current scale <100 collections/day), JWT library (overkill for simple token validation), email library (not in v2.0 scope).
 
 ### Expected Features
 
-Research confirmed a clear three-tier feature hierarchy based on competitor analysis (Pixieset, ShootProof, Pic-Time) and workflow dependency mapping.
+**Must have (table stakes):**
+- Separate delivery link — Industry standard; clients expect proofing link ≠ download link
+- ZIP download all finals — "Download all" button is expected; clients won't download 200 files individually
+- Individual photo download — Flexibility for clients who want specific images without extracting full ZIP
+- Download tracking — Photographers need confirmation delivery was received
 
-**Must have (table stakes) — v1 launch:**
-- Multi-photo upload by photographer — entry point of the entire workflow; nothing else works without it
-- Responsive client gallery grid view (token, no account) — core client experience; token-only access is a genuine differentiator at this price point
-- Fullscreen lightbox viewer with navigation — instinctive user expectation; gallery without it feels broken
-- Photo selection by client (toggle favorites, running count) — the proofing workflow
-- Download block during SELECTING stage — photographer controls when finals are available; must be server-enforced
-- Photographer view of client selections (All/Selected/Not-Selected filter) — required to start editing
-- Edited finals upload by photographer — delivery half of the workflow
-- Individual photo download + ZIP archive download (DELIVERED only) — ZIP is required for galleries of 20+ photos
-- Collection status color coding on cards — visual workflow management
-
-**Should have (competitive) — v1.x:**
-- Selection quota enforcement (photographer sets max count) — prevents scope creep; few competitors enforce this server-side
-- Selection submission confirmation (explicit submit button) — prevents incomplete selections; triggers SELECTING → REVIEWING transition
-- Expiring gallery links — enforces `Collection.expiresAt` column already in schema
-- Password protection as second factor on top of token
+**Should have (competitive):**
+- Share link redirect logic — Selection link redirects to delivery page when DELIVERED (integrated flow)
+- Hide upload dropzone after first photo — Reduces clutter; uncommon pattern but high UX value
+- Reorganize collection buttons — Group by workflow phase for clarity
+- Progressive UI disclosure — Cleaner interface once content exists
 
 **Defer (v2+):**
-- Per-photo client notes / editing instructions — high value but requires schema change and complex UI
-- Email notifications — requires email infrastructure (SendGrid/SES), out of scope
-- Cloud storage migration (S3/R2) — `storagePath` column already anticipates this migration
-- Gallery analytics and download tracking
+- Gallery expiration dates — Requires email infrastructure for automated reminders
+- Download analytics dashboard — Track data but don't surface analytics until v2.x
+- Password-protected delivery — Security feature deferred until client requests
+- CDN integration — Performance optimization unnecessary at current scale
 
 ### Architecture Approach
 
-The architecture is a clean dual-auth pattern: session-cookie authentication for photographer routes (`/collections/*`) and shareId token authentication for public client routes (`/gallery/*`). These two zones are kept strictly separate in a new `backend/gallery/` directory. The frontend adds a single unauthenticated route `/gallery/:shareId` pointing to a new `GalleryPage.jsx` component that lives outside `ProtectedRoute` and `MainLayout`. Static photo files continue to be served directly by Apache from `backend/uploads/`; PHP is only invoked for the download endpoint where status-gating is enforced.
+Photo delivery systems separate selection links (client chooses photos) from delivery links (client downloads finals) using a two-token architecture. This provides independent expiration control, different access levels (view vs download), and clear status lifecycle boundaries. The v2.0 delivery system integrates with existing v1.0 infrastructure through new database columns (deliveryToken, deliveredAt), new public endpoints (/delivery/{token}), and extensions to the status lifecycle (DELIVERED auto-set on token generation).
 
 **Major components:**
-1. `backend/gallery/view.php` — token-auth public endpoint: resolves `shareId` to collection + photos, checks `expiresAt`, returns JSON
-2. `backend/gallery/selections.php` — token-auth: POST/DELETE selections, enforces `status = SELECTING` gate
-3. `backend/gallery/download.php` — token-auth: serves individual files via `readfile()` or streams ZIP; enforces `status = DELIVERED` gate
-4. `frontend/src/pages/GalleryPage.jsx` — public client view: photo grid, lightbox, selection UI, download buttons; reads `shareId` from `useParams()` on every render
-5. `backend/collections/photos.php` + `backend/utils.php` — existing upload infrastructure extended with thumbnail generation via GD
+1. **Token Generator** — Creates deliveryToken (64-char hex) when photographer transitions collection to DELIVERED. Stores in Collection.deliveryToken, sets deliveredAt timestamp.
+2. **ZIP Builder** — On-demand streaming ZIP generation using ZipStream-PHP. Fetches EditedPhoto records, streams files to client without disk writes, tracks download on completion.
+3. **Download Tracker** — Logs download events (type, timestamp, collectionId) with session-based deduplication to prevent double-counting from browser resume requests.
+4. **Delivery Page (Public)** — Token-authenticated React page (no session required) displaying edited photos grid with download buttons. Validates deliveryToken, checks DELIVERED status.
 
 ### Critical Pitfalls
 
-1. **Photos accessible via direct URL without auth check** — Block direct access with `.htaccess deny from all` in `backend/uploads/`; route all photo requests for the download endpoint through a PHP proxy that validates token and status. Apply in Phase 1 before any photos reach production.
+1. **Token Confusion Between Sharing and Delivery** — Reusing shareId for delivery creates security holes (clients can modify selections post-delivery). Create separate deliveryToken column, generate only on DELIVERED transition, validate token type in endpoints.
 
-2. **Frontend-only download protection** — React UI hiding download buttons is UX only; a user with DevTools can call the download API directly. The PHP download handler must return `403` when `status != 'DELIVERED'`. Apply in Phase 3.
+2. **ZIP Generation Exceeding Hostinger Limits** — Native ZipArchive hits 180s max_execution_time and memory_limit on 50+ photo collections. Use ZipStream-PHP for streaming, validate collection size before generation, test with 50+ files at 10MB each.
 
-3. **PHP upload accepting dangerous files** — Never trust `$_FILES['file']['type']` (browser-supplied, spoofable). Use `finfo_file()` on the actual temp file; whitelist `image/jpeg`, `image/png`, `image/webp`; generate random server-side filenames; set `php_flag engine off` in `uploads/.htaccess`. Apply in Phase 1.
+3. **Download Tracking Double-Counting** — Every browser preflight/resume increments counter (one download appears as 5-10). Use Download table with UNIQUE constraint on (collectionId, sessionId, downloadedAt), INSERT IGNORE pattern prevents duplicates.
 
-4. **ZIP generation timing out on Hostinger shared hosting** — Standard `ZipArchive` loads all files into a temp disk file and blocks the request. Use `maennchen/zipstream-php` for streaming; add `set_time_limit(0)` in the handler; validate with 50+ files on Hostinger before marking Phase 5 done. Consider pre-generating ZIP on DELIVERED transition and caching at `Collection.processedZipPath`.
+4. **ZIP Path Traversal Vulnerability (Zip Slip)** — Malicious filenames like `../../passwd` allow directory traversal. Sanitize with basename() before ZIP entry, use sequential names (edited_001.jpg), validate filenames on upload.
 
-5. **Serving full-resolution images in the React grid viewer** — A collection of 80 photos at 5 MB each will hang on mobile and exhaust Hostinger bandwidth. Generate thumbnails at upload time using PHP GD; the grid always loads thumbnails; the lightbox loads originals only when opened. This must be addressed in Phase 1 alongside the upload handler, not retrofitted.
-
----
+5. **Temporary ZIP Files Exhausting Disk Space** — Generated ZIPs never cleaned up, server runs out of space after 100 deliveries. Use streaming approach (no temp files) OR implement cron cleanup for pre-generated ZIPs (processedZipPath).
 
 ## Implications for Roadmap
 
-Based on the feature dependency chain from FEATURES.md and the build order from ARCHITECTURE.md, a 5-phase structure is recommended. Each phase has a single clear deliverable and unlocks the next.
+Based on research, suggested phase structure follows dependency order from database schema → backend generation → frontend UI. Each phase addresses specific architectural components while avoiding identified pitfalls.
 
-### Phase 1: Photo Upload and Gallery Foundation
-**Rationale:** Photo upload is the unconstrained entry point — no other feature can be built or tested without photos in the system. This phase also establishes the security baseline (MIME validation, random filenames, thumbnail generation, upload directory access control) that all later phases depend on. Retrofitting these is expensive.
-**Delivers:** Photographer can upload multiple photos to a collection; thumbnails generated on upload; photos display in `CollectionDetailsPage` grid with lightbox.
-**Addresses:** Multi-photo upload, responsive grid view (photographer-side), fullscreen lightbox viewer
-**Stack elements:** `react-photo-album`, `yet-another-react-lightbox`, `react-dropzone`, PHP GD
-**Avoids:** Files in web-accessible directory (Pitfall 1), dangerous file upload (Pitfall 4), full-resolution images in grid (Pitfall 6)
+### Phase 1: Database Schema & Token Generation
+**Rationale:** Foundation must exist before any delivery features work. Token separation is critical architectural decision preventing security holes.
+**Delivers:** Collection.deliveryToken column, deliveredAt timestamp, Download tracking table, backend endpoint to generate tokens
+**Addresses:** Separate delivery link (table stakes), Download tracking infrastructure
+**Avoids:** Pitfall #1 (token confusion), Pitfall #3 (double-counting via schema design)
+**Research flag:** Standard database migration pattern — no additional research needed
 
-### Phase 2: Collection Status Lifecycle and Share Link
-**Rationale:** Status transitions and share link generation are prerequisites for the entire client-facing side. The `Collection.shareId` column and `status` field must be wired up before any client feature is built. This phase is also where token security is established.
-**Delivers:** Photographer can transition collection status (DRAFT → SELECTING → REVIEWING → DELIVERED); a cryptographically secure `shareId` is generated; copy-link UI is shown on `CollectionDetailsPage`; collection cards display status color coding.
-**Addresses:** Collection status color coding, gallery link sharing, collection status visibility
-**Stack elements:** PHP `bin2hex(random_bytes(24))`, `Collection.shareId` column, `Collection.expiresAt` column
-**Avoids:** Guessable share tokens (Pitfall 2), CORS broken on public routes (Pitfall 7)
+### Phase 2: Server-Side ZIP Generation
+**Rationale:** Most complex component; requires ZipStream library integration and Hostinger constraint handling. Must be correct before exposing to clients.
+**Delivers:** /delivery/{token}/zip endpoint, streaming ZIP generation, memory-efficient file handling
+**Uses:** maennchen/zipstream-php 3.2, PHP readfile() with chunking
+**Implements:** ZIP Builder component
+**Avoids:** Pitfall #2 (timeout/memory limits), Pitfall #4 (Zip Slip), Pitfall #5 (disk exhaustion)
+**Research flag:** May need ZipStream API research if issues arise during implementation
 
-### Phase 3: Public Client Gallery and Photo Selection
-**Rationale:** This is the core client-facing phase. Once photos exist and a share link can be generated, the client gallery can be built end-to-end. Selection is bundled here because the gallery without selection is only half the workflow — a client can browse but cannot communicate their choices.
-**Delivers:** Client opens share URL, sees photo grid and lightbox (no account required); can toggle photo selections; sees running count; selections are persisted in the `Selection` table; photographer can view selections with All/Selected/Not-Selected filter.
-**Addresses:** Client gallery grid, lightbox, photo selection, selection count feedback, photographer selection review
-**Stack elements:** `GalleryPage.jsx`, `backend/gallery/view.php`, `backend/gallery/selections.php`, `useParams()` for shareId
-**Avoids:** Frontend-only download protection (Pitfall 3), shareId stored in localStorage (Architecture anti-pattern 3)
+### Phase 3: Individual Photo Downloads & Tracking
+**Rationale:** Simpler than ZIP generation; builds on same authentication pattern. Download tracking completes analytics foundation.
+**Delivers:** /delivery/{token}/download/{photoId} endpoint, Download table logging, session-based deduplication
+**Addresses:** Individual photo download (table stakes), Download tracking (table stakes)
+**Avoids:** Pitfall #3 (double-counting via implementation), Pitfall #7 (race conditions on tracking)
+**Research flag:** Standard file streaming — no additional research needed
 
-### Phase 4: Edited Finals Upload and Delivery
-**Rationale:** After the photographer reviews selections, they need to upload edited finals and mark the collection as DELIVERED. The `EditedPhoto` table and `backend/collections/edited.php` handler already exist — this phase extends `CollectionDetailsPage` with a separate "Upload finals" section and wires up the REVIEWING → DELIVERED status transition.
-**Delivers:** Photographer uploads edited finals linked to originals; collection transitions to DELIVERED; client gallery switches to show edited photos with download enabled.
-**Addresses:** Edited finals upload, individual photo download (DELIVERED only), download block during SELECTING
-**Stack elements:** Existing `backend/collections/edited.php`, PHP status gate in download handler
-**Avoids:** Status gate enforced only on frontend (enforce in `backend/gallery/download.php`)
+### Phase 4: Public Delivery Page (Client UI)
+**Rationale:** Client-facing interface depends on backend endpoints being complete. Can iterate on UX after core functionality works.
+**Delivers:** DeliveryPage.jsx component, photo grid display, download buttons (ZIP + individual)
+**Uses:** file-saver for individual downloads, native Fetch + Blob for ZIP
+**Implements:** Delivery Page (Public) component
+**Avoids:** Standard React patterns — no novel pitfalls
+**Research flag:** No research needed — standard UI implementation
 
-### Phase 5: ZIP Delivery and Download UX
-**Rationale:** ZIP delivery is the last piece because it depends on both edited finals (Phase 4) and the download infrastructure (Phase 4). It is separated into its own phase because it has a distinct risk profile (Hostinger timeout) that requires explicit validation with realistic data before shipping.
-**Delivers:** Client can download all delivered photos as a single ZIP archive; loading state shown during generation; pre-generated ZIP cached at `Collection.processedZipPath` for repeat downloads.
-**Addresses:** ZIP archive download (DELIVERED only)
-**Stack elements:** `maennchen/zipstream-php@^3.1`, `Collection.processedZipPath`, `set_time_limit(0)`
-**Avoids:** ZIP timeout on shared hosting (Pitfall 5); must be tested with 50+ files on Hostinger before done
+### Phase 5: Photographer Delivery Management (Dashboard Integration)
+**Rationale:** Photographer-facing features integrate with existing CollectionDetailsPage. Lower priority than client delivery experience.
+**Delivers:** "Generate Delivery Link" button, copy-to-clipboard, delivery analytics display, deliveredAt timestamps in collection cards
+**Addresses:** Download tracking visibility, Share link redirect logic
+**Avoids:** Standard UI integration
+**Research flag:** No research needed — extends existing patterns
+
+### Phase 6: UI Polish & Refinement
+**Rationale:** Non-blocking improvements; can ship incrementally after core workflow validated.
+**Delivers:** Hide upload dropzone after first photo, reorganize action buttons, status badge colors, loading states, error handling
+**Addresses:** Progressive UI disclosure (competitive), Reorganize buttons (competitive)
+**Avoids:** Standard UX improvements — no architectural risk
+**Research flag:** No research needed — polish work
 
 ### Phase Ordering Rationale
 
-- The dependency chain from FEATURES.md drives the order: upload → token access → selection → delivery → download. Nothing downstream compiles without upstream pieces.
-- Phases 1 and 2 establish the security baseline. Moving security setup to "later" is the single most common mistake in this domain.
-- Phase 3 is intentionally large because the gallery and selection are tightly coupled in the client UX — splitting them would require two separate partial experiences that are harder to test and demo.
-- Phase 5 is intentionally separated from Phase 4 to allow explicit load testing on Hostinger before ZIP ships.
-- The v1.x features (quota enforcement, submission confirmation, expiring links, password protection) are post-validation additions. None of them block the core workflow and all of them enhance existing features rather than add new dependency chains.
+- **Database first:** All features depend on deliveryToken column and Download table existing
+- **ZIP before individual downloads:** ZIP is more complex; solving memory/timeout issues informs simpler individual download implementation
+- **Backend before frontend:** Client UI can't function without working API endpoints
+- **Photographer UI after client UI:** Delivery to clients is higher priority than dashboard polish
+- **Polish last:** Non-blocking improvements should not delay core functionality shipping
+
+This structure allows testing each phase independently:
+- Phase 1: Verify token generation via database queries
+- Phase 2: Test ZIP download with curl before building UI
+- Phase 3: Test individual downloads independently
+- Phase 4: Test delivery page with mock backend before integration
+- Phases 5-6: Iterative UI improvements
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 5 (ZIP Delivery):** Hostinger-specific PHP limits (`max_execution_time`, `memory_limit`) are not publicly documented for all plans. Verify actual limits with a `phpinfo()` dump before committing to the streaming vs. pre-generation approach.
-- **Phase 1 (Thumbnail generation):** GD WebP support requires PHP compiled with `--with-webp`. Verify `gd_info()` on Hostinger returns `WebP Support: true` before committing to WebP thumbnail output.
+**Phases needing deeper research during planning:**
+- Phase 2 (ZIP Generation): If ZipStream API issues arise, may need research-phase for large file handling patterns
+- None others — all phases use well-documented patterns
 
-Phases with standard patterns (skip research-phase):
-- **Phase 2 (Share link):** Token generation with `bin2hex(random_bytes(24))` is a documented PHP primitive. No research needed.
-- **Phase 3 (Client gallery + selection):** `react-photo-album` + `yet-another-react-lightbox` integration is covered by official docs. The token-auth PHP pattern is fully documented in ARCHITECTURE.md.
-- **Phase 4 (Edited finals upload):** Same upload pattern as Phase 1; `EditedPhoto` handler already exists. Extension work only.
-
----
+**Phases with standard patterns (skip research-phase):**
+- Phase 1: Standard database migration + token generation (existing patterns from shareId)
+- Phase 3: Standard file download endpoint (existing upload patterns reversed)
+- Phase 4: Standard React page with API integration (existing CollectionDetailsPage pattern)
+- Phases 5-6: UI enhancement work (no research needed)
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All library versions verified on npm/packagist as of 2026-02-11. PHP built-ins are stable. ZipStream PHP 8.1 requirement is the only version risk — mitigated by `^2.4` fallback. |
-| Features | HIGH | Derived from competitor analysis of 4 established products (Pixieset, ShootProof, Pic-Time, Lightfolio) plus workflow dependency mapping. Feature prioritization is well-grounded. |
-| Architecture | HIGH | Based on direct codebase inspection, not external sources. Dual-auth pattern, file-serving approach, and build order all verified against existing `backend/index.php`, `utils.php`, and DB schema. |
-| Pitfalls | HIGH | Security pitfalls sourced from OWASP, PortSwigger, and domain-specific knowledge of how client gallery apps fail. Performance pitfalls verified against Hostinger shared hosting constraints. |
+| Stack | HIGH | maennchen/zipstream-php extensively documented, Composer package confirmed available, file-saver is mature stable library. All technologies have production track records. |
+| Features | HIGH | Industry research from Pixieset, ShootProof, Pic-Time confirms table stakes expectations. Competitor feature analysis provides clear benchmarks. UX patterns validated across multiple platforms. |
+| Architecture | HIGH | Two-token pattern is standard for selection/delivery separation. On-demand ZIP generation with streaming is proven approach for resource-constrained hosting. Download tracking schema follows established analytics patterns. |
+| Pitfalls | HIGH | Zip Slip vulnerability documented in CVE databases, ZipStream memory issues confirmed in GitHub discussions, Hostinger limits verified in official docs. Double-counting patterns observed in GA4 analytics research. |
 
 **Overall confidence:** HIGH
 
+All research based on official documentation (PHP manual, ZipStream GitHub, MDN), verified Hostinger constraints (memory_limit, max_execution_time), and competitor feature analysis from production photo delivery platforms. No speculative or unverified sources.
+
 ### Gaps to Address
 
-- **Hostinger PHP version:** `maennchen/zipstream-php@^3.1` requires PHP 8.1+. Verify with `php -v` on the production Hostinger server before installing. If PHP 8.0, use `^2.4`.
-- **GD WebP support on Hostinger:** Thumbnail generation for WebP uploads requires GD compiled with `--with-webp`. Run `gd_info()` in a test script to confirm before Phase 1 ships WebP support.
-- **Hostinger execution time ceiling:** The actual `max_execution_time` cap on the specific Hostinger plan is unknown. Test a large ZIP generation (50+ files, 200 MB) in the Hostinger environment before Phase 5 is marked done — not on local dev.
-- **`processedZipPath` cache invalidation strategy:** The schema supports caching the ZIP path, but the invalidation trigger (e.g., when a new EditedPhoto is added after DELIVERED transition) is not yet defined. Decide on invalidation policy during Phase 5 planning.
+**Hostinger-specific ZIP limits:** Research shows 180s max_execution_time limit via .htaccess, but actual per-plan memory_limit values not confirmed. Should verify during Phase 2 implementation:
+- Test ZIP generation with 50 photos (10MB each = 500MB total)
+- Monitor memory usage and execution time in production
+- If limits hit, fall back to pre-generation + processedZipPath approach
 
----
+**Email token security (deferred to v2.1):** Pitfall #8 identifies risk of deliveryToken exposure in email logs, but two-step token system adds complexity. Decision: Accept risk for v2.0 (manual link sharing), implement email tokens only if email notifications added in v2.1.
+
+**Download expiration policy:** Research suggests 30-90 day expiration windows based on photographer plan tier, but no firm requirements exist. Decision: Implement expiration infrastructure (deliveredAt + duration check) in Phase 1, configure actual durations during Phase 5 based on user feedback.
+
+**Range request implementation complexity:** Pitfall #6 recommends HTTP 206 Partial Content support for resumable downloads, but adds ~50 lines of code. Decision: Implement for ZIP downloads (large files) in Phase 2, defer for individual photos unless mobile testing shows issues.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Direct codebase inspection: `backend/index.php`, `backend/collections/*.php`, `backend/utils.php`, `frontend/src/App.jsx`, `frontend/src/pages/CollectionDetailsPage.jsx`, `database_schema.sql`
-- [npmjs.com — react-photo-album](https://www.npmjs.com/package/react-photo-album) — v3.4.0 confirmed current
-- [npmjs.com — yet-another-react-lightbox](https://www.npmjs.com/package/yet-another-react-lightbox) — v3.25.0 confirmed current
-- [npmjs.com — react-dropzone](https://www.npmjs.com/package/react-dropzone) — v15.0.0 confirmed current
-- [packagist.org — maennchen/zipstream-php](https://packagist.org/packages/maennchen/zipstream-php) — v3.x stable
-- [react-photo-album.com](https://react-photo-album.com/) — layout algorithms and SSR support verified
-- [yet-another-react-lightbox.com](https://yet-another-react-lightbox.com/) — plugin system verified
+- [maennchen/ZipStream-PHP GitHub](https://github.com/maennchen/ZipStream-PHP) — Library documentation, memory issues discussion (#185), performance comparison (#40)
+- [PHP ZipArchive Manual](https://www.php.net/manual/en/class.ziparchive.php) — Native alternative documentation
+- [PHP random_bytes Manual](https://www.php.net/manual/en/function.random-bytes.php) — Token generation
+- [HTTP Range Requests (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests) — 206 Partial Content specification
+- [Hostinger PHP Memory Limits](https://www.hostinger.com/support/1583711-what-is-php-memory-limit-at-hostinger/) — Hosting constraints
+- [Hostinger max_execution_time](https://www.hostinger.com/tutorials/how-to-fix-maximum-execution-time-exceeded-error-wordpress) — 180s maximum
+- [file-saver npm](https://www.npmjs.com/package/file-saver) — Frontend library version 2.0.5 confirmed
 
 ### Secondary (MEDIUM confidence)
-- [Pixieset Client Gallery](https://pixieset.com/client-gallery/) — feature set and positioning
-- [ShootProof Features](https://www.shootproof.com/features/) — download controls, PIN protection, label-based selection
-- [Top 10 Client Gallery Services 2025](https://picflow.com/blog/top-client-gallery-services) — market landscape
-- [Pixieset Blog: Helping Clients Choose Favorites Faster](https://blog.pixieset.com/blog/favorite-photos-online-proofing/) — UX best practices for selection workflow
-- Chunked File Uploads in Native PHP — Roman Huliak / Medium — vanilla PHP chunked assembly pattern
+- [Pixieset Client Gallery](https://pixieset.com/client-gallery/) — Industry feature standards
+- [ShootProof Features](https://www.shootproof.com/features/) — Competitor analysis
+- [Best Photo Gallery for Photographers 2026](https://blog.pixieset.com/blog/best-photo-gallery/) — Best practices
+- [Zip Slip Vulnerability (Snyk)](https://security.snyk.io/research/zip-slip-vulnerability) — Security patterns
+- [Token Best Practices (Auth0)](https://auth0.com/docs/secure/tokens/token-best-practices) — Token security
+- [GA4 Download Tracking Duplicate Events](https://www.analyticsmania.com/post/duplicate-events-in-google-analytics-4-and-how-to-fix-them/) — Double-counting prevention
+- [Database Race Conditions Catalog](https://www.ketanbhatt.com/p/db-concurrency-defects) — Concurrency patterns
+- [Gallery Expiration Best Practices](https://www.bp4ublog.com/photo-tips/how-long-do-i-leave-private-online-galleries-open/) — Timeline expectations
 
 ### Tertiary (LOW confidence)
-- Hostinger Knowledge Base — PHP configuration limits: exact values for `max_execution_time` and `memory_limit` on shared plans need runtime verification; documented values may not match actual plan limits.
+- [Client Photo Delivery Guide](https://www.sendphoto.io/blog/client-photo-delivery-guide-professional-photographers) — UX patterns (marketing content, not technical)
+- [Photography Workflow Tips 2026](https://aftershoot.com/blog/photography-workflow-tips/) — General workflow advice (not delivery-specific)
 
 ---
-
-*Research completed: 2026-02-11*
+*Research completed: 2026-02-13*
 *Ready for roadmap: yes*
