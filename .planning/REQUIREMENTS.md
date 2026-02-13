@@ -1,73 +1,70 @@
-# Requirements: Photo Hub (PixelForge)
+# Requirements: Photo Hub
 
-**Defined:** 2026-02-11
+**Defined:** 2026-02-13
 **Core Value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
 
-## v1 Requirements
+## v2.0 Requirements
 
-Requirements for initial release. Each maps to roadmap phases.
+Requirements for v2.0 Delivery & Polish release. Each maps to roadmap phases.
 
-### Upload
+### Delivery System
 
-- [ ] **UPLOAD-01**: Photographer can upload multiple photos to a collection
-- [ ] **UPLOAD-02**: Collection cover is automatically set to the first uploaded photo
-- [ ] **UPLOAD-03**: Photographer can manually override the collection cover photo
+- [ ] **DELIV-01**: Photographer can generate a separate delivery link for a collection
+- [ ] **DELIV-02**: Delivery link uses a unique token (separate from shareId for security)
+- [ ] **DELIV-03**: Delivery token is automatically generated when collection transitions to DELIVERED status
+- [ ] **DELIV-04**: Selection link redirects to delivery page after collection reaches DELIVERED status
+- [ ] **DELIV-05**: Client can access delivery page with token (no login required)
+- [ ] **DELIV-06**: Delivery page displays only edited/final photos (clean gallery, no proofs)
 
-### Client Gallery
+### Downloads
 
-- [ ] **GALLERY-01**: Client can browse collection photos in a responsive grid
-- [ ] **GALLERY-02**: Client can view a photo fullscreen with prev/next navigation (lightbox)
-- [ ] **GALLERY-03**: Client cannot download photos when collection status is SELECTING
+- [ ] **DWNLD-01**: Client can download all edited photos as a single ZIP file
+- [ ] **DWNLD-02**: ZIP generation uses streaming architecture to avoid server timeout/memory limits
+- [ ] **DWNLD-03**: Client can download individual edited photos from grid view
+- [ ] **DWNLD-04**: Client can download individual edited photos from lightbox view
+- [ ] **DWNLD-05**: Individual downloads use file-saver library for cross-browser compatibility
 
-### Sharing
+### Download Tracking
 
-- [ ] **SHARE-01**: Photographer can generate a token-based share URL for a collection
-- [ ] **SHARE-02**: Client can access the collection via share link without creating an account
-- [ ] **SHARE-03**: Collection card displays status color (blue = SELECTING, green = REVIEWING)
+- [ ] **TRACK-01**: System tracks ZIP download events in Download table
+- [ ] **TRACK-02**: System tracks individual photo download events in Download table
+- [ ] **TRACK-03**: Download tracking uses session-based deduplication to prevent double-counting
+- [ ] **TRACK-04**: Collection transitions to DOWNLOADED status after first download (ZIP or individual)
+- [ ] **TRACK-05**: Photographer can see download confirmation in collection details
 
-### Selection
+### UI/UX Polish
 
-- [ ] **SELEC-01**: Client can mark/unmark individual photos for editing
-- [ ] **SELEC-02**: Client can see a running count of their selected photos
+- [ ] **UIPOL-01**: Upload dropzone hides after first photo is uploaded to a collection
+- [ ] **UIPOL-02**: "Add More Photos" button appears after upload dropzone is hidden
+- [ ] **UIPOL-03**: Collection details page has reorganized button layout (grouped by workflow phase)
+- [ ] **UIPOL-04**: Share page has improved client action button placement
+- [ ] **UIPOL-05**: Status badges and colors reflect new DOWNLOADED status in lifecycle
 
-### Photographer Review
+## v3.0+ Requirements (Future)
 
-- [ ] **REVIEW-01**: Photographer can see which photos the client selected
-- [ ] **REVIEW-02**: Photographer can filter photos by All / Selected / Not Selected
-- [ ] **REVIEW-03**: Collection card turns green when client has completed selections (REVIEWING status)
+Deferred to future releases. Tracked but not in current roadmap.
 
-### Delivery
+### Cloud Storage
 
-- [ ] **DELIV-01**: Photographer can upload edited final photos to the collection
+- **CLOUD-01**: Migrate from backend/uploads/ to S3/Cloudflare R2 cloud storage
+- **CLOUD-02**: CDN integration for faster photo delivery
 
-## v2 Requirements
+### Notifications
 
-Deferred to future release. Tracked but not in current roadmap.
+- **NOTIF-01**: Email notifications when finals are ready for download
+- **NOTIF-02**: Email reminders for gallery expiration (30-90 days)
 
-### Upload
+### Analytics & Management
 
-- **UPLOAD-04**: Upload progress indicator per file during upload
+- **ANALY-01**: Download analytics dashboard for photographers
+- **ANALY-02**: Track which specific photos were downloaded individually
+- **ANALY-03**: Display download timestamps and client session info
 
-### Delivery
+### Advanced Delivery
 
-- **DELIV-02**: Photographer can generate a separate delivery link for the client
-- **DELIV-03**: Client can download individual photos in the DELIVERED stage
-- **DELIV-04**: Client can download all delivered photos as a ZIP archive (server-side streaming)
-
-### Gallery
-
-- **GALLERY-04**: Thumbnail generation at upload time (PHP GD) for faster grid load
-- **GALLERY-05**: Collection card displays status color for DELIVERED stage (purple)
-
-### Sharing
-
-- **SHARE-04**: Share links have an expiry date
-- **SHARE-05**: Gallery links can be password-protected
-
-### Selection
-
-- **SELEC-03**: Photographer sets a maximum selection count; client cannot exceed it
-- **SELEC-04**: Client submits selections with an explicit confirm button (triggers REVIEWING transition)
+- **ADVDL-01**: Password-protected delivery links
+- **ADVDL-02**: Gallery expiration dates with automated cleanup
+- **ADVDL-03**: Multiple ZIP resolution options (web, print, original)
 
 ## Out of Scope
 
@@ -75,12 +72,12 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Cloud storage (S3/R2) | Deferred — using backend/uploads/ now; migration planned for future milestone |
-| Client accounts | By design — client access is link-only; no account friction |
-| Email notifications | Requires email infrastructure (SendGrid/SES); out of scope |
-| Real-time updates (WebSockets) | Not needed; manual refresh sufficient for this workflow |
-| Per-photo client notes | High value but requires schema change and complex UI — v2+ |
-| Gallery analytics | Not needed for core workflow — v2+ |
+| Client accounts / authentication | Deliberate design decision; zero-friction workflow requires link-only access |
+| Real-time notifications (WebSockets) | Async workflow doesn't need instant updates; manual refresh sufficient |
+| Pre-generated ZIPs (processedZipPath) | On-demand streaming simpler; defer pre-generation until analytics show need |
+| Download quotas / rate limiting | Not needed at current scale; add if abuse detected |
+| Watermark management | Not requested by users; defer until client feedback indicates need |
+| ARCHIVED status workflow | Deferred to v3.0; not needed for v2.0 delivery features |
 
 ## Traceability
 
@@ -88,27 +85,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UPLOAD-01 | Phase 1 | Pending |
-| UPLOAD-02 | Phase 1 | Pending |
-| UPLOAD-03 | Phase 1 | Pending |
-| GALLERY-01 | Phase 3 | Pending |
-| GALLERY-02 | Phase 3 | Pending |
-| GALLERY-03 | Phase 3 | Pending |
-| SHARE-01 | Phase 2 | Pending |
-| SHARE-02 | Phase 2 | Pending |
-| SHARE-03 | Phase 2 | Pending |
-| SELEC-01 | Phase 3 | Pending |
-| SELEC-02 | Phase 3 | Pending |
-| REVIEW-01 | Phase 4 | Pending |
-| REVIEW-02 | Phase 4 | Pending |
-| REVIEW-03 | Phase 4 | Pending |
-| DELIV-01 | Phase 4 | Pending |
+| DELIV-01 | TBD | Pending |
+| DELIV-02 | TBD | Pending |
+| DELIV-03 | TBD | Pending |
+| DELIV-04 | TBD | Pending |
+| DELIV-05 | TBD | Pending |
+| DELIV-06 | TBD | Pending |
+| DWNLD-01 | TBD | Pending |
+| DWNLD-02 | TBD | Pending |
+| DWNLD-03 | TBD | Pending |
+| DWNLD-04 | TBD | Pending |
+| DWNLD-05 | TBD | Pending |
+| TRACK-01 | TBD | Pending |
+| TRACK-02 | TBD | Pending |
+| TRACK-03 | TBD | Pending |
+| TRACK-04 | TBD | Pending |
+| TRACK-05 | TBD | Pending |
+| UIPOL-01 | TBD | Pending |
+| UIPOL-02 | TBD | Pending |
+| UIPOL-03 | TBD | Pending |
+| UIPOL-04 | TBD | Pending |
+| UIPOL-05 | TBD | Pending |
 
 **Coverage:**
-- v1 requirements: 15 total
-- Mapped to phases: 15
-- Unmapped: 0 ✓
+- v2.0 requirements: 21 total
+- Mapped to phases: 0 (roadmap not yet created)
+- Unmapped: 21 ⚠️
 
 ---
-*Requirements defined: 2026-02-11*
-*Last updated: 2026-02-11 after roadmap creation*
+*Requirements defined: 2026-02-13*
+*Last updated: 2026-02-13 after initial definition*
