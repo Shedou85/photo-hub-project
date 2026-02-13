@@ -166,7 +166,15 @@
     "statusUpdateError": "Nepavyko atnaujinti būsenos. Bandykite dar kartą.",
     "filterAll": "Visos",
     "filterSelected": "Pasirinktos",
-    "filterNotSelected": "Nepasirinktos"
+    "filterNotSelected": "Nepasirinktos",
+    "editedFinalsTitle": "Galutiniai failai",
+    "editedPhotosCount_one": "{{count}} failas",
+    "editedPhotosCount_other": "{{count}} failai",
+    "editedUploadZoneLabel": "Įkelkite galutinius failus",
+    "editedUploadZoneHint": "JPEG, PNG arba WEBP · Maks. 20 MB failui",
+    "editedUploadSuccess": "Galutiniai failai įkelti!",
+    "markAsDelivered": "Pažymėti kaip pristatyta",
+    "markedAsDelivered": "Kolekcija pažymėta kaip pristatyta!"
   },
   "share": {
     "loading": "Kraunama galerija...",

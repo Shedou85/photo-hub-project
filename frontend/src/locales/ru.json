@@ -166,7 +166,15 @@
     "statusUpdateError": "Не удалось обновить статус. Попробуйте ещё раз.",
     "filterAll": "Все",
     "filterSelected": "Выбранные",
-    "filterNotSelected": "Невыбранные"
+    "filterNotSelected": "Невыбранные",
+    "editedFinalsTitle": "Готовые файлы",
+    "editedPhotosCount_one": "{{count}} файл",
+    "editedPhotosCount_other": "{{count}} файлов",
+    "editedUploadZoneLabel": "Загрузите готовые файлы сюда",
+    "editedUploadZoneHint": "JPEG, PNG или WEBP · Макс. 20 МБ на файл",
+    "editedUploadSuccess": "Готовые файлы загружены!",
+    "markAsDelivered": "Отметить как доставлено",
+    "markedAsDelivered": "Коллекция отмечена как доставленная!"
   },
   "share": {
     "loading": "Загрузка галереи...",

@@ -164,7 +164,15 @@
     "statusUpdateError": "Failed to update status. Please try again.",
     "filterAll": "All",
     "filterSelected": "Selected",
-    "filterNotSelected": "Not selected"
+    "filterNotSelected": "Not selected",
+    "editedFinalsTitle": "Edited Finals",
+    "editedPhotosCount_one": "{{count}} file",
+    "editedPhotosCount_other": "{{count}} files",
+    "editedUploadZoneLabel": "Upload edited finals here",
+    "editedUploadZoneHint": "JPEG, PNG or WEBP · Max 20 MB per file",
+    "editedUploadSuccess": "Edited photos uploaded!",
+    "markAsDelivered": "Mark as Delivered",
+    "markedAsDelivered": "Collection marked as delivered!"
   },
   "share": {
     "loading": "Loading gallery...",

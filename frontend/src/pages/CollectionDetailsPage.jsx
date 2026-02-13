@@ -30,14 +30,17 @@ function CollectionDetailsPage() {
   const { id } = useParams();
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
+  const editedFileInputRef = useRef(null);
   const uploadBatchCounter = useRef(0);
 
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [photos, setPhotos] = useState([]);
+  const [editedPhotos, setEditedPhotos] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploadStates, setUploadStates] = useState({});
+  const [editedUploadStates, setEditedUploadStates] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [selections, setSelections] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -86,6 +89,21 @@ function CollectionDetailsPage() {
     }
   }, [id]);
 
+  const fetchEditedPhotos = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/edited`,
+        { credentials: "include" }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "OK") setEditedPhotos(data.editedPhotos || []);
+      }
+    } catch {
+      // non-critical, edited photos just won't load
+    }
+  }, [id]);
+
   useEffect(() => {
     const fetchCollection = async () => {
       try {
@@ -111,6 +129,13 @@ function CollectionDetailsPage() {
     fetchPhotos();
     fetchSelections();
   }, [id, fetchPhotos, fetchSelections]);
+
+  // Fetch edited photos when collection is REVIEWING or DELIVERED
+  useEffect(() => {
+    if (collection && (collection.status === 'REVIEWING' || collection.status === 'DELIVERED')) {
+      fetchEditedPhotos();
+    }
+  }, [collection, fetchEditedPhotos]);
 
   // Reset filter when collection changes
   useEffect(() => {
@@ -226,6 +251,105 @@ function CollectionDetailsPage() {
 
   const handleFileChange = (e) => {
     uploadFiles(e.target.files);
+    e.target.value = "";
+  };
+
+  const uploadEditedFiles = async (files) => {
+    const fileArray = Array.from(files);
+    if (!fileArray.length) return;
+
+    // Client-side validation before uploading
+    const batchId = ++uploadBatchCounter.current;
+    const validFiles = [];
+    const keys = [];
+    let hasValidationErrors = false;
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const key = `edited-${batchId}-${file.name}-${i}`;
+      keys.push(key);
+
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setEditedUploadStates((prev) => ({ ...prev, [key]: "invalid-type" }));
+        hasValidationErrors = true;
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setEditedUploadStates((prev) => ({ ...prev, [key]: "too-large" }));
+        hasValidationErrors = true;
+        continue;
+      }
+      validFiles.push({ file, key });
+    }
+
+    if (hasValidationErrors) {
+      toast.error(t("collection.uploadValidationError"));
+    }
+
+    // Mark valid files as uploading
+    if (validFiles.length > 0) {
+      setEditedUploadStates((prev) => {
+        const next = { ...prev };
+        validFiles.forEach(({ key }) => (next[key] = "uploading"));
+        return next;
+      });
+    }
+
+    // Upload with concurrency limiter
+    let idx = 0;
+    let successCount = 0;
+    const uploadNext = async () => {
+      while (idx < validFiles.length) {
+        const current = idx++;
+        const { file, key } = validFiles[current];
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/edited`,
+            { method: "POST", credentials: "include", body: formData }
+          );
+          if (res.ok) {
+            successCount++;
+          }
+          setEditedUploadStates((prev) => ({
+            ...prev,
+            [key]: res.ok ? "done" : "error",
+          }));
+        } catch {
+          setEditedUploadStates((prev) => ({ ...prev, [key]: "error" }));
+        }
+      }
+    };
+
+    const workers = [];
+    for (let w = 0; w < Math.min(MAX_CONCURRENT_UPLOADS, validFiles.length); w++) {
+      workers.push(uploadNext());
+    }
+    await Promise.all(workers);
+
+    await fetchEditedPhotos();
+
+    if (successCount > 0) {
+      toast.success(t("collection.editedUploadSuccess"));
+    }
+
+    // Clear done/validation states after a short delay
+    setTimeout(() => {
+      setEditedUploadStates((prev) => {
+        const next = { ...prev };
+        keys.forEach((k) => {
+          if (next[k] === "done" || next[k] === "invalid-type" || next[k] === "too-large") {
+            delete next[k];
+          }
+        });
+        return next;
+      });
+    }, 3000);
+  };
+
+  const handleEditedFileChange = (e) => {
+    uploadEditedFiles(e.target.files);
     e.target.value = "";
   };
 
@@ -359,6 +483,31 @@ function CollectionDetailsPage() {
     }
   };
 
+  const handleMarkAsDelivered = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'DELIVERED' }),
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'OK') {
+          setCollection(data.collection);
+          toast.success(t('collection.markedAsDelivered'));
+        }
+      } else {
+        toast.error(t('collection.statusUpdateError'));
+      }
+    } catch {
+      toast.error(t('collection.statusUpdateError'));
+    }
+  };
+
   const anyUploading = useMemo(
     () => Object.values(uploadStates).some((s) => s === "uploading"),
     [uploadStates]
@@ -383,6 +532,19 @@ function CollectionDetailsPage() {
     if (filter === 'not-selected') return photos.filter(p => !selectedPhotoIds.has(p.id));
     return photos;
   }, [filter, photos, selectedPhotoIds]);
+
+  const anyEditedUploading = useMemo(
+    () => Object.values(editedUploadStates).some((s) => s === "uploading"),
+    [editedUploadStates]
+  );
+  const editedUploadErrors = useMemo(
+    () => Object.values(editedUploadStates).filter((s) => s === "error").length,
+    [editedUploadStates]
+  );
+  const editedValidationErrors = useMemo(
+    () => Object.values(editedUploadStates).filter((s) => s === "invalid-type" || s === "too-large").length,
+    [editedUploadStates]
+  );
 
   if (loading) {
     return (
@@ -476,6 +638,22 @@ function CollectionDetailsPage() {
               className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
             >
               {t('collection.startSelecting')}
+            </button>
+          )}
+          {collection.status === 'REVIEWING' && (
+            <button
+              onClick={handleMarkAsDelivered}
+              disabled={editedPhotos.length === 0}
+              className={`inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 ${
+                editedPhotos.length > 0
+                  ? 'bg-[linear-gradient(135deg,#10b981,#059669)] hover:opacity-[0.88]'
+                  : 'bg-gray-300 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {t('collection.markAsDelivered')}
             </button>
           )}
         </div>
@@ -652,6 +830,80 @@ function CollectionDetailsPage() {
           <p className="m-0 text-sm text-gray-500 text-center py-5">
             {t("collection.noPhotos")}
           </p>
+        </div>
+      )}
+
+      {/* ── Edited Finals Upload Zone (REVIEWING only) ── */}
+      {collection.status === 'REVIEWING' && (
+        <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+          <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+            {t('collection.editedFinalsTitle')}
+            {editedPhotos.length > 0 && (
+              <span className="ml-2 text-xs font-normal text-gray-400 normal-case tracking-normal">
+                {t('collection.editedPhotosCount', { count: editedPhotos.length })}
+              </span>
+            )}
+          </h2>
+
+          {/* Green-themed drop zone */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t('collection.editedUploadZoneLabel')}
+            onClick={() => editedFileInputRef.current?.click()}
+            onKeyDown={(e) => e.key === 'Enter' && editedFileInputRef.current?.click()}
+            className="border-2 border-dashed rounded-[10px] flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none border-green-300 bg-green-50 hover:border-green-400"
+          >
+            <svg className="w-9 h-9 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <p className="m-0 text-sm font-medium text-gray-600">
+              {t('collection.editedUploadZoneLabel')}
+            </p>
+            <p className="m-0 text-xs text-gray-400">
+              {t('collection.editedUploadZoneHint')}
+            </p>
+            {anyEditedUploading && (
+              <p className="m-0 text-xs text-green-600 font-medium animate-pulse">
+                {t("collection.uploading")}
+              </p>
+            )}
+            {editedUploadErrors > 0 && !anyEditedUploading && (
+              <p className="m-0 text-xs text-red-500 font-medium">
+                {editedUploadErrors}x {t("collection.uploadError")}
+              </p>
+            )}
+            {editedValidationErrors > 0 && !anyEditedUploading && (
+              <p className="m-0 text-xs text-amber-600 font-medium">
+                {editedValidationErrors}x {t("collection.uploadValidationError")}
+              </p>
+            )}
+          </div>
+
+          <input
+            ref={editedFileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={handleEditedFileChange}
+          />
+
+          {/* Edited photos grid */}
+          {editedPhotos.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              {editedPhotos.map((photo) => (
+                <div key={photo.id} className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100">
+                  <img
+                    src={photoUrl(photo.storagePath)}
+                    alt={photo.filename}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
