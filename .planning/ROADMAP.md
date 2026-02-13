@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Photo Upload** - Photographer can upload photos; thumbnails generated; photos display in grid with lightbox — *Completed 2026-02-12*
 - [x] **Phase 2: Sharing and Status** - Photographer can generate a share link; collection cards reflect status with color coding — *Completed 2026-02-13*
-- [ ] **Phase 3: Client Gallery and Selection** - Client can browse and select photos via share link without an account
+- [x] **Phase 3: Client Gallery and Selection** - Client can browse and select photos via share link without an account — *Completed 2026-02-13*
 - [ ] **Phase 4: Review and Delivery** - Photographer reviews selections and uploads edited finals; collection is delivered
 
 ## Phase Details
@@ -64,8 +64,8 @@ Plans:
 **Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 03-01: Backend public selections API + extend share endpoint to return selections (Wave 1)
-- [ ] 03-02: Frontend selection UI on SharePage — toggles, counter, download prevention, i18n (Wave 2, depends on 03-01)
+- [x] 03-01: Backend public selections API + extend share endpoint to return selections (Wave 1)
+- [x] 03-02: Frontend selection UI on SharePage — toggles, counter, download prevention, i18n (Wave 2, depends on 03-01)
 
 ### Phase 4: Review and Delivery
 **Goal**: Photographer can see which photos the client selected and upload edited finals to deliver the collection
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Photo Upload | 3/3 | ✓ Complete | 2026-02-12 |
 | 2. Sharing and Status | 2/2 | ✓ Complete | 2026-02-13 |
-| 3. Client Gallery and Selection | 0/2 | Not started | - |
+| 3. Client Gallery and Selection | 2/2 | ✓ Complete | 2026-02-13 |
 | 4. Review and Delivery | 0/2 | Not started | - |
