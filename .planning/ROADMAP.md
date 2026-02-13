@@ -35,8 +35,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Database schema (deliveryToken column + Download table) and auto-token generation on DELIVERED status
-- [ ] 05-02-PLAN.md — Delivery token retrieval endpoint and reusable download tracking helper
+- [x] 05-01-PLAN.md — Database schema (deliveryToken column + Download table) and auto-token generation on DELIVERED status
+- [x] 05-02-PLAN.md — Delivery token retrieval endpoint and reusable download tracking helper
 
 #### Phase 6: Server-Side ZIP Downloads
 **Goal**: Enable bulk download of all edited photos as streaming ZIP file
@@ -119,7 +119,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9 → 10
 | 2. Sharing | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 3. Client Gallery | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 4. Delivery | v1.0 | 2/2 | Complete | 2026-02-13 |
-| 5. Delivery Infrastructure | v2.0 | 0/2 | Planned | - |
+| 5. Delivery Infrastructure | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 6. Server-Side ZIP Downloads | v2.0 | 0/TBD | Not started | - |
 | 7. Individual Photo Downloads | v2.0 | 0/TBD | Not started | - |
 | 8. Client Delivery Interface | v2.0 | 0/TBD | Not started | - |
@@ -127,4 +127,4 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9 → 10
 | 10. UI Polish & Refinement | v2.0 | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-13 after v2.0 roadmap creation*
+*Last updated: 2026-02-13 after Phase 5 completion*
