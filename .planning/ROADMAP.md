@@ -32,10 +32,11 @@
   2. Delivery token is automatically created when collection transitions to DELIVERED status
   3. System tracks download events (ZIP and individual) without double-counting from browser resume requests
   4. Download tracking table exists with session-based deduplication schema
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD (pending plan-phase)
+- [ ] 05-01-PLAN.md — Database schema (deliveryToken column + Download table) and auto-token generation on DELIVERED status
+- [ ] 05-02-PLAN.md — Delivery token retrieval endpoint and reusable download tracking helper
 
 #### Phase 6: Server-Side ZIP Downloads
 **Goal**: Enable bulk download of all edited photos as streaming ZIP file
@@ -118,7 +119,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9 → 10
 | 2. Sharing | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 3. Client Gallery | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 4. Delivery | v1.0 | 2/2 | Complete | 2026-02-13 |
-| 5. Delivery Infrastructure | v2.0 | 0/TBD | Not started | - |
+| 5. Delivery Infrastructure | v2.0 | 0/2 | Planned | - |
 | 6. Server-Side ZIP Downloads | v2.0 | 0/TBD | Not started | - |
 | 7. Individual Photo Downloads | v2.0 | 0/TBD | Not started | - |
 | 8. Client Delivery Interface | v2.0 | 0/TBD | Not started | - |
