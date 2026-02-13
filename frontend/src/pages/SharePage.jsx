@@ -199,13 +199,13 @@ function SharePage() {
                       }}
                       className={`absolute top-2 right-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
                         isSelected
-                          ? 'bg-blue-600 border-blue-600'
+                          ? 'bg-white border-blue-600'
                           : 'bg-white/80 border-gray-300 group-hover:border-blue-400'
                       }`}
                       aria-label={isSelected ? t('share.selected') : t('share.select')}
                     >
                       {isSelected && (
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
