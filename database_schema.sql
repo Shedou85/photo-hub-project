@@ -70,6 +70,7 @@ CREATE TABLE `Collection` (
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
   `shareId` VARCHAR(191) NOT NULL,
+  `deliveryToken` VARCHAR(191) NULL,
   `userId` VARCHAR(191) NOT NULL,
   `processedZipPath` VARCHAR(191) NULL,
   `clientEmail` VARCHAR(191) NULL,
@@ -81,6 +82,7 @@ CREATE TABLE `Collection` (
   `coverPhotoId` VARCHAR(191) NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `Collection_shareId_key` (`shareId`),
+  UNIQUE KEY `Collection_deliveryToken_key` (`deliveryToken`),
   UNIQUE KEY `Collection_coverPhotoId_key` (`coverPhotoId`),
   KEY `Collection_userId_idx` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -152,6 +154,26 @@ CREATE TABLE `PromotionalPhoto` (
   UNIQUE KEY `PromotionalPhoto_collectionId_photoId_key` (`collectionId`, `photoId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Download`
+--
+
+CREATE TABLE `Download` (
+  `id` VARCHAR(191) NOT NULL,
+  `collectionId` VARCHAR(191) NOT NULL,
+  `downloadType` ENUM('ZIP', 'INDIVIDUAL') NOT NULL,
+  `photoId` VARCHAR(191) NULL,
+  `sessionId` VARCHAR(191) NOT NULL,
+  `downloadedAt` DATETIME(3) NOT NULL,
+  `userAgent` VARCHAR(500) NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  KEY `Download_collectionId_idx` (`collectionId`),
+  UNIQUE KEY `Download_deduplication_key` (`collectionId`, `downloadType`, `sessionId`, `downloadedAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Constraints for dumped tables
 --
@@ -195,8 +217,44 @@ ALTER TABLE `PromotionalPhoto`
   ADD CONSTRAINT `PromotionalPhoto_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `PromotionalPhoto_photoId_fkey` FOREIGN KEY (`photoId`) REFERENCES `Photo` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+--
+-- Constraints for table `Download`
+--
+ALTER TABLE `Download`
+  ADD CONSTRAINT `Download_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `Download_photoId_fkey` FOREIGN KEY (`photoId`) REFERENCES `EditedPhoto` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- --------------------------------------------------------
 --
 -- Migration: Add thumbnailPath to Photo table (run on existing databases)
 --
 -- ALTER TABLE `Photo` ADD COLUMN `thumbnailPath` VARCHAR(191) NULL DEFAULT NULL AFTER `storagePath`;
+
+-- --------------------------------------------------------
+--
+-- Migration: Add deliveryToken to Collection table (run on existing databases)
+--
+-- ALTER TABLE `Collection` ADD COLUMN `deliveryToken` VARCHAR(191) NULL AFTER `shareId`;
+-- ALTER TABLE `Collection` ADD UNIQUE KEY `Collection_deliveryToken_key` (`deliveryToken`);
+
+-- --------------------------------------------------------
+--
+-- Migration: Create Download table (run on existing databases)
+--
+-- CREATE TABLE `Download` (
+--   `id` VARCHAR(191) NOT NULL,
+--   `collectionId` VARCHAR(191) NOT NULL,
+--   `downloadType` ENUM('ZIP', 'INDIVIDUAL') NOT NULL,
+--   `photoId` VARCHAR(191) NULL,
+--   `sessionId` VARCHAR(191) NOT NULL,
+--   `downloadedAt` DATETIME(3) NOT NULL,
+--   `userAgent` VARCHAR(500) NULL,
+--   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+--   PRIMARY KEY (`id`),
+--   KEY `Download_collectionId_idx` (`collectionId`),
+--   UNIQUE KEY `Download_deduplication_key` (`collectionId`, `downloadType`, `sessionId`, `downloadedAt`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- ALTER TABLE `Download`
+--   ADD CONSTRAINT `Download_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+--   ADD CONSTRAINT `Download_photoId_fkey` FOREIGN KEY (`photoId`) REFERENCES `EditedPhoto` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
