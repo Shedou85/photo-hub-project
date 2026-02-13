@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 3 of 4 (Client Gallery and Selection)
-Plan: 1 of 2 in current phase
-Status: Phase 3 in progress — public selections API complete
-Last activity: 2026-02-13 — Completed 03-01-PLAN.md (public selections API with status gating)
+Plan: 2 of 2 in current phase
+Status: Phase 3 complete — client selection UI with optimistic updates
+Last activity: 2026-02-13 — Completed 03-02-PLAN.md (frontend client selection UI)
 
-Progress: [██████░░░░] 60%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 9.7 min
-- Total execution time: 1.0 hours
+- Total plans completed: 7
+- Average duration: 10.4 min
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [██████░░░░] 60%
 |-------|-------|-------|----------|
 | 01-photo-upload | 3/3 | 32 min | 10.7 min |
 | 02-sharing-and-status | 2/2 | 30 min | 15.0 min |
-| 03-client-gallery-and-selection | 1/2 | 2 min | 2.0 min |
+| 03-client-gallery-and-selection | 2/2 | 27 min | 13.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (15 min), 02-01 (9 min), 02-02 (21 min), 03-01 (2 min)
-- Trend: Phase 3 started with fast backend API creation
+- Last 5 plans: 02-01 (9 min), 02-02 (21 min), 03-01 (2 min), 03-02 (25 min)
+- Trend: Phase 3 complete - fast API creation followed by iterative UI refinement
 
 *Updated after each plan completion*
 
@@ -65,6 +65,10 @@ Recent decisions affecting current work:
 - Selection status gate asymmetry: GET has no status gate (visible in REVIEWING), POST/DELETE require SELECTING for client workflow
 - Idempotent selection POST: duplicate selections return existing record via PDO duplicate key handling (error code 23000)
 - Public selections route precedence: /share/{id}/selections matched before /share/{id} for correct routing
+- Client selection interaction model: Photo click opens lightbox, checkbox click toggles selection (user feedback refinement)
+- Client selection checkbox sizing: 24px outlined square with 16px checkmark - optimal balance of visibility and subtlety
+- Download prevention on share pages: Always active regardless of collection status (right-click, drag, select-all blocked)
+- Optimistic selection updates: UI changes before API response with error rollback pattern for instant feedback
 
 ### Pending Todos
 
@@ -80,5 +84,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 03-01-PLAN.md (public selections API). Next: 03-02 (frontend client selection UI).
+Stopped at: Completed 03-02-PLAN.md (frontend client selection UI). Phase 3 complete. Next: Phase 4 (photographer delivery workflows).
 Resume file: None
