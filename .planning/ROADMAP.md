@@ -13,7 +13,7 @@ This milestone delivers the complete photographer-to-client workflow: a photogra
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Photo Upload** - Photographer can upload photos; thumbnails generated; photos display in grid with lightbox — *Completed 2026-02-12*
-- [ ] **Phase 2: Sharing and Status** - Photographer can generate a share link; collection cards reflect status with color coding
+- [x] **Phase 2: Sharing and Status** - Photographer can generate a share link; collection cards reflect status with color coding — *Completed 2026-02-13*
 - [ ] **Phase 3: Client Gallery and Selection** - Client can browse and select photos via share link without an account
 - [ ] **Phase 4: Review and Delivery** - Photographer reviews selections and uploads edited finals; collection is delivered
 
@@ -48,8 +48,8 @@ Plans:
 **Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 02-01: Public share endpoint + SharePage + share button on detail page + i18n (Wave 1)
-- [ ] 02-02: Status color coding on collection cards + status transition + human verification (Wave 2, depends on 02-01)
+- [x] 02-01: Public share endpoint + SharePage + share button on detail page + i18n (Wave 1)
+- [x] 02-02: Status color coding on collection cards + status transition + human verification (Wave 2, depends on 02-01)
 
 ### Phase 3: Client Gallery and Selection
 **Goal**: Client can browse collection photos and mark favorites via share link, with no account required
@@ -90,6 +90,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Photo Upload | 3/3 | ✓ Complete | 2026-02-12 |
-| 2. Sharing and Status | 0/2 | Not started | - |
+| 2. Sharing and Status | 2/2 | ✓ Complete | 2026-02-13 |
 | 3. Client Gallery and Selection | 0/2 | Not started | - |
 | 4. Review and Delivery | 0/2 | Not started | - |
