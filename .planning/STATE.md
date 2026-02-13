@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 3 of 4 (Client Gallery and Selection)
-Plan: 0 of 2 in current phase
-Status: Phase 2 complete — ready for Phase 3 planning
-Last activity: 2026-02-13 — Phase 2 execution complete; verification passed; roadmap updated
+Plan: 1 of 2 in current phase
+Status: Phase 3 in progress — public selections API complete
+Last activity: 2026-02-13 — Completed 03-01-PLAN.md (public selections API with status gating)
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 11.8 min
-- Total execution time: 0.98 hours
+- Total plans completed: 6
+- Average duration: 9.7 min
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [█████░░░░░] 50%
 |-------|-------|-------|----------|
 | 01-photo-upload | 3/3 | 32 min | 10.7 min |
 | 02-sharing-and-status | 2/2 | 30 min | 15.0 min |
+| 03-client-gallery-and-selection | 1/2 | 2 min | 2.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (2 min), 01-03 (15 min), 02-01 (9 min), 02-02 (21 min)
-- Trend: Phase 2 complete, slightly longer average due to UX refinements
+- Last 5 plans: 01-03 (15 min), 02-01 (9 min), 02-02 (21 min), 03-01 (2 min)
+- Trend: Phase 3 started with fast backend API creation
 
 *Updated after each plan completion*
 
@@ -61,6 +62,9 @@ Recent decisions affecting current work:
 - Status border mapping: SELECTING=blue, REVIEWING=green, no border for DRAFT/DELIVERED/ARCHIVED to reduce visual clutter
 - Status badges only show for non-DRAFT collections (avoids redundant "Draft" badge on majority of new collections)
 - SharePage lightbox navigation: 32px/40px arrow chevrons with drop-shadow for subtle, non-intrusive navigation
+- Selection status gate asymmetry: GET has no status gate (visible in REVIEWING), POST/DELETE require SELECTING for client workflow
+- Idempotent selection POST: duplicate selections return existing record via PDO duplicate key handling (error code 23000)
+- Public selections route precedence: /share/{id}/selections matched before /share/{id} for correct routing
 
 ### Pending Todos
 
@@ -76,5 +80,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 02-02-PLAN.md (status color coding & transitions). Phase 2 complete. Next: Phase 3 (Client Selection).
+Stopped at: Completed 03-01-PLAN.md (public selections API). Next: 03-02 (frontend client selection UI).
 Resume file: None
