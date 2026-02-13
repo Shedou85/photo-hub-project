@@ -116,7 +116,14 @@
     "deleteCollectionSuccess": "Collection deleted.",
     "shareCollection": "Share",
     "linkCopied": "Copied!",
-    "viewCollection": "View Collection"
+    "viewCollection": "View Collection",
+    "status": {
+      "DRAFT": "Draft",
+      "SELECTING": "Selecting",
+      "REVIEWING": "Reviewing",
+      "DELIVERED": "Delivered",
+      "ARCHIVED": "Archived"
+    }
   },
   "collection": {
     "loading": "Loading collection details...",
@@ -143,7 +150,18 @@
     "lightboxPrev": "Previous photo",
     "lightboxNext": "Next photo",
     "copyShareLink": "Copy share link",
-    "linkCopied": "Share link copied!"
+    "linkCopied": "Share link copied!",
+    "statusLabel": "Status",
+    "status": {
+      "DRAFT": "Draft",
+      "SELECTING": "Selecting",
+      "REVIEWING": "Reviewing",
+      "DELIVERED": "Delivered",
+      "ARCHIVED": "Archived"
+    },
+    "startSelecting": "Start client selection",
+    "statusUpdated": "Collection status updated!",
+    "statusUpdateError": "Failed to update status. Please try again."
   },
   "share": {
     "loading": "Loading gallery...",

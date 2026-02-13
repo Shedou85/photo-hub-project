@@ -14,6 +14,12 @@ function CollectionsListPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
 
+  // Status-to-border mapping for collection cards
+  const STATUS_BORDER = {
+    SELECTING: 'border-2 border-blue-500',
+    REVIEWING: 'border-2 border-green-500',
+  };
+
   // Helper function to get photo URL
   const photoUrl = (storagePath) => {
     const base = import.meta.env.VITE_API_BASE_URL;
@@ -206,10 +212,12 @@ function CollectionsListPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map((collection) => (
+            {collections.map((collection) => {
+              const statusBorder = STATUS_BORDER[collection.status] ?? '';
+              return (
               <div
                 key={collection.id}
-                className="bg-white rounded-[10px] shadow-md hover:shadow-lg overflow-hidden group rotate-[0.5deg] hover:rotate-[1.5deg] hover:-translate-y-1 transition-all duration-300 ease-out"
+                className={`bg-white rounded-[10px] shadow-md hover:shadow-lg overflow-hidden group rotate-[0.5deg] hover:rotate-[1.5deg] hover:-translate-y-1 transition-all duration-300 ease-out ${statusBorder}`}
               >
                 {/* Photo Area — clickable link */}
                 <Link
@@ -245,6 +253,16 @@ function CollectionsListPage() {
                     {t('collections.createdAt')}{" "}
                     {new Date(collection.createdAt).toLocaleDateString()}
                   </p>
+                  {collection.status !== 'DRAFT' && (
+                    <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-3 ${
+                      collection.status === 'SELECTING' ? 'bg-blue-100 text-blue-700' :
+                      collection.status === 'REVIEWING' ? 'bg-green-100 text-green-700' :
+                      collection.status === 'DELIVERED' ? 'bg-purple-100 text-purple-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>
+                      {t(`collections.status.${collection.status}`)}
+                    </span>
+                  )}
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => handleShareCollection(collection.id, collection.shareId)}
@@ -268,7 +286,8 @@ function CollectionsListPage() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

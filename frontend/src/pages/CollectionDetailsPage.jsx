@@ -311,6 +311,31 @@ function CollectionDetailsPage() {
     });
   };
 
+  const handleStartSelecting = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'SELECTING' }),
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'OK') {
+          setCollection(data.collection);
+          toast.success(t('collection.statusUpdated'));
+        }
+      } else {
+        toast.error(t('collection.statusUpdateError'));
+      }
+    } catch {
+      toast.error(t('collection.statusUpdateError'));
+    }
+  };
+
   const anyUploading = useMemo(
     () => Object.values(uploadStates).some((s) => s === "uploading"),
     [uploadStates]
@@ -368,10 +393,20 @@ function CollectionDetailsPage() {
         <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
           🗂️
         </div>
-        <div>
+        <div className="flex items-center gap-3">
           <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
             {collection.name}
           </h1>
+          {collection.status !== 'DRAFT' && (
+            <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              collection.status === 'SELECTING' ? 'bg-blue-100 text-blue-700' :
+              collection.status === 'REVIEWING' ? 'bg-green-100 text-green-700' :
+              collection.status === 'DELIVERED' ? 'bg-purple-100 text-purple-700' :
+              'bg-gray-100 text-gray-600'
+            }`}>
+              {t(`collection.status.${collection.status}`)}
+            </span>
+          )}
         </div>
       </div>
 
@@ -385,16 +420,30 @@ function CollectionDetailsPage() {
             label={t("collection.createdAt")}
             value={new Date(collection.createdAt).toLocaleDateString()}
           />
+          <InfoRow
+            label={t("collection.statusLabel")}
+            value={t(`collection.status.${collection.status}`)}
+          />
         </div>
-        <button
-          onClick={handleCopyShareLink}
-          className="mt-4 inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-          {t("collection.copyShareLink")}
-        </button>
+        <div className="mt-4 flex gap-3">
+          <button
+            onClick={handleCopyShareLink}
+            className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            {t("collection.copyShareLink")}
+          </button>
+          {collection.status === 'DRAFT' && (
+            <button
+              onClick={handleStartSelecting}
+              className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+            >
+              {t('collection.startSelecting')}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Upload Card ── */}

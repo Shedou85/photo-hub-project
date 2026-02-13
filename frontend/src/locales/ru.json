@@ -116,7 +116,14 @@
     "deleteCollectionSuccess": "Коллекция удалена.",
     "shareCollection": "Поделиться",
     "linkCopied": "Скопировано!",
-    "viewCollection": "Посмотреть коллекцию"
+    "viewCollection": "Посмотреть коллекцию",
+    "status": {
+      "DRAFT": "Черновик",
+      "SELECTING": "Отбор",
+      "REVIEWING": "Рассмотрение",
+      "DELIVERED": "Доставлена",
+      "ARCHIVED": "Архив"
+    }
   },
   "collection": {
     "loading": "Загрузка коллекции...",
@@ -145,7 +152,18 @@
     "lightboxPrev": "Предыдущее фото",
     "lightboxNext": "Следующее фото",
     "copyShareLink": "Скопировать ссылку",
-    "linkCopied": "Ссылка скопирована!"
+    "linkCopied": "Ссылка скопирована!",
+    "statusLabel": "Статус",
+    "status": {
+      "DRAFT": "Черновик",
+      "SELECTING": "Отбор",
+      "REVIEWING": "Рассмотрение",
+      "DELIVERED": "Доставлена",
+      "ARCHIVED": "Архив"
+    },
+    "startSelecting": "Начать отбор клиентом",
+    "statusUpdated": "Статус коллекции обновлён!",
+    "statusUpdateError": "Не удалось обновить статус. Попробуйте ещё раз."
   },
   "share": {
     "loading": "Загрузка галереи...",

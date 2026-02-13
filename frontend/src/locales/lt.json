@@ -116,7 +116,14 @@
     "deleteCollectionSuccess": "Kolekcija ištrinta.",
     "shareCollection": "Dalytis",
     "linkCopied": "Nukopijuota!",
-    "viewCollection": "Peržiūrėti Kolekciją"
+    "viewCollection": "Peržiūrėti Kolekciją",
+    "status": {
+      "DRAFT": "Juodraštis",
+      "SELECTING": "Atranka",
+      "REVIEWING": "Peržiūra",
+      "DELIVERED": "Pristatyta",
+      "ARCHIVED": "Archyvuota"
+    }
   },
   "collection": {
     "loading": "Kraunama kolekcija...",
@@ -145,7 +152,18 @@
     "lightboxPrev": "Ankstesnė nuotrauka",
     "lightboxNext": "Kita nuotrauka",
     "copyShareLink": "Kopijuoti nuorodą",
-    "linkCopied": "Nuoroda nukopijuota!"
+    "linkCopied": "Nuoroda nukopijuota!",
+    "statusLabel": "Būsena",
+    "status": {
+      "DRAFT": "Juodraštis",
+      "SELECTING": "Atranka",
+      "REVIEWING": "Peržiūra",
+      "DELIVERED": "Pristatyta",
+      "ARCHIVED": "Archyvuota"
+    },
+    "startSelecting": "Pradėti klientų atranką",
+    "statusUpdated": "Kolekcijos būsena atnaujinta!",
+    "statusUpdateError": "Nepavyko atnaujinti būsenos. Bandykite dar kartą."
   },
   "share": {
     "loading": "Kraunama galerija...",
