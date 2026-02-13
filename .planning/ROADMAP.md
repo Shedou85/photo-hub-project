@@ -76,11 +76,11 @@ Plans:
   2. The collection card turns green when the client has completed selections (status transitions to REVIEWING)
   3. Photographer can upload edited final versions of photos to the collection
   4. After uploading finals, photographer can transition the collection to DELIVERED status
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 04-01: Photographer selection review UI (filter tabs, selected/not-selected indicators on photo grid)
-- [ ] 04-02: Edited finals upload and DELIVERED transition (extend upload handler for EditedPhoto, status gate wiring)
+- [ ] 04-01: Photographer selection review UI — filter tabs (All/Selected/Not Selected), selection badges on thumbnails, i18n (Wave 1)
+- [ ] 04-02: Edited finals upload zone + DELIVERED transition — green upload zone, edited photos grid, delivery button, i18n (Wave 2, depends on 04-01)
 
 ## Progress
 
