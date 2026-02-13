@@ -49,7 +49,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 06-01-PLAN.md — Streaming ZIP download endpoint with delivery token auth and router wiring
+- [x] 06-01-PLAN.md — Streaming ZIP download endpoint with delivery token auth and router wiring
 
 #### Phase 7: Individual Photo Downloads
 **Goal**: Enable selective download of individual edited photos
@@ -120,11 +120,11 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9 → 10
 | 3. Client Gallery | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 4. Delivery | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 5. Delivery Infrastructure | v2.0 | 2/2 | Complete | 2026-02-13 |
-| 6. Server-Side ZIP Downloads | v2.0 | 0/1 | Planned | - |
+| 6. Server-Side ZIP Downloads | v2.0 | 1/1 | Complete | 2026-02-13 |
 | 7. Individual Photo Downloads | v2.0 | 0/TBD | Not started | - |
 | 8. Client Delivery Interface | v2.0 | 0/TBD | Not started | - |
 | 9. Photographer Dashboard Integration | v2.0 | 0/TBD | Not started | - |
 | 10. UI Polish & Refinement | v2.0 | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-13 after Phase 5 completion*
+*Last updated: 2026-02-13 after Phase 6 completion*
