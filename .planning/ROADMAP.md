@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Photo Upload** - Photographer can upload photos; thumbnails generated; photos display in grid with lightbox — *Completed 2026-02-12*
 - [x] **Phase 2: Sharing and Status** - Photographer can generate a share link; collection cards reflect status with color coding — *Completed 2026-02-13*
 - [x] **Phase 3: Client Gallery and Selection** - Client can browse and select photos via share link without an account — *Completed 2026-02-13*
-- [ ] **Phase 4: Review and Delivery** - Photographer reviews selections and uploads edited finals; collection is delivered
+- [x] **Phase 4: Review and Delivery** - Photographer reviews selections and uploads edited finals; collection is delivered — *Completed 2026-02-13*
 
 ## Phase Details
 
@@ -92,4 +92,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Photo Upload | 3/3 | ✓ Complete | 2026-02-12 |
 | 2. Sharing and Status | 2/2 | ✓ Complete | 2026-02-13 |
 | 3. Client Gallery and Selection | 2/2 | ✓ Complete | 2026-02-13 |
-| 4. Review and Delivery | 0/2 | Not started | - |
+| 4. Review and Delivery | 2/2 | ✓ Complete | 2026-02-13 |
