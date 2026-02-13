@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Phase 3 - Client Gallery and Selection
+**Current focus:** Phase 4 - Review and Delivery
 
 ## Current Position
 
-Phase: 3 of 4 (Client Gallery and Selection)
-Plan: 2 of 2 in current phase
-Status: Phase 3 complete — client selection UI with optimistic updates
-Last activity: 2026-02-13 — Completed 03-02-PLAN.md (frontend client selection UI)
+Phase: 4 of 4 (Review and Delivery)
+Plan: 0 of 2 in current phase
+Status: Phase 4 planned — 2 plans in 2 waves ready for execution
+Last activity: 2026-02-13 — Created 04-01-PLAN.md and 04-02-PLAN.md
 
 Progress: [███████░░░] 70%
 
@@ -84,5 +84,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 03-02-PLAN.md (frontend client selection UI). Phase 3 complete. Next: Phase 4 (photographer delivery workflows).
+Stopped at: Created Phase 4 plans (04-01 and 04-02). Ready for execution.
 Resume file: None
