@@ -5,32 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Phase 1 - Photo Upload
+**Current focus:** Phase 2 - Sharing and Status
 
 ## Current Position
 
-Phase: 1 of 4 (Photo Upload)
-Plan: 3 of 3 in current phase
-Status: Phase 1 complete — ready for Phase 2
-Last activity: 2026-02-12 — 01-03 complete; human verification APPROVED; lightbox overlay click fix applied (ef4193c)
+Phase: 2 of 4 (Sharing and Status)
+Plan: 1 of 2 in current phase
+Status: Executing phase 2
+Last activity: 2026-02-13 — Completed 02-01 (public share links); commits d177a17, 74c0a78
 
-Progress: [███░░░░░░░] 30%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 10.7 min
-- Total execution time: 0.53 hours
+- Total plans completed: 4
+- Average duration: 10.3 min
+- Total execution time: 0.68 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-photo-upload | 3/3 | 32 min | 10.7 min |
+| 02-sharing-and-status | 1/2 | 9 min | 9.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (15 min), 01-02 (2 min), 01-03 (15 min)
+- Last 5 plans: 01-01 (15 min), 01-02 (2 min), 01-03 (15 min), 02-01 (9 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -54,6 +55,9 @@ Recent decisions affecting current work:
 - ESLint config: react/prop-types off (project style), react-refresh rule off (AuthContext hook+provider in same file)
 - Cover auto-promotion on deletion: promotes photo at same grid index as deleted; optimistic UI + PATCH to backend; fire-and-forget (non-blocking)
 - Lightbox overlay click fix: hover overlay set pointer-events-none so clicks reach underlying image (found during human verification of 01-03)
+- Public share endpoint explicitly excludes sensitive fields (userId, password, clientEmail) — security by design
+- Share page does NOT send credentials - plain fetch without credentials option for public access
+- Share link format is {origin}/share/{shareId} using window.location.origin for portability
 
 ### Pending Todos
 
@@ -68,6 +72,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: Phase 1 complete — 01-03-PLAN.md fully done including human verification
+Last session: 2026-02-13
+Stopped at: Completed 02-01-PLAN.md (public share links). Next: 02-02-PLAN.md (collection status transitions).
 Resume file: None
