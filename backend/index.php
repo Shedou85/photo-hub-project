@@ -219,6 +219,9 @@ switch ($requestUri) {
                 case 'edited':
                     require_once __DIR__ . '/collections/edited.php';
                     break;
+                case 'delivery':
+                    require_once __DIR__ . '/collections/delivery.php';
+                    break;
                 default:
                     http_response_code(404);
                     echo json_encode(['error' => 'Endpoint Not Found']);
