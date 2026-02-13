@@ -45,11 +45,11 @@ Plans:
   2. The share link is a token-based URL that works without the client creating an account
   3. Collection cards on the collections list display a blue border/accent when status is SELECTING
   4. Collection cards display a green border/accent when status is REVIEWING
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 02-01: Backend share token generation (shareId column, random_bytes token, public collection endpoint)
-- [ ] 02-02: Frontend share link UI and collection card status color coding
+- [ ] 02-01: Public share endpoint + SharePage + share button on detail page + i18n (Wave 1)
+- [ ] 02-02: Status color coding on collection cards + status transition + human verification (Wave 2, depends on 02-01)
 
 ### Phase 3: Client Gallery and Selection
 **Goal**: Client can browse collection photos and mark favorites via share link, with no account required
