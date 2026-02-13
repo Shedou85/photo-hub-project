@@ -39,6 +39,8 @@ function CollectionDetailsPage() {
   const [dragOver, setDragOver] = useState(false);
   const [uploadStates, setUploadStates] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [selections, setSelections] = useState([]);
+  const [filter, setFilter] = useState('all');
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -69,6 +71,21 @@ function CollectionDetailsPage() {
     }
   }, [id]);
 
+  const fetchSelections = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/selections`,
+        { credentials: "include" }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "OK") setSelections(data.selections || []);
+      }
+    } catch {
+      // non-critical, selections just won't load
+    }
+  }, [id]);
+
   useEffect(() => {
     const fetchCollection = async () => {
       try {
@@ -92,7 +109,13 @@ function CollectionDetailsPage() {
 
     fetchCollection();
     fetchPhotos();
-  }, [id, fetchPhotos]);
+    fetchSelections();
+  }, [id, fetchPhotos, fetchSelections]);
+
+  // Reset filter when collection changes
+  useEffect(() => {
+    setFilter('all');
+  }, [id]);
 
   const uploadFiles = async (files) => {
     const fileArray = Array.from(files);
@@ -349,6 +372,18 @@ function CollectionDetailsPage() {
     [uploadStates]
   );
 
+  const selectedPhotoIds = useMemo(
+    () => new Set(selections.map(s => s.photoId)),
+    [selections]
+  );
+
+  const filteredPhotos = useMemo(() => {
+    if (filter === 'all') return photos;
+    if (filter === 'selected') return photos.filter(p => selectedPhotoIds.has(p.id));
+    if (filter === 'not-selected') return photos.filter(p => !selectedPhotoIds.has(p.id));
+    return photos;
+  }, [filter, photos, selectedPhotoIds]);
+
   if (loading) {
     return (
       <div className="py-10 px-5 text-center font-sans text-gray-500">
@@ -512,53 +547,101 @@ function CollectionDetailsPage() {
       {/* ── Photo Grid Card ── */}
       {photos.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+          {/* Filter tabs */}
+          {selections.length > 0 && (
+            <div className="flex gap-2 mb-4 border-b border-gray-200">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer ${
+                  filter === 'all'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {t('collection.filterAll')} ({photos.length})
+              </button>
+              <button
+                onClick={() => setFilter('selected')}
+                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer ${
+                  filter === 'selected'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {t('collection.filterSelected')} ({selectedPhotoIds.size})
+              </button>
+              <button
+                onClick={() => setFilter('not-selected')}
+                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer ${
+                  filter === 'not-selected'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {t('collection.filterNotSelected')} ({photos.length - selectedPhotoIds.size})
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-            {photos.map((photo, index) => (
-              <div key={photo.id} className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100">
-                {/* Thumbnail — click opens lightbox */}
-                <button
-                  onClick={() => setLightboxIndex(index)}
-                  className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
-                  aria-label={photo.filename}
-                >
-                  <img
-                    src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
-                    alt={photo.filename}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </button>
-                {/* Cover badge */}
-                {collection.coverPhotoId === photo.id && (
-                  <div className="absolute top-1 left-1 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white text-[10px] font-bold px-[6px] py-[2px] rounded-full leading-tight pointer-events-none">
-                    ★
-                  </div>
-                )}
-                {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
-                <div onClick={() => setLightboxIndex(index)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto">
-                  {/* Delete button */}
+            {filteredPhotos.map((photo) => {
+              // Find index in full photos array for lightbox navigation
+              const photoIndex = photos.findIndex(p => p.id === photo.id);
+              return (
+                <div key={photo.id} className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100">
+                  {/* Thumbnail — click opens lightbox */}
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleDeletePhoto(photo.id); }}
-                    title={t("collection.deletePhoto")}
-                    aria-label={t("collection.deletePhoto")}
-                    className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors"
+                    onClick={() => setLightboxIndex(photoIndex)}
+                    className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
+                    aria-label={photo.filename}
                   >
-                    ×
+                    <img
+                      src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
+                      alt={photo.filename}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   </button>
-                  {/* Set cover button */}
-                  {collection.coverPhotoId !== photo.id && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSetCover(photo.id); }}
-                      title={t("collection.setCover")}
-                      aria-label={t("collection.setCover")}
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors"
-                    >
+                  {/* Cover badge */}
+                  {collection.coverPhotoId === photo.id && (
+                    <div className="absolute top-1 left-1 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white text-[10px] font-bold px-[6px] py-[2px] rounded-full leading-tight pointer-events-none">
                       ★
-                    </button>
+                    </div>
                   )}
+                  {/* Selection badge */}
+                  {selectedPhotoIds.has(photo.id) && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                  {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
+                  <div onClick={() => setLightboxIndex(photoIndex)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto">
+                    {/* Delete button */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeletePhoto(photo.id); }}
+                      title={t("collection.deletePhoto")}
+                      aria-label={t("collection.deletePhoto")}
+                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors"
+                    >
+                      ×
+                    </button>
+                    {/* Set cover button */}
+                    {collection.coverPhotoId !== photo.id && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleSetCover(photo.id); }}
+                        title={t("collection.setCover")}
+                        aria-label={t("collection.setCover")}
+                        className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors"
+                      >
+                        ★
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

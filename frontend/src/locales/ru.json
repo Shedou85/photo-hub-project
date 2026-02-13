@@ -163,7 +163,10 @@
     },
     "startSelecting": "Начать отбор клиентом",
     "statusUpdated": "Статус коллекции обновлён!",
-    "statusUpdateError": "Не удалось обновить статус. Попробуйте ещё раз."
+    "statusUpdateError": "Не удалось обновить статус. Попробуйте ещё раз.",
+    "filterAll": "Все",
+    "filterSelected": "Выбранные",
+    "filterNotSelected": "Невыбранные"
   },
   "share": {
     "loading": "Загрузка галереи...",

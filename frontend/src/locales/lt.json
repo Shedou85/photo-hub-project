@@ -163,7 +163,10 @@
     },
     "startSelecting": "Pradėti klientų atranką",
     "statusUpdated": "Kolekcijos būsena atnaujinta!",
-    "statusUpdateError": "Nepavyko atnaujinti būsenos. Bandykite dar kartą."
+    "statusUpdateError": "Nepavyko atnaujinti būsenos. Bandykite dar kartą.",
+    "filterAll": "Visos",
+    "filterSelected": "Pasirinktos",
+    "filterNotSelected": "Nepasirinktos"
   },
   "share": {
     "loading": "Kraunama galerija...",

@@ -161,7 +161,10 @@
     },
     "startSelecting": "Start client selection",
     "statusUpdated": "Collection status updated!",
-    "statusUpdateError": "Failed to update status. Please try again."
+    "statusUpdateError": "Failed to update status. Please try again.",
+    "filterAll": "All",
+    "filterSelected": "Selected",
+    "filterNotSelected": "Not selected"
   },
   "share": {
     "loading": "Loading gallery...",
