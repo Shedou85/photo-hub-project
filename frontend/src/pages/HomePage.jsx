@@ -144,9 +144,7 @@ function HomePage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-xs tracking-tight">PF</span>
-            </div>
+            <img src="/logo.png" alt="PixelForge" className="w-10 h-10 rounded-full" />
             <span className="font-semibold text-white text-[15px] tracking-tight">PixelForge</span>
           </div>
 
@@ -362,9 +360,7 @@ function HomePage() {
       <footer className="bg-[#080a0f] border-t border-white/[0.05] py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-[10px]">PF</span>
-            </div>
+            <img src="/logo.png" alt="PixelForge" className="w-8 h-8 rounded-full" />
             <span className="text-[13px] text-white/30">{t('home.footer.tagline')}</span>
           </div>
           <p className="text-[12px] text-white/20">{t('home.footer.rights')}</p>
