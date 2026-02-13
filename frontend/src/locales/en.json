@@ -172,7 +172,13 @@
     "poweredBy": "Powered by PixelForge",
     "lightboxClose": "Close",
     "lightboxPrev": "Previous photo",
-    "lightboxNext": "Next photo"
+    "lightboxNext": "Next photo",
+    "selectedCount_one": "{{count}} photo selected",
+    "selectedCount_other": "{{count}} photos selected",
+    "selectionError": "Failed to update selection. Please try again.",
+    "select": "Select",
+    "selected": "Selected",
+    "viewPhoto": "View photo"
   },
   "payments": {
     "title": "Payments",

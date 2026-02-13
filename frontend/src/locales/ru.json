@@ -176,7 +176,15 @@
     "poweredBy": "Создано с PixelForge",
     "lightboxClose": "Закрыть",
     "lightboxPrev": "Предыдущее фото",
-    "lightboxNext": "Следующее фото"
+    "lightboxNext": "Следующее фото",
+    "selectedCount_one": "{{count}} фото выбрано",
+    "selectedCount_few": "{{count}} фото выбрано",
+    "selectedCount_many": "{{count}} фото выбрано",
+    "selectedCount_other": "{{count}} фото выбрано",
+    "selectionError": "Не удалось обновить выбор. Попробуйте ещё раз.",
+    "select": "Выбрать",
+    "selected": "Выбрано",
+    "viewPhoto": "Посмотреть фото"
   },
   "payments": {
     "title": "Оплата",

@@ -176,7 +176,15 @@
     "poweredBy": "Sukurta su PixelForge",
     "lightboxClose": "Uždaryti",
     "lightboxPrev": "Ankstesnė nuotrauka",
-    "lightboxNext": "Kita nuotrauka"
+    "lightboxNext": "Kita nuotrauka",
+    "selectedCount_one": "{{count}} nuotrauka pasirinkta",
+    "selectedCount_few": "{{count}} nuotraukos pasirinktos",
+    "selectedCount_many": "{{count}} nuotraukų pasirinkta",
+    "selectedCount_other": "{{count}} nuotraukų pasirinkta",
+    "selectionError": "Nepavyko atnaujinti pasirinkimo. Bandykite dar kartą.",
+    "select": "Pasirinkti",
+    "selected": "Pasirinkta",
+    "viewPhoto": "Peržiūrėti nuotrauką"
   },
   "payments": {
     "title": "Mokėjimai",

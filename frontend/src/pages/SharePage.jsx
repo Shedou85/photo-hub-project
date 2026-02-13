@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -16,6 +17,55 @@ function SharePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState(new Set());
+  const [requestsInFlight, setRequestsInFlight] = useState(new Set());
+
+  const canSelect = collection?.status === 'SELECTING';
+
+  const toggleSelection = async (photoId) => {
+    if (requestsInFlight.has(photoId)) return; // Prevent rapid-click race conditions
+
+    const wasSelected = selectedPhotoIds.has(photoId);
+
+    // Optimistic update
+    setSelectedPhotoIds(prev => {
+      const next = new Set(prev);
+      wasSelected ? next.delete(photoId) : next.add(photoId);
+      return next;
+    });
+
+    // Mark request in-flight
+    setRequestsInFlight(prev => new Set(prev).add(photoId));
+
+    try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      if (wasSelected) {
+        const res = await fetch(`${baseUrl}/share/${shareId}/selections/${photoId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Deselect failed');
+      } else {
+        const res = await fetch(`${baseUrl}/share/${shareId}/selections`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photoId }),
+        });
+        if (!res.ok) throw new Error('Select failed');
+      }
+    } catch {
+      // Rollback on error
+      setSelectedPhotoIds(prev => {
+        const rollback = new Set(prev);
+        wasSelected ? rollback.add(photoId) : rollback.delete(photoId);
+        return rollback;
+      });
+      toast.error(t('share.selectionError'));
+    } finally {
+      setRequestsInFlight(prev => {
+        const next = new Set(prev);
+        next.delete(photoId);
+        return next;
+      });
+    }
+  };
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -52,6 +102,11 @@ function SharePage() {
         const data = await response.json();
         if (data.status === "OK" && data.collection) {
           setCollection(data.collection);
+          // Initialize selections from share endpoint response (added by 03-01)
+          const initialSelections = new Set(
+            (data.collection.selections || []).map(s => s.photoId)
+          );
+          setSelectedPhotoIds(initialSelections);
         } else {
           setError("notFound");
         }
@@ -103,25 +158,68 @@ function SharePage() {
           <p className="text-xs text-gray-400 m-0">
             {t("share.photosCount", { count: photos.length })}
           </p>
+          {canSelect && selectedPhotoIds.size > 0 && (
+            <div className="mt-3 inline-flex items-center gap-2 py-[6px] px-[14px] bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              {t('share.selectedCount', { count: selectedPhotoIds.size })}
+            </div>
+          )}
         </div>
 
         {/* Photo grid */}
         {photos.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-10">
-            {photos.map((photo, index) => (
-              <div
-                key={photo.id}
-                className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100 cursor-pointer"
-                onClick={() => setLightboxIndex(index)}
-              >
-                <img
-                  src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
-                  alt={photo.filename}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            ))}
+            {photos.map((photo, index) => {
+              const isSelected = selectedPhotoIds.has(photo.id);
+              return (
+                <div
+                  key={photo.id}
+                  className={`relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100 cursor-pointer ${
+                    isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''
+                  }`}
+                  onClick={() => canSelect ? toggleSelection(photo.id) : setLightboxIndex(index)}
+                >
+                  <img
+                    src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
+                    alt={photo.filename}
+                    className="w-full h-full object-cover select-none"
+                    loading="lazy"
+                    onContextMenu={(e) => e.preventDefault()}
+                    draggable={false}
+                  />
+
+                  {/* Checkbox overlay — only in SELECTING status */}
+                  {canSelect && (
+                    <div className={`absolute top-2 right-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                      isSelected
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'bg-white/80 border-gray-300 group-hover:border-blue-400'
+                    }`}>
+                      {isSelected && (
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Lightbox open button — show magnifying glass on hover in SELECTING mode */}
+                  {canSelect && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setLightboxIndex(index); }}
+                      className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label={t('share.viewPhoto')}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -168,12 +266,34 @@ function SharePage() {
             </svg>
           </button>
 
+          {/* Selection toggle in lightbox */}
+          {canSelect && lightboxIndex !== null && photos[lightboxIndex] && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSelection(photos[lightboxIndex].id);
+              }}
+              className={`absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors z-10 ${
+                selectedPhotoIds.has(photos[lightboxIndex].id)
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {selectedPhotoIds.has(photos[lightboxIndex].id) ? t('share.selected') : t('share.select')}
+            </button>
+          )}
+
           {/* Image */}
           <img
             src={photoUrl(photos[lightboxIndex].storagePath)}
             alt={photos[lightboxIndex].filename}
-            className="max-w-[88vw] max-h-[88vh] object-contain rounded-[4px] shadow-2xl"
+            className="max-w-[88vw] max-h-[88vh] object-contain rounded-[4px] shadow-2xl select-none"
             onClick={(e) => e.stopPropagation()}
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
           />
 
           {/* Next arrow */}
