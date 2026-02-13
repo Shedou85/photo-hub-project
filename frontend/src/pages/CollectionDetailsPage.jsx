@@ -617,13 +617,13 @@ function CollectionDetailsPage() {
                     </div>
                   )}
                   {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto">
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex flex-col items-end justify-start gap-1 p-1 pointer-events-none">
                     {/* Delete button */}
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeletePhoto(photo.id); }}
                       title={t("collection.deletePhoto")}
                       aria-label={t("collection.deletePhoto")}
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors"
+                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors pointer-events-auto"
                     >
                       ×
                     </button>
@@ -633,7 +633,7 @@ function CollectionDetailsPage() {
                         onClick={(e) => { e.stopPropagation(); handleSetCover(photo.id); }}
                         title={t("collection.setCover")}
                         aria-label={t("collection.setCover")}
-                        className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors"
+                        className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors pointer-events-auto"
                       >
                         ★
                       </button>
