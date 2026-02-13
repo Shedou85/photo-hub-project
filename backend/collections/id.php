@@ -36,7 +36,7 @@ try {
 
     if ($method === 'GET') {
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, coverPhotoId, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, expiresAt, allowPromotionalUse, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
@@ -85,6 +85,20 @@ try {
                 echo json_encode(["error" => "Invalid status value."]);
                 exit;
             }
+
+            // Auto-generate delivery token when transitioning to DELIVERED
+            if ($data['status'] === 'DELIVERED') {
+                $checkStmt = $pdo->prepare("SELECT deliveryToken FROM `Collection` WHERE id = ? LIMIT 1");
+                $checkStmt->execute([$collectionId]);
+                $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+                if (empty($existing['deliveryToken'])) {
+                    $deliveryToken = bin2hex(random_bytes(32));
+                    $setParts[] = "`deliveryToken` = ?";
+                    $params[] = $deliveryToken;
+                }
+            }
+
             $setParts[] = "`status` = ?";
             $params[] = $data['status'];
         }
@@ -109,7 +123,7 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, coverPhotoId, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, expiresAt, allowPromotionalUse, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
