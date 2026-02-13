@@ -175,8 +175,19 @@ switch ($requestUri) {
         break;
 
     default:
-        // Handle /share/{shareId} (public endpoint)
+        // Handle /share/ routes (public endpoints)
         if (strpos($requestUri, '/share/') === 0) {
+            // Check if this is a selections sub-route: /share/{shareId}/selections[/{photoId}]
+            if (preg_match('#^/share/[^/]+/selections#', $requestUri)) {
+                if (in_array($requestMethod, ['GET', 'POST', 'DELETE'])) {
+                    require_once __DIR__ . '/collections/share-selections.php';
+                } else {
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Method Not Allowed']);
+                }
+                break;
+            }
+            // Base share route: /share/{shareId}
             if ($requestMethod === 'GET') {
                 require_once __DIR__ . '/collections/share.php';
             } else {
