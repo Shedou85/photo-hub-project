@@ -61,11 +61,11 @@ Plans:
   3. Client can toggle individual photos as selected or not selected
   4. Client sees a running count of their selected photos
   5. Client cannot download any photos while the collection is in the SELECTING stage
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 03-01: Backend public gallery endpoint and selections API (token auth, status gating, selection persistence)
-- [ ] 03-02: Frontend GalleryPage (public route, photo grid, lightbox, selection overlay, running count, download block)
+- [ ] 03-01: Backend public selections API + extend share endpoint to return selections (Wave 1)
+- [ ] 03-02: Frontend selection UI on SharePage — toggles, counter, download prevention, i18n (Wave 2, depends on 03-01)
 
 ### Phase 4: Review and Delivery
 **Goal**: Photographer can see which photos the client selected and upload edited finals to deliver the collection
