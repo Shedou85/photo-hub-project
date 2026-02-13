@@ -151,10 +151,10 @@ function SharePage() {
               setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
             }}
             aria-label={t("share.lightboxPrev")}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white hover:scale-110 transition-all z-10"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 text-white/70 hover:text-white hover:scale-110 transition-all z-10"
           >
             <svg
-              className="w-12 h-12 sm:w-16 sm:h-16 drop-shadow-lg"
+              className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -185,10 +185,10 @@ function SharePage() {
               );
             }}
             aria-label={t("share.lightboxNext")}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white hover:scale-110 transition-all z-10"
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 text-white/70 hover:text-white hover:scale-110 transition-all z-10"
           >
             <svg
-              className="w-12 h-12 sm:w-16 sm:h-16 drop-shadow-lg"
+              className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -209,7 +209,7 @@ function SharePage() {
             className="absolute top-4 right-4 text-white/70 hover:text-white hover:scale-110 transition-all z-10"
           >
             <svg
-              className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg"
+              className="w-8 h-8 sm:w-9 sm:h-9 drop-shadow-lg"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
