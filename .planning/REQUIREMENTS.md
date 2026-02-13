@@ -85,33 +85,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DELIV-01 | TBD | Pending |
-| DELIV-02 | TBD | Pending |
-| DELIV-03 | TBD | Pending |
-| DELIV-04 | TBD | Pending |
-| DELIV-05 | TBD | Pending |
-| DELIV-06 | TBD | Pending |
-| DWNLD-01 | TBD | Pending |
-| DWNLD-02 | TBD | Pending |
-| DWNLD-03 | TBD | Pending |
-| DWNLD-04 | TBD | Pending |
-| DWNLD-05 | TBD | Pending |
-| TRACK-01 | TBD | Pending |
-| TRACK-02 | TBD | Pending |
-| TRACK-03 | TBD | Pending |
-| TRACK-04 | TBD | Pending |
-| TRACK-05 | TBD | Pending |
-| UIPOL-01 | TBD | Pending |
-| UIPOL-02 | TBD | Pending |
-| UIPOL-03 | TBD | Pending |
-| UIPOL-04 | TBD | Pending |
-| UIPOL-05 | TBD | Pending |
+| DELIV-01 | Phase 5 | Pending |
+| DELIV-02 | Phase 5 | Pending |
+| DELIV-03 | Phase 5 | Pending |
+| DELIV-04 | Phase 9 | Pending |
+| DELIV-05 | Phase 8 | Pending |
+| DELIV-06 | Phase 8 | Pending |
+| DWNLD-01 | Phase 6 | Pending |
+| DWNLD-02 | Phase 6 | Pending |
+| DWNLD-03 | Phase 7 | Pending |
+| DWNLD-04 | Phase 7 | Pending |
+| DWNLD-05 | Phase 7 | Pending |
+| TRACK-01 | Phase 5 | Pending |
+| TRACK-02 | Phase 5 | Pending |
+| TRACK-03 | Phase 5 | Pending |
+| TRACK-04 | Phase 7 | Pending |
+| TRACK-05 | Phase 9 | Pending |
+| UIPOL-01 | Phase 10 | Pending |
+| UIPOL-02 | Phase 10 | Pending |
+| UIPOL-03 | Phase 10 | Pending |
+| UIPOL-04 | Phase 10 | Pending |
+| UIPOL-05 | Phase 10 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 21 total
-- Mapped to phases: 0 (roadmap not yet created)
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21/21 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-13*
-*Last updated: 2026-02-13 after initial definition*
+*Last updated: 2026-02-13 after v2.0 roadmap creation*
