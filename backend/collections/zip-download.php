@@ -98,17 +98,23 @@ try {
     }
     $zipFilename = $safeCollectionName . '.zip';
 
-    // Initialize ZipStream
-    $zip = new ZipStream(
-        outputName: $zipFilename,
-        sendHttpHeaders: true,
-        enableZip64: true,
-        compressionMethod: CompressionMethod::STORE // JPEGs are pre-compressed
-    );
-
-    // Add extra headers for streaming compatibility
+    // Send headers BEFORE ZipStream initialization
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . $zipFilename . '"');
+    header('Content-Transfer-Encoding: binary');
     header('Accept-Ranges: bytes');
     header('X-Accel-Buffering: no'); // Nginx compatibility
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+
+    // Initialize ZipStream (headers already sent manually)
+    $zip = new ZipStream(
+        outputName: $zipFilename,
+        sendHttpHeaders: false, // We send headers manually above
+        enableZip64: true,
+        defaultCompressionMethod: CompressionMethod::STORE // JPEGs are pre-compressed
+    );
 
     // Stream each photo into the ZIP
     $filesAdded = 0;
