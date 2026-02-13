@@ -197,6 +197,28 @@ switch ($requestUri) {
             break;
         }
 
+        // Handle /deliver/ routes (public endpoints — delivery token auth)
+        if (strpos($requestUri, '/deliver/') === 0) {
+            $uriParts = explode('/', ltrim($requestUri, '/'));
+            // uriParts: ['deliver', deliveryToken, ?subRoute]
+            $subRoute = $uriParts[2] ?? '';
+
+            switch ($subRoute) {
+                case 'zip':
+                    if ($requestMethod === 'GET') {
+                        require_once __DIR__ . '/collections/zip-download.php';
+                    } else {
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Method Not Allowed']);
+                    }
+                    break;
+                default:
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Endpoint Not Found']);
+            }
+            break;
+        }
+
         // Handle /collections/{id} and sub-routes
         if (strpos($requestUri, '/collections/') === 0) {
             $uriParts = explode('/', ltrim($requestUri, '/'));
