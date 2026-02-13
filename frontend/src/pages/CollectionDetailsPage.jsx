@@ -552,7 +552,7 @@ function CollectionDetailsPage() {
             <div className="flex gap-2 mb-4 border-b border-gray-200">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer ${
+                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:ring-2 focus:ring-blue-400/30 focus:ring-offset-1 rounded-sm ${
                   filter === 'all'
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
@@ -562,7 +562,7 @@ function CollectionDetailsPage() {
               </button>
               <button
                 onClick={() => setFilter('selected')}
-                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer ${
+                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:ring-2 focus:ring-blue-400/30 focus:ring-offset-1 rounded-sm ${
                   filter === 'selected'
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
@@ -572,7 +572,7 @@ function CollectionDetailsPage() {
               </button>
               <button
                 onClick={() => setFilter('not-selected')}
-                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer ${
+                className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:ring-2 focus:ring-blue-400/30 focus:ring-offset-1 rounded-sm ${
                   filter === 'not-selected'
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
