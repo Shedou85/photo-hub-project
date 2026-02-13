@@ -668,9 +668,9 @@ function CollectionDetailsPage() {
               setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
             }}
             aria-label={t("collection.lightboxPrev")}
-            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-colors z-10"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -690,9 +690,9 @@ function CollectionDetailsPage() {
               setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
             }}
             aria-label={t("collection.lightboxNext")}
-            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-colors z-10"
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -701,7 +701,7 @@ function CollectionDetailsPage() {
           <button
             onClick={() => setLightboxIndex(null)}
             aria-label={t("collection.lightboxClose")}
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center font-bold text-lg transition-colors z-10"
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center font-bold text-xl transition-colors z-10 border border-white/30 cursor-pointer"
           >
             ×
           </button>
