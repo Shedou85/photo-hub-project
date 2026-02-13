@@ -52,6 +52,19 @@ try {
     // Attach photos to collection
     $collection['photos'] = $photos;
 
+    // Query selections for this collection
+    $stmt = $pdo->prepare("
+        SELECT id, photoId, createdAt
+        FROM `Selection`
+        WHERE collectionId = ?
+        ORDER BY createdAt ASC
+    ");
+    $stmt->execute([$collection['id']]);
+    $selections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Attach selections to collection
+    $collection['selections'] = $selections;
+
     echo json_encode(['status' => 'OK', 'collection' => $collection]);
 
 } catch (Throwable $e) {
