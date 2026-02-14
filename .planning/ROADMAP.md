@@ -74,10 +74,10 @@ Plans:
   2. Delivery page displays only edited/final photos in clean gallery layout
   3. Delivery page shows "Download All as ZIP" button and individual download buttons
   4. Delivery page validates token and shows error for invalid/expired tokens
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (pending plan-phase)
+- [ ] 08-01-PLAN.md — Backend delivery view endpoint + DeliveryPage component with gallery, lightbox, downloads, and i18n
 
 #### Phase 9: Photographer Dashboard Integration
 **Goal**: Integrate delivery management into photographer workflow
