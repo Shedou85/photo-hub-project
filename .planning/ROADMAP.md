@@ -63,7 +63,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md — DOWNLOADED status migration, individual photo download endpoint, frontend download utility
+- [x] 07-01-PLAN.md — DOWNLOADED status migration, individual photo download endpoint, frontend download utility (3 tasks)
 
 #### Phase 8: Client Delivery Interface
 **Goal**: Build public delivery page for client photo downloads
@@ -121,10 +121,10 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9 → 10
 | 4. Delivery | v1.0 | 2/2 | Complete | 2026-02-13 |
 | 5. Delivery Infrastructure | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 6. Server-Side ZIP Downloads | v2.0 | 1/1 | Complete | 2026-02-13 |
-| 7. Individual Photo Downloads | v2.0 | 0/TBD | Not started | - |
+| 7. Individual Photo Downloads | v2.0 | 1/1 | Complete | 2026-02-14 |
 | 8. Client Delivery Interface | v2.0 | 0/TBD | Not started | - |
 | 9. Photographer Dashboard Integration | v2.0 | 0/TBD | Not started | - |
 | 10. UI Polish & Refinement | v2.0 | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-13 after Phase 6 completion*
+*Last updated: 2026-02-14 after Phase 7 completion*
