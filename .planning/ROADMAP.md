@@ -88,10 +88,10 @@ Plans:
   2. Photographer can see download confirmation (DOWNLOADED status) in collection details
   3. Photographer can copy delivery link to clipboard from collection details page
   4. Collection card shows DOWNLOADED status with appropriate color/badge
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (pending plan-phase)
+- [ ] 09-01-PLAN.md — SharePage redirect, delivery link copy button, DOWNLOADED badge styling, and i18n (2 tasks)
 
 #### Phase 10: UI Polish & Refinement
 **Goal**: Improve photographer workflow UX with progressive disclosure and clearer action organization
