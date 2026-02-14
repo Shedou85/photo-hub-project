@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 
 ## Current Position
 
-Phase: 6 of 10 (Server-Side ZIP Downloads)
+Phase: 7 of 10 (Individual Photo Downloads)
 Plan: 1 of 1 complete
-Status: Phase 6 complete
-Last activity: 2026-02-13 — Completed plan 06-01
+Status: Phase 7 complete
+Last activity: 2026-02-14 — Completed plan 07-01
 
-Progress: [██████░░░░] 60% (6/10 phases complete, 12/12 plans complete)
+Progress: [███████░░░] 70% (7/10 phases complete, 13/13 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 10.8 min
-- Total execution time: 2.3 hours
+- Total plans completed: 13
+- Average duration: 10.2 min
+- Total execution time: 2.5 hours
 
 **By Phase:**
 
@@ -33,10 +33,11 @@ Progress: [██████░░░░] 60% (6/10 phases complete, 12/12 plan
 | 04-review-and-delivery | 2/2 | 55 min | 27.5 min |
 | 05-delivery-infrastructure | 2/2 | 3.25 min | 1.6 min |
 | 06-server-side-zip-downloads | 1/1 | 2 min | 2.0 min |
+| 07-individual-photo-downloads | 1/1 | 2.6 min | 2.6 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (34 min), 05-01 (2 min), 05-02 (1.25 min), 06-01 (2 min)
-- Trend: Backend-only plans remain highly efficient; clear requirements and focused scope
+- Last 5 plans: 05-01 (2 min), 05-02 (1.25 min), 06-01 (2 min), 07-01 (2.6 min)
+- Trend: Backend-focused plans with clear requirements remain highly efficient (avg 2 min)
 
 *Updated after each plan completion*
 
@@ -54,6 +55,8 @@ Recent decisions affecting current work:
 - Session-based download deduplication with composite UNIQUE key — GDPR-compliant, no IP tracking (05-01)
 - STORE compression for ZIP downloads (no DEFLATE) — JPEGs pre-compressed; STORE eliminates CPU overhead, reduces time-per-file from ~200ms to ~60ms (06-01)
 - Download tracking before streaming begins — after headers sent, can only log errors (not return JSON); tracking must happen in error-returnable window (06-01)
+- DOWNLOADED status lifecycle — collection transitions DELIVERED to DOWNLOADED on first download (ZIP or individual), both statuses allow re-downloads (07-01)
+- Anchor-click download pattern — frontend uses createElement('a') + click(), server Content-Disposition headers trigger download (no fetch/blob workaround needed) (07-01)
 
 ### Pending Todos
 
@@ -67,8 +70,8 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-13
-Stopped at: Completed Phase 6 (Server-Side ZIP Downloads). Runtime-tested ZIP download with 4 photos. Fixed ZipStream v3 parameter names. Ready for Phase 7 (Individual Photo Downloads).
+Last session: 2026-02-14
+Stopped at: Completed Phase 7 (Individual Photo Downloads). Created individual photo download endpoint, DOWNLOADED status transitions, and frontend download utility. Ready for Phase 8 (Delivery Page).
 Resume file: None
 
 ## v2.0 Milestone Overview
@@ -82,4 +85,4 @@ Resume file: None
 - Download Tracking: 5 requirements
 - UI/UX Polish: 5 requirements
 
-**Next step:** Begin Phase 7 (Individual Photo Downloads) - enable selective download of individual edited photos from delivery page.
+**Next step:** Begin Phase 8 (Delivery Page) - public delivery page for clients to download edited photos (ZIP or individual).
