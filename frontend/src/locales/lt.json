@@ -210,7 +210,8 @@
     "submitSelectionsSuccess": "Jūsų pasirinkimai pateikti! Fotografas dabar paruoš redaguotas nuotraukas.",
     "submitSelectionsError": "Nepavyko pateikti pasirinkimų. Bandykite dar kartą.",
     "selectionsSubmitted": "Pasirinkimai pateikti",
-    "selectionsSubmittedMessage": "Ačiū! Jūsų fotografas peržiūrės pasirinkimus ir paruoš galutinius redaguotus failus."
+    "selectionsSubmittedMessage": "Ačiū! Jūsų fotografas peržiūrės pasirinkimus ir paruoš galutinius redaguotus failus.",
+    "submitting": "Pateikiama..."
   },
   "payments": {
     "title": "Mokėjimai",

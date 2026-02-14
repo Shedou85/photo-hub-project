@@ -204,7 +204,8 @@
     "submitSelectionsSuccess": "Your selections have been submitted! The photographer will now prepare your edited photos.",
     "submitSelectionsError": "Failed to submit selections. Please try again.",
     "selectionsSubmitted": "Selections submitted",
-    "selectionsSubmittedMessage": "Thank you! Your photographer will review your selections and prepare the final edited photos."
+    "selectionsSubmittedMessage": "Thank you! Your photographer will review your selections and prepare the final edited photos.",
+    "submitting": "Submitting..."
   },
   "payments": {
     "title": "Payments",
