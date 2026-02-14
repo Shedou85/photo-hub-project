@@ -11,12 +11,18 @@ const photoUrl = (storagePath) => {
 
 function DeliveryPage() {
   const { deliveryToken } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+
+  const languages = [
+    { code: 'lt', label: 'LT' },
+    { code: 'en', label: 'EN' },
+    { code: 'ru', label: 'RU' },
+  ];
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -68,9 +74,29 @@ function DeliveryPage() {
     fetchDelivery();
   }, [deliveryToken]);
 
+  // Language selector component (reusable)
+  const LanguageSelector = () => (
+    <div className="absolute top-4 right-4 flex gap-2">
+      {languages.map(({ code, label }) => (
+        <button
+          key={code}
+          onClick={() => i18n.changeLanguage(code)}
+          className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors duration-150 ${
+            i18n.language === code
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans relative">
+        <LanguageSelector />
         <div className="text-gray-500 text-sm">{t('delivery.loading')}</div>
       </div>
     );
@@ -84,7 +110,8 @@ function DeliveryPage() {
     };
 
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center font-sans px-5">
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans px-5 relative">
+        <LanguageSelector />
         <div className="max-w-[480px] text-center">
           <div className="text-[48px] mb-3">📦</div>
           <p className="text-gray-700 text-base m-0">
@@ -98,7 +125,8 @@ function DeliveryPage() {
   const photos = collection.photos || [];
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans relative">
+      <LanguageSelector />
       {/* Content container */}
       <div className="max-w-[720px] mx-auto py-10 px-6">
         {/* Header */}
