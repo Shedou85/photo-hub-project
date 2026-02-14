@@ -60,10 +60,10 @@ Plans:
   2. Client can download individual photos from lightbox view with download button
   3. Individual downloads work reliably across browsers (Chrome, Safari, Firefox)
   4. Collection transitions to DOWNLOADED status after first download (ZIP or individual)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (pending plan-phase)
+- [ ] 07-01-PLAN.md — DOWNLOADED status migration, individual photo download endpoint, frontend download utility
 
 #### Phase 8: Client Delivery Interface
 **Goal**: Build public delivery page for client photo downloads
