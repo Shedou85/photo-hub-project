@@ -48,8 +48,8 @@ try {
         exit;
     }
 
-    // Check collection status — must be DELIVERED
-    if ($collection['status'] !== 'DELIVERED') {
+    // Check collection status — must be DELIVERED or DOWNLOADED
+    if ($collection['status'] !== 'DELIVERED' && $collection['status'] !== 'DOWNLOADED') {
         http_response_code(403);
         echo json_encode(['error' => 'Collection is not available for download']);
         exit;
@@ -77,6 +77,19 @@ try {
     // Track download BEFORE streaming begins (while we can still send JSON errors)
     $isNewDownload = trackDownload($pdo, $collectionId, 'ZIP', null);
     error_log("ZIP download tracked for collection {$collectionId}: " . ($isNewDownload ? 'new' : 'duplicate'));
+
+    // Transition to DOWNLOADED status on first download (idempotent)
+    if ($collection['status'] === 'DELIVERED') {
+        $updateStmt = $pdo->prepare("
+            UPDATE Collection
+            SET status = 'DOWNLOADED', updatedAt = NOW(3)
+            WHERE id = ? AND status = 'DELIVERED'
+        ");
+        $updateStmt->execute([$collectionId]);
+        if ($updateStmt->rowCount() > 0) {
+            error_log("Collection {$collectionId} transitioned to DOWNLOADED status via ZIP download");
+        }
+    }
 
     // --- POINT OF NO RETURN: Headers will be sent, no more JSON responses ---
 

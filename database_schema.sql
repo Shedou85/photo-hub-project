@@ -77,7 +77,7 @@ CREATE TABLE `Collection` (
   `clientName` VARCHAR(191) NULL,
   `expiresAt` DATETIME(3) NULL,
   `password` VARCHAR(191) NULL,
-  `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
+  `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
   `allowPromotionalUse` BOOLEAN NOT NULL DEFAULT false,
   `coverPhotoId` VARCHAR(191) NULL,
   PRIMARY KEY (`id`),
@@ -258,3 +258,9 @@ ALTER TABLE `Download`
 -- ALTER TABLE `Download`
 --   ADD CONSTRAINT `Download_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 --   ADD CONSTRAINT `Download_photoId_fkey` FOREIGN KEY (`photoId`) REFERENCES `EditedPhoto` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- --------------------------------------------------------
+--
+-- Migration: Add DOWNLOADED status to Collection ENUM (run on existing databases)
+--
+-- ALTER TABLE `Collection` MODIFY COLUMN `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT';
