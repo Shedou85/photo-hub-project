@@ -20,3 +20,23 @@
 
 ---
 
+
+## v2.0 Delivery & Polish (Shipped: 2026-02-14)
+
+**Phases completed:** 6 phases (5-10), 7 plans
+**Timeline:** 2 days (2026-02-13 → 2026-02-14)
+**Codebase:** 3,317 lines JS/JSX frontend + 2,434 lines PHP backend = 5,751 total
+**Requirements:** 21/21 satisfied (100%)
+
+**Delivered:** Client delivery system with flexible download options (ZIP + individual), automatic token generation, and complete photographer-to-client workflow integration.
+
+**Key accomplishments:**
+- Separate delivery link system with automatic deliveryToken generation on DELIVERED status and session-based download tracking
+- Streaming ZIP downloads supporting 100+ photos with STORE compression and graceful missing file handling
+- Individual photo download endpoint with delivery token auth and DOWNLOADED status lifecycle integration
+- Public delivery page with photo gallery, full-screen lightbox, and one-click downloads (no client account required)
+- Photographer dashboard integration with copy delivery link button and automatic share-to-delivery redirect
+- UI polish: progressive disclosure dropzone, workflow-phase button grouping, improved SharePage CTA, and consistent status borders
+
+---
+
