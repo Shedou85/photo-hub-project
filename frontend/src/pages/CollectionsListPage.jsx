@@ -18,6 +18,8 @@ function CollectionsListPage() {
   const STATUS_BORDER = {
     SELECTING: 'border-2 border-blue-500',
     REVIEWING: 'border-2 border-green-500',
+    DELIVERED: 'border-2 border-purple-500',
+    DOWNLOADED: 'border-2 border-purple-600',
   };
 
   // Helper function to get photo URL

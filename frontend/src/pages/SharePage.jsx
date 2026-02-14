@@ -184,7 +184,7 @@ function SharePage() {
   return (
     <div className="min-h-screen bg-white font-sans">
       {/* Content container */}
-      <div className="max-w-[720px] mx-auto py-10 px-6">
+      <div className={`max-w-[720px] mx-auto py-10 px-6 ${canSelect && selectedPhotoIds.size > 0 && !isSubmitted ? 'pb-24' : ''}`}>
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-[28px] font-bold text-gray-900 m-0 mb-2">
@@ -266,14 +266,19 @@ function SharePage() {
 
         {/* Submit selections section — only show in SELECTING status with selections */}
         {canSelect && selectedPhotoIds.size > 0 && !isSubmitted && (
-          <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-4 px-6 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] mt-8">
-            <button
-              onClick={submitSelections}
-              disabled={isSubmitting}
-              className="w-full max-w-[400px] mx-auto block bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-[14px] px-6 rounded-[10px] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isSubmitting ? t('share.submitting') || 'Submitting...' : t('share.submitSelections', { count: selectedPhotoIds.size })}
-            </button>
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-4 px-6 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] z-40">
+            <div className="max-w-[720px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-sm font-semibold text-gray-700">
+                {t('share.selectedCount', { count: selectedPhotoIds.size })}
+              </div>
+              <button
+                onClick={submitSelections}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-[14px] px-8 rounded-[10px] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer border-none font-sans"
+              >
+                {isSubmitting ? t('share.submitting') : t('share.submitSelections', { count: selectedPhotoIds.size })}
+              </button>
+            </div>
           </div>
         )}
 
