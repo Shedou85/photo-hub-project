@@ -27,3 +27,8 @@ backend/config.php
 .claude/
 Api problem.txt
 nul
+
+# Research and test files
+.planning/phases/08-client-delivery-interface/08-RESEARCH.md
+.planning/phases/09-photographer-dashboard-integration/09-RESEARCH.md
+backend/create-test-delivery.php
