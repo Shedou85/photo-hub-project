@@ -52,10 +52,12 @@
   3. Responsive breakpoints defined in shared constants file (MOBILE: 640px, TABLET: 768px, DESKTOP: 1024px)
   4. No hardcoded values exist in components - all styling uses design tokens
   5. Performance budgets documented (Lighthouse >90, LCP <2.5s, CLS <0.1, bundle <50KB CSS gzipped)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 11-01: TBD
+- [ ] 11-01-PLAN.md — Configure design tokens in tailwind.config.js and create shared breakpoints constants
+- [ ] 11-02-PLAN.md — Refactor authenticated pages and shared components to use design tokens
+- [ ] 11-03-PLAN.md — Refactor public/client-facing pages to use design tokens and verify codebase
 
 #### Phase 12: Primitive Component Library
 **Goal**: Create reusable primitive components enforcing design tokens
