@@ -122,6 +122,7 @@
       "SELECTING": "Отбор",
       "REVIEWING": "Рассмотрение",
       "DELIVERED": "Доставлена",
+      "DOWNLOADED": "Скачана",
       "ARCHIVED": "Архив"
     }
   },
@@ -159,6 +160,7 @@
       "SELECTING": "Отбор",
       "REVIEWING": "Рассмотрение",
       "DELIVERED": "Доставлена",
+      "DOWNLOADED": "Скачана",
       "ARCHIVED": "Архив"
     },
     "startSelecting": "Начать отбор клиентом",
