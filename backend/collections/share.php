@@ -89,7 +89,7 @@ if ($requestMethod === 'PATCH') {
     try {
         // Query collection by shareId — explicitly exclude sensitive fields
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, shareId, coverPhotoId, createdAt
+            SELECT id, name, status, clientName, shareId, coverPhotoId, deliveryToken, createdAt
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1

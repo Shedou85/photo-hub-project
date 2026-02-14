@@ -133,10 +133,18 @@ function SharePage() {
 
         const data = await response.json();
         if (data.status === "OK" && data.collection) {
-          setCollection(data.collection);
+          const coll = data.collection;
+
+          // Redirect to delivery page if collection is in delivery phase
+          if ((coll.status === 'DELIVERED' || coll.status === 'DOWNLOADED') && coll.deliveryToken) {
+            window.location.href = `/deliver/${coll.deliveryToken}`;
+            return;
+          }
+
+          setCollection(coll);
           // Initialize selections from share endpoint response (added by 03-01)
           const initialSelections = new Set(
-            (data.collection.selections || []).map(s => s.photoId)
+            (coll.selections || []).map(s => s.photoId)
           );
           setSelectedPhotoIds(initialSelections);
         } else {
