@@ -212,6 +212,14 @@ switch ($requestUri) {
                         echo json_encode(['error' => 'Method Not Allowed']);
                     }
                     break;
+                case 'photo':
+                    if ($requestMethod === 'GET') {
+                        require_once __DIR__ . '/collections/photo-download.php';
+                    } else {
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Method Not Allowed']);
+                    }
+                    break;
                 default:
                     http_response_code(404);
                     echo json_encode(['error' => 'Endpoint Not Found']);
