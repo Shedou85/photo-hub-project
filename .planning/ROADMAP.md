@@ -103,10 +103,10 @@ Plans:
   3. Share page has improved client action button layout with clearer CTAs
   4. Status badges and collection card colors reflect DOWNLOADED status in lifecycle
   5. All UI changes maintain i18n support across Lithuanian, English, and Russian
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (pending plan-phase)
+- [ ] 10-01-PLAN.md — Progressive disclosure dropzone, workflow-phase button grouping, SharePage CTA improvement, status border consistency, and i18n
 
 ## Progress
 
