@@ -1,583 +1,485 @@
-# Pitfalls Research
+# Pitfalls Research: Photographer Platform UI/UX Redesign
 
-**Domain:** Adding delivery links, ZIP downloads, and download tracking to existing photo management system
-**Researched:** 2026-02-13 (Updated for v2.0 delivery features)
+**Domain:** Photographer platform redesign (functional → premium UI/UX)
+**Researched:** 2026-02-14
 **Confidence:** HIGH
 
-**Context:** This research focuses on pitfalls when **adding delivery and download features to an existing v1.0 selection workflow**. See original v1.0 pitfalls research (2026-02-11) for foundational security issues. This update addresses integration challenges when extending the system with separate delivery tokens, server-side ZIP generation, individual photo downloads, DOWNLOADED status tracking, and UI polish.
+## Critical Pitfalls
 
----
-
-## Critical Pitfalls (v2.0 Delivery Features)
-
-### Pitfall 1: Token Confusion Between Sharing and Delivery
+### Pitfall 1: Over-Design Masking Usability Loss
 
 **What goes wrong:**
-Reusing the existing `shareId` token for delivery downloads creates security risks. Clients who receive delivery links can still modify selections or change collection status. If delivery tokens leak, anyone can download the photos AND make changes to the collection. The selection workflow becomes insecure after delivery.
+Premium aesthetic applied without functional verification. UI becomes beautiful but slower to use. Excessive animations transform the app into a sluggish spectacle. Minimalist design pushed to extremes where the interface becomes too austere and users become bewildered looking for actions that are not self-evident.
 
 **Why it happens:**
-The existing `shareId` system worked fine for v1.0 selection workflow. Developers assume extending the same token for delivery is simpler than creating separate tokens. "It's already there" feels efficient. No one wants to add another column.
+Design teams prioritize visual polish over workflow validation. "Clean" is conflated with "good." No measurement of task completion time before/after redesign. Designers test with fresh eyes, not returning users who built muscle memory.
 
 **How to avoid:**
-- Create a **separate** `deliveryToken` column in Collection table:
-  ```sql
-  ALTER TABLE `Collection` ADD COLUMN `deliveryToken` VARCHAR(191) NULL UNIQUE;
-  ```
-- Generate deliveryToken **only** when status transitions to DELIVERED (not on collection creation)
-- Use cryptographically random generation: `bin2hex(random_bytes(32))` (64 hex chars minimum)
-- Delivery endpoints (`/delivery/{deliveryToken}`) must be READ-ONLY — no selection changes, no status updates
-- Sharing endpoints (`/share/{shareId}`) remain read-write for selection during SELECTING/REVIEWING
-- Validate token type in endpoint logic: sharing routes REJECT deliveryToken, delivery routes REJECT shareId
-- Delivery token should have separate expiration from share token
+- Measure baseline task completion times BEFORE redesign
+- Track key user flows: upload → share → selection → delivery
+- Set performance budgets for animations (page transitions < 300ms, micro-interactions < 150ms)
+- Test with existing users, not just new ones
+- Compare clicks-to-complete before/after for critical paths
+- Reject any redesign that increases steps for core workflows
 
 **Warning signs:**
-- Delivery routes use the same handler as share routes
-- No separate permission checks for download vs. selection
-- Token generation happens on collection creation instead of status transition
-- Same token appears in both client gallery URL and delivery email
-- Code like `if ($shareId === $deliveryToken)` exists anywhere
+- Users say "looks great but where did X go?"
+- Support tickets increase asking "how do I...?"
+- Task completion time increases even 10%
+- Bounce rate increases on redesigned pages
+- Users prefer old version when A/B tested
 
 **Phase to address:**
-Phase 1: Separate Delivery Token (early architecture decision prevents cascading security issues)
-
-**Sources:**
-- [Token Best Practices (Auth0)](https://auth0.com/docs/secure/tokens/token-best-practices) — Separate tokens for different scopes
-- [Key Approaches to Token Sharing (Curity)](https://curity.io/resources/learn/token-sharing/) — Token exchange vs embedded patterns
+Phase 1 (Design System Setup) — establish performance budgets and workflow benchmarks
+Phase 3/4 (Component Redesign) — verify each component against baseline metrics
+Phase 5 (Testing & Polish) — full workflow validation with existing users
 
 ---
 
-### Pitfall 2: ZIP Generation Exceeding Hostinger Limits
+### Pitfall 2: Mobile-First Destroying Desktop Experience
 
 **What goes wrong:**
-Server-side ZIP creation for large collections (50+ high-res photos) hits Hostinger's `max_execution_time` limit (180 seconds maximum) or `memory_limit`, causing timeouts. Half-generated ZIP files corrupt downloads. Users receive "Download failed" with no explanation. Photographer reputation suffers.
+Content dispersion on desktop. Layouts designed for 375px mobile screens, when rendered on 1440px desktop monitors, feel hollow with content dispersed across long scrolling pages. Users scroll through three screens of whitespace to find information that once fit in a single viewport. Excessive whitespace wastes screen real estate for photographers managing hundreds of images.
 
 **Why it happens:**
-Developers test with 5-10 small photos locally. Native `ZipArchive` loads entire archive into memory on shared hosting. No one tests with 100 edited photos (10MB each = 1GB total) until production. Hostinger's limits aren't discovered until client complaints.
+"Mobile-first" interpreted as "mobile-only." Responsive breakpoints use the same layout across all sizes, just stretched. No desktop-specific layout strategy. Team tests primarily on mobile, desktop becomes an afterthought.
 
 **How to avoid:**
-- **Use ZipStream-PHP library** instead of native ZipArchive:
-  ```bash
-  composer require maennchen/zipstream-php
-  ```
-- ZipStream streams directly to client with NO memory buffering — processes one file at a time
-- Implement chunked streaming: `set_time_limit(0)` for download scripts (allowed for delivery endpoints, not API)
-- Add collection size validation BEFORE offering ZIP download:
-  ```php
-  $totalSize = $pdo->prepare("SELECT SUM(fileSize) FROM EditedPhoto WHERE collectionId = ?")->execute([$collectionId])->fetchColumn();
-  if ($totalSize > 2_000_000_000) { // 2GB limit
-      // Offer async generation or reject
-  }
-  ```
-- Display estimated download size and time to users: "Download size: 1.2 GB - Estimated time: 3 min on WiFi"
-- For collections exceeding threshold (e.g., 2GB), generate ZIP asynchronously via background process and email download link when ready
-- Test with realistic photo sizes: 10MB per edited photo minimum, 50+ files
+- Design THREE distinct layouts: mobile (< 768px), tablet (768-1024px), desktop (> 1024px)
+- Desktop should use grid layouts (2-4 columns) not single-column stretched
+- Implement density controls: photographer dashboard uses compact density, client galleries use comfortable density
+- Test on actual desktop monitors (1920x1080, 2560x1440), not just browser resizing
+- Use CSS Grid for desktop, Flexbox for mobile (different strategies)
+- Set max-width constraints for content areas on desktop (e.g., max-w-7xl)
 
 **Warning signs:**
-- Using `ZipArchive::open()` and `ZipArchive::close()` pattern (buffers in memory)
-- No size checks before ZIP generation
-- Timeout errors in production logs: "Maximum execution time of 180 seconds exceeded"
-- Users report "ZIP file is corrupted" or "Download interrupted at 90%"
-- No background job system for large archives
-- Testing only with small sample datasets
+- Desktop screenshots show large empty margins
+- Single-column layouts on screens > 1280px wide
+- Photo grids showing 2 images across when 6 would fit
+- Vertical scrolling exceeds 3x viewport height for simple tasks
+- Desktop users complaining about "wasted space"
 
 **Phase to address:**
-Phase 2: Server-Side ZIP Generation (core implementation must handle constraints from day one)
-
-**Sources:**
-- [ZipStream-PHP Memory Issues Discussion](https://github.com/maennchen/ZipStream-PHP/discussions/185) — Memory exhaustion with 300+ files
-- [PHP ZipArchive vs ZipStream Performance](https://github.com/maennchen/ZipStream-PHP/issues/40) — Streaming avoids memory limits
-- [Hostinger PHP Memory Limits](https://www.hostinger.com/support/1583711-what-is-php-memory-limit-at-hostinger/) — Fixed per-plan memory limits
-- [Hostinger max_execution_time](https://www.hostinger.com/tutorials/how-to-fix-maximum-execution-time-exceeded-error-wordpress) — 180s maximum via .htaccess
+Phase 1 (Design System Setup) — define density scales and responsive layout strategies
+Phase 2 (Mobile Views) vs Phase 3 (Desktop Views) — separate phases for distinct strategies
+Phase 5 (Testing & Polish) — cross-device validation
 
 ---
 
-### Pitfall 3: Download Tracking Double-Counting
+### Pitfall 3: Hidden Navigation on Desktop
 
 **What goes wrong:**
-Every browser preflight, partial download, or resume request increments download counter. One client downloading a ZIP appears as 5-10 downloads. Analytics become meaningless. Photographers can't trust download reports. If billing is ever based on download counts, users are overcharged.
+Hamburger menu applied to desktop layout, hiding primary navigation. Hidden navigation shows more than 20% drop in discoverability compared with visible navigation. Desktop users engage 50% less with content hidden behind hamburger icons. Photographers lose quick access to Collections, Upload, Clients while reviewing photos.
 
 **Why it happens:**
-Naive implementation: log every request to `/download/{token}` endpoint. HTTP range requests (206 Partial Content) for resume trigger multiple hits. Browser preflight OPTIONS requests count as downloads. No deduplication logic exists.
+Desire for "clean" aesthetic. Mobile pattern copied to desktop without adaptation. Misunderstanding of when hamburger menus are appropriate (mobile: acceptable, desktop: anti-pattern).
 
 **How to avoid:**
-- Track downloads at **session + collection + date** granularity, not per-request
-- Create DownloadLog table with unique constraint:
-  ```sql
-  CREATE TABLE `DownloadLog` (
-    `id` VARCHAR(191) PRIMARY KEY,
-    `collectionId` VARCHAR(191) NOT NULL,
-    `sessionId` VARCHAR(191) NOT NULL,
-    `downloadedAt` DATE NOT NULL,
-    `createdAt` DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-    UNIQUE KEY `unique_download` (`collectionId`, `sessionId`, `downloadedAt`),
-    FOREIGN KEY (`collectionId`) REFERENCES `Collection`(`id`) ON DELETE CASCADE
-  );
-  ```
-- Use database transaction with `INSERT IGNORE` or `ON DUPLICATE KEY UPDATE` to prevent race conditions:
-  ```php
-  $pdo->beginTransaction();
-  $stmt = $pdo->prepare("INSERT IGNORE INTO DownloadLog (id, collectionId, sessionId, downloadedAt) VALUES (?, ?, ?, CURDATE())");
-  $stmt->execute([generateCuid(), $collectionId, session_id(), date('Y-m-d')]);
-  $pdo->commit();
-  ```
-- Exclude OPTIONS, HEAD requests from download counting
-- For range requests: only count the **first** request (HTTP 200 or 206 with `Range: bytes=0-`), not subsequent chunks
-- Generate download session token on first request, reuse for subsequent chunks
+- Keep main navigation VISIBLE on desktop (sidebar or top nav)
+- Reserve hamburger menus ONLY for mobile (< 768px breakpoints)
+- Desktop sidebar should show: Collections, Upload, Clients, Profile, Settings
+- Use icons + labels on desktop, icons-only on mobile
+- Test navigation discoverability: users should find all sections without instruction
 
 **Warning signs:**
-- Download count = 10x actual users in analytics
-- Every partial download increments counter independently
-- No uniqueness constraint in DownloadLog table
-- Logging happens before file streaming starts (failures don't decrement, inflating counts)
-- No distinction between preview thumbnails and full ZIP downloads
-- Code logs downloads in simple counter increment without session tracking
+- Desktop mockups show hamburger icon as primary navigation
+- Navigation hidden by default on screens > 1024px
+- User testing shows "I didn't know that section existed"
+- Analytics show low engagement with secondary pages
+- Direct URL navigation increases (users bookmark instead of navigating)
 
 **Phase to address:**
-Phase 3: Download Tracking (database schema design must prevent double-counting from start)
-
-**Sources:**
-- [GA4 Download Tracking Duplicate Events](https://www.analyticsmania.com/post/duplicate-events-in-google-analytics-4-and-how-to-fix-them/) — Double-counting from Enhanced Measurement + GTM
-- [How to Track File Downloads in GA4](https://www.analyticsmania.com/post/track-file-downloads-with-google-analytics-4/) — Proper deduplication patterns
+Phase 1 (Design System Setup) — define responsive navigation patterns
+Phase 3 (Desktop Views) — implement persistent visible navigation
+Phase 5 (Testing & Polish) — navigation discoverability testing
 
 ---
 
-### Pitfall 4: ZIP Path Traversal Vulnerability (Zip Slip)
+### Pitfall 4: Breaking Existing Workflow Patterns
 
 **What goes wrong:**
-When generating ZIP files, malicious photo filenames like `../../../etc/passwd` allow attackers to write files outside intended directory during extraction on client machines. Or worse: when processing uploaded photos, path traversal in filenames lets users overwrite server files during ZIP creation.
+Redesign changes established interaction patterns. Users built muscle memory: "click top-right to share collection." New design moves action to bottom modal. Support tickets explode with "how do I share?" even though feature still exists. Photographers waste time relearning instead of working.
 
 **Why it happens:**
-Direct use of user-supplied filenames in ZIP entries without sanitization. Code assumes `filename` column contains safe values, but v1.0 upload endpoint may not have validated paths thoroughly. Developer trusts database content without verification.
+Designers unfamiliar with current app patterns. No user research on existing workflows. Changes made for aesthetic reasons without considering habit disruption. No migration guide or onboarding for redesign.
 
 **How to avoid:**
-- Sanitize filenames when adding to ZIP: `basename($filename)` to strip directory traversal characters
-- Use incremental filenames for ZIP entries: `edited_001.jpg`, `edited_002.jpg` instead of original filenames
-- Validate filenames on upload (v1.0 audit): reject filenames containing `/`, `\`, `..`, null bytes, control characters
-- Apply allowlist for file extensions: `.jpg`, `.jpeg`, `.png`, `.heic` only
-- For existing data: run migration to sanitize Photo.filename column:
-  ```php
-  UPDATE Photo SET filename = CONCAT('photo_', id, '.jpg') WHERE filename LIKE '%..%' OR filename LIKE '%/%';
-  ```
-- Never trust `EditedPhoto.filename` column directly — always sanitize before ZIP entry
+- Document ALL existing interaction patterns before redesign
+- User research: observe current users completing tasks, note every click
+- Preserve primary action locations unless there's a compelling UX reason
+- For necessary changes, provide in-app migration tooltips
+- Gradual rollout with opt-in beta period (power users test first)
+- Create "What's New" guide highlighting changed patterns
 
 **Warning signs:**
-- Filenames in ZIP match user-uploaded filenames exactly without sanitization
-- No path sanitization in ZIP generation code: `$zip->addFile($storagePath, $filename)` uses raw filename
-- Upload endpoint accepts any filename without validation
-- Database contains filenames with directory separators (`/`, `\`)
-- Code uses `$_FILES['file']['name']` directly in storage path
+- Support ticket volume increases 20%+ post-launch
+- Common questions: "Where did X go?" or "How do I do Y now?"
+- User testing shows confusion on familiar tasks
+- Session time increases not from engagement but from searching
+- Users request "classic mode" or "bring back old version"
 
 **Phase to address:**
-Phase 2: Server-Side ZIP Generation (validate before implementing ZIP creation)
-
-**Sources:**
-- [Zip Slip Vulnerability (Snyk)](https://security.snyk.io/research/zip-slip-vulnerability) — Path traversal in archive extraction
-- [Zip Path Traversal (Android Developers)](https://developer.android.com/privacy-and-security/risks/zip-path-traversal) — Prevention patterns
-- [CVE-2026-22685 DevToys](https://github.com/DevToys-app/DevToys/security/advisories/GHSA-ggxr-h6fm-p2qh) — Recent 2026 path traversal in ZIP extraction
+Phase 0 (Pre-Research) — document existing patterns and user flows
+Phase 5 (Testing & Polish) — migration testing with beta users
+Phase 6 (Launch) — in-app onboarding for changed patterns
 
 ---
 
-### Pitfall 5: Temporary ZIP Files Exhausting Disk Space
+### Pitfall 5: Touch Targets Too Small on Mobile
 
 **What goes wrong:**
-Generated ZIP files stored in `/tmp` or `backend/uploads/temp/` never get cleaned up. After 100 deliveries, server runs out of disk space. New uploads fail with "No space left on device". Download generation fails. Hosting provider suspends account.
+Desktop-sized buttons (32x32px) used on mobile. Photographers with cold fingers at outdoor shoots can't tap reliably. Selection checkboxes too small to tap while holding phone. Frustration leads to abandoning mobile workflow, defeating "mobile-first" goal.
 
 **Why it happens:**
-ZIP generation creates temp file for pre-generation approach. Script completes successfully, but cleanup code never runs due to errors, timeouts, or exceptions. No cron job configured to purge old temp files. Developers forget cleanup is needed.
+Design mocks created at desktop scale, then scaled down. No physical device testing. Designers with steady hands don't notice issue. Testing done seated at desk, not in real photographer conditions (outdoor, moving, one-handed).
 
 **How to avoid:**
-**If using pre-generated ZIPs (async approach):**
-- Store in dedicated directory: `backend/uploads/zips/{collectionId}.zip`
-- Add `processedZipPath` column to Collection table (already exists in schema!)
-- Delete old ZIP when regenerating (e.g., when edited photos change):
-  ```php
-  if ($collection['processedZipPath'] && file_exists($collection['processedZipPath'])) {
-      unlink($collection['processedZipPath']);
-  }
-  ```
-- Implement cron job: delete ZIPs older than 30 days if collection status = DELIVERED:
-  ```bash
-  0 2 * * * find /path/to/uploads/zips -name "*.zip" -mtime +30 -delete
-  ```
-- Add database trigger: when Collection deleted, unlink processedZipPath file before row deletion
-- Monitor disk usage with alerts
-
-**If using streaming approach (recommended):**
-- No temp files needed — stream directly to client via ZipStream-PHP
-- Eliminates cleanup problem entirely
-- No cron jobs needed
-- No disk space risk
+- Minimum touch target: 44x44px (Apple) or 48x48dp (Android)
+- Critical actions (Select Photo, Share Collection): 56x56px minimum
+- Spacing between interactive elements: minimum 8px, prefer 16px
+- Test on actual devices held ONE-HANDED
+- Test in realistic conditions: outdoors, wearing gloves, walking
+- Use thumb-zone heatmaps: primary actions in lower third of screen
 
 **Warning signs:**
-- Disk usage grows without bound over time
-- `/tmp` directory fills up with .zip files
-- No file cleanup logic in ZIP generation code
-- No cron jobs configured for maintenance
-- Logs show "No space left on device" errors
-- `backend/uploads/zips/` directory has hundreds of old files
+- Touch targets smaller than 44px in mobile designs
+- Interactive elements touching (0px gap)
+- Primary actions in top corners (hardest to reach one-handed)
+- User testing shows multiple taps to hit target
+- Analytics show high "mis-tap" rate (click wrong element)
 
 **Phase to address:**
-Phase 2: Server-Side ZIP Generation (architecture decision) + Phase 5: Production Readiness (operational hardening)
-
-**Sources:**
-- [Cron Job Storage Cleanup](https://www.hostinger.com/tutorials/cron-job) — Automated file cleanup
-- [Removing Log Files with Cron](https://www.baeldung.com/linux/cron-logograte-delete-log-files) — Cleanup patterns
-- [Cron Job Monitoring Guide](https://uptimerobot.com/knowledge-hub/cron-monitoring/cron-job-guide/) — Ensuring cleanup runs
+Phase 1 (Design System Setup) — define touch target minimums in design tokens
+Phase 2 (Mobile Views) — apply and verify touch target sizes
+Phase 5 (Testing & Polish) — physical device testing in realistic conditions
 
 ---
 
-### Pitfall 6: Missing HTTP Range Request Support
+### Pitfall 6: Unclear Workflow State Transitions
 
 **What goes wrong:**
-Client downloads 500MB ZIP, connection drops at 90%. Browser attempts to resume download, but server doesn't support HTTP Range requests. Client must restart from 0%. After 3 failed attempts, delivery fails completely. Client contacts photographer frustrated.
+Collection status changes (DRAFT → SELECTING → REVIEWING → DELIVERED) but UI doesn't clearly guide next steps. Client lands on SELECTING page, sees photos, doesn't know they should click hearts to select. No progressive disclosure or contextual help. Users miss critical workflow steps.
 
 **Why it happens:**
-Simple file streaming code: `readfile($filePath)` or `file_get_contents()` doesn't handle `Range:` header. Developer tests on local network (fast, reliable connection), never encounters resume scenario. Mobile clients on unstable connections suffer.
+Design focuses on individual screens, not state transitions. No consideration of first-time user mental model. Assumption that workflow is "obvious" (designer's curse of knowledge). Missing contextual help and empty states.
 
 **How to avoid:**
-- Implement HTTP 206 Partial Content support:
-  ```php
-  $fileSize = filesize($filePath);
-  header('Accept-Ranges: bytes');
-
-  if (isset($_SERVER['HTTP_RANGE'])) {
-      preg_match('/bytes=(\d+)-(\d*)/', $_SERVER['HTTP_RANGE'], $matches);
-      $start = $matches[1];
-      $end = $matches[2] ?: $fileSize - 1;
-
-      http_response_code(206);
-      header("Content-Range: bytes $start-$end/$fileSize");
-      header("Content-Length: " . ($end - $start + 1));
-
-      $fp = fopen($filePath, 'rb');
-      fseek($fp, $start);
-      echo fread($fp, $end - $start + 1);
-      fclose($fp);
-  } else {
-      http_response_code(200);
-      header("Content-Length: $fileSize");
-      readfile($filePath);
-  }
-  ```
-- Use `If-Range` header to validate file hasn't changed (check Last-Modified or ETag)
-- Set `Accept-Ranges: bytes` header on ALL download responses
-- Test with `curl -r` flag: `curl -r 0-1000 {url}` should return 206, not 200
-- Test with interrupted download simulation
+- Design state-specific empty states and first-use tooltips
+- DRAFT: "Upload photos to start" with upload CTA
+- SELECTING (0 selected): "Click hearts to select your favorites" overlay
+- REVIEWING (no feedback): "Add comments to selected photos" prompt
+- Progressive disclosure: show advanced features after basics mastered
+- Contextual help triggered by behavior (30s on page, no action → tooltip)
+- Use micro-copy to guide: button labels as imperatives ("Select Your Favorites" not just "Next")
 
 **Warning signs:**
-- Download scripts use `readfile()` or `echo file_get_contents()` without range handling
-- No handling of `$_SERVER['HTTP_RANGE']`
-- Response always returns 200 OK, never 206 Partial Content
-- Large downloads can't be resumed in browser (restart from beginning)
-- Users report having to restart failed downloads multiple times
-- No `Accept-Ranges: bytes` header in download responses
+- User testing shows confusion about "what do I do now?"
+- Analytics show users landing but not taking expected action
+- High exit rate at transition points
+- Support tickets: "I don't know what to do" or "Is it working?"
+- Low conversion through workflow funnel (upload → select → deliver)
 
 **Phase to address:**
-Phase 2: Server-Side ZIP Generation (must be in initial implementation for large files)
-
-**Sources:**
-- [HTTP Range Requests (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests) — Official specification
-- [HTTP 206 Partial Content Guide](https://apidog.com/blog/status-code-206-partial-content/) — Implementation examples
-- [Apache Byte-Ranges for Resumable Downloads](https://linux.goeszen.com/apache-and-byte-ranges-for-resumable-downloads.html) — Server configuration
+Phase 1 (Design System Setup) — define empty states and contextual help patterns
+Phase 4 (Component Redesign) — implement state-specific guidance
+Phase 5 (Testing & Polish) — workflow completion testing with new users
 
 ---
 
-### Pitfall 7: Race Condition on DOWNLOADED Status Update
+### Pitfall 7: Responsive Breakpoint Layout Shift Bugs
 
 **What goes wrong:**
-Client downloads ZIP via browser AND mobile app simultaneously. Two requests hit `PATCH /delivery/{token}` to mark status = DOWNLOADED at the same time. Both check status (DELIVERED), both execute UPDATE. Database reports success for both, but only one update happens, or worse: constraint violation errors occur.
+Layout shifts unexpectedly at breakpoints. Desktop sidebar jumps from left to top at 1200px (arbitrary threshold). Image grid switches from 4 columns to 1 column at 1024px with no intermediate steps. Content "pops" during resize. CLS (Cumulative Layout Shift) spikes.
 
 **Why it happens:**
-Check-then-update pattern without transaction isolation:
-```php
-// WRONG: Race condition
-$status = getCollectionStatus($id);
-if ($status === 'DELIVERED') {
-    updateStatus($id, 'DOWNLOADED');
-}
-```
-Gap between SELECT and UPDATE allows concurrent requests to both pass the check.
+Tailwind's default breakpoints (sm: 640px, md: 768px, lg: 1024px, xl: 1280px) don't match design needs. Developers test at exact breakpoints (768px, 1024px) but not in-between. Layout changes too drastically at single breakpoint instead of gradually. No CLS monitoring.
 
 **How to avoid:**
-- Use database transaction with row locking:
-```php
-$pdo->beginTransaction();
-$stmt = $pdo->prepare("SELECT status FROM Collection WHERE id = ? FOR UPDATE");
-$stmt->execute([$collectionId]);
-$status = $stmt->fetchColumn();
-
-if ($status === 'DELIVERED') {
-    $pdo->prepare("UPDATE Collection SET status = 'DOWNLOADED', updatedAt = NOW(3) WHERE id = ?")
-        ->execute([$collectionId]);
-}
-$pdo->commit();
-```
-- Or use conditional UPDATE (simpler, no explicit locking):
-```php
-$stmt = $pdo->prepare("UPDATE Collection SET status = 'DOWNLOADED', updatedAt = NOW(3) WHERE id = ? AND status = 'DELIVERED'");
-$stmt->execute([$collectionId]);
-if ($stmt->rowCount() === 0) {
-    // Already DOWNLOADED or invalid state transition
-}
-```
-- Check `rowCount()` to verify update succeeded
-- Status transitions should be **idempotent**: DOWNLOADED → DOWNLOADED is safe (no error)
-- Prevent backwards transitions: DOWNLOADED → DELIVERED should be rejected
+- Define custom breakpoints matching actual design needs (not just defaults)
+- Test at BETWEEN breakpoints: 800px, 1100px, 1400px (common browser sizes)
+- Gradual changes: 1 column → 2 columns → 3 columns → 4 columns (not 1 → 4)
+- Use CSS Grid auto-fit/auto-fill for fluid grids: `grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))`
+- Monitor CLS in production (Google PageSpeed Insights, Core Web Vitals)
+- Reserve space for lazy-loaded images (explicit width/height)
 
 **Warning signs:**
-- No database transactions in status update code
-- Separate SELECT and UPDATE statements with gap between them
-- No row locking (`FOR UPDATE`)
-- Duplicate constraint violations in logs during concurrent access
-- Status transitions don't check current state in WHERE clause
-- Code assumes single-threaded execution
+- CLS score > 0.1 in PageSpeed Insights
+- Content visibly jumps during load or resize
+- Grid layout changes drastically at single breakpoint
+- Sidebar disappears/reappears during resize
+- User complaints about "jumpy" or "glitchy" UI
 
 **Phase to address:**
-Phase 3: Download Tracking (fix during implementation of status tracking)
-
-**Sources:**
-- [Transactional Locking to Prevent Race Conditions](https://sqlfordevs.com/transaction-locking-prevent-race-condition) — FOR UPDATE pattern
-- [Database Race Conditions Catalog](https://www.ketanbhatt.com/p/db-concurrency-defects) — Common concurrency bugs
-- [How to Prevent Race Conditions in Database](https://medium.com/@doniantoro34/how-to-prevent-race-conditions-in-database-3aac965bf47b) — Pessimistic locking
+Phase 1 (Design System Setup) — define custom breakpoints and responsive grid system
+Phase 2/3 (View Implementation) — implement and test responsive layouts
+Phase 5 (Testing & Polish) — CLS monitoring and optimization
 
 ---
 
-### Pitfall 8: Delivery Token in Email Logs
+### Pitfall 8: Image-Heavy UI Performance Degradation
 
 **What goes wrong:**
-Delivery email contains link `pixelforge.pro/delivery/{deliveryToken}`. Email server logs full URL. SMTP provider (SendGrid, Mailgun) indexes all URLs for click tracking. Anyone with log access (support staff, compromised account) can download all client photos. Email forwarding multiplies exposure.
+Premium redesign adds hero images, background gradients, large gallery thumbnails. Page load time increases from 1.2s to 4.5s. Mobile users on 3G abandon before photos load. Photographer with 500-image collection experiences browser lag. Lighthouse score drops from 95 to 62.
 
 **Why it happens:**
-Standard practice: put download link directly in email body. Developers don't consider email as untrusted logging layer. Email services log everything for analytics. Email forwarding creates copies in multiple inboxes indefinitely.
+Design prioritizes aesthetics without performance budget. No image optimization strategy. Loading all images upfront instead of lazy loading. Using uncompressed PNGs instead of optimized WebP. No performance testing on slow networks.
 
 **How to avoid:**
-- Use **two-step delivery**: Email contains short-lived landing page link with temporary token:
-  ```
-  Email: pixelforge.pro/delivery-verify/{emailToken}
-  Landing page: Requires button click → reveals actual deliveryToken
-  Actual download: pixelforge.pro/delivery/{deliveryToken}
-  ```
-- Or: Email contains `{baseUrl}/delivery-access/{emailToken}`, which validates then redirects to `{baseUrl}/delivery/{deliveryToken}` after validation
-- Implement token expiration hierarchy:
-  - `deliveryToken`: valid for 30 days (long-lived for client convenience)
-  - `emailToken`: valid for 7 days (short-lived for email security)
-- Add rate limiting on delivery endpoints: max 10 downloads per hour per token
-- Consider password-protected deliveries for sensitive collections (optional client protection)
-- Log only token prefix in server logs: `substr($token, 0, 8) . '...'`
+- Set performance budget: Initial load < 2s, Largest Contentful Paint (LCP) < 2.5s
+- Optimize images: WebP format, responsive images (srcset), compress to 80% quality
+- Lazy load images below fold: use Intersection Observer or native `loading="lazy"`
+- Virtual scrolling for large galleries (100+ images): only render visible images
+- Test on throttled networks: Chrome DevTools → Fast 3G simulation
+- Monitor bundle size: CSS should stay under 50KB gzipped
+- Use Vite code splitting for route-based lazy loading
 
 **Warning signs:**
-- Delivery email body contains actual deliveryToken in URL
-- No distinction between email-safe tokens and download tokens
-- Tokens never expire
-- No rate limiting on delivery endpoints
-- Email templates hardcode full download URLs like `<a href="https://pixelforge.pro/delivery/abc123...">`
-- SMTP logs show full deliveryToken in click tracking
+- Lighthouse Performance score < 80
+- Bundle size > 500KB (uncompressed)
+- Initial page load > 3s on cable connection
+- Mobile LCP > 4s
+- Browser lag when scrolling large galleries
+- High bounce rate on slow connections
 
 **Phase to address:**
-Phase 4: Email Notifications (email integration must consider token security)
-
-**Sources:**
-- [Magic Link Security Best Practices](https://guptadeepak.com/mastering-magic-link-security-a-deep-dive-for-developers/) — Token exposure in email
-- [Link Sharing Best Practices](https://blog.box.com/link-sharing-best-practices) — Expiration and access controls
-- [The Dangers of Shared Links](https://www.varonis.com/blog/the-dangers-of-shared-links) — Link leakage patterns
+Phase 1 (Design System Setup) — establish performance budgets and image optimization standards
+Phase 2/3 (View Implementation) — implement lazy loading and optimization
+Phase 5 (Testing & Polish) — performance audit and optimization
 
 ---
 
-## Critical Pitfalls (v1.0 Foundation — Previously Documented)
-
-### Pitfall 9: Files Stored in Web-Accessible Directory
+### Pitfall 9: Tailwind Class Name Bloat
 
 **What goes wrong:**
-Photos uploaded to `backend/uploads/` are served directly by Apache via URL. Any person who knows — or guesses — the file path can download it without authentication or token check. All download-protection logic in PHP becomes irrelevant if the files themselves are directly reachable.
+Premium design requires complex responsive styles. Components accumulate 20+ Tailwind classes. Developer changes `text-sm` to `text-base` but misses 3 other instances. Inconsistent spacing (some buttons use `px-4 py-2`, others `px-6 py-3`). Readability suffers. Maintenance becomes nightmare.
+
+**Why it happens:**
+No component abstraction strategy. Copy-pasting Tailwind classes between components. No design tokens for common patterns. Conditional classes built with string concatenation (`'bg-' + color + '-500'`) breaking purge optimization.
 
 **How to avoid:**
-Store uploads *outside* the Apache document root or block direct access with `.htaccess`:
-```apache
-Options -Indexes
-deny from all
-```
-Serve every file through a PHP proxy script that validates token and status before `readfile()`.
+- Extract reusable components for common patterns (Button, Card, Input)
+- Use design tokens in Tailwind config for brand colors, spacing scales
+- Create CVA (class-variance-authority) variants for complex components
+- Use `cn()` helper (clsx + tailwind-merge) for conditional classes
+- Lint rule: warn if className exceeds 10 classes (extract to component)
+- Document component patterns in Storybook or design system docs
+
+**Warning signs:**
+- Components with 15+ Tailwind classes
+- Duplicate class combinations across files
+- String concatenation for dynamic classes
+- Inconsistent spacing/sizing across similar elements
+- Developer complaints: "hard to find where style is applied"
 
 **Phase to address:**
-Phase 1 (Photo Upload) — before any photos are uploaded to production.
+Phase 1 (Design System Setup) — create reusable component library and design tokens
+Phase 2/3 (View Implementation) — use components, not raw Tailwind classes
+Phase 5 (Testing & Polish) — refactor class bloat into components
 
 ---
 
-### Pitfall 10: PHP File Upload Accepting Dangerous Files
+### Pitfall 10: i18n Broken by Redesign
 
 **What goes wrong:**
-The upload handler trusts the MIME type sent by the browser (`$_FILES['file']['type']`). An attacker uploads a PHP file named `shell.php.jpg`. When served (if PHP execution is enabled in uploads directory), the attacker achieves remote code execution.
+New premium UI adds features but hardcodes English strings. Developer forgets to add translation keys to all three locale files (EN/LT/RU). Russian translations overflow buttons (Russian text 30% longer than English). RTL languages not considered. App crashes when switching to Lithuanian.
+
+**Why it happens:**
+i18n treated as afterthought, not design requirement. Testing only in English. No i18n checklist in PR reviews. No visual regression testing across locales. Designers create mockups with English text fitting perfectly, but other languages don't.
 
 **How to avoid:**
-- Validate MIME type server-side using `finfo_file()` (reads actual file magic bytes, not browser header)
-- Whitelist only: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
-- Strip the original filename entirely — generate random filename: `bin2hex(random_bytes(16)) . '.jpg'`
-- Add `php_flag engine off` to `backend/uploads/.htaccess` to disable PHP execution
+- Require `t('namespace.key')` in all user-facing strings (ESLint rule: no string literals in JSX)
+- PR checklist: "Added keys to all three locale files? (en.json, lt.json, ru.json)"
+- Design with longest text (usually German/Russian): add 30% width buffer for buttons
+- Test EVERY new screen in all three languages before merge
+- Use placeholders in designs: `{{translations.action.submit}}` not "Submit"
+- Set up visual regression testing (Percy, Chromatic) with locale matrix
+
+**Warning signs:**
+- English strings found in JSX (`<button>Submit</button>`)
+- Translation files out of sync (keys in en.json missing from lt.json)
+- Button text overflow in non-English locales
+- Console errors: "Missing translation key"
+- User complaints in specific language (LT/RU users report bugs EN users don't)
 
 **Phase to address:**
-Phase 1 (Photo Upload) — validate and harden before the first file is accepted.
-
----
-
-### Pitfall 11: Serving Full-Resolution Images in React Grid Viewer
-
-**What goes wrong:**
-The photo grid renders `<img src="/photo?id=...">` pointing to original uploaded files (5–25 MB each). Loading a collection of 80 photos triggers 80 parallel requests fetching gigabytes of data. Page hangs, mobile experience is broken, Hostinger bandwidth limits are hammered.
-
-**How to avoid:**
-Generate thumbnails on upload. Use GD (`imagecreatefromjpeg` + `imagecopyresampled`) to write `_thumb.jpg` at 400px wide. Grid always loads thumbnails; fullscreen lightbox loads original only when opened.
-
-**Phase to address:**
-Phase 1 (Photo Upload) — generate thumbnails at upload time. Retrofitting is expensive.
+Phase 1 (Design System Setup) — i18n requirements in component guidelines
+Phase 2/3 (View Implementation) — i18n validation in every PR
+Phase 5 (Testing & Polish) — multi-locale visual regression testing
 
 ---
 
 ## Technical Debt Patterns
 
+Shortcuts that seem reasonable but create long-term problems.
+
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Reuse shareId for delivery | No schema migration needed | Security holes, can't revoke delivery without breaking shares, permissions leak | **Never** — creates fundamental security flaw |
-| Use ZipArchive instead of ZipStream | Simpler code (native PHP) | Memory exhaustion, timeouts on large collections (50+ photos) | Only for MVP if collection size < 500MB AND user count < 10 |
-| Skip Range request support | 50 lines less code | Failed downloads for large files (>100MB), poor mobile UX | Only if all files < 10MB guaranteed |
-| Pre-generate ZIPs on DELIVERED transition | Instant downloads for clients | Disk space exhaustion, stale ZIPs when edited photos change | Acceptable if cleanup cron + storage monitoring implemented |
-| Log download on every request | Simple analytics, 3 lines of code | Inflated metrics (10x actual), meaningless reports, broken billing | **Never** — makes analytics worthless from day one |
-| Inline ZIP generation in API endpoint | No background job infrastructure | Timeouts (180s limit), no progress feedback, blocked requests | Only for collections < 100 photos AND Hostinger limits confirmed |
-| Store original filename in ZIP | Preserves client filenames | Zip Slip vulnerability, path traversal on extraction | Never — use sanitized sequential names |
-| Single-use deliveryToken | Simpler validation logic | Client can't re-download after 1st attempt | Only if explicitly designed as one-time download |
+| Copy-paste Tailwind classes instead of extracting components | Faster initial development (no abstraction overhead) | Inconsistent styles, hard to update globally, class bloat, poor maintainability | Never — always extract after 3rd duplicate |
+| Inline styles for complex responsive behavior | Easier than learning Tailwind responsive syntax | Breaks Tailwind purge optimization, inconsistent with design system, hard to maintain | Only for dynamic JS values (sidebar position, drag-and-drop) |
+| Skip performance budget on "small" redesign | Ship faster, avoid optimization work | Compound performance degradation, user experience suffers, hard to fix retroactively | Never — set budget upfront |
+| Use default Tailwind breakpoints | No config needed, start faster | Layout shifts at wrong screen sizes, awkward in-between states | Acceptable for MVPs, must customize for production |
+| Hardcode English strings "temporarily" | Faster prototyping, no i18n complexity | Breaks multi-language support, hard to find all instances later | Acceptable for throwaway prototypes, never in main branch |
+| Skip accessibility testing on redesign | Ship faster, focus on visual polish | Fails WCAG compliance, lawsuits, excludes users, poor SEO | Never — accessibility is not optional |
 
 ## Integration Gotchas
 
+Common mistakes when connecting to existing architecture.
+
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Existing shareId system | Assuming shareId can serve both selection AND delivery | Create separate deliveryToken with read-only permissions, different expiration |
-| Existing status lifecycle | Adding DOWNLOADED status without validating transitions | Only allow DELIVERED → DOWNLOADED, make it idempotent, prevent DOWNLOADED → earlier states |
-| File storage structure | Assuming backend/uploads/ structure supports ZIPs | Create separate backend/uploads/zips/ directory OR stream without temp files |
-| Session-based auth | Delivery downloads require session cookies | Delivery endpoints must work WITHOUT session — use token-only auth |
-| CORS configuration | Forgetting to allow Range headers in CORS | Add `Access-Control-Allow-Headers: Range, If-Range` to cors.php |
-| Collection.processedZipPath | Forgetting column already exists in schema | Use existing column, don't add duplicate; clean up old ZIPs when regenerating |
-| PHP ZipArchive on Hostinger | Calling `addFromString()` which loads file content into memory | Use `addFile($diskPath)` so ZipArchive streams from disk; set `set_time_limit(0)` |
+| React Router v7 | Using old v6 navigation patterns (`useNavigate()` without error boundaries) | Use v7 loader/action patterns, implement error boundaries for all routes |
+| Tailwind v3 arbitrary values | Using arbitrary values everywhere (`text-[13px]`) instead of design tokens | Define custom values in tailwind.config.js, use tokens for consistency |
+| react-i18next | Calling `t()` outside components or not wrapping with `<Suspense>` | Always use within components, wrap app in Suspense, use `useTranslation()` hook |
+| AuthContext | Checking `isAuthenticated()` as function instead of boolean | Use `isAuthenticated` as boolean (not a function) per CLAUDE.md |
+| Vite 5 | Importing CSS files in wrong order, causing Tailwind to not apply | Import CSS in main.jsx before any components, ensure PostCSS config correct |
+| PHP backend CORS | Forgetting `credentials: "include"` in fetch calls | Always include credentials for cross-domain session cookies |
 
 ## Performance Traps
 
+Patterns that work at small scale but fail as usage grows.
+
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Loading all photo paths into memory before ZIP | Script timeout, "memory exhausted" errors | Stream file entries one-by-one with ZipStream-PHP, process 1 file at a time | >50 photos OR >2GB total size |
-| Generating thumbnail for every photo in ZIP preview | Slow page load on delivery landing page | Use existing thumbnailPath column from Photo table (already generated at upload) | >100 photos in collection |
-| No progress indicator for ZIP generation | Users close browser, thinking it's frozen | Implement async job + polling endpoint OR streaming with chunked encoding | ZIP generation >30 seconds |
-| Checking download count on every request | Slow delivery page load (N+1 query problem) | Cache count in Collection.downloadCount column, update async via trigger | >1000 downloads tracked |
-| No index on Collection.deliveryToken | Slow delivery page load (full table scan) | Add UNIQUE index on deliveryToken column during migration | >10,000 collections |
-| Full-resolution images in photo grid | Grid page load > 5s; mobile browsers crash | Generate thumbnails on upload; serve `_thumb.jpg` in grid | 10+ photos at 5 MB each |
-| On-demand ZIP generation per request | Client waits 30–120 seconds; server returns 504 Gateway Timeout | Pre-generate ZIP on DELIVERED transition; store path in `processedZipPath`; serve pre-built file | 30+ edited photos |
+| Loading all collection photos upfront | 10-photo collections load fine (200ms), 500-photo collections freeze browser (15s+) | Implement virtual scrolling (react-window), lazy load images, pagination | > 100 photos per collection |
+| No image optimization | Works fine on fast WiFi, mobile users on 3G abandon before images load | Optimize to WebP, use srcset for responsive images, lazy load below fold | > 50KB per image, slow networks |
+| CSS bundle includes all Tailwind classes | Development bundle works (300KB), production builds slowly, users download unused CSS | Configure Tailwind purge correctly, split CSS by route, tree-shake unused classes | Production builds > 100KB CSS |
+| Re-rendering entire photo grid on selection state change | Works fine for 20 photos, lags with 200 photos | Use React.memo on PhotoCard, optimize context to prevent unnecessary re-renders | > 100 photos in grid |
+| No debouncing on search/filter | Works fine with fast typers, some users trigger 10 requests per second | Debounce search input (300ms), cancel previous requests | Any user typing quickly |
+| Loading all user collections in sidebar | Works for users with 5 collections, freezes for users with 100+ | Paginate collections, infinite scroll, or show "Recent 10" with "View All" link | > 50 collections per user |
 
 ## Security Mistakes
 
+Domain-specific security issues beyond general web security.
+
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Using predictable deliveryToken format | Token enumeration attack, unauthorized downloads | Use cryptographically random tokens: `bin2hex(random_bytes(32))` minimum (64 hex chars) |
-| No token expiration | Permanent access to photos via old delivery links | Add expiresAt check: refuse downloads if `NOW() > expiresAt` |
-| Delivery endpoints require authentication | Clients can't download without photographer account | Delivery must work with token-only auth, no session required |
-| Exposing internal collection IDs in delivery URLs | Enumeration of all collections via sequential IDs | Use opaque tokens, never expose database IDs in public URLs |
-| No rate limiting on delivery downloads | Bandwidth exhaustion, scraping attacks, DDOS | Limit downloads per token: 10/hour OR 100/day via rate limiting table |
-| Filename injection in ZIP entries | Path traversal on client extraction (Zip Slip) | Sanitize with `basename()`, use safe sequential names: `edited_001.jpg` |
-| Logging deliveryToken in server logs | Token leakage via log access (support staff, breaches) | Log only token prefix: `substr($token, 0, 8) . '...'` |
-| Photos accessible directly via URL without auth check | Anyone who learns the URL can download protected photos, bypassing stage-based protection | Block direct access with `.htaccess deny from all` in uploads/; serve via PHP proxy with status check |
-| Using collection `id` as share token | Internal IDs exposed; if ID format is predictable, collection enumeration possible | Use separate cryptographically random `shareId`: `bin2hex(random_bytes(24))` |
-| Trusting browser-supplied MIME type (`$_FILES['type']`) | Attackers upload PHP scripts disguised as JPEG files; remote code execution | Use `finfo_file()` on saved file; whitelist only image/* MIME types; disable PHP execution in uploads |
+| Client-side collection visibility check only | Malicious user views other photographers' private collections by changing URL | Always verify ownership in backend PHP (check `$_SESSION['user_id']` matches collection owner) |
+| Exposing photographer client email addresses in API responses | Privacy violation, GDPR non-compliance, photographer loses client trust | Filter sensitive fields in API responses, only return necessary data |
+| No rate limiting on photo upload endpoint | Malicious user uploads 10,000 photos, fills disk space, crashes server | Implement rate limiting (PHP: 10 uploads per minute per user), file size validation |
+| Session cookies not SameSite=None for cross-domain | CSRF vulnerability, session hijacking | Maintain SameSite=None, Secure, HttpOnly flags on session cookies (already correct per CLAUDE.md) |
+| Storing AWS/storage credentials in frontend env files | Credentials leak in git history, anyone can access photo storage | Use backend proxy for storage operations, never expose credentials to frontend |
+| No CSRF protection on state-changing operations | Attacker tricks photographer into deleting collections | Verify session token, use POST/PUT/DELETE appropriately, validate origin |
 
 ## UX Pitfalls
 
+Common user experience mistakes in photographer platforms.
+
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| No download size estimate before ZIP | Client starts download, realizes it's 5GB on mobile data, abandons | Display "Download size: 1.2 GB - Estimated time: 3 min on WiFi" before download button |
-| Generic "Download failed" error | Client doesn't know if it's their connection, server issue, or file corruption | Specific errors: "File too large for browser", "Connection timeout - resume supported", "Server timeout - try again" |
-| Forcing ZIP download for single photo | Client wants 1 photo, must download 500-photo ZIP (1GB) | Offer individual photo download + "Download all as ZIP" option |
-| No download progress for large ZIPs | Client thinks page froze, closes browser at 50% complete | Use streaming with chunked encoding + Content-Length header for browser progress bar |
-| Delivery link expires without warning | Client receives link Friday, tries to download Monday (expired Sunday), link dead | Email warning 3 days before expiration + "Extend link" button for photographer |
-| No mobile-friendly delivery page | Client can't download 2GB ZIP on phone, frustrated experience | Detect mobile, show warning: "Large download (2GB) - WiFi recommended. Mobile data may incur charges." |
-| No upload progress indication | Photographer thinks upload froze; refreshes page; loses partial progress | Track per-file upload progress with `XMLHttpRequest` `progress` event; display progress bar |
-| No confirmation when changing collection status | Photographer accidentally transitions from SELECTING to REVIEWING; client loses ability to change selections | Status transitions are one-way and irreversible; require explicit confirmation dialog with status explanation |
+| No loading states during photo upload | Photographer clicks "Upload," sees nothing, clicks again, duplicate upload | Show progress bar, upload count, disable button during upload, success confirmation |
+| Ambiguous collection status labels | "Selecting" vs "Reviewing" — client doesn't know what to do | Use explicit micro-copy: "Select Your Favorites" (active call-to-action) not just status labels |
+| No empty states in collections | Client sees blank screen, thinks it's broken | Design state-specific empty states: "No photos yet" vs "No selections yet" vs "All delivered" |
+| Forcing photographer to click through wizard every time | Every upload requires 5 steps, frustrating for repeat workflows | Progressive disclosure: wizard for first time, one-click upload for subsequent |
+| Selection UI not obvious on mobile | Heart icon too small, client doesn't know it's interactive | Larger touch targets (56x56px), show interaction hint on first visit, visual feedback on tap |
+| No confirmation before destructive actions | Photographer accidentally deletes collection with 500 photos | Modal confirmation for delete/archive, option to undo, trash/archive instead of hard delete |
+| Unclear photo delivery status | Client asks "did you send the photos?" — photographer unsure | Explicit status: "Delivered on Feb 14, 2026 at 3:42 PM" + delivery notification emails |
+| Auto-playing video/animations on every page load | Annoying, slows down workflow, drains battery on mobile | Animations only on first visit, user-controlled, respect prefers-reduced-motion |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **ZIP Generation:** Works with 5 test photos BUT fails with 100 production photos — verify with realistic dataset (50+ photos, 10MB each)
-- [ ] **Download Tracking:** Counts requests BUT double-counts resumed downloads — verify with `curl -r` range request simulation (should show 1 download, not 5)
-- [ ] **Token Security:** deliveryToken generated BUT uses shareId format (only 8 chars) — verify cryptographic randomness (32+ bytes, 64 hex chars)
-- [ ] **Error Handling:** Shows "Download ready" BUT ZIP generation failed silently — verify error state propagates to UI
-- [ ] **Status Transitions:** DELIVERED → DOWNLOADED works BUT DOWNLOADED → DELIVERED allowed — verify all invalid transitions rejected
-- [ ] **File Cleanup:** ZIP generated successfully BUT never deleted — verify cron job configured AND logs show cleanup runs
-- [ ] **Range Requests:** Download starts BUT can't resume after disconnect — verify 206 Partial Content response with `curl -r 0-1000`
-- [ ] **Email Security:** Delivery email sent BUT contains raw deliveryToken — verify two-step token approach or expiring email tokens
-- [ ] **Mobile UX:** Desktop download works BUT mobile times out or crashes — verify file size warnings and streaming implementation
-- [ ] **Expiration:** Token expiration set BUT not enforced in download endpoint — verify expired token returns 410 Gone, not 200 OK
-- [ ] **Token Separation:** Delivery route accepts deliveryToken BUT also accepts shareId — verify token type validation rejects wrong token type
-- [ ] **Race Conditions:** Single download updates status correctly BUT concurrent downloads cause errors — verify transaction isolation or conditional UPDATE
+Things that appear complete but are missing critical pieces.
+
+- [ ] **Responsive layouts:** Tested at in-between breakpoints (800px, 1100px, 1400px), not just standard breakpoints
+- [ ] **Touch targets:** Verified on actual mobile devices held one-handed, not just desktop browser resize
+- [ ] **i18n:** All three locale files updated (en.json, lt.json, ru.json), tested visual overflow in Russian
+- [ ] **Loading states:** Every async operation shows loading UI (uploads, API calls, navigation)
+- [ ] **Empty states:** Every list/grid has designed empty state (collections, photos, selections)
+- [ ] **Error states:** Every API call has error handling UI (network failure, validation errors, 500 errors)
+- [ ] **Accessibility:** Keyboard navigation works, screen reader tested, sufficient color contrast (WCAG AA)
+- [ ] **Performance budget:** Lighthouse score > 90, LCP < 2.5s, CLS < 0.1, bundle size within limits
+- [ ] **Cross-browser:** Tested in Chrome, Firefox, Safari, mobile Safari, mobile Chrome
+- [ ] **Workflow completion:** Full user journey tested end-to-end (upload → share → select → deliver) in all three languages
 
 ## Recovery Strategies
 
+When pitfalls occur despite prevention, how to recover.
+
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Shared shareId/deliveryToken | **HIGH** | 1. Add deliveryToken column 2. Migrate: generate deliveryToken for status=DELIVERED collections 3. Update all delivery endpoints 4. Email clients new links 5. Deprecate old share links for delivery |
-| ZipArchive memory exhaustion | **MEDIUM** | 1. `composer require maennchen/zipstream-php` 2. Rewrite ZIP generation with ZipStream 3. Remove ZipArchive code 4. Test with large collections 5. No data migration needed |
-| Double-counted downloads | **LOW** | 1. Add sessionId to DownloadLog 2. Add unique constraint (collectionId, sessionId, date) 3. Historical data can't be fixed — reset counts or accept inflated legacy data |
-| Missing Range support | **LOW** | 1. Add Range header handling to download script 2. Test with `curl -r` 3. No schema changes needed |
-| Disk exhaustion from temp ZIPs | **LOW** | 1. Configure cron: `0 2 * * * find /path/to/zips -mtime +30 -delete` 2. Clear existing temp files manually 3. Monitor disk usage |
-| Zip Slip vulnerability | **MEDIUM** | 1. Audit existing Photo.filename data for path traversal 2. Sanitize ZIP generation code with `basename()` 3. Run migration to clean filenames 4. Add upload validation |
-| Race condition on status update | **LOW** | 1. Wrap status updates in transactions with FOR UPDATE 2. Or use conditional UPDATE with WHERE clause 3. No schema changes needed |
-| Token in email logs | **HIGH** | 1. Implement two-step token system (emailToken → deliveryToken) 2. Generate new emailTokens for active deliveries 3. Re-send delivery emails 4. Deprecate direct deliveryToken URLs |
-| Files in web-accessible directory | **MEDIUM** | Add `deny from all` to `uploads/.htaccess` immediately; audit access logs for unauthorized direct-URL access; rotate any share tokens active during exposure |
-| PHP file execution in uploads | **CRITICAL** | Take site offline; remove all files in uploads/; add `php_flag engine off` to `.htaccess`; audit for webshell indicators; rotate all credentials |
+| Over-designed UI causing user confusion | HIGH (requires redesign iteration) | 1. Measure task completion times to quantify problem 2. User interviews to identify specific confusion points 3. Simplify progressively (remove animations, restore familiar patterns) 4. A/B test simplified version vs current 5. Gradual rollout of fixes |
+| Mobile-first destroying desktop experience | MEDIUM (layout refactor) | 1. Add desktop-specific layout variants 2. Implement CSS Grid for desktop (keep Flexbox for mobile) 3. Add density controls 4. Test on actual desktop monitors 5. Gradual rollout (power users first) |
+| Hidden navigation reducing discoverability | LOW (show navigation) | 1. Change desktop nav from hamburger to persistent sidebar 2. Update responsive breakpoint logic (hide < 768px, show >= 768px) 3. Add transition announcement in app 4. Monitor analytics for discoverability improvement |
+| Breaking existing workflow patterns | HIGH (requires migration plan) | 1. Provide "Classic Mode" toggle during transition 2. In-app tooltips highlighting changed patterns 3. Email announcement with video guide 4. Extended beta period for power users 5. Revert if adoption doesn't improve within 30 days |
+| Touch targets too small | LOW (CSS update) | 1. Audit all interactive elements for size 2. Update design tokens (minimum 44x44px) 3. Test on physical devices 4. Deploy fix immediately (no migration needed) |
+| Unclear workflow states | MEDIUM (add guidance) | 1. Design contextual help tooltips 2. Add empty states for each status 3. Improve micro-copy on CTAs 4. Add optional onboarding tour 5. Monitor support tickets for improvement |
+| Responsive breakpoint bugs | LOW (CSS fix) | 1. Identify problematic breakpoints via user reports 2. Test at in-between sizes 3. Adjust custom breakpoints or add intermediate steps 4. Use fluid grids instead of fixed breakpoints 5. Monitor CLS in production |
+| Image performance degradation | MEDIUM (optimization pipeline) | 1. Audit images for size/format 2. Set up WebP conversion pipeline 3. Implement lazy loading 4. Add virtual scrolling for large galleries 5. Monitor Lighthouse score for improvement |
+| Tailwind class bloat | MEDIUM (refactor to components) | 1. Identify most duplicated class combinations 2. Extract to reusable components 3. Create component library (Button, Card, Input) 4. Update existing code to use components 5. Lint rule to prevent future bloat |
+| i18n broken by redesign | MEDIUM (translation backfill) | 1. Audit codebase for hardcoded strings 2. Extract to translation keys 3. Add to all three locale files 4. Visual regression test in all languages 5. Add ESLint rule to prevent future hardcoding |
 
 ## Pitfall-to-Phase Mapping
 
+How roadmap phases should address these pitfalls.
+
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Token confusion (shareId reuse) | Phase 1: Separate Delivery Token | Query shows distinct shareId and deliveryToken for each DELIVERED collection |
-| ZIP timeout/memory limits | Phase 2: Server-Side ZIP Generation | Generate ZIP with 100 photos (10MB each) completes in <30 sec without errors |
-| Double-counting downloads | Phase 3: Download Tracking | Simulate 5 resumed downloads with curl -r, verify DownloadLog shows 1 entry |
-| Zip Slip vulnerability | Phase 2: Server-Side ZIP Generation | Upload photo with filename `../../test.jpg`, verify rejected OR sanitized to `test.jpg` |
-| Temp file exhaustion | Phase 5: Production Readiness | Cron log shows cleanup runs nightly, disk usage stable over 7 days of testing |
-| Missing Range support | Phase 2: Server-Side ZIP Generation | `curl -r 0-1000 <url>` returns 206 Partial Content with `Content-Range` header |
-| Race condition on status | Phase 3: Download Tracking | Simulate 10 concurrent PATCH requests, verify single status update via logs |
-| Token in email logs | Phase 4: Email Notifications | Email body inspection shows NO deliveryToken in URLs, only emailToken |
-| No download size estimate | Phase 4: Email Notifications + Phase 2 | Delivery page shows "Download size: X GB" before download button |
-| No mobile warnings | Phase 5: Production Readiness (UI polish) | Mobile browser shows "Large file - WiFi recommended" for >100MB downloads |
+| Over-design masking usability | Phase 1 (Design System Setup), Phase 5 (Testing) | Measure task completion times before/after, user testing sessions |
+| Mobile-first destroying desktop | Phase 1 (Design System), Phase 3 (Desktop Views) | Test on actual desktop monitors (1920x1080, 2560x1440) |
+| Hidden navigation on desktop | Phase 1 (Design System), Phase 3 (Desktop Views) | Navigation discoverability testing (can users find all sections?) |
+| Breaking workflow patterns | Phase 0 (Pre-Research), Phase 5 (Testing) | Beta testing with existing power users, support ticket monitoring |
+| Touch targets too small | Phase 1 (Design System), Phase 2 (Mobile Views) | Physical device testing (one-handed, with gloves if outdoor photography) |
+| Unclear workflow states | Phase 1 (Design System), Phase 4 (Components) | New user testing (can they complete workflow without help?) |
+| Responsive breakpoint bugs | Phase 1 (Design System), Phase 5 (Testing) | Test at in-between sizes, monitor CLS in production |
+| Image performance degradation | Phase 1 (Design System), Phase 5 (Testing) | Lighthouse Performance score > 90, LCP < 2.5s, bundle size check |
+| Tailwind class bloat | Phase 1 (Design System), Phase 2/3 (Implementation) | Code review: warn if className > 10 classes, extract to component |
+| i18n broken by redesign | Phase 1 (Design System), Phase 2/3 (Implementation) | PR checklist: keys added to all locale files, visual test in all languages |
 
 ## Sources
 
-### High Confidence (Official Docs + Technical Sources)
-- [ZipStream-PHP Memory Issues Discussion](https://github.com/maennchen/ZipStream-PHP/discussions/185) — Memory exhaustion patterns with 300+ files
-- [PHP ZipArchive vs ZipStream Performance](https://github.com/maennchen/ZipStream-PHP/issues/40) — Architecture decision rationale for streaming
-- [Hostinger PHP Memory Limits](https://www.hostinger.com/support/1583711-what-is-php-memory-limit-at-hostinger/) — Fixed per-plan memory limits, can only decrease
-- [Hostinger PHP Time Limits](https://www.hostinger.com/tutorials/how-to-fix-maximum-execution-time-exceeded-error-wordpress) — max_execution_time = 180s maximum via ToS
-- [Zip Slip Vulnerability (Snyk)](https://security.snyk.io/research/zip-slip-vulnerability) — Path traversal attack patterns in ZIP extraction
-- [Zip Path Traversal (Android)](https://developer.android.com/privacy-and-security/risks/zip-path-traversal) — ZIP entry sanitization
-- [HTTP Range Requests (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests) — 206 Partial Content official spec
-- [Database Race Conditions Catalog](https://www.ketanbhatt.com/p/db-concurrency-defects) — Transaction isolation patterns
-- [Transactional Locking](https://sqlfordevs.com/transaction-locking-prevent-race-condition) — FOR UPDATE usage in MySQL
-- [HTTP 206 Partial Content Guide](https://apidog.com/blog/status-code-206-partial-content/) — Implementation examples
-- [CVE-2026-22685 DevToys](https://github.com/DevToys-app/DevToys/security/advisories/GHSA-ggxr-h6fm-p2qh) — Recent 2026 path traversal in ZIP
+**General UX Design Pitfalls:**
+- [13 UX Design Mistakes You Should Avoid in 2026](https://www.wearetenet.com/blog/ux-design-mistakes)
+- [11 Common UI/UX Design Mistakes (and How to Fix Them)](https://www.ideapeel.com/blogs/ui-ux-design-mistakes-how-to-fix-them)
 
-### Medium Confidence (Industry Best Practices)
-- [Photo Delivery Guide for Professional Photographers](https://www.sendphoto.io/blog/client-photo-delivery-guide-professional-photographers) — UX expectations for delivery
-- [How to Deliver Photos Without Losing Quality](https://fotoowl.ai/blogs/how-to-deliver-photos-to-clients-without-compromising-quality) — Download UX patterns
-- [GA4 Download Tracking Duplicate Events](https://www.analyticsmania.com/post/duplicate-events-in-google-analytics-4-and-how-to-fix-them/) — Double-counting prevention in analytics
-- [How to Track File Downloads in GA4](https://www.analyticsmania.com/post/track-file-downloads-with-google-analytics-4/) — Deduplication strategies
-- [Token Best Practices (Auth0)](https://auth0.com/docs/secure/tokens/token-best-practices) — Token security patterns
-- [Key Approaches to Token Sharing (Curity)](https://curity.io/resources/learn/token-sharing/) — Token exchange vs embedded
-- [Magic Link Security Best Practices](https://guptadeepak.com/mastering-magic-link-security-a-deep-dive-for-developers/) — Token exposure in email
-- [Link Sharing Best Practices (Box)](https://blog.box.com/link-sharing-best-practices) — Expiration and access controls
-- [Cron Job Storage Cleanup](https://www.hostinger.com/tutorials/cron-job) — Automated file cleanup strategies
-- [Apache Byte-Ranges for Resumable Downloads](https://linux.goeszen.com/apache-and-byte-ranges-for-resumable-downloads.html) — Server configuration
+**SaaS Redesign & User Disruption:**
+- [UI Redesign in SaaS: Business Value, Costs, and Execution Plan [2026]](https://www.thefrontendcompany.com/posts/ui-redesign)
+- [SaaS Product Redesign: How to Avoid User Disruptions](https://whatfix.com/blog/saas-product-redesign/)
+- [11 Best Practices for SaaS Product Redesign Projects](https://userguiding.com/blog/best-practices-saas-product-redesign)
 
-### Project-Specific Observations
-- Existing v1.0 shareId system: Single token serves selection AND viewing (share.php lines 72-94)
-- Collection schema already includes `processedZipPath` column (database_schema.sql line 74) — suggests pre-generation was considered
-- No expiration enforcement in share.php (expiresAt column exists but not validated in handler)
-- Hostinger shared hosting confirmed via project context (max_execution_time and memory_limit constraints apply)
-- No deliveryToken column exists yet — integration pitfall risk is HIGH
+**Mobile-First & Responsive Design:**
+- [The Negative Impact of Mobile-First Web Design on Desktop](https://www.nngroup.com/articles/content-dispersion/)
+- [Mobile First Design: How to Create the Best UX Strategy in 2026](https://wpbrigade.com/mobile-first-design-strategy/)
+- [Responsive Web Design in 2026: Why Mobile-First UX Drives SEO & Conversions](https://www.alfdesigngroup.com/post/responsive-web-design-why-mobile-first-ux)
+
+**Photographer Platform Workflows:**
+- [Finding the Best Client Gallery for Photographers in 2026](https://imagen-ai.com/valuable-tips/best-client-gallery-for-photographers/)
+- [Best Client Gallery Platforms for Photographers (2026)](https://turtlepic.com/blog/best-client-gallery-platforms-for-photographers/)
+- [How Technology Saves Time and Reduces Errors - Perfect Selection Workflow](https://www.moodcase.io/blog/perfect-selection-workflow-photographers)
+
+**React & Tailwind CSS:**
+- [Top Tailwind CSS Common Mistakes and How to Fix Them](https://heliuswork.com/blogs/tailwind-css-common-mistakes/)
+- [Frontend Handbook | React / Tailwind / Best practices](https://infinum.com/handbook/frontend/react/tailwind/best-practices)
+- [Tailwind CSS v4: The Complete Guide for 2026](https://devtoolbox.dedyn.io/blog/tailwind-css-v4-complete-guide)
+
+**Over-Design & Minimalism:**
+- [The Dark Side of Minimalism: When 'Clean' UI Becomes Confusing](https://medium.com/@shrutitddinesh/the-dark-side-of-minimalism-when-clean-ui-becomes-confusing-d27ce1b0894d)
+- [7 UI Pitfalls Mobile App Developers Should Avoid in 2026](https://www.webpronews.com/7-ui-pitfalls-mobile-app-developers-should-avoid-in-2026/)
+- [Why Minimalist UI Design in 2026 Is Built for Speed, Clarity & Conversions](https://www.anctech.in/blog/explore-how-minimalist-ui-design-in-2026-focuses-on-performance-accessibility-and-content-clarity-learn-how-clean-interfaces-subtle-interactions-and-data-driven-layouts-create-better-user-experie/)
+
+**Workflow Guidance & State Management:**
+- [Product UI/UX for Complex SaaS Platforms](https://uitop.design/blog/product-design-for-complex-saas-platforms/)
+- [10 AI-Driven UX Patterns Transforming SaaS in 2026](https://www.orbix.studio/blogs/ai-driven-ux-patterns-saas-2026)
+- [SaaS UX Design: The Ultimate Guide](https://www.userflow.com/blog/saas-ux-design-the-ultimate-guide-to-creating-exceptional-user-experiences)
+
+**Touch Targets & Mobile Interaction:**
+- [Touch Targets on Touchscreens - Nielsen Norman Group](https://www.nngroup.com/articles/touch-target-size/)
+- [Mobile Accessibility Target Sizes Cheatsheet](https://smart-interface-design-patterns.com/articles/accessible-tap-target-sizes/)
+- [How to Design for Touch Interactions in Mobile-First Design](https://blog.pixelfreestudio.com/how-to-design-for-touch-interactions-in-mobile-first-design/)
+
+**Desktop Whitespace & Screen Real Estate:**
+- [Designing Better Applications with White Space](https://www.truematter.com/ideas/post/designing-better-applications-with-white-space)
+- [Utilize Available Screen Real Estate - Nielsen Norman Group](https://www.nngroup.com/articles/utilize-available-screen-space/)
+- [It's whitespace. There's wayyyy too much god damn whitespace in modern UIs - Hacker News](https://news.ycombinator.com/item?id=36683253)
+
+**Responsive Breakpoints:**
+- [Responsive design - Core concepts - Tailwind CSS](https://tailwindcss.com/docs/responsive-design)
+- [Tailwind CSS Grid Template Columns: Practical Patterns for 2026 Layouts](https://thelinuxcode.com/tailwind-css-grid-template-columns-practical-patterns-for-2026-layouts/)
+
+**Navigation Patterns:**
+- [Hamburger Menus and Hidden Navigation Hurt UX Metrics - Nielsen Norman Group](https://www.nngroup.com/articles/hamburger-menus/)
+- [Avoid the Hamburger Menu for Desktop Layouts - Adrian Roselli](https://adrianroselli.com/2016/01/avoid-the-hamburger-menu-for-desktop-layouts.html)
+- [Should You Avoid Hamburger Menus on Desktop Websites?](https://www.flowmatters.com/blog/should-you-avoid-hamburger-menus-on-desktop-websites/)
 
 ---
-
-*Pitfalls research for: Photo Hub v2.0 Delivery and Download Features (extending v1.0 selection workflow)*
-*Original v1.0 research: 2026-02-11*
-*Updated for v2.0 delivery features: 2026-02-13*
+*Pitfalls research for: Photo Hub photographer platform UI/UX redesign*
+*Researched: 2026-02-14*
+*Confidence: HIGH (verified with official sources, Nielsen Norman Group research, 2026 industry best practices)*
