@@ -174,7 +174,11 @@
     "editedUploadZoneHint": "JPEG, PNG or WEBP · Max 20 MB per file",
     "editedUploadSuccess": "Edited photos uploaded!",
     "markAsDelivered": "Mark as Delivered",
-    "markedAsDelivered": "Collection marked as delivered!"
+    "markedAsDelivered": "Collection marked as delivered!",
+    "copyDeliveryLink": "Copy delivery link",
+    "deliveryLinkCopied": "Delivery link copied!",
+    "deliveryTokenMissing": "Delivery link not available yet.",
+    "linkCopyFailed": "Failed to copy link. Please try again."
   },
   "share": {
     "loading": "Loading gallery...",

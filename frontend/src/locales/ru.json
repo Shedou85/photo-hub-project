@@ -176,7 +176,11 @@
     "editedUploadZoneHint": "JPEG, PNG или WEBP · Макс. 20 МБ на файл",
     "editedUploadSuccess": "Готовые файлы загружены!",
     "markAsDelivered": "Отметить как доставлено",
-    "markedAsDelivered": "Коллекция отмечена как доставленная!"
+    "markedAsDelivered": "Коллекция отмечена как доставленная!",
+    "copyDeliveryLink": "Скопировать ссылку доставки",
+    "deliveryLinkCopied": "Ссылка доставки скопирована!",
+    "deliveryTokenMissing": "Ссылка доставки еще не готова.",
+    "linkCopyFailed": "Не удалось скопировать ссылку. Попробуйте еще раз."
   },
   "share": {
     "loading": "Загрузка галереи...",

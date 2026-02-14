@@ -258,6 +258,7 @@ function CollectionsListPage() {
                       collection.status === 'SELECTING' ? 'bg-blue-100 text-blue-700' :
                       collection.status === 'REVIEWING' ? 'bg-green-100 text-green-700' :
                       collection.status === 'DELIVERED' ? 'bg-purple-100 text-purple-700' :
+                      collection.status === 'DOWNLOADED' ? 'bg-purple-200 text-purple-800' :
                       'bg-gray-100 text-gray-600'
                     }`}>
                       {t(`collections.status.${collection.status}`)}

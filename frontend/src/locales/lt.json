@@ -176,7 +176,11 @@
     "editedUploadZoneHint": "JPEG, PNG arba WEBP · Maks. 20 MB failui",
     "editedUploadSuccess": "Galutiniai failai įkelti!",
     "markAsDelivered": "Pažymėti kaip pristatyta",
-    "markedAsDelivered": "Kolekcija pažymėta kaip pristatyta!"
+    "markedAsDelivered": "Kolekcija pažymėta kaip pristatyta!",
+    "copyDeliveryLink": "Kopijuoti pristatymo nuorodą",
+    "deliveryLinkCopied": "Pristatymo nuoroda nukopijuota!",
+    "deliveryTokenMissing": "Pristatymo nuoroda dar neparuošta.",
+    "linkCopyFailed": "Nepavyko nukopijuoti nuorodos. Bandykite dar kartą."
   },
   "share": {
     "loading": "Kraunama galerija...",

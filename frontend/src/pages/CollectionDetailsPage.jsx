@@ -458,6 +458,19 @@ function CollectionDetailsPage() {
     });
   };
 
+  const handleCopyDeliveryLink = () => {
+    if (!collection.deliveryToken) {
+      toast.error(t('collection.deliveryTokenMissing'));
+      return;
+    }
+    const url = `${window.location.origin}/deliver/${collection.deliveryToken}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(t('collection.deliveryLinkCopied'));
+    }).catch(() => {
+      toast.error(t('collection.linkCopyFailed'));
+    });
+  };
+
   const handleStartSelecting = async () => {
     try {
       const res = await fetch(
@@ -599,6 +612,7 @@ function CollectionDetailsPage() {
               collection.status === 'SELECTING' ? 'bg-blue-100 text-blue-700' :
               collection.status === 'REVIEWING' ? 'bg-green-100 text-green-700' :
               collection.status === 'DELIVERED' ? 'bg-purple-100 text-purple-700' :
+              collection.status === 'DOWNLOADED' ? 'bg-purple-200 text-purple-800' :
               'bg-gray-100 text-gray-600'
             }`}>
               {t(`collection.status.${collection.status}`)}
@@ -654,6 +668,17 @@ function CollectionDetailsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               {t('collection.markAsDelivered')}
+            </button>
+          )}
+          {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && collection.deliveryToken && (
+            <button
+              onClick={handleCopyDeliveryLink}
+              className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#10b981,#059669)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              {t('collection.copyDeliveryLink')}
             </button>
           )}
         </div>
