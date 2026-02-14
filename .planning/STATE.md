@@ -60,6 +60,8 @@ Recent decisions affecting current work:
 - Anchor-click download pattern — frontend uses createElement('a') + click(), server Content-Disposition headers trigger download (no fetch/blob workaround needed) (07-01)
 - EditedPhoto-only delivery endpoint — backend queries EditedPhoto table exclusively; clients never see proof photos (Photo table) in delivery interface (08-01)
 - Empty subRoute check before switch — /deliver/{token} route handler checks for empty subRoute BEFORE switch statement to prevent 404 default case collision (08-01)
+- Language selector on public pages — DeliveryPage includes LT/EN/RU buttons (absolute positioned) for client language preference; no reliance on localStorage in public context (08-01 verification fix)
+- Download button positioning — grid hover shows corner button (bottom-right) with pointer-events-none overlay; prevents full-photo coverage that blocked lightbox clicks (08-01 verification fix)
 
 ### Pending Todos
 
@@ -74,7 +76,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed Phase 8 (Client Delivery Interface). Created public delivery page with gallery, lightbox, ZIP downloads, and individual photo downloads. Ready for Phase 9 (Photographer Dashboard Enhancements).
+Stopped at: Completed Phase 8 (Client Delivery Interface) with full verification. Created public delivery page with gallery, lightbox, ZIP downloads, and individual photo downloads. Applied 4 bug fixes during human verification (DB migration, language selector, DOWNLOADED translations, lightbox interaction). All 10 verification scenarios passed. Ready for Phase 9 (Photographer Dashboard Integration).
 Resume file: None
 
 ## v2.0 Milestone Overview

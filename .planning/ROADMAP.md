@@ -77,7 +77,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 08-01-PLAN.md — Backend delivery view endpoint + DeliveryPage component with gallery, lightbox, downloads, and i18n
+- [x] 08-01-PLAN.md — Backend delivery view endpoint + DeliveryPage component with gallery, lightbox, downloads, and i18n
 
 #### Phase 9: Photographer Dashboard Integration
 **Goal**: Integrate delivery management into photographer workflow
@@ -122,9 +122,9 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9 → 10
 | 5. Delivery Infrastructure | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 6. Server-Side ZIP Downloads | v2.0 | 1/1 | Complete | 2026-02-13 |
 | 7. Individual Photo Downloads | v2.0 | 1/1 | Complete | 2026-02-14 |
-| 8. Client Delivery Interface | v2.0 | 0/TBD | Not started | - |
+| 8. Client Delivery Interface | v2.0 | 1/1 | Complete | 2026-02-14 |
 | 9. Photographer Dashboard Integration | v2.0 | 0/TBD | Not started | - |
 | 10. UI Polish & Refinement | v2.0 | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-14 after Phase 7 completion*
+*Last updated: 2026-02-14 after Phase 8 completion*
