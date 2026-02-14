@@ -207,5 +207,22 @@
     "subtitle": "Sąskaitų ir mokėjimų istorija",
     "historyTitle": "Mokėjimų istorija",
     "noPayments": "Šiuo metu mokėjimų nėra."
+  },
+  "delivery": {
+    "loading": "Kraunama galerija...",
+    "notFound": "Šis pristatymo puslapis nerastas arba nuoroda galimai nebegalioja.",
+    "notReady": "Ši kolekcija dar neparuošta pristatymui. Prašome patikrinti vėliau.",
+    "error": "Įvyko klaida įkeliant galeriją.",
+    "photosCount_one": "{{count}} nuotrauka",
+    "photosCount_few": "{{count}} nuotraukos",
+    "photosCount_many": "{{count}} nuotraukų",
+    "photosCount_other": "{{count}} nuotraukų",
+    "downloadAllAsZip": "Atsisiųsti viską kaip ZIP",
+    "downloadPhoto": "Atsisiųsti nuotrauką",
+    "noPhotos": "Nėra nuotraukų atsisiuntimui.",
+    "poweredBy": "Variklis: PixelForge",
+    "lightboxClose": "Uždaryti",
+    "lightboxPrev": "Ankstesnė nuotrauka",
+    "lightboxNext": "Kita nuotrauka"
   }
 }

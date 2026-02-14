@@ -207,5 +207,22 @@
     "subtitle": "История счетов и платежей",
     "historyTitle": "История платежей",
     "noPayments": "Платежей пока нет."
+  },
+  "delivery": {
+    "loading": "Загрузка галереи...",
+    "notFound": "Эта страница доставки не найдена или ссылка могла истечь.",
+    "notReady": "Эта коллекция еще не готова к доставке. Пожалуйста, проверьте позже.",
+    "error": "Произошла ошибка при загрузке галереи.",
+    "photosCount_one": "{{count}} фото",
+    "photosCount_few": "{{count}} фото",
+    "photosCount_many": "{{count}} фото",
+    "photosCount_other": "{{count}} фото",
+    "downloadAllAsZip": "Скачать все как ZIP",
+    "downloadPhoto": "Скачать фото",
+    "noPhotos": "Нет фотографий для скачивания.",
+    "poweredBy": "Работает на PixelForge",
+    "lightboxClose": "Закрыть",
+    "lightboxPrev": "Предыдущее фото",
+    "lightboxNext": "Следующее фото"
   }
 }

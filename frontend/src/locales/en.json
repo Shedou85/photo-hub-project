@@ -201,5 +201,20 @@
     "subtitle": "Billing & payment history",
     "historyTitle": "Payment History",
     "noPayments": "No payments at this time."
+  },
+  "delivery": {
+    "loading": "Loading gallery...",
+    "notFound": "This delivery page could not be found or the link may have expired.",
+    "notReady": "This collection is not ready for delivery yet. Please check back later.",
+    "error": "An error occurred while loading the gallery.",
+    "photosCount_one": "{{count}} photo",
+    "photosCount_other": "{{count}} photos",
+    "downloadAllAsZip": "Download All as ZIP",
+    "downloadPhoto": "Download Photo",
+    "noPhotos": "No photos available for download.",
+    "poweredBy": "Powered by PixelForge",
+    "lightboxClose": "Close",
+    "lightboxPrev": "Previous photo",
+    "lightboxNext": "Next photo"
   }
 }
