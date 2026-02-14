@@ -107,13 +107,68 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| *(Will be populated by roadmapper)* | | |
+| DESIGN-01 | Phase 11 | Pending |
+| DESIGN-02 | Phase 11 | Pending |
+| DESIGN-03 | Phase 11 | Pending |
+| DESIGN-04 | Phase 11 | Pending |
+| DESIGN-05 | Phase 11 | Pending |
+| DESIGN-06 | Phase 11 | Pending |
+| DESIGN-07 | Phase 11 | Pending |
+| COMP-01 | Phase 12 | Pending |
+| COMP-02 | Phase 12 | Pending |
+| COMP-03 | Phase 12 | Pending |
+| COMP-04 | Phase 12 | Pending |
+| COMP-05 | Phase 12 | Pending |
+| COMP-06 | Phase 12 | Pending |
+| COMP-07 | Phase 12 | Pending |
+| LAYOUT-01 | Phase 13 | Pending |
+| LAYOUT-02 | Phase 13 | Pending |
+| LAYOUT-03 | Phase 13 | Pending |
+| LAYOUT-04 | Phase 13 | Pending |
+| LAYOUT-05 | Phase 13 | Pending |
+| LAYOUT-06 | Phase 13 | Pending |
+| LAYOUT-07 | Phase 13 | Pending |
+| CARDS-01 | Phase 14 | Pending |
+| CARDS-02 | Phase 14 | Pending |
+| CARDS-03 | Phase 14 | Pending |
+| CARDS-04 | Phase 14 | Pending |
+| CARDS-05 | Phase 14 | Pending |
+| QUALITY-05 | Phase 14 | Pending |
+| QUALITY-07 | Phase 14 | Pending |
+| QUALITY-08 | Phase 14 | Pending |
+| WORKFLOW-01 | Phase 15 | Pending |
+| WORKFLOW-02 | Phase 15 | Pending |
+| WORKFLOW-03 | Phase 15 | Pending |
+| WORKFLOW-04 | Phase 15 | Pending |
+| WORKFLOW-05 | Phase 15 | Pending |
+| WORKFLOW-06 | Phase 15 | Pending |
+| WORKFLOW-07 | Phase 15 | Pending |
+| WORKFLOW-08 | Phase 15 | Pending |
+| WORKFLOW-09 | Phase 15 | Pending |
+| QUALITY-06 | Phase 15 | Pending |
+| TEST-01 | Phase 16 | Pending |
+| TEST-02 | Phase 16 | Pending |
+| TEST-03 | Phase 16 | Pending |
+| TEST-04 | Phase 16 | Pending |
+| TEST-05 | Phase 16 | Pending |
+| QUALITY-01 | Phase 16 | Pending |
+| QUALITY-02 | Phase 16 | Pending |
+| QUALITY-03 | Phase 16 | Pending |
+| QUALITY-04 | Phase 16 | Pending |
 
 **Coverage:**
-- v3.0 requirements: TBD total
-- Mapped to phases: TBD
-- Unmapped: TBD
+- v3.0 requirements: 48 total
+- Mapped to phases: 48/48 (100%)
+- Unmapped: 0
+
+**Phase mapping:**
+- Phase 11 (Design System Foundation): 7 requirements
+- Phase 12 (Primitive Component Library): 7 requirements
+- Phase 13 (Responsive Layout Refactor): 7 requirements
+- Phase 14 (Collection Cards & Simple Pages): 8 requirements
+- Phase 15 (Workflow Enhancement): 10 requirements
+- Phase 16 (Testing & QA): 9 requirements
 
 ---
 *Requirements defined: 2026-02-14*
-*Last updated: 2026-02-14 after research phase*
+*Last updated: 2026-02-14 after v3.0 roadmap creation*
