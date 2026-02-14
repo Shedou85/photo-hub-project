@@ -180,7 +180,11 @@
     "copyDeliveryLink": "Скопировать ссылку доставки",
     "deliveryLinkCopied": "Ссылка доставки скопирована!",
     "deliveryTokenMissing": "Ссылка доставки еще не готова.",
-    "linkCopyFailed": "Не удалось скопировать ссылку. Попробуйте еще раз."
+    "linkCopyFailed": "Не удалось скопировать ссылку. Попробуйте еще раз.",
+    "addMorePhotos": "Добавить ещё фото",
+    "sharePhase": "Поделиться",
+    "reviewPhase": "Проверка",
+    "deliverPhase": "Доставка"
   },
   "share": {
     "loading": "Загрузка галереи...",

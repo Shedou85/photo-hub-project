@@ -178,7 +178,11 @@
     "copyDeliveryLink": "Copy delivery link",
     "deliveryLinkCopied": "Delivery link copied!",
     "deliveryTokenMissing": "Delivery link not available yet.",
-    "linkCopyFailed": "Failed to copy link. Please try again."
+    "linkCopyFailed": "Failed to copy link. Please try again.",
+    "addMorePhotos": "Add More Photos",
+    "sharePhase": "Share",
+    "reviewPhase": "Review",
+    "deliverPhase": "Deliver"
   },
   "share": {
     "loading": "Loading gallery...",

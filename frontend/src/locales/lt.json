@@ -180,7 +180,11 @@
     "copyDeliveryLink": "Kopijuoti pristatymo nuorodą",
     "deliveryLinkCopied": "Pristatymo nuoroda nukopijuota!",
     "deliveryTokenMissing": "Pristatymo nuoroda dar neparuošta.",
-    "linkCopyFailed": "Nepavyko nukopijuoti nuorodos. Bandykite dar kartą."
+    "linkCopyFailed": "Nepavyko nukopijuoti nuorodos. Bandykite dar kartą.",
+    "addMorePhotos": "Pridėti daugiau nuotraukų",
+    "sharePhase": "Bendrinimas",
+    "reviewPhase": "Peržiūra",
+    "deliverPhase": "Pristatymas"
   },
   "share": {
     "loading": "Kraunama galerija...",

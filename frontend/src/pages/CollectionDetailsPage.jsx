@@ -636,52 +636,82 @@ function CollectionDetailsPage() {
             value={t(`collection.status.${collection.status}`)}
           />
         </div>
-        <div className="mt-4 flex gap-3">
-          <button
-            onClick={handleCopyShareLink}
-            className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            {t("collection.copyShareLink")}
-          </button>
-          {collection.status === 'DRAFT' && (
+      </div>
+
+      {/* ── Actions Card with Workflow Phases ── */}
+      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5 space-y-4">
+        {/* Share section (always visible) */}
+        <div>
+          <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+            {t('collection.sharePhase')}
+          </h3>
+          <div className="flex gap-3 flex-wrap">
             <button
-              onClick={handleStartSelecting}
+              onClick={handleCopyShareLink}
               className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
             >
-              {t('collection.startSelecting')}
-            </button>
-          )}
-          {collection.status === 'REVIEWING' && (
-            <button
-              onClick={handleMarkAsDelivered}
-              disabled={editedPhotos.length === 0}
-              className={`inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 ${
-                editedPhotos.length > 0
-                  ? 'bg-[linear-gradient(135deg,#10b981,#059669)] hover:opacity-[0.88]'
-                  : 'bg-gray-300 cursor-not-allowed opacity-60'
-              }`}
-            >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              {t('collection.markAsDelivered')}
+              {t("collection.copyShareLink")}
             </button>
-          )}
-          {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && collection.deliveryToken && (
-            <button
-              onClick={handleCopyDeliveryLink}
-              className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#10b981,#059669)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              {t('collection.copyDeliveryLink')}
-            </button>
-          )}
+            {collection.status === 'DRAFT' && (
+              <button
+                onClick={handleStartSelecting}
+                className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+              >
+                {t('collection.startSelecting')}
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Review section (only when REVIEWING) */}
+        {collection.status === 'REVIEWING' && (
+          <div>
+            <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t('collection.reviewPhase')}
+            </h3>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={handleMarkAsDelivered}
+                disabled={editedPhotos.length === 0}
+                className={`inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 ${
+                  editedPhotos.length > 0
+                    ? 'bg-[linear-gradient(135deg,#10b981,#059669)] hover:opacity-[0.88]'
+                    : 'bg-gray-300 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                {t('collection.markAsDelivered')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Deliver section (only when DELIVERED or DOWNLOADED) */}
+        {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && (
+          <div>
+            <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t('collection.deliverPhase')}
+            </h3>
+            <div className="flex gap-3 flex-wrap">
+              {collection.deliveryToken && (
+                <button
+                  onClick={handleCopyDeliveryLink}
+                  className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#10b981,#059669)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  {t('collection.copyDeliveryLink')}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Upload Card ── */}
@@ -695,47 +725,61 @@ function CollectionDetailsPage() {
           )}
         </h2>
 
-        {/* Drop zone */}
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label={t("collection.uploadZoneLabel")}
-          onClick={() => fileInputRef.current?.click()}
-          onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          className={`border-2 border-dashed rounded-[10px] flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none
-            ${dragOver
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
-            }`}
-        >
-          <svg className={`w-9 h-9 ${dragOver ? "text-blue-500" : "text-gray-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-          </svg>
-          <p className="m-0 text-sm font-medium text-gray-600">
-            {t("collection.uploadZoneLabel")}
+        {/* Progressive disclosure: show full dropzone when empty, compact button when has photos */}
+        {photos.length === 0 ? (
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t("collection.uploadZoneLabel")}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={`border-2 border-dashed rounded-[10px] flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none
+              ${dragOver
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
+              }`}
+          >
+            <svg className={`w-9 h-9 ${dragOver ? "text-blue-500" : "text-gray-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <p className="m-0 text-sm font-medium text-gray-600">
+              {t("collection.uploadZoneLabel")}
+            </p>
+            <p className="m-0 text-xs text-gray-400">
+              {t("collection.uploadZoneHint")}
+            </p>
+          </div>
+        ) : (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-[6px] hover:bg-blue-100 transition-colors cursor-pointer font-sans"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            {t('collection.addMorePhotos')}
+          </button>
+        )}
+
+        {/* Upload status indicators (always shown when active) */}
+        {anyUploading && (
+          <p className="mt-3 mb-0 text-xs text-blue-600 font-medium animate-pulse">
+            {t("collection.uploading")}
           </p>
-          <p className="m-0 text-xs text-gray-400">
-            {t("collection.uploadZoneHint")}
+        )}
+        {uploadErrors > 0 && !anyUploading && (
+          <p className="mt-3 mb-0 text-xs text-red-500 font-medium">
+            {uploadErrors}x {t("collection.uploadError")}
           </p>
-          {anyUploading && (
-            <p className="m-0 text-xs text-blue-600 font-medium animate-pulse">
-              {t("collection.uploading")}
-            </p>
-          )}
-          {uploadErrors > 0 && !anyUploading && (
-            <p className="m-0 text-xs text-red-500 font-medium">
-              {uploadErrors}x {t("collection.uploadError")}
-            </p>
-          )}
-          {validationErrors > 0 && !anyUploading && (
-            <p className="m-0 text-xs text-amber-600 font-medium">
-              {validationErrors}x {t("collection.uploadValidationError")}
-            </p>
-          )}
-        </div>
+        )}
+        {validationErrors > 0 && !anyUploading && (
+          <p className="mt-3 mb-0 text-xs text-amber-600 font-medium">
+            {validationErrors}x {t("collection.uploadValidationError")}
+          </p>
+        )}
 
         <input
           ref={fileInputRef}
