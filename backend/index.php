@@ -203,6 +203,17 @@ switch ($requestUri) {
             // uriParts: ['deliver', deliveryToken, ?subRoute]
             $subRoute = $uriParts[2] ?? '';
 
+            // Handle base delivery gallery endpoint: /deliver/{token}
+            if (empty($subRoute)) {
+                if ($requestMethod === 'GET') {
+                    require_once __DIR__ . '/collections/deliver-view.php';
+                } else {
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Method Not Allowed']);
+                }
+                break;
+            }
+
             switch ($subRoute) {
                 case 'zip':
                     if ($requestMethod === 'GET') {
