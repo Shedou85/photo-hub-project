@@ -8,6 +8,18 @@ Photo Hub is a collection management app for professional photographers at pixel
 
 The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
 
+## Current Milestone: v3.0 Workflow & UX Redesign
+
+**Goal:** Transform the UI into a world-class, venture-backed SaaS experience with intuitive workflow guidance and mobile-first client interactions.
+
+**Target features:**
+- Auto-navigation after collection creation
+- Smart conditional UI based on collection state (DRAFT/SELECTING/REVIEWING/DELIVERED)
+- Premium UI redesign following Linear/Stripe/Notion aesthetics
+- Mobile-first client gallery and selection experience
+- Desktop-optimized photographer workspace with clear workflow phases
+- Elimination of unnecessary buttons and confusing UI states
+
 ## Current State (after v2.0)
 
 **Latest release:** v2.0 Delivery & Polish (shipped 2026-02-14)
@@ -67,8 +79,13 @@ The photographer can hand a client a link — the client selects photos for edit
 
 <!-- Current scope. Building toward these. -->
 
-*Ready for next milestone planning — no active requirements defined yet.*
-*Run `/gsd:new-milestone` to define next milestone scope.*
+**v3.0 Workflow & UX Redesign:**
+- Workflow improvements (auto-navigation, state-based conditional UI)
+- UI redesign with Linear/Stripe/Notion aesthetic
+- Mobile-first client experience
+- Desktop-optimized photographer workspace
+
+*(Detailed requirements will be defined after research phase)*
 
 ### Out of Scope
 
@@ -119,4 +136,4 @@ The photographer can hand a client a link — the client selects photos for edit
 | Progressive disclosure UI patterns | Reduces visual clutter as collection state changes | ✓ Good — Shipped v2.0, dropzone hides after first upload, workflow-phase button grouping |
 
 ---
-*Last updated: 2026-02-14 after v2.0 milestone completion*
+*Last updated: 2026-02-14 after starting v3.0 milestone*

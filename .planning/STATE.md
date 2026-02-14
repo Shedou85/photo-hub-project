@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** v2.0 Delivery & Polish
+**Current focus:** v3.0 Workflow & UX Redesign
 
 ## Current Position
 
-Phase: 10 of 10 (UI Polish and Refinement)
-Plan: 1 of 1 complete
-Status: Phase 10 complete — v2.0 COMPLETE
-Last activity: 2026-02-14 — Completed plan 10-01
-
-Progress: [██████████] 100% (10/10 phases complete, 16/16 plans complete)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-14 — Milestone v3.0 started
 
 ## Performance Metrics
 
