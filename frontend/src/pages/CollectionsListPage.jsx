@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import Accordion from "../components/Accordion";
+import Button from "../components/primitives/Button";
+import CollectionCard from "../components/primitives/CollectionCard";
 
 function CollectionsListPage() {
   const { t } = useTranslation();
@@ -13,14 +14,6 @@ function CollectionsListPage() {
   const [deletingId, setDeletingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
-
-  // Status-to-border mapping for collection cards
-  const STATUS_BORDER = {
-    SELECTING: 'border-2 border-blue-500',
-    REVIEWING: 'border-2 border-green-500',
-    DELIVERED: 'border-2 border-purple-500',
-    DOWNLOADED: 'border-2 border-purple-600',
-  };
 
   // Helper function to get photo URL
   const photoUrl = (storagePath) => {
@@ -194,12 +187,9 @@ function CollectionsListPage() {
 
           {/* Submit button */}
           <div className="flex justify-end">
-            <button
-              type="submit"
-              className="py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
-            >
+            <Button variant="primary" type="submit">
               {t('collections.createBtn')}
-            </button>
+            </Button>
           </div>
         </form>
       </Accordion>
@@ -214,83 +204,44 @@ function CollectionsListPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map((collection) => {
-              const statusBorder = STATUS_BORDER[collection.status] ?? '';
-              return (
-              <div
+            {collections.map((collection) => (
+              <CollectionCard
                 key={collection.id}
-                className={`bg-white rounded shadow-md hover:shadow-lg overflow-hidden group rotate-[0.5deg] hover:rotate-[1.5deg] hover:-translate-y-1 transition-all duration-300 ease-out ${statusBorder}`}
-              >
-                {/* Photo Area — clickable link */}
-                <Link
-                  to={`/collection/${collection.id}`}
-                  className="block no-underline text-inherit"
-                >
-                  <div className="relative w-full h-48 bg-gray-100 overflow-hidden border-b-4 border-white">
-                    {collection.coverPhotoPath ? (
-                      <img
-                        src={photoUrl(collection.coverPhotoPath)}
-                        alt={collection.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-5xl font-bold">
-                        {collection.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <span className="text-white text-lg font-semibold px-4 py-2 bg-black bg-opacity-50 rounded-md">
-                        {t('collections.viewCollection')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Text + Actions */}
-                <div className="p-4 bg-white">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
-                    {collection.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-3">
-                    {t('collections.createdAt')}{" "}
-                    {new Date(collection.createdAt).toLocaleDateString()}
-                  </p>
-                  {collection.status !== 'DRAFT' && (
-                    <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-3 ${
-                      collection.status === 'SELECTING' ? 'bg-blue-100 text-blue-700' :
-                      collection.status === 'REVIEWING' ? 'bg-green-100 text-green-700' :
-                      collection.status === 'DELIVERED' ? 'bg-purple-100 text-purple-700' :
-                      collection.status === 'DOWNLOADED' ? 'bg-purple-200 text-purple-800' :
-                      'bg-gray-100 text-gray-600'
-                    }`}>
-                      {t(`collections.status.${collection.status}`)}
-                    </span>
-                  )}
-                  <div className="flex gap-1.5">
-                    <button
+                id={collection.id}
+                name={collection.name}
+                createdAt={collection.createdAt}
+                photoCount={collection.photoCount ?? 0}
+                status={collection.status}
+                coverImageUrl={collection.coverPhotoPath ? photoUrl(collection.coverPhotoPath) : null}
+                actions={
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleShareCollection(collection.id, collection.shareId)}
-                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-sm transition-colors duration-150"
+                      className="flex-1 min-h-[48px]"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
                       {copiedId === collection.id ? t('collections.linkCopied') : t('collections.shareCollection')}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
                       onClick={() => handleDeleteCollection(collection.id)}
                       disabled={deletingId === collection.id}
-                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 min-h-[48px]"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                       {t('collections.deleteCollection')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              );
-            })}
+                    </Button>
+                  </>
+                }
+              />
+            ))}
           </div>
         )}
       </div>

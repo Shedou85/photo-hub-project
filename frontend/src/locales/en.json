@@ -118,6 +118,8 @@
     "shareCollection": "Share",
     "linkCopied": "Copied!",
     "viewCollection": "View Collection",
+    "photosCount_one": "{{count}} photo",
+    "photosCount_other": "{{count}} photos",
     "status": {
       "DRAFT": "Draft",
       "SELECTING": "Selecting",

@@ -118,6 +118,9 @@
     "shareCollection": "Dalytis",
     "linkCopied": "Nukopijuota!",
     "viewCollection": "Peržiūrėti Kolekciją",
+    "photosCount_one": "{{count}} nuotrauka",
+    "photosCount_few": "{{count}} nuotraukos",
+    "photosCount_other": "{{count}} nuotraukų",
     "status": {
       "DRAFT": "Juodraštis",
       "SELECTING": "Atranka",

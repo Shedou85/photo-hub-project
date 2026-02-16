@@ -118,6 +118,9 @@
     "shareCollection": "Поделиться",
     "linkCopied": "Скопировано!",
     "viewCollection": "Посмотреть коллекцию",
+    "photosCount_one": "{{count}} фото",
+    "photosCount_few": "{{count}} фото",
+    "photosCount_other": "{{count}} фото",
     "status": {
       "DRAFT": "Черновик",
       "SELECTING": "Отбор",
