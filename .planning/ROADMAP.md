@@ -122,8 +122,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Auto-navigation, conditional start-selecting, next-step guidance, state-specific empty states, and i18n keys
-- [ ] 15-02-PLAN.md — Extract DraftPhase/SelectingPhase/ReviewingPhase/DeliveredPhase components with object lookup pattern and Button/Badge primitive usage
+- [x] 15-01-PLAN.md — Auto-navigation, conditional start-selecting, next-step guidance, state-specific empty states, and i18n keys
+- [x] 15-02-PLAN.md — Extract DraftPhase/SelectingPhase/ReviewingPhase/DeliveredPhase components with object lookup pattern and Button/Badge primitive usage
 
 #### Phase 16: Testing & QA
 **Goal**: Comprehensive testing and performance validation before launch
@@ -161,8 +161,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Primitive Component Library | v3.0 | 2/2 | Complete | 2026-02-16 |
 | 13. Responsive Layout Refactor | v3.0 | 2/2 | Complete | 2026-02-16 |
 | 14. Collection Cards & Simple Pages | v3.0 | 2/2 | Complete | 2026-02-16 |
-| 15. Workflow Enhancement | v3.0 | 0/TBD | Not started | - |
+| 15. Workflow Enhancement | v3.0 | 2/2 | Complete | 2026-02-16 |
 | 16. Testing & QA | v3.0 | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-16 after Phase 14 completion*
+*Last updated: 2026-02-16 after Phase 15 completion*
