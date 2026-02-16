@@ -174,13 +174,21 @@ function HomePage() {
               )}
             </div>
 
-            {/* Login CTA */}
-            <Link
-              to="/login"
-              className="px-4 py-2 rounded-sm text-sm font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_2px_12px_rgba(99,102,241,0.35)]"
-            >
-              {t('home.navLogin')}
-            </Link>
+            {/* Login CTA + Sign up CTA */}
+            <div className="flex gap-3">
+              <Link
+                to="/register"
+                className="px-4 py-2 rounded-sm text-sm font-semibold text-white/80 no-underline bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] transition-colors duration-150"
+              >
+                {t('home.navSignup')}
+              </Link>
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-sm text-sm font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_2px_12px_rgba(99,102,241,0.35)]"
+              >
+                {t('home.navLogin')}
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -217,7 +225,7 @@ function HomePage() {
             </p>
             <div className="lp-fade lp-fade-d4 flex flex-wrap gap-3">
               <Link
-                to="/login"
+                to="/register"
                 className="inline-flex items-center gap-2 py-3.5 px-7 rounded text-base font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_20px_rgba(99,102,241,0.4)]"
               >
                 {t('home.hero.cta')}

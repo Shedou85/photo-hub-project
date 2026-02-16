@@ -11,6 +11,7 @@
   },
   "home": {
     "navLogin": "Prisijungti",
+    "navSignup": "Registruotis",
     "hero": {
       "eyebrow": "Profesionaliems fotografams",
       "headline1": "Pristatykite savo",
@@ -65,7 +66,31 @@
     "submit": "Prisijungti",
     "failed": "Prisijungimas nepavyko:",
     "networkError": "Tinklo klaida:",
-    "backHome": "Pradžia"
+    "backHome": "Pradžia",
+    "noAccount": "Neturite paskyros?",
+    "signupText": "Registruotis"
+  },
+  "register": {
+    "title": "Sukurti paskyrą",
+    "email": "El. paštas",
+    "password": "Slaptažodis",
+    "confirmPassword": "Pakartokite slaptažodį",
+    "submit": "Sukurti paskyrą",
+    "creating": "Kuriama paskyra...",
+    "emailRequired": "El. paštas privalomas",
+    "emailInvalid": "Netinkamas el. pašto formatas",
+    "passwordRequired": "Slaptažodis privalomas",
+    "passwordTooShort": "Slaptažodis turi būti bent 8 simbolių",
+    "passwordMismatch": "Slaptažodžiai nesutampa",
+    "emailExists": "Paskyra su šiuo el. paštu jau egzistuoja.",
+    "emailExistsHint": "Jau turite paskyrą?",
+    "loginLink": "Prisijunkite čia",
+    "success": "Paskyra sėkmingai sukurta!",
+    "failed": "Registracija nepavyko:",
+    "networkError": "Tinklo klaida:",
+    "backHome": "Pradžia",
+    "haveAccount": "Jau turite paskyrą?",
+    "loginText": "Prisijungti"
   },
   "profile": {
     "subtitle": "Jūsų profilis ir paskyros nustatymai",

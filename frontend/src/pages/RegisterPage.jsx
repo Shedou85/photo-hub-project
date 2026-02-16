@@ -9,10 +9,12 @@ const LANGUAGES = [
   { code: "ru", label: "RU" },
 ];
 
-function LoginPage() {
+function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
@@ -38,12 +40,76 @@ function LoginPage() {
     return () => document.removeEventListener("mousedown", onMouseDown);
   }, []);
 
+  const validateForm = () => {
+    // Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      setError(t('register.emailRequired'));
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      setError(t('register.emailInvalid'));
+      return false;
+    }
+
+    // Password length
+    if (!password) {
+      setError(t('register.passwordRequired'));
+      return false;
+    }
+    if (password.length < 8) {
+      setError(t('register.passwordTooShort'));
+      return false;
+    }
+
+    // Password match
+    if (password !== confirmPassword) {
+      setError(t('register.passwordMismatch'));
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      const response = await fetch(
+      // Step 1: Register
+      const registerResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/register`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const registerData = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        if (registerResponse.status === 409) {
+          // Email already exists
+          setError(t('register.emailExists'));
+        } else if (registerData.error || registerData.message) {
+          setError(`${t('register.failed')} ${registerData.error || registerData.message}`);
+        } else {
+          setError(`${t('register.failed')} Unknown error`);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Auto-login after successful registration
+      const loginResponse = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/login`,
         {
           method: "POST",
@@ -53,18 +119,22 @@ function LoginPage() {
         }
       );
 
-      const data = await response.json();
+      const loginData = await loginResponse.json();
 
-      if (response.ok && data.status === "OK" && data.user) {
-        login(data.user);
-        navigate("/collections");
+      if (loginResponse.ok && loginData.status === "OK" && loginData.user) {
+        // Step 3: Update AuthContext
+        login(loginData.user);
+
+        // Step 4: Navigate to collections
+        navigate('/collections');
       } else {
-        setError(
-          `${t("login.failed")} ${data.error || data.message || "The server returned an unexpected response."}`
-        );
+        // Registration succeeded but login failed - should rarely happen
+        setError(`${t('register.success')} ${t('login.failed')}`);
+        setIsSubmitting(false);
       }
     } catch (err) {
-      setError(`${t("login.networkError")} ${err.message}`);
+      setError(`${t('register.networkError')} ${err.message}`);
+      setIsSubmitting(false);
     }
   };
 
@@ -131,17 +201,17 @@ function LoginPage() {
           style={{ background: "radial-gradient(circle, #6366f1 0%, transparent 70%)", filter: "blur(120px)" }}
         />
 
-        {/* ── Login Card ───────────────────────────────────────────── */}
+        {/* ── Register Card ───────────────────────────────────────────── */}
         <div className="lp-fade lp-fade-d1 relative z-10 w-full max-w-[420px] mx-4 mt-16 bg-white/[0.04] border border-white/10 rounded-lg px-8 py-9 shadow-xl">
           <h1 className="font-serif-display text-2xl font-bold text-white mb-6 mt-0">
-            {t("login.title")}
+            {t("register.title")}
           </h1>
 
           <form onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="mb-4">
               <label htmlFor="email" className="block mb-1 text-sm font-medium text-white/50">
-                {t("login.email")}
+                {t("register.email")}
               </label>
               <input
                 type="email"
@@ -154,15 +224,30 @@ function LoginPage() {
             </div>
 
             {/* Password field */}
-            <div className="mb-6">
+            <div className="mb-4">
               <label htmlFor="password" className="block mb-1 text-sm font-medium text-white/50">
-                {t("login.password")}
+                {t("register.password")}
               </label>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm py-2.5 px-3.5 text-sm outline-none transition-all duration-150 w-full"
+              />
+            </div>
+
+            {/* Confirm Password field */}
+            <div className="mb-6">
+              <label htmlFor="confirmPassword" className="block mb-1 text-sm font-medium text-white/50">
+                {t("register.confirmPassword")}
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm py-2.5 px-3.5 text-sm outline-none transition-all duration-150 w-full"
               />
@@ -178,27 +263,28 @@ function LoginPage() {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full py-3 rounded text-base font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)] border-none cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded text-base font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)] border-none cursor-pointer disabled:opacity-50"
             >
-              {t("login.submit")}
+              {isSubmitting ? t("register.creating") : t("register.submit")}
             </button>
           </form>
 
-          {/* Sign up link */}
+          {/* Login link */}
           <p className="text-center text-sm text-white/40 mt-4">
-            {t('login.noAccount')}{' '}
+            {t('register.haveAccount')}{' '}
             <Link
-              to="/register"
+              to="/login"
               className="text-indigo-400 hover:text-indigo-300 transition-colors duration-150 no-underline"
             >
-              {t('login.signupText')}
+              {t('register.loginText')}
             </Link>
           </p>
 
           {/* Back to home */}
           <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-white/30 hover:text-white/60 transition-colors duration-150 no-underline">
-              ← {t("login.backHome")}
+            <Link to="/" className="text-sm text-white/30 hover:text-white/60 transition-colors duration-150 no-underline inline-flex items-center gap-2">
+              ← {t("register.backHome")}
             </Link>
           </div>
         </div>
@@ -207,4 +293,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

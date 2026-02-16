@@ -11,6 +11,7 @@
   },
   "home": {
     "navLogin": "Войти",
+    "navSignup": "Регистрация",
     "hero": {
       "eyebrow": "Для профессиональных фотографов",
       "headline1": "Доставляйте",
@@ -65,7 +66,31 @@
     "submit": "Войти",
     "failed": "Ошибка входа:",
     "networkError": "Ошибка сети:",
-    "backHome": "Главная"
+    "backHome": "Главная",
+    "noAccount": "Нет аккаунта?",
+    "signupText": "Зарегистрироваться"
+  },
+  "register": {
+    "title": "Создать аккаунт",
+    "email": "Эл. почта",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "submit": "Создать аккаунт",
+    "creating": "Создание аккаунта...",
+    "emailRequired": "Требуется эл. почта",
+    "emailInvalid": "Неверный формат эл. почты",
+    "passwordRequired": "Требуется пароль",
+    "passwordTooShort": "Пароль должен быть не менее 8 символов",
+    "passwordMismatch": "Пароли не совпадают",
+    "emailExists": "Аккаунт с этой почтой уже существует.",
+    "emailExistsHint": "Уже есть аккаунт?",
+    "loginLink": "Войдите здесь",
+    "success": "Аккаунт успешно создан!",
+    "failed": "Ошибка регистрации:",
+    "networkError": "Ошибка сети:",
+    "backHome": "Главная",
+    "haveAccount": "Уже есть аккаунт?",
+    "loginText": "Войти"
   },
   "profile": {
     "subtitle": "Ваш профиль и настройки аккаунта",

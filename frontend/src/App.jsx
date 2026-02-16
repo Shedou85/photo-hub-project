@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import SharePage from './pages/SharePage';
 import DeliveryPage from './pages/DeliveryPage';
 import CollectionsListPage from './pages/CollectionsListPage';
@@ -22,6 +23,7 @@ function App() {
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />
+      <Route path="/register" element={isAuthenticated ? <Navigate to="/collections" replace /> : <RegisterPage />} />
       <Route path="/share/:shareId" element={<SharePage />} />
       <Route path="/deliver/:deliveryToken" element={<DeliveryPage />} />
 
