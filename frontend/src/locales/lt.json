@@ -218,6 +218,8 @@
     "deliveryLinkCopied": "Pristatymo nuoroda nukopijuota!",
     "deliveryTokenMissing": "Pristatymo nuoroda dar neparuošta.",
     "linkCopyFailed": "Nepavyko nukopijuoti nuorodos. Bandykite dar kartą.",
+    "uploadEditedFinalsButton": "Įkelti galutinius failus",
+    "uploadEditedFinalsHint": "Įkelkite galutinius redaguotus failus, kad užbaigtumėte šią kolekciją",
     "addMorePhotos": "Pridėti daugiau nuotraukų",
     "sharePhase": "Bendrinimas",
     "reviewPhase": "Peržiūra",

@@ -218,6 +218,8 @@
     "deliveryLinkCopied": "Ссылка доставки скопирована!",
     "deliveryTokenMissing": "Ссылка доставки еще не готова.",
     "linkCopyFailed": "Не удалось скопировать ссылку. Попробуйте еще раз.",
+    "uploadEditedFinalsButton": "Загрузить готовые файлы",
+    "uploadEditedFinalsHint": "Загрузите финальные отредактированные фото для завершения коллекции",
     "addMorePhotos": "Добавить ещё фото",
     "sharePhase": "Поделиться",
     "reviewPhase": "Проверка",

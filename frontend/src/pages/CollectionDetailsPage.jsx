@@ -49,6 +49,7 @@ function CollectionDetailsPage() {
   const [selections, setSelections] = useState([]);
   const [filter, setFilter] = useState('all');
   const [showUploadZone, setShowUploadZone] = useState(false);
+  const [showEditedFinalsZone, setShowEditedFinalsZone] = useState(false);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -644,21 +645,23 @@ function CollectionDetailsPage() {
         {/* Divider */}
         <div className="border-t border-gray-200 my-4" />
 
-        {/* Upload Section - Show "Add Photos" when empty, "Add More Photos" when has photos */}
-        <div className="mb-4">
-          <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-            {t("collection.uploadSection")}
-          </h3>
-          <Button
-            variant="secondary"
-            onClick={() => setShowUploadZone(!showUploadZone)}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
-          </Button>
-        </div>
+        {/* Upload Section - Only show in DRAFT status */}
+        {collection.status === 'DRAFT' && (
+          <div className="mb-4">
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t("collection.uploadSection")}
+            </h3>
+            <Button
+              variant="secondary"
+              onClick={() => setShowUploadZone(!showUploadZone)}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
+            </Button>
+          </div>
+        )}
 
         {/* Share Section - Only visible when photos exist */}
         {photos.length > 0 && (
@@ -692,6 +695,28 @@ function CollectionDetailsPage() {
             <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
               {t("collection.reviewPhase")}
             </h3>
+
+            {/* Shimmer button to toggle upload zone */}
+            <div className="mb-3">
+              <button
+                onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
+                className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                {t("collection.uploadEditedFinalsButton")}
+              </button>
+              {/* Helper text */}
+              <p className="mt-2 text-xs text-gray-500">
+                {t("collection.uploadEditedFinalsHint")}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-4" />
+
+            {/* Existing Mark as Delivered button */}
             <Button
               variant="primary"
               onClick={handleMarkAsDelivered}
@@ -720,8 +745,8 @@ function CollectionDetailsPage() {
         )}
       </Accordion>
 
-      {/* ── Upload Dropzone (only shown when showUploadZone is true) ── */}
-      {showUploadZone && (
+      {/* ── Upload Dropzone (only shown when showUploadZone is true and status is DRAFT) ── */}
+      {showUploadZone && collection.status === 'DRAFT' && (
         <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
           <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
             {photos.length === 0 ? t("collection.photos") : t("collection.uploadMore")}
@@ -787,9 +812,91 @@ function CollectionDetailsPage() {
         </div>
       )}
 
-      {/* ── Photo Grid Card ── */}
-      {photos.length > 0 && (
+      {/* ── Edited Finals Upload Zone (REVIEWING only) - Now collapsible ── */}
+      {showEditedFinalsZone && collection.status === 'REVIEWING' && (
         <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
+          <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+            {t('collection.editedFinalsTitle')}
+            {editedPhotos.length > 0 && (
+              <span className="ml-2 text-xs font-normal text-gray-400 normal-case tracking-normal">
+                {t('collection.editedPhotosCount', { count: editedPhotos.length })}
+              </span>
+            )}
+          </h2>
+
+          {/* Green-themed drop zone */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t('collection.editedUploadZoneLabel')}
+            onClick={() => editedFileInputRef.current?.click()}
+            onKeyDown={(e) => e.key === 'Enter' && editedFileInputRef.current?.click()}
+            className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none border-green-300 bg-green-50 hover:border-green-400"
+          >
+            <svg className="w-9 h-9 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <p className="m-0 text-sm font-medium text-gray-600">
+              {t('collection.editedUploadZoneLabel')}
+            </p>
+            <p className="m-0 text-xs text-gray-400">
+              {t('collection.editedUploadZoneHint')}
+            </p>
+            {anyEditedUploading && (
+              <p className="m-0 text-xs text-green-600 font-medium animate-pulse">
+                {t("collection.uploading")}
+              </p>
+            )}
+            {editedUploadErrors > 0 && !anyEditedUploading && (
+              <p className="m-0 text-xs text-red-500 font-medium">
+                {editedUploadErrors}x {t("collection.uploadError")}
+              </p>
+            )}
+            {editedValidationErrors > 0 && !anyEditedUploading && (
+              <p className="m-0 text-xs text-amber-600 font-medium">
+                {editedValidationErrors}x {t("collection.uploadValidationError")}
+              </p>
+            )}
+          </div>
+
+          <input
+            ref={editedFileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={handleEditedFileChange}
+          />
+
+          {/* Edited photos grid */}
+          {editedPhotos.length > 0 && (
+            <div className={`mt-4 ${PHOTO_GRID_CLASSES}`}>
+              {editedPhotos.map((photo) => (
+                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
+                  <img
+                    src={photoUrl(photo.storagePath)}
+                    alt={photo.filename}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Cancel button to collapse zone */}
+          <button
+            onClick={() => setShowEditedFinalsZone(false)}
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition-colors bg-transparent border-none cursor-pointer"
+          >
+            {t("common.cancel")}
+          </button>
+        </div>
+      )}
+
+      {/* ── Photo Grid Accordion ── */}
+      {photos.length > 0 && (
+        <Accordion title={t("collection.photos")} defaultOpen={true}>
           {/* Filter tabs */}
           {selections.length > 0 && (
             <div className="flex gap-2 mb-4 border-b border-gray-200">
@@ -886,81 +993,7 @@ function CollectionDetailsPage() {
               );
             })}
           </div>
-        </div>
-      )}
-
-      {/* ── Edited Finals Upload Zone (REVIEWING only) ── */}
-      {collection.status === 'REVIEWING' && (
-        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
-          <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
-            {t('collection.editedFinalsTitle')}
-            {editedPhotos.length > 0 && (
-              <span className="ml-2 text-xs font-normal text-gray-400 normal-case tracking-normal">
-                {t('collection.editedPhotosCount', { count: editedPhotos.length })}
-              </span>
-            )}
-          </h2>
-
-          {/* Green-themed drop zone */}
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label={t('collection.editedUploadZoneLabel')}
-            onClick={() => editedFileInputRef.current?.click()}
-            onKeyDown={(e) => e.key === 'Enter' && editedFileInputRef.current?.click()}
-            className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none border-green-300 bg-green-50 hover:border-green-400"
-          >
-            <svg className="w-9 h-9 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-            </svg>
-            <p className="m-0 text-sm font-medium text-gray-600">
-              {t('collection.editedUploadZoneLabel')}
-            </p>
-            <p className="m-0 text-xs text-gray-400">
-              {t('collection.editedUploadZoneHint')}
-            </p>
-            {anyEditedUploading && (
-              <p className="m-0 text-xs text-green-600 font-medium animate-pulse">
-                {t("collection.uploading")}
-              </p>
-            )}
-            {editedUploadErrors > 0 && !anyEditedUploading && (
-              <p className="m-0 text-xs text-red-500 font-medium">
-                {editedUploadErrors}x {t("collection.uploadError")}
-              </p>
-            )}
-            {editedValidationErrors > 0 && !anyEditedUploading && (
-              <p className="m-0 text-xs text-amber-600 font-medium">
-                {editedValidationErrors}x {t("collection.uploadValidationError")}
-              </p>
-            )}
-          </div>
-
-          <input
-            ref={editedFileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            className="hidden"
-            onChange={handleEditedFileChange}
-          />
-
-          {/* Edited photos grid */}
-          {editedPhotos.length > 0 && (
-            <div className={`mt-4 ${PHOTO_GRID_CLASSES}`}>
-              {editedPhotos.map((photo) => (
-                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
-                  <img
-                    src={photoUrl(photo.storagePath)}
-                    alt={photo.filename}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        </Accordion>
       )}
 
       {/* ── Lightbox ── */}

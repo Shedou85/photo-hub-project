@@ -215,6 +215,8 @@
     "deliveryLinkCopied": "Delivery link copied!",
     "deliveryTokenMissing": "Delivery link not available yet.",
     "linkCopyFailed": "Failed to copy link. Please try again.",
+    "uploadEditedFinalsButton": "Upload Edited Finals",
+    "uploadEditedFinalsHint": "Upload your final edited photos to complete this collection",
     "addMorePhotos": "Add More Photos",
     "sharePhase": "Share",
     "reviewPhase": "Review",
