@@ -104,8 +104,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md — Create CollectionCard primitive with edge-to-edge cover images, update Badge with colored dot, refactor CollectionsListPage
-- [ ] 14-02-PLAN.md — Refactor SharePage/DeliveryPage to use Button primitive, extract photo grid shared constant
+- [x] 14-01-PLAN.md — Create CollectionCard primitive with edge-to-edge cover images, update Badge with colored dot, refactor CollectionsListPage
+- [x] 14-02-PLAN.md — Refactor SharePage/DeliveryPage to use Button primitive, extract photo grid shared constant
 
 #### Phase 15: Workflow Enhancement
 **Goal**: Extract workflow phase components and implement state-based UI improvements
@@ -159,9 +159,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Design System Foundation | v3.0 | 3/3 | Complete | 2026-02-16 |
 | 12. Primitive Component Library | v3.0 | 2/2 | Complete | 2026-02-16 |
 | 13. Responsive Layout Refactor | v3.0 | 2/2 | Complete | 2026-02-16 |
-| 14. Collection Cards & Simple Pages | v3.0 | 0/TBD | Not started | - |
+| 14. Collection Cards & Simple Pages | v3.0 | 2/2 | Complete | 2026-02-16 |
 | 15. Workflow Enhancement | v3.0 | 0/TBD | Not started | - |
 | 16. Testing & QA | v3.0 | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-14 after v3.0 roadmap creation*
+*Last updated: 2026-02-16 after Phase 14 completion*

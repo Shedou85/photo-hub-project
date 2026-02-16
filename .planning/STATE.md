@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Phase 14: Collection Cards & Simple Pages
+**Current focus:** Phase 15: Workflow Enhancement
 
 ## Current Position
 
