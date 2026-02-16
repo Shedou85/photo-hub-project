@@ -172,7 +172,7 @@ function SharePage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center font-sans px-5">
         <div className="max-w-[480px] text-center">
-          <div className="text-[48px] mb-3">🔍</div>
+          <div className="text-4xl mb-3">🔍</div>
           <p className="text-gray-700 text-base m-0">{t("share.notFound")}</p>
         </div>
       </div>
@@ -187,7 +187,7 @@ function SharePage() {
       <div className={`max-w-[720px] mx-auto py-10 px-6 ${canSelect && selectedPhotoIds.size > 0 && !isSubmitted ? 'pb-24' : ''}`}>
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-[28px] font-bold text-gray-900 m-0 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 m-0 mb-2">
             {collection.name}
           </h1>
           {collection.clientName && (
@@ -216,7 +216,7 @@ function SharePage() {
               return (
                 <div
                   key={photo.id}
-                  className={`relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100 cursor-pointer ${
+                  className={`relative group aspect-square rounded-sm overflow-hidden bg-gray-100 cursor-pointer ${
                     isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''
                   }`}
                   onClick={() => setLightboxIndex(index)}
@@ -274,7 +274,7 @@ function SharePage() {
               <button
                 onClick={submitSelections}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-[14px] px-8 rounded-[10px] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer border-none font-sans"
+                className="w-full sm:w-auto bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-3.5 px-8 rounded hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer border-none font-sans"
               >
                 {isSubmitting ? t('share.submitting') : t('share.submitSelections', { count: selectedPhotoIds.size })}
               </button>
@@ -284,7 +284,7 @@ function SharePage() {
 
         {/* Success message after submission */}
         {isSubmitted && (
-          <div className="bg-green-50 border border-green-200 rounded-[10px] p-5 mt-8 text-center">
+          <div className="bg-green-50 border border-green-200 rounded p-5 mt-8 text-center">
             <div className="text-green-600 font-semibold text-base mb-2">
               {t('share.selectionsSubmitted')}
             </div>

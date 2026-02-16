@@ -15,8 +15,8 @@ function getInitials(name) {
 // --- Sub-component: read-only info row inside the profile info card ---
 function InfoRow({ label, value }) {
   return (
-    <div className="flex flex-col gap-[3px]">
-      <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
         {label}
       </span>
       <span className="text-sm text-gray-800 font-medium">
@@ -98,19 +98,19 @@ function ProfilePage() {
     <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
-        <div className="flex items-center gap-[14px]">
+        <div className="flex items-center gap-3.5">
           {/* Avatar initials circle */}
           <div
-            className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[18px] font-bold shrink-0 select-none bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
+            className="w-13 h-13 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0 select-none bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
           >
             {getInitials(user.name)}
           </div>
 
           <div>
-            <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
+            <h1 className="m-0 text-xl font-bold text-gray-900 leading-tight">
               {user.name}
             </h1>
-            <p className="mt-[2px] mb-0 text-[13px] text-gray-500">
+            <p className="mt-[2px] mb-0 text-sm text-gray-500">
               {t('profile.subtitle')}
             </p>
           </div>
@@ -122,7 +122,7 @@ function ProfilePage() {
         <form onSubmit={handleSubmit}>
           {/* Name field */}
           <div className="mb-4">
-            <label htmlFor="name" className="block mb-[5px] text-[13px] font-semibold text-gray-700">
+            <label htmlFor="name" className="block mb-1 text-sm font-semibold text-gray-700">
               {t('profile.displayName')}
             </label>
             <input
@@ -131,13 +131,13 @@ function ProfilePage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('profile.namePlaceholder')}
-              className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans"
+              className="w-full py-2.5 px-5 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-sm outline-none box-border transition-colors duration-150 font-sans"
             />
           </div>
 
           {/* Bio field */}
           <div className="mb-6">
-            <label htmlFor="bio" className="block mb-[5px] text-[13px] font-semibold text-gray-700">
+            <label htmlFor="bio" className="block mb-1 text-sm font-semibold text-gray-700">
               {t('profile.bio')}
               <span className="font-normal text-gray-400 ml-[6px]">
                 ({t('profile.optional')})
@@ -149,24 +149,24 @@ function ProfilePage() {
               onChange={(e) => setBio(e.target.value)}
               placeholder={t('profile.bioPlaceholder')}
               rows={4}
-              className="w-full py-[9px] px-3 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-md outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
+              className="w-full py-2.5 px-5 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-sm outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
             />
           </div>
 
           {/* ── Save Button Area ── */}
           <div className="flex items-center justify-end gap-3 pt-1">
             {loading && (
-              <span className="text-[13px] text-gray-500">
+              <span className="text-sm text-gray-500">
                 {t('profile.saving')}
               </span>
             )}
             <button
               type="submit"
               disabled={loading}
-              className={`py-[9px] px-[22px] text-sm font-semibold rounded-md border-none font-sans transition-opacity duration-150 ${
+              className={`py-2.5 px-5 text-sm font-semibold rounded-sm border-none font-sans transition-opacity duration-150 ${
                 loading
                   ? "text-zinc-400 bg-zinc-200 cursor-not-allowed"
-                  : "text-white cursor-pointer hover:opacity-[0.88] bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
+                  : "text-white cursor-pointer hover:opacity-90 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
               }`}
             >
               {loading ? t('profile.saving') : t('profile.saveChanges')}
@@ -176,7 +176,7 @@ function ProfilePage() {
       </Accordion>
 
       {/* ── Profile Information Card (read-only) ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
         <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t('profile.accountInfo')}
         </h2>

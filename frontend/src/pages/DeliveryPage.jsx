@@ -113,7 +113,7 @@ function DeliveryPage() {
       <div className="min-h-screen bg-white flex items-center justify-center font-sans px-5 relative">
         <LanguageSelector />
         <div className="max-w-[480px] text-center">
-          <div className="text-[48px] mb-3">📦</div>
+          <div className="text-4xl mb-3">📦</div>
           <p className="text-gray-700 text-base m-0">
             {errorMessages[error] || errorMessages.error}
           </p>
@@ -131,7 +131,7 @@ function DeliveryPage() {
       <div className="max-w-[720px] mx-auto py-10 px-6">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-[28px] font-bold text-gray-900 m-0 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 m-0 mb-2">
             {collection.name}
           </h1>
           {collection.clientName && (
@@ -147,7 +147,7 @@ function DeliveryPage() {
           {photos.length > 0 && (
             <button
               onClick={() => downloadAllAsZip(deliveryToken)}
-              className="inline-flex items-center gap-2 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-[14px] px-6 rounded-[10px] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="inline-flex items-center gap-2 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-3.5 px-6 rounded hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -163,7 +163,7 @@ function DeliveryPage() {
             {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100 cursor-pointer"
+                className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100 cursor-pointer"
                 onClick={() => setLightboxIndex(index)}
               >
                 <img
