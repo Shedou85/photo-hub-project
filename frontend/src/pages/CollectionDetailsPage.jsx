@@ -5,8 +5,8 @@ import { toast } from "sonner";
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex flex-col gap-[3px]">
-      <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
         {label}
       </span>
       <span className="text-sm text-gray-800 font-medium">
@@ -570,7 +570,7 @@ function CollectionDetailsPage() {
   if (error) {
     return (
       <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
-        <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-[14px] py-3 text-[13px]">
+        <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-3.5 py-3 text-sm">
           {t("collection.error")} {error}
         </div>
       </div>
@@ -590,7 +590,7 @@ function CollectionDetailsPage() {
       {/* ── Back link ── */}
       <Link
         to="/collections"
-        className="inline-flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-blue-600 no-underline mb-5 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 no-underline mb-5 transition-colors"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -599,12 +599,12 @@ function CollectionDetailsPage() {
       </Link>
 
       {/* ── Page Header ── */}
-      <div className="flex items-center mb-7 gap-[14px]">
-        <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
+      <div className="flex items-center mb-7 gap-3.5">
+        <div className="w-13 h-13 rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-xl shrink-0 select-none">
           🗂️
         </div>
         <div className="flex items-center gap-3">
-          <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
+          <h1 className="m-0 text-xl font-bold text-gray-900 leading-tight">
             {collection.name}
           </h1>
           {collection.status !== 'DRAFT' && (
@@ -622,11 +622,11 @@ function CollectionDetailsPage() {
       </div>
 
       {/* ── Collection Info Card ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
         <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t("collection.createdAt")}
         </h2>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
           <InfoRow
             label={t("collection.createdAt")}
             value={new Date(collection.createdAt).toLocaleDateString()}
@@ -639,16 +639,16 @@ function CollectionDetailsPage() {
       </div>
 
       {/* ── Actions Card with Workflow Phases ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5 space-y-4">
+      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5 space-y-4">
         {/* Share section (always visible) */}
         <div>
-          <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+          <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
             {t('collection.sharePhase')}
           </h3>
           <div className="flex gap-3 flex-wrap">
             <button
               onClick={handleCopyShareLink}
-              className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+              className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -658,7 +658,7 @@ function CollectionDetailsPage() {
             {collection.status === 'DRAFT' && (
               <button
                 onClick={handleStartSelecting}
-                className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+                className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
               >
                 {t('collection.startSelecting')}
               </button>
@@ -669,16 +669,16 @@ function CollectionDetailsPage() {
         {/* Review section (only when REVIEWING) */}
         {collection.status === 'REVIEWING' && (
           <div>
-            <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
               {t('collection.reviewPhase')}
             </h3>
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={handleMarkAsDelivered}
                 disabled={editedPhotos.length === 0}
-                className={`inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 ${
+                className={`inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 ${
                   editedPhotos.length > 0
-                    ? 'bg-[linear-gradient(135deg,#10b981,#059669)] hover:opacity-[0.88]'
+                    ? 'bg-[linear-gradient(135deg,#10b981,#059669)] hover:opacity-90'
                     : 'bg-gray-300 cursor-not-allowed opacity-60'
                 }`}
               >
@@ -694,14 +694,14 @@ function CollectionDetailsPage() {
         {/* Deliver section (only when DELIVERED or DOWNLOADED) */}
         {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && (
           <div>
-            <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
               {t('collection.deliverPhase')}
             </h3>
             <div className="flex gap-3 flex-wrap">
               {collection.deliveryToken && (
                 <button
                   onClick={handleCopyDeliveryLink}
-                  className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#10b981,#059669)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+                  className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#10b981,#059669)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -715,7 +715,7 @@ function CollectionDetailsPage() {
       </div>
 
       {/* ── Upload Card ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
         <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {t("collection.photos")}
           {photos.length > 0 && (
@@ -736,7 +736,7 @@ function CollectionDetailsPage() {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded-[10px] flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none
+            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none
               ${dragOver
                 ? "border-blue-500 bg-blue-50"
                 : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
@@ -755,7 +755,7 @@ function CollectionDetailsPage() {
         ) : (
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-2 py-[9px] px-[22px] text-[14px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-[6px] hover:bg-blue-100 transition-colors cursor-pointer font-sans"
+            className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors cursor-pointer font-sans"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -793,7 +793,7 @@ function CollectionDetailsPage() {
 
       {/* ── Photo Grid Card ── */}
       {photos.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
           {/* Filter tabs */}
           {selections.length > 0 && (
             <div className="flex gap-2 mb-4 border-b border-gray-200">
@@ -835,7 +835,7 @@ function CollectionDetailsPage() {
               // Find index in full photos array for lightbox navigation
               const photoIndex = photos.findIndex(p => p.id === photo.id);
               return (
-                <div key={photo.id} className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100">
+                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
                   {/* Thumbnail — click opens lightbox */}
                   <button
                     onClick={() => setLightboxIndex(photoIndex)}
@@ -851,7 +851,7 @@ function CollectionDetailsPage() {
                   </button>
                   {/* Cover badge */}
                   {collection.coverPhotoId === photo.id && (
-                    <div className="absolute top-1 left-1 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white text-[10px] font-bold px-[6px] py-[2px] rounded-full leading-tight pointer-events-none">
+                    <div className="absolute top-1 left-1 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-tight pointer-events-none">
                       ★
                     </div>
                   )}
@@ -895,7 +895,7 @@ function CollectionDetailsPage() {
 
       {/* Empty state when no photos */}
       {photos.length === 0 && !anyUploading && (
-        <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
           <p className="m-0 text-sm text-gray-500 text-center py-5">
             {t("collection.noPhotos")}
           </p>
@@ -904,7 +904,7 @@ function CollectionDetailsPage() {
 
       {/* ── Edited Finals Upload Zone (REVIEWING only) ── */}
       {collection.status === 'REVIEWING' && (
-        <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
           <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
             {t('collection.editedFinalsTitle')}
             {editedPhotos.length > 0 && (
@@ -921,7 +921,7 @@ function CollectionDetailsPage() {
             aria-label={t('collection.editedUploadZoneLabel')}
             onClick={() => editedFileInputRef.current?.click()}
             onKeyDown={(e) => e.key === 'Enter' && editedFileInputRef.current?.click()}
-            className="border-2 border-dashed rounded-[10px] flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none border-green-300 bg-green-50 hover:border-green-400"
+            className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none border-green-300 bg-green-50 hover:border-green-400"
           >
             <svg className="w-9 h-9 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -962,7 +962,7 @@ function CollectionDetailsPage() {
           {editedPhotos.length > 0 && (
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {editedPhotos.map((photo) => (
-                <div key={photo.id} className="relative group aspect-square rounded-[6px] overflow-hidden bg-gray-100">
+                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
                   <img
                     src={photoUrl(photo.storagePath)}
                     alt={photo.filename}

@@ -152,7 +152,7 @@ function CollectionsListPage() {
   if (error) {
     return (
       <div className="py-10 px-5 text-center font-sans text-gray-500">
-        <div className="inline-block px-3.5 py-3 bg-red-50 border border-red-200 rounded-md text-[13px] text-red-800">
+        <div className="inline-block px-3.5 py-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-800">
           {t('collections.error')} {error}
         </div>
       </div>
@@ -163,10 +163,10 @@ function CollectionsListPage() {
     <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
       {/* ── Page Header ── */}
       <div className="flex items-center mb-7 gap-3.5">
-        <div className="w-[52px] h-[52px] rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-[22px] shrink-0 select-none">
+        <div className="w-13 h-13 rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-xl shrink-0 select-none">
           🗂️
         </div>
-        <h1 className="m-0 text-[22px] font-bold text-gray-900 leading-tight">
+        <h1 className="m-0 text-xl font-bold text-gray-900 leading-tight">
           {t('collections.title')}
         </h1>
       </div>
@@ -178,7 +178,7 @@ function CollectionsListPage() {
           <div className="mb-6">
             <label
               htmlFor="collectionName"
-              className="block mb-[5px] text-[13px] font-semibold text-gray-700"
+              className="block mb-1 text-sm font-semibold text-gray-700"
             >
               {t('collections.nameLabel')}
             </label>
@@ -188,7 +188,7 @@ function CollectionsListPage() {
               value={newCollectionName}
               onChange={(e) => setNewCollectionName(e.target.value)}
               required
-              className="w-full py-[9px] px-3 text-[14px] text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-[6px] outline-none box-border transition-colors duration-150 font-sans"
+              className="w-full py-2.5 px-5 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-sm outline-none box-border transition-colors duration-150 font-sans"
             />
           </div>
 
@@ -196,7 +196,7 @@ function CollectionsListPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="py-[9px] px-[22px] text-[14px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-[6px] cursor-pointer font-sans transition-opacity duration-150 hover:opacity-[0.88]"
+              className="py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
             >
               {t('collections.createBtn')}
             </button>
@@ -205,11 +205,11 @@ function CollectionsListPage() {
       </Accordion>
 
       {/* ── Collections List Card ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5">
+      <div className="bg-white border border-gray-200 rounded px-6 py-5">
 
 
         {collections.length === 0 ? (
-          <div className="py-10 px-5 text-center text-gray-500 text-[14px]">
+          <div className="py-10 px-5 text-center text-gray-500 text-sm">
             {t('collections.empty')}
           </div>
         ) : (
@@ -219,7 +219,7 @@ function CollectionsListPage() {
               return (
               <div
                 key={collection.id}
-                className={`bg-white rounded-[10px] shadow-md hover:shadow-lg overflow-hidden group rotate-[0.5deg] hover:rotate-[1.5deg] hover:-translate-y-1 transition-all duration-300 ease-out ${statusBorder}`}
+                className={`bg-white rounded shadow-md hover:shadow-lg overflow-hidden group rotate-[0.5deg] hover:rotate-[1.5deg] hover:-translate-y-1 transition-all duration-300 ease-out ${statusBorder}`}
               >
                 {/* Photo Area — clickable link */}
                 <Link
@@ -269,7 +269,7 @@ function CollectionsListPage() {
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => handleShareCollection(collection.id, collection.shareId)}
-                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-[5px] transition-colors duration-150"
+                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-sm transition-colors duration-150"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -279,7 +279,7 @@ function CollectionsListPage() {
                     <button
                       onClick={() => handleDeleteCollection(collection.id)}
                       disabled={deletingId === collection.id}
-                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-[5px] transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

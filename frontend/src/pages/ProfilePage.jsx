@@ -181,7 +181,7 @@ function ProfilePage() {
           {t('profile.accountInfo')}
         </h2>
 
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
           <InfoRow label={t('profile.email')} value={user.email} />
           <InfoRow
             label={t('profile.memberSince')}
@@ -191,14 +191,14 @@ function ProfilePage() {
               day: "numeric",
             })}
           />
-          <div className="flex flex-col gap-[3px]">
-            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
               {t('profile.plan')}
             </span>
             <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
-          <div className="flex flex-col gap-[3px]">
-            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-gray-400">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
               {t('profile.role')}
             </span>
             <Badge variant={user.role === "ADMIN" ? "admin" : "role"}>
