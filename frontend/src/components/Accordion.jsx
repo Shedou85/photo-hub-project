@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-function Accordion({ title, children }) {
-  const [isOpen, setIsOpen] = useState(false);
+function Accordion({ title, children, defaultOpen = false }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <div className="bg-white border border-gray-200 rounded mb-5 transition-all duration-700">
@@ -33,7 +33,7 @@ function Accordion({ title, children }) {
       {/* Accordion Content */}
       <div
         className={`transition-all ease-in-out duration-700 overflow-hidden ${
-          isOpen ? "max-h-[500px]" : "max-h-0"
+          isOpen ? "max-h-[700px]" : "max-h-0"
         }`}
       >
         <div className="px-6 pb-5 pt-1">

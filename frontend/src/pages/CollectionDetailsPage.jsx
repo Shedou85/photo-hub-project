@@ -5,10 +5,7 @@ import { toast } from "sonner";
 import { PHOTO_GRID_CLASSES } from '../constants/styles';
 import Button from '../components/primitives/Button';
 import Badge from '../components/primitives/Badge';
-import DraftPhase from '../components/collection/DraftPhase';
-import SelectingPhase from '../components/collection/SelectingPhase';
-import ReviewingPhase from '../components/collection/ReviewingPhase';
-import DeliveredPhase from '../components/collection/DeliveredPhase';
+import Accordion from '../components/Accordion';
 
 function InfoRow({ label, value }) {
   return (
@@ -33,14 +30,6 @@ const photoUrl = (storagePath) => {
   return `${base}/${path}`;
 };
 
-const WORKFLOW_PHASES = {
-  DRAFT: DraftPhase,
-  SELECTING: SelectingPhase,
-  REVIEWING: ReviewingPhase,
-  DELIVERED: DeliveredPhase,
-  DOWNLOADED: DeliveredPhase,
-};
-
 function CollectionDetailsPage() {
   const { id } = useParams();
   const { t } = useTranslation();
@@ -59,6 +48,7 @@ function CollectionDetailsPage() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [selections, setSelections] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [showUploadZone, setShowUploadZone] = useState(false);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -248,6 +238,8 @@ function CollectionDetailsPage() {
 
     if (successCount > 0) {
       toast.success(t("collection.uploadSuccess"));
+      // Auto-collapse upload zone after successful upload
+      setShowUploadZone(false);
     }
 
     // Clear done/validation states after a short delay
@@ -631,16 +623,14 @@ function CollectionDetailsPage() {
       </div>
 
       {/* Next-step guidance (WORKFLOW-06) */}
-      <p className="text-sm text-gray-500 mb-5 -mt-4">
+      <p className="text-sm text-gray-500 mb-3 -mt-4">
         {t(`collection.nextStep.${collection.status}`)}
       </p>
 
-      {/* ── Collection Info Card ── */}
-      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
-          {t("collection.createdAt")}
-        </h2>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
+      {/* ── Collection Info & Actions Accordion ── */}
+      <Accordion title={t("collection.infoAndActions")} defaultOpen={true}>
+        {/* Collection Info Grid */}
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4 mb-4">
           <InfoRow
             label={t("collection.createdAt")}
             value={new Date(collection.createdAt).toLocaleDateString()}
@@ -650,40 +640,93 @@ function CollectionDetailsPage() {
             value={t(`collection.status.${collection.status}`)}
           />
         </div>
-      </div>
 
-      {/* ── Workflow Phase Actions ── */}
-      {(() => {
-        const PhaseComponent = WORKFLOW_PHASES[collection.status];
-        if (!PhaseComponent) return null;
-        return (
-          <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-            <PhaseComponent
-              collection={collection}
-              photoCount={photos.length}
-              onCopyShareLink={handleCopyShareLink}
-              onCopyDeliveryLink={handleCopyDeliveryLink}
-              onStartSelecting={handleStartSelecting}
-              onMarkAsDelivered={handleMarkAsDelivered}
-              editedPhotosCount={editedPhotos.length}
-            />
+        {/* Divider */}
+        <div className="border-t border-gray-200 my-4" />
+
+        {/* Upload Section - Show "Add Photos" when empty, "Add More Photos" when has photos */}
+        <div className="mb-4">
+          <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+            {t("collection.uploadSection")}
+          </h3>
+          <Button
+            variant="secondary"
+            onClick={() => setShowUploadZone(!showUploadZone)}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
+          </Button>
+        </div>
+
+        {/* Share Section - Only visible when photos exist */}
+        {photos.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t("collection.shareSection")}
+            </h3>
+            <Button variant="primary" onClick={handleCopyShareLink}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              {t("collection.copyShareLink")}
+            </Button>
           </div>
-        );
-      })()}
+        )}
 
-      {/* ── Upload Card ── */}
-      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
-          {t("collection.photos")}
-          {photos.length > 0 && (
-            <span className="ml-2 text-xs font-normal text-gray-400 normal-case tracking-normal">
-              {t("collection.photosCount", { count: photos.length })}
-            </span>
-          )}
-        </h2>
+        {/* Phase-specific Actions */}
+        {collection.status === 'DRAFT' && photos.length > 0 && (
+          <div>
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t("collection.workflowActions")}
+            </h3>
+            <Button variant="secondary" onClick={handleStartSelecting}>
+              {t("collection.startSelecting")}
+            </Button>
+          </div>
+        )}
 
-        {/* Progressive disclosure: show full dropzone when empty, compact button when has photos */}
-        {photos.length === 0 ? (
+        {collection.status === 'REVIEWING' && (
+          <div>
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t("collection.reviewPhase")}
+            </h3>
+            <Button
+              variant="primary"
+              onClick={handleMarkAsDelivered}
+              disabled={editedPhotos.length === 0}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {t("collection.markAsDelivered")}
+            </Button>
+          </div>
+        )}
+
+        {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && collection.deliveryToken && (
+          <div>
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+              {t("collection.deliverPhase")}
+            </h3>
+            <Button variant="primary" onClick={handleCopyDeliveryLink}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              {t("collection.copyDeliveryLink")}
+            </Button>
+          </div>
+        )}
+      </Accordion>
+
+      {/* ── Upload Dropzone (only shown when showUploadZone is true) ── */}
+      {showUploadZone && (
+        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
+          <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+            {photos.length === 0 ? t("collection.photos") : t("collection.uploadMore")}
+          </h2>
+
           <div
             role="button"
             tabIndex={0}
@@ -693,7 +736,7 @@ function CollectionDetailsPage() {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-all duration-300 select-none
+            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 cursor-pointer transition-all duration-300 select-none
               ${dragOver
                 ? "border-blue-500 bg-blue-50"
                 : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
@@ -709,45 +752,44 @@ function CollectionDetailsPage() {
               {t("collection.uploadZoneHint")}
             </p>
           </div>
-        ) : (
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            {t('collection.addMorePhotos')}
-          </Button>
-        )}
+          <button
+            onClick={() => setShowUploadZone(false)}
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700 bg-transparent border-none cursor-pointer"
+          >
+            {t("common.cancel")}
+          </button>
 
-        {/* Upload status indicators (always shown when active) */}
-        {anyUploading && (
-          <p className="mt-3 mb-0 text-xs text-blue-600 font-medium animate-pulse">
-            {t("collection.uploading")}
-          </p>
-        )}
-        {uploadErrors > 0 && !anyUploading && (
-          <p className="mt-3 mb-0 text-xs text-red-500 font-medium">
-            {uploadErrors}x {t("collection.uploadError")}
-          </p>
-        )}
-        {validationErrors > 0 && !anyUploading && (
-          <p className="mt-3 mb-0 text-xs text-amber-600 font-medium">
-            {validationErrors}x {t("collection.uploadValidationError")}
-          </p>
-        )}
+          {/* Upload status indicators (always shown when active) */}
+          {anyUploading && (
+            <p className="mt-3 mb-0 text-xs text-blue-600 font-medium animate-pulse">
+              {t("collection.uploading")}
+            </p>
+          )}
+          {uploadErrors > 0 && !anyUploading && (
+            <p className="mt-3 mb-0 text-xs text-red-500 font-medium">
+              {uploadErrors}x {t("collection.uploadError")}
+            </p>
+          )}
+          {validationErrors > 0 && !anyUploading && (
+            <p className="mt-3 mb-0 text-xs text-amber-600 font-medium">
+              {validationErrors}x {t("collection.uploadValidationError")}
+            </p>
+          )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+      )}
 
       {/* ── Photo Grid Card ── */}
       {photos.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
+        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
           {/* Filter tabs */}
           {selections.length > 0 && (
             <div className="flex gap-2 mb-4 border-b border-gray-200">
@@ -847,28 +889,9 @@ function CollectionDetailsPage() {
         </div>
       )}
 
-      {/* Empty state when no photos */}
-      {photos.length === 0 && !anyUploading && (
-        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-              </svg>
-            </div>
-            <h3 className="text-base font-semibold text-gray-800 mb-1">
-              {t(`collection.emptyState.${collection.status}.title`, { defaultValue: t('collection.noPhotos') })}
-            </h3>
-            <p className="text-sm text-gray-500 m-0">
-              {t(`collection.emptyState.${collection.status}.subtitle`, { defaultValue: '' })}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* ── Edited Finals Upload Zone (REVIEWING only) ── */}
       {collection.status === 'REVIEWING' && (
-        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
+        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
           <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
             {t('collection.editedFinalsTitle')}
             {editedPhotos.length > 0 && (
