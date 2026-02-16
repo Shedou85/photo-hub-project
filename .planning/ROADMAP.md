@@ -135,10 +135,13 @@ Plans:
   3. Task completion time measured before/after redesign (upload → share, create collection)
   4. Multi-locale visual regression testing complete (LT/EN/RU overflow checks with 30% width buffer)
   5. Lighthouse performance score >90, LCP <2.5s, CLS <0.1, bundle size <50KB CSS gzipped
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 16-01: TBD
+- [ ] 16-01-PLAN.md — Set up Vitest + RTL infrastructure and write unit tests for primitives, AuthContext, ProtectedRoute
+- [ ] 16-02-PLAN.md — Set up Lighthouse CI config, bundle size analysis with rollup-plugin-visualizer
+- [ ] 16-03-PLAN.md — Set up Playwright E2E with multi-locale visual regression, cross-browser responsive, and accessibility tests
+- [ ] 16-04-PLAN.md — Human verification checkpoint for cross-browser, physical device, task completion time, and monitor testing
 
 ## Progress
 
