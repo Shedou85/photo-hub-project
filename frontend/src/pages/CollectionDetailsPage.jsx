@@ -3,6 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { PHOTO_GRID_CLASSES } from '../constants/styles';
+import Button from '../components/primitives/Button';
+import Badge from '../components/primitives/Badge';
+import DraftPhase from '../components/collection/DraftPhase';
+import SelectingPhase from '../components/collection/SelectingPhase';
+import ReviewingPhase from '../components/collection/ReviewingPhase';
+import DeliveredPhase from '../components/collection/DeliveredPhase';
 
 function InfoRow({ label, value }) {
   return (
@@ -25,6 +31,14 @@ const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
   const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
   return `${base}/${path}`;
+};
+
+const WORKFLOW_PHASES = {
+  DRAFT: DraftPhase,
+  SELECTING: SelectingPhase,
+  REVIEWING: ReviewingPhase,
+  DELIVERED: DeliveredPhase,
+  DOWNLOADED: DeliveredPhase,
 };
 
 function CollectionDetailsPage() {
@@ -609,15 +623,9 @@ function CollectionDetailsPage() {
             {collection.name}
           </h1>
           {collection.status !== 'DRAFT' && (
-            <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-              collection.status === 'SELECTING' ? 'bg-blue-100 text-blue-700' :
-              collection.status === 'REVIEWING' ? 'bg-green-100 text-green-700' :
-              collection.status === 'DELIVERED' ? 'bg-purple-100 text-purple-700' :
-              collection.status === 'DOWNLOADED' ? 'bg-purple-200 text-purple-800' :
-              'bg-gray-100 text-gray-600'
-            }`}>
+            <Badge status={collection.status}>
               {t(`collection.status.${collection.status}`)}
-            </span>
+            </Badge>
           )}
         </div>
       </div>
@@ -644,81 +652,24 @@ function CollectionDetailsPage() {
         </div>
       </div>
 
-      {/* ── Actions Card with Workflow Phases ── */}
-      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5 space-y-4">
-        {/* Share section (always visible) */}
-        <div>
-          <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-            {t('collection.sharePhase')}
-          </h3>
-          <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={handleCopyShareLink}
-              className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-              {t("collection.copyShareLink")}
-            </button>
-            {collection.status === 'DRAFT' && photos.length > 0 && (
-              <button
-                onClick={handleStartSelecting}
-                className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
-              >
-                {t('collection.startSelecting')}
-              </button>
-            )}
+      {/* ── Workflow Phase Actions ── */}
+      {(() => {
+        const PhaseComponent = WORKFLOW_PHASES[collection.status];
+        if (!PhaseComponent) return null;
+        return (
+          <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
+            <PhaseComponent
+              collection={collection}
+              photoCount={photos.length}
+              onCopyShareLink={handleCopyShareLink}
+              onCopyDeliveryLink={handleCopyDeliveryLink}
+              onStartSelecting={handleStartSelecting}
+              onMarkAsDelivered={handleMarkAsDelivered}
+              editedPhotosCount={editedPhotos.length}
+            />
           </div>
-        </div>
-
-        {/* Review section (only when REVIEWING) */}
-        {collection.status === 'REVIEWING' && (
-          <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-              {t('collection.reviewPhase')}
-            </h3>
-            <div className="flex gap-3 flex-wrap">
-              <button
-                onClick={handleMarkAsDelivered}
-                disabled={editedPhotos.length === 0}
-                className={`inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 ${
-                  editedPhotos.length > 0
-                    ? 'bg-[linear-gradient(135deg,#10b981,#059669)] hover:opacity-90'
-                    : 'bg-gray-300 cursor-not-allowed opacity-60'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('collection.markAsDelivered')}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Deliver section (only when DELIVERED or DOWNLOADED) */}
-        {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && (
-          <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-              {t('collection.deliverPhase')}
-            </h3>
-            <div className="flex gap-3 flex-wrap">
-              {collection.deliveryToken && (
-                <button
-                  onClick={handleCopyDeliveryLink}
-                  className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#10b981,#059669)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  {t('collection.copyDeliveryLink')}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* ── Upload Card ── */}
       <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
@@ -742,7 +693,7 @@ function CollectionDetailsPage() {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none
+            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-all duration-300 select-none
               ${dragOver
                 ? "border-blue-500 bg-blue-50"
                 : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
@@ -759,15 +710,12 @@ function CollectionDetailsPage() {
             </p>
           </div>
         ) : (
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors cursor-pointer font-sans"
-          >
+          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             {t('collection.addMorePhotos')}
-          </button>
+          </Button>
         )}
 
         {/* Upload status indicators (always shown when active) */}
