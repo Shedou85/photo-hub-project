@@ -85,10 +85,11 @@ Plans:
   3. Photo grids scale responsively (1-col mobile, 2-col tablet, 3-col desktop)
   4. Desktop max-width containers prevent ultra-wide sprawl (max-w-6xl or max-w-7xl)
   5. Layout tested at in-between sizes (800px, 1100px, 1400px) not just exact breakpoints
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 13-01: TBD
+- [ ] 13-01-PLAN.md — Create useMediaQuery hook, mobile bottom navigation, MobileLayout, ResponsiveLayout switcher, and refactor MainLayout for desktop-only
+- [ ] 13-02-PLAN.md — Update photo grids to responsive 1/2/3 columns and add max-w-6xl containers to authenticated pages
 
 #### Phase 14: Collection Cards & Simple Pages
 **Goal**: Apply design tokens to collection list and client-facing pages
