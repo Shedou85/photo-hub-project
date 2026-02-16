@@ -23,7 +23,7 @@ function FeatureCard({ icon, title, desc, delay }) {
       </div>
       <div>
         <h3 className="font-serif-display text-xl font-semibold text-gray-900 mb-2 leading-snug">{title}</h3>
-        <p className="text-base text-gray-500 leading-relaxed">{desc}</p>
+        <p className="text-base text-gray-700 leading-relaxed">{desc}</p>
       </div>
     </div>
   );
@@ -47,7 +47,7 @@ function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badg
         <p className="text-sm font-medium text-indigo-400 uppercase tracking-widest mb-2">{name}</p>
         <div className="flex items-end gap-1.5">
           <span className="font-serif-display text-[42px] font-bold text-white leading-none">{price}</span>
-          {perMonth && <span className="text-sm text-white/40 mb-1.5">{perMonth}</span>}
+          {perMonth && <span className="text-sm text-white/60 mb-1.5">{perMonth}</span>}
         </div>
       </div>
       <ul className="flex flex-col gap-3 mb-8 flex-1">
@@ -307,7 +307,7 @@ function HomePage() {
             <h2 className="lp-fade font-serif-display text-[clamp(32px,4vw,48px)] font-bold text-gray-900 mb-4 leading-tight">
               {t('home.features.title')}
             </h2>
-            <p className="lp-fade lp-fade-d1 text-base text-gray-500 max-w-lg mx-auto">
+            <p className="lp-fade lp-fade-d1 text-base text-gray-700 max-w-lg mx-auto">
               {t('home.features.subtitle')}
             </p>
           </div>
@@ -344,7 +344,7 @@ function HomePage() {
             <h2 className="lp-fade font-serif-display text-[clamp(32px,4vw,48px)] font-bold text-white mb-4 leading-tight">
               {t('home.plans.title')}
             </h2>
-            <p className="lp-fade lp-fade-d1 text-base text-white/40 max-w-md mx-auto">
+            <p className="lp-fade lp-fade-d1 text-base text-white/60 max-w-md mx-auto">
               {t('home.plans.subtitle')}
             </p>
           </div>
@@ -361,9 +361,9 @@ function HomePage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="PixelForge" className="w-8 h-8 rounded-full" />
-            <span className="text-sm text-white/30">{t('home.footer.tagline')}</span>
+            <span className="text-sm text-white/60">{t('home.footer.tagline')}</span>
           </div>
-          <p className="text-xs text-white/20">{t('home.footer.rights')}</p>
+          <p className="text-xs text-white/50">{t('home.footer.rights')}</p>
         </div>
       </footer>
 
