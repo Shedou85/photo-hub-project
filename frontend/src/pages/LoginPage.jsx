@@ -69,13 +69,13 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0f14] font-['Outfit',sans-serif]">
+    <div className="min-h-screen bg-surface-darker font-['Outfit',sans-serif]">
 
       {/* ── Fixed Nav ────────────────────────────────────────────── */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-[#0d0f14]/90 backdrop-blur-md border-b border-white/[0.07] shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
+            ? "bg-surface-darker/90 backdrop-blur-md border-b border-white/[0.07] shadow-xl"
             : "bg-transparent"
         }`}
       >
@@ -85,7 +85,7 @@ function LoginPage() {
             <div className="w-8 h-8 rounded-lg bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] flex items-center justify-center shrink-0">
               <span className="text-white font-bold text-xs tracking-tight">PF</span>
             </div>
-            <span className="font-semibold text-white text-[15px] tracking-tight">PixelForge</span>
+            <span className="font-semibold text-white text-base tracking-tight">PixelForge</span>
           </Link>
 
           {/* Right: lang switcher only */}
@@ -98,7 +98,7 @@ function LoginPage() {
               <span className="text-[10px] opacity-60">▾</span>
             </button>
             {langOpen && (
-              <div className="absolute top-full right-0 mt-1.5 bg-[#1a1f35] border border-white/10 rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.5)] overflow-hidden z-50 min-w-[56px]">
+              <div className="absolute top-full right-0 mt-1.5 bg-surface-dark-alt border border-white/10 rounded-lg shadow-lg overflow-hidden z-50 min-w-[56px]">
                 {LANGUAGES.filter((l) => l.code !== i18n.language).map(({ code, label }) => (
                   <button
                     key={code}
@@ -132,15 +132,15 @@ function LoginPage() {
         />
 
         {/* ── Login Card ───────────────────────────────────────────── */}
-        <div className="lp-fade lp-fade-d1 relative z-10 w-full max-w-[420px] mx-4 mt-16 bg-white/[0.04] border border-white/10 rounded-[16px] px-8 py-9 shadow-[0_0_40px_rgba(0,0,0,0.4)]">
-          <h1 className="font-serif-display text-[28px] font-bold text-white mb-6 mt-0">
+        <div className="lp-fade lp-fade-d1 relative z-10 w-full max-w-[420px] mx-4 mt-16 bg-white/[0.04] border border-white/10 rounded-lg px-8 py-9 shadow-xl">
+          <h1 className="font-serif-display text-2xl font-bold text-white mb-6 mt-0">
             {t("login.title")}
           </h1>
 
           <form onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="mb-4">
-              <label htmlFor="email" className="block mb-[5px] text-[13px] font-medium text-white/50">
+              <label htmlFor="email" className="block mb-1 text-sm font-medium text-white/50">
                 {t("login.email")}
               </label>
               <input
@@ -149,13 +149,13 @@ function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-[8px] py-2.5 px-3.5 text-[14px] outline-none transition-all duration-150 w-full"
+                className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm py-2.5 px-3.5 text-sm outline-none transition-all duration-150 w-full"
               />
             </div>
 
             {/* Password field */}
             <div className="mb-6">
-              <label htmlFor="password" className="block mb-[5px] text-[13px] font-medium text-white/50">
+              <label htmlFor="password" className="block mb-1 text-sm font-medium text-white/50">
                 {t("login.password")}
               </label>
               <input
@@ -164,13 +164,13 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-[8px] py-2.5 px-3.5 text-[14px] outline-none transition-all duration-150 w-full"
+                className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm py-2.5 px-3.5 text-sm outline-none transition-all duration-150 w-full"
               />
             </div>
 
             {/* Error message */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-[8px] px-4 py-3 text-[13px] mb-4">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-sm px-4 py-3 text-sm mb-4">
                 {error}
               </div>
             )}
@@ -178,7 +178,7 @@ function LoginPage() {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full py-3 rounded-[10px] text-[15px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)] border-none cursor-pointer"
+              className="w-full py-3 rounded text-base font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)] border-none cursor-pointer"
             >
               {t("login.submit")}
             </button>
@@ -186,7 +186,7 @@ function LoginPage() {
 
           {/* Back to home */}
           <div className="mt-6 text-center">
-            <Link to="/" className="text-[13px] text-white/30 hover:text-white/60 transition-colors duration-150 no-underline">
+            <Link to="/" className="text-sm text-white/30 hover:text-white/60 transition-colors duration-150 no-underline">
               ← {t("login.backHome")}
             </Link>
           </div>
