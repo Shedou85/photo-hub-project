@@ -3,9 +3,9 @@ import { flushSync } from 'react-dom';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { BREAKPOINTS } from '../constants/breakpoints';
 
 const SIDEBAR_WIDTH = 240;
-const BREAKPOINT = 768;
 
 const NAV_ITEMS = () => [
   { to: '/profile', key: 'nav.profile', icon: '👤' },
@@ -25,7 +25,7 @@ const MainLayout = () => {
     { code: 'ru', label: 'RU' },
   ];
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < BREAKPOINT);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < BREAKPOINTS.TABLET);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
 
@@ -46,7 +46,7 @@ const MainLayout = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < BREAKPOINT;
+      const mobile = window.innerWidth < BREAKPOINTS.TABLET;
       setIsMobile(mobile);
       if (!mobile) setSidebarOpen(false);
     };
@@ -73,11 +73,11 @@ const MainLayout = () => {
   const items = NAV_ITEMS();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f6fa]">
+    <div className="flex flex-col min-h-screen bg-surface-light">
 
       {/* Mobile top bar */}
       {isMobile && (
-        <header className="flex items-center gap-3 px-4 py-3 bg-[#1a1a2e] text-white sticky top-0 z-[1001] shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+        <header className="flex items-center gap-3 px-4 py-3 bg-surface-dark text-white sticky top-0 z-[1001] shadow-lg">
           <button
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
@@ -102,7 +102,7 @@ const MainLayout = () => {
 
         {/* Sidebar */}
         <aside
-          className={`bg-[#1a1a2e] flex flex-col top-0 h-screen z-[1003] overflow-y-auto${isMobile ? ' fixed' : ' sticky'}`}
+          className={`bg-surface-dark flex flex-col top-0 h-screen z-[1003] overflow-y-auto${isMobile ? ' fixed' : ' sticky'}`}
           style={{
             width: SIDEBAR_WIDTH,
             minWidth: SIDEBAR_WIDTH,
@@ -117,17 +117,17 @@ const MainLayout = () => {
             <div className="flex items-center justify-between">
               <span className="font-extrabold text-lg text-white tracking-[0.5px]">PixelForge</span>
               {isMobile && (
-                <button onClick={() => setSidebarOpen(false)} aria-label="Close menu" className="bg-transparent border-none text-[#9ca3c4] text-xl cursor-pointer">✕</button>
+                <button onClick={() => setSidebarOpen(false)} aria-label="Close menu" className="bg-transparent border-none text-sidebar-text text-xl cursor-pointer">✕</button>
               )}
             </div>
             {user && (
-              <div className="mt-[14px] flex items-center gap-2.5">
+              <div className="mt-3.5 flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                   {user.name ? user.name[0].toUpperCase() : '?'}
                 </div>
                 <div className="overflow-hidden">
                   <div className="text-white font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis">{user.name}</div>
-                  <div className="text-[#8b8fa8] text-[11px] mt-px">{user.plan?.replace('_', ' ')}</div>
+                  <div className="text-sidebar-text-dim text-xs mt-px">{user.plan?.replace('_', ' ')}</div>
                 </div>
               </div>
             )}
@@ -138,7 +138,7 @@ const MainLayout = () => {
             {items.map(({ to, key, icon }) => {
               const active = location.pathname === to;
               return (
-                <Link key={to} to={to} className={`flex items-center gap-3 py-2.5 px-3.5 rounded-lg mb-1 no-underline text-sm border-l-[3px]${active ? ' text-white bg-indigo-500/25 font-semibold border-indigo-500' : ' text-[#9ca3c4] bg-transparent font-normal border-transparent'}`}>
+                <Link key={to} to={to} className={`flex items-center gap-3 py-2.5 px-3.5 rounded-lg mb-1 no-underline text-sm border-l-[3px]${active ? ' text-white bg-indigo-500/25 font-semibold border-indigo-500' : ' text-sidebar-text bg-transparent font-normal border-transparent'}`}>
                   <span className="text-base">{icon}</span>
                   {t(key)}
                 </Link>
@@ -155,7 +155,7 @@ const MainLayout = () => {
           </div>
 
           {/* Sidebar footer */}
-          <div className="py-[14px] px-5 border-t border-white/[0.08] text-[11px] text-[#555e7a]">
+          <div className="py-3.5 px-5 border-t border-white/[0.08] text-xs text-sidebar-footer">
             © {new Date().getFullYear()} PixelForge
           </div>
         </aside>
@@ -174,7 +174,7 @@ const MainLayout = () => {
                 <span>▾</span>
               </button>
               {langOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.1)] overflow-hidden z-50 min-w-[60px]">
+                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-md overflow-hidden z-50 min-w-[60px]">
                   {languages
                     .filter((l) => l.code !== i18n.language)
                     .map(({ code, label }) => (

@@ -4,7 +4,7 @@ function Accordion({ title, children }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-[10px] mb-5 transition-all duration-700">
+    <div className="bg-white border border-gray-200 rounded mb-5 transition-all duration-700">
       {/* Accordion Header */}
       <div
         className="flex items-center justify-between px-6 py-4 cursor-pointer select-none"
@@ -14,7 +14,7 @@ function Accordion({ title, children }) {
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && setIsOpen(!isOpen)}
       >
-        <h2 className="mt-0 mb-0 text-[14px] font-bold text-gray-700 uppercase tracking-[0.05em]">
+        <h2 className="mt-0 mb-0 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
           {title}
         </h2>
         <svg
