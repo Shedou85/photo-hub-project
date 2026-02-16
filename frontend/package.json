@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:analyze": "vite build && node scripts/check-bundle-size.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lighthouse": "lhci autorun --config=lighthouserc.json",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
