@@ -12,16 +12,16 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 Phase: 16 of 16 (Testing & QA)
 Plan: 2 of TBD in current phase
 Status: In Progress
-Last activity: 2026-02-16 — Completed 16-02 (Performance Monitoring Infrastructure) - Bundle size analysis, Lighthouse CI configuration
+Last activity: 2026-02-16 — Completed 16-01 (Testing Infrastructure) - Vitest + RTL setup, primitive component tests, auth tests (68 passing tests)
 
 Progress: [███████████████████░] 94% (15 of 16 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
-- Average duration: 6.1 min
-- Total execution time: 3.63 hours
+- Total plans completed: 29
+- Average duration: 5.9 min
+- Total execution time: 3.72 hours
 
 **By Phase:**
 
@@ -42,13 +42,14 @@ Progress: [███████████████████░] 94% (15
 | 13-responsive-layout-refactor | 2/2 | 5.33 min | 2.7 min |
 | 14-collection-cards-and-simple-pages | 2/2 | 8.97 min | 4.5 min |
 | 15-workflow-enhancement | 2/2 | 5.37 min | 2.69 min |
-| 16-testing-and-qa | 2/? | 2.25 min | 2.25 min (in progress) |
+| 16-testing-and-qa | 2/? | 7.25 min | 3.63 min (in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 14-02 (4.8 min), 15-01 (2.52 min), 15-02 (2.85 min), 16-02 (2.25 min)
-- Trend: Consistent fast execution (2.25-2.85 min) — focused infrastructure and tooling tasks
+- Last 5 plans: 15-01 (2.52 min), 15-02 (2.85 min), 16-02 (2.25 min), 16-01 (5.0 min)
+- Trend: Phase 16 plans vary by scope — infrastructure setup (16-02: 2.25 min) vs comprehensive testing (16-01: 5.0 min)
 
-*Updated after 15-02 completion*
+*Updated after 16-01 completion*
+| Phase 16 P01 | 5.0 | 3 tasks | 10 files |
 | Phase 16 P02 | 2.25 | 2 tasks | 4 files |
 
 ## Accumulated Context
@@ -88,6 +89,9 @@ Recent decisions affecting current work:
 - [Phase 15-02]: Use IIFE for inline PhaseComponent resolution in JSX to keep lookup logic colocated with rendering
 - [Phase 15-02]: ReviewingPhase uses primary button variant instead of custom green gradient for design system consistency
 - [Phase 15-02]: Underscore prefix for unused collection prop in phase components for future extensibility
+- [Phase 16-01]: Custom render utility wraps with i18n + Router providers (not AuthProvider) — components under ProtectedRoute don't need it in tests, AuthContext tests need to test provider itself
+- [Phase 16-01]: Use semantic queries (getByRole, getByText) over getByTestId for better accessibility alignment in tests
+- [Phase 16-01]: AuthContext localStorage parsing wrapped in try-catch to handle corrupted data gracefully (bug fix discovered during test writing)
 - [Phase 16-02]: Use rollup-plugin-visualizer for bundle analysis — native Rollup integration with Vite, generates interactive treemap HTML
 - [Phase 16-02]: Do not install @lhci/cli locally (200MB+) — recommend global install for on-demand Lighthouse auditing
 - [Phase 16-02]: CSS bundle budget 50KB gzipped (QUALITY-01) — current usage 7.64 KB leaves 42 KB headroom for future styling
@@ -107,6 +111,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 16-02 (Performance Monitoring Infrastructure) - Bundle size analysis, Lighthouse CI configuration
+Stopped at: Completed 16-01 (Testing Infrastructure) - Vitest + RTL setup, 68 passing tests for primitives and auth
 Resume file: None
-Next step: Continue Phase 16 (Testing & QA) - Next plan in queue
+Next step: Continue Phase 16 (Testing & QA) - Integration tests, E2E tests, or performance testing
