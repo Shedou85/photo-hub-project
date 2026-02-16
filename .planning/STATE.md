@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 ## Current Position
 
 Phase: 16 of 16 (Testing & QA)
-Plan: 2 of TBD in current phase
+Plan: 3 of TBD in current phase
 Status: In Progress
-Last activity: 2026-02-16 — Completed 16-01 (Testing Infrastructure) - Vitest + RTL setup, primitive component tests, auth tests (68 passing tests)
+Last activity: 2026-02-16 — Completed 16-03 (Playwright E2E Testing) - 80 tests across 5 browser projects, multi-locale visual regression, cross-browser responsive layouts, WCAG accessibility scanning
 
 Progress: [███████████████████░] 94% (15 of 16 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
-- Average duration: 5.9 min
-- Total execution time: 3.72 hours
+- Total plans completed: 30
+- Average duration: 5.86 min
+- Total execution time: 3.84 hours
 
 **By Phase:**
 
@@ -42,15 +42,16 @@ Progress: [███████████████████░] 94% (15
 | 13-responsive-layout-refactor | 2/2 | 5.33 min | 2.7 min |
 | 14-collection-cards-and-simple-pages | 2/2 | 8.97 min | 4.5 min |
 | 15-workflow-enhancement | 2/2 | 5.37 min | 2.69 min |
-| 16-testing-and-qa | 2/? | 7.25 min | 3.63 min (in progress) |
+| 16-testing-and-qa | 3/? | 14.57 min | 4.86 min (in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 15-01 (2.52 min), 15-02 (2.85 min), 16-02 (2.25 min), 16-01 (5.0 min)
-- Trend: Phase 16 plans vary by scope — infrastructure setup (16-02: 2.25 min) vs comprehensive testing (16-01: 5.0 min)
+- Last 5 plans: 15-02 (2.85 min), 16-02 (2.25 min), 16-01 (5.0 min), 16-03 (7.32 min)
+- Trend: Phase 16 plans scale with test scope — infrastructure (2.25 min) < unit tests (5.0 min) < E2E tests (7.32 min)
 
 *Updated after 16-01 completion*
 | Phase 16 P01 | 5.0 | 3 tasks | 10 files |
 | Phase 16 P02 | 2.25 | 2 tasks | 4 files |
+| Phase 16 P03 | 7.32 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,11 @@ Recent decisions affecting current work:
 - [Phase 16-02]: Use rollup-plugin-visualizer for bundle analysis — native Rollup integration with Vite, generates interactive treemap HTML
 - [Phase 16-02]: Do not install @lhci/cli locally (200MB+) — recommend global install for on-demand Lighthouse auditing
 - [Phase 16-02]: CSS bundle budget 50KB gzipped (QUALITY-01) — current usage 7.64 KB leaves 42 KB headroom for future styling
+- [Phase 16-03]: Run E2E tests against production (pixelforge.pro) not local dev — tests real-world deployment conditions
+- [Phase 16-03]: Use localStorage i18nextLng for locale switching in tests — matches how i18next detects locale
+- [Phase 16-03]: Skip accessibility tests on non-chromium browsers — axe-core results browser-independent, avoid duplicate scans
+- [Phase 16-03]: Test 4 viewport sizes (375/768/1920/2560px) — covers mobile/tablet/desktop/ultrawide per TEST-05
+- [Phase 16-03]: maxDiffPixels 100 for screenshot comparison — tolerates minor anti-aliasing differences
 
 ### Pending Todos
 
@@ -111,6 +117,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 16-01 (Testing Infrastructure) - Vitest + RTL setup, 68 passing tests for primitives and auth
+Stopped at: Completed 16-03 (Playwright E2E Testing) - 80 E2E tests across 5 browser projects with visual regression and accessibility scanning
 Resume file: None
-Next step: Continue Phase 16 (Testing & QA) - Integration tests, E2E tests, or performance testing
+Next step: Continue Phase 16 (Testing & QA) - Plan 16-04 or final integration testing
