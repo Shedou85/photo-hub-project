@@ -119,10 +119,11 @@ Plans:
   5. Next-step guidance text displays below status badge (e.g., "Next step: Upload photos")
   6. CollectionDetailsPage workflow phases extracted into separate components (DraftPhase, SelectingPhase, ReviewingPhase, DeliveredPhase)
   7. Page transitions complete within 300ms animation budget
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 15-01: TBD
+- [ ] 15-01-PLAN.md — Auto-navigation, conditional start-selecting, next-step guidance, state-specific empty states, and i18n keys
+- [ ] 15-02-PLAN.md — Extract DraftPhase/SelectingPhase/ReviewingPhase/DeliveredPhase components with object lookup pattern and Button/Badge primitive usage
 
 #### Phase 16: Testing & QA
 **Goal**: Comprehensive testing and performance validation before launch
