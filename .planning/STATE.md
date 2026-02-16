@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 ## Current Position
 
 Phase: 14 of 16 (Collection Cards & Simple Pages)
-Plan: 1 of 2 in current phase
-Status: In Progress
-Last activity: 2026-02-16 — Completed 14-01-PLAN.md (collection cards with edge-to-edge covers)
+Plan: 2 of 2 in current phase
+Status: Complete
+Last activity: 2026-02-16 — Completed 14-02-PLAN.md (Button primitive and grid class refactoring)
 
-Progress: [██████████████░░░░░░] 81% (13 of 16 phases complete, 14 in progress)
+Progress: [███████████████░░░░░] 88% (14 of 16 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
-- Average duration: 6.8 min
-- Total execution time: 3.42 hours
+- Total plans completed: 25
+- Average duration: 6.7 min
+- Total execution time: 3.50 hours
 
 **By Phase:**
 
@@ -40,14 +40,14 @@ Progress: [██████████████░░░░░░] 81% (13
 | 11-design-system-foundation | 3/3 | 16.07 min | 5.4 min |
 | 12-primitive-component-library | 2/2 | 3.41 min | 1.7 min |
 | 13-responsive-layout-refactor | 2/2 | 5.33 min | 2.7 min |
-| 14-collection-cards-and-simple-pages | 1/2 | 4.17 min | 4.2 min (partial) |
+| 14-collection-cards-and-simple-pages | 2/2 | 8.97 min | 4.5 min |
 | 15-16 | TBD | TBD | TBD (v3.0 in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 12-02 (2.08 min), 13-01 (3.13 min), 13-02 (2.2 min), 14-01 (4.17 min)
-- Trend: Component creation slightly slower than refactors (new primitives ~4 min vs refactors ~2.7 min), reflecting design + implementation work
+- Last 5 plans: 13-01 (3.13 min), 13-02 (2.2 min), 14-01 (4.17 min), 14-02 (4.8 min)
+- Trend: Phase 14 plans consistently ~4.5 min (component creation + refactoring patterns), faster than early phases (27.5 min avg in Phase 4) due to mature primitives library
 
-*Updated after 14-01 completion*
+*Updated after 14-02 completion*
 
 ## Accumulated Context
 
@@ -77,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 13-responsive-layout-refactor]: Increase photo grid gap from gap-2 to gap-3 for better breathing room with 1-col mobile layout
 - [Phase 14]: CollectionCard uses rounded-[16px] corners (larger than standard rounded-[10px]) to match prominent card scale
 - [Phase 14]: Badge colored dots enhance status hierarchy without adding text clutter (DRAFT shows no badge)
+- [Phase 14-02]: Shared constants for repeated Tailwind patterns (PHOTO_GRID_CLASSES) preferred over wrapper components when no logic needed
+- [Phase 14-02]: Button primitive fullWidth + sm:w-auto pattern for responsive sizing (mobile full-width, desktop auto)
 
 ### Pending Todos
 
@@ -93,6 +95,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 14-01-PLAN.md (collection cards with edge-to-edge covers)
+Stopped at: Completed 14-02-PLAN.md (Button primitive and grid class refactoring) - Phase 14 complete
 Resume file: None
-Next step: Execute 14-02-PLAN.md (simple page header refactors) to complete Phase 14
+Next step: Begin Phase 15 (next v3.0 redesign phase)
