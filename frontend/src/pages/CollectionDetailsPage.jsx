@@ -656,7 +656,7 @@ function CollectionDetailsPage() {
               </svg>
               {t("collection.copyShareLink")}
             </button>
-            {collection.status === 'DRAFT' && (
+            {collection.status === 'DRAFT' && photos.length > 0 && (
               <button
                 onClick={handleStartSelecting}
                 className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-white bg-[linear-gradient(135deg,#3b82f6,#6366f1)] border-none rounded-sm cursor-pointer font-sans transition-opacity duration-150 hover:opacity-90"

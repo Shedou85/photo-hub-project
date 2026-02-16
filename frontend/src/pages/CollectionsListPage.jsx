@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -7,6 +8,7 @@ import Button from "../components/primitives/Button";
 import CollectionCard from "../components/primitives/CollectionCard";
 
 function CollectionsListPage() {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,14 +71,8 @@ function CollectionsListPage() {
     }).then(async (response) => {
       const data = await response.json();
       if (response.ok && data.status === "OK") {
+        navigate(`/collection/${data.collection.id}`);
         setNewCollectionName("");
-        const updatedResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
-          credentials: "include",
-        });
-        const updatedData = await updatedResponse.json();
-        if (updatedData.status === "OK") {
-          setCollections(updatedData.collections);
-        }
       } else {
         throw new Error(data.error || t('collections.createFailed'));
       }
