@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet } from 'react-router-dom';
+import { flushSync } from 'react-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 import BottomNavigation from '../components/BottomNavigation';
 
 /**
  * Mobile layout shell with bottom tab navigation.
  *
  * Layout structure:
- * - Fixed top header with logo and language switcher
+ * - Fixed top header with logo, logout button, and language switcher
  * - Main content area with bottom padding (pb-24 = 96px) to prevent content hiding under bottom nav
  * - Fixed bottom tab navigation
  *
@@ -18,7 +20,9 @@ import BottomNavigation from '../components/BottomNavigation';
  * <MobileLayout />
  */
 const MobileLayout = () => {
-  const { i18n } = useTranslation();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { i18n, t } = useTranslation();
   const [langOpen, setLangOpen] = useState(false);
   const langDropdownRef = useRef(null);
 
@@ -27,6 +31,19 @@ const MobileLayout = () => {
     { code: 'en', label: 'EN' },
     { code: 'ru', label: 'RU' },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (_) {
+      // ignore network errors — still log out locally
+    }
+    flushSync(() => logout());
+    navigate('/');
+  };
 
   useEffect(() => {
     const handleMouseDown = (e) => {
@@ -46,8 +63,22 @@ const MobileLayout = () => {
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-40">
         <span className="font-extrabold text-lg tracking-[0.5px]">PixelForge</span>
 
-        {/* Language switcher */}
-        <div className="relative" ref={langDropdownRef}>
+        <div className="flex items-center gap-2">
+          {/* Logout button */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center min-w-[40px] min-h-[40px] rounded-md text-red-500 hover:bg-red-50 transition-colors duration-150"
+            aria-label={t('nav.logout')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+
+          {/* Language switcher */}
+          <div className="relative" ref={langDropdownRef}>
           <button
             onClick={() => setLangOpen((prev) => !prev)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white text-xs font-bold text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
@@ -73,6 +104,7 @@ const MobileLayout = () => {
                 ))}
             </div>
           )}
+          </div>
         </div>
       </header>
 
