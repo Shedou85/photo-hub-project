@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 ## Current Position
 
-Phase: 14 of 16 (Collection Cards & Simple Pages)
-Plan: 2 of 2 in current phase
-Status: Complete
-Last activity: 2026-02-16 — Completed 14-02-PLAN.md (Button primitive and grid class refactoring)
+Phase: 15 of 16 (Workflow Enhancement)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-02-16 — Completed 15-01-PLAN.md (Quick workflow UX improvements)
 
 Progress: [███████████████░░░░░] 88% (14 of 16 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
-- Average duration: 6.7 min
-- Total execution time: 3.50 hours
+- Total plans completed: 26
+- Average duration: 6.5 min
+- Total execution time: 3.54 hours
 
 **By Phase:**
 
@@ -41,13 +41,14 @@ Progress: [███████████████░░░░░] 88% (14
 | 12-primitive-component-library | 2/2 | 3.41 min | 1.7 min |
 | 13-responsive-layout-refactor | 2/2 | 5.33 min | 2.7 min |
 | 14-collection-cards-and-simple-pages | 2/2 | 8.97 min | 4.5 min |
-| 15-16 | TBD | TBD | TBD (v3.0 in progress) |
+| 15-workflow-enhancement | 1/3 | 2.52 min | 2.52 min |
+| 16 | TBD | TBD | TBD (v3.0 in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 13-01 (3.13 min), 13-02 (2.2 min), 14-01 (4.17 min), 14-02 (4.8 min)
-- Trend: Phase 14 plans consistently ~4.5 min (component creation + refactoring patterns), faster than early phases (27.5 min avg in Phase 4) due to mature primitives library
+- Last 5 plans: 13-02 (2.2 min), 14-01 (4.17 min), 14-02 (4.8 min), 15-01 (2.52 min)
+- Trend: Phase 15-01 fastest plan in recent phases (2.52 min) — simple navigation + i18n additions, no new components
 
-*Updated after 14-02 completion*
+*Updated after 15-01 completion*
 
 ## Accumulated Context
 
@@ -79,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 14]: Badge colored dots enhance status hierarchy without adding text clutter (DRAFT shows no badge)
 - [Phase 14-02]: Shared constants for repeated Tailwind patterns (PHOTO_GRID_CLASSES) preferred over wrapper components when no logic needed
 - [Phase 14-02]: Button primitive fullWidth + sm:w-auto pattern for responsive sizing (mobile full-width, desktop auto)
+- [Phase 15-01]: Navigate immediately after collection creation (WORKFLOW-04) — reduces clicks, photographer lands directly on collection page to start uploading
+- [Phase 15-01]: Hide 'Start client selection' button when photos.length === 0 (WORKFLOW-03) — prevents invalid state (client sees empty gallery)
+- [Phase 15-01]: Next-step guidance as gray text below header (WORKFLOW-06) — non-intrusive workflow guidance without modal/tooltip complexity
+- [Phase 15-01]: State-specific empty states (WORKFLOW-07) — contextual messaging per collection status instead of generic "No photos yet"
 
 ### Pending Todos
 
@@ -95,6 +100,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 14-02-PLAN.md (Button primitive and grid class refactoring) - Phase 14 complete
+Stopped at: Completed 15-01-PLAN.md (Quick workflow UX improvements) - Phase 15 in progress (1 of 3 plans complete)
 Resume file: None
-Next step: Begin Phase 15 (next v3.0 redesign phase)
+Next step: Execute 15-02-PLAN.md (Collection list enhancements)
