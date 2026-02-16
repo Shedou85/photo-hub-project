@@ -185,7 +185,32 @@
     "addMorePhotos": "Add More Photos",
     "sharePhase": "Share",
     "reviewPhase": "Review",
-    "deliverPhase": "Deliver"
+    "deliverPhase": "Deliver",
+    "nextStep": {
+      "DRAFT": "Next step: Upload photos and share with your client",
+      "SELECTING": "Next step: Waiting for client to select photos",
+      "REVIEWING": "Next step: Upload edited finals and mark as delivered",
+      "DELIVERED": "Next step: Share the delivery link with your client",
+      "DOWNLOADED": "Your client has downloaded the photos"
+    },
+    "emptyState": {
+      "DRAFT": {
+        "title": "No photos yet",
+        "subtitle": "Upload photos to get started with this collection"
+      },
+      "SELECTING": {
+        "title": "Waiting for selections",
+        "subtitle": "Your client hasn't made any selections yet"
+      },
+      "REVIEWING": {
+        "title": "Ready for editing",
+        "subtitle": "Your client's selections are ready — upload the edited finals above"
+      },
+      "DELIVERED": {
+        "title": "Photos delivered",
+        "subtitle": "Your client can download the edited photos using the delivery link"
+      }
+    }
   },
   "share": {
     "loading": "Loading gallery...",

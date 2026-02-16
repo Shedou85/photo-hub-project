@@ -622,6 +622,11 @@ function CollectionDetailsPage() {
         </div>
       </div>
 
+      {/* Next-step guidance (WORKFLOW-06) */}
+      <p className="text-sm text-gray-500 mb-5 -mt-4">
+        {t(`collection.nextStep.${collection.status}`)}
+      </p>
+
       {/* ── Collection Info Card ── */}
       <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
         <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
@@ -897,9 +902,19 @@ function CollectionDetailsPage() {
       {/* Empty state when no photos */}
       {photos.length === 0 && !anyUploading && (
         <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-          <p className="m-0 text-sm text-gray-500 text-center py-5">
-            {t("collection.noPhotos")}
-          </p>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+              </svg>
+            </div>
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
+              {t(`collection.emptyState.${collection.status}.title`, { defaultValue: t('collection.noPhotos') })}
+            </h3>
+            <p className="text-sm text-gray-500 m-0">
+              {t(`collection.emptyState.${collection.status}.subtitle`, { defaultValue: '' })}
+            </p>
+          </div>
         </div>
       )}
 

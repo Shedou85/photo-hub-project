@@ -188,7 +188,32 @@
     "addMorePhotos": "Pridėti daugiau nuotraukų",
     "sharePhase": "Bendrinimas",
     "reviewPhase": "Peržiūra",
-    "deliverPhase": "Pristatymas"
+    "deliverPhase": "Pristatymas",
+    "nextStep": {
+      "DRAFT": "Kitas žingsnis: Įkelkite nuotraukas ir pasidalinkite su klientu",
+      "SELECTING": "Kitas žingsnis: Laukiama kliento pasirinkimų",
+      "REVIEWING": "Kitas žingsnis: Įkelkite galutinius failus ir pažymėkite kaip pristatyta",
+      "DELIVERED": "Kitas žingsnis: Pasidalinkite pristatymo nuoroda su klientu",
+      "DOWNLOADED": "Klientas atsisiuntė nuotraukas"
+    },
+    "emptyState": {
+      "DRAFT": {
+        "title": "Nuotraukų dar nėra",
+        "subtitle": "Įkelkite nuotraukas, kad pradėtumėte šią kolekciją"
+      },
+      "SELECTING": {
+        "title": "Laukiama pasirinkimų",
+        "subtitle": "Jūsų klientas dar nepasirinko nuotraukų"
+      },
+      "REVIEWING": {
+        "title": "Paruošta redagavimui",
+        "subtitle": "Kliento pasirinkimai paruošti — įkelkite galutinius failus aukščiau"
+      },
+      "DELIVERED": {
+        "title": "Nuotraukos pristatytos",
+        "subtitle": "Jūsų klientas gali atsisiųsti redaguotas nuotraukas naudodamas pristatymo nuorodą"
+      }
+    }
   },
   "share": {
     "loading": "Kraunama galerija...",
