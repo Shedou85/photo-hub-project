@@ -97,7 +97,7 @@ const MobileLayout = () => {
                       i18n.changeLanguage(code);
                       setLangOpen(false);
                     }}
-                    className="block w-full px-3 py-2 text-xs font-bold text-left cursor-pointer border-none bg-white hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
+                    className="block w-full px-3 py-2 text-xs font-bold text-left text-gray-700 cursor-pointer border-none bg-white hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
                   >
                     {label}
                   </button>
