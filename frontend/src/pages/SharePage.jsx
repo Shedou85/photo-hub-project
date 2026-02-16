@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import Button from '../components/primitives/Button';
+import { PHOTO_GRID_CLASSES } from '../constants/styles';
 
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -210,7 +212,7 @@ function SharePage() {
 
         {/* Photo grid */}
         {photos.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-10">
+          <div className={`${PHOTO_GRID_CLASSES} mb-10`}>
             {photos.map((photo, index) => {
               const isSelected = selectedPhotoIds.has(photo.id);
               return (
@@ -271,13 +273,16 @@ function SharePage() {
               <div className="text-sm font-semibold text-gray-700">
                 {t('share.selectedCount', { count: selectedPhotoIds.size })}
               </div>
-              <button
+              <Button
+                variant="primary"
+                size="lg"
                 onClick={submitSelections}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-3.5 px-8 rounded hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer border-none font-sans"
+                fullWidth
+                className="sm:w-auto"
               >
                 {isSubmitting ? t('share.submitting') : t('share.submitSelections', { count: selectedPhotoIds.size })}
-              </button>
+              </Button>
             </div>
           </div>
         )}

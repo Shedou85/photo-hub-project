@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { downloadPhoto, downloadAllAsZip } from '../utils/download';
+import Button from '../components/primitives/Button';
+import { PHOTO_GRID_CLASSES } from '../constants/styles';
 
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -145,21 +147,22 @@ function DeliveryPage() {
 
           {/* Download All as ZIP button */}
           {photos.length > 0 && (
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               onClick={() => downloadAllAsZip(deliveryToken)}
-              className="inline-flex items-center gap-2 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white font-semibold text-base py-3.5 px-6 rounded hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               {t('delivery.downloadAllAsZip')}
-            </button>
+            </Button>
           )}
         </div>
 
         {/* Photo grid */}
         {photos.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-10">
+          <div className={`${PHOTO_GRID_CLASSES} mb-10`}>
             {photos.map((photo, index) => (
               <div
                 key={photo.id}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { PHOTO_GRID_CLASSES } from '../constants/styles';
 
 function InfoRow({ label, value }) {
   return (
@@ -830,7 +831,7 @@ function CollectionDetailsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className={PHOTO_GRID_CLASSES}>
             {filteredPhotos.map((photo) => {
               // Find index in full photos array for lightbox navigation
               const photoIndex = photos.findIndex(p => p.id === photo.id);
@@ -960,7 +961,7 @@ function CollectionDetailsPage() {
 
           {/* Edited photos grid */}
           {editedPhotos.length > 0 && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className={`mt-4 ${PHOTO_GRID_CLASSES}`}>
               {editedPhotos.map((photo) => (
                 <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
                   <img
