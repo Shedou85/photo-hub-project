@@ -11,7 +11,7 @@ import ProfilePage from './pages/ProfilePage';
 import PaymentsPage from './pages/PaymentsPage';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import MainLayout from './layouts/MainLayout';
+import ResponsiveLayout from './layouts/ResponsiveLayout';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -25,7 +25,7 @@ function App() {
       <Route path="/share/:shareId" element={<SharePage />} />
       <Route path="/deliver/:deliveryToken" element={<DeliveryPage />} />
 
-      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+      <Route element={<ProtectedRoute><ResponsiveLayout /></ProtectedRoute>}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/collections" element={<CollectionsListPage />} />
         <Route path="/collection/:id" element={<CollectionDetailsPage />} />

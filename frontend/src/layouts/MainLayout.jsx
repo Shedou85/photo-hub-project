@@ -3,9 +3,8 @@ import { flushSync } from 'react-dom';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { BREAKPOINTS } from '../constants/breakpoints';
 
-const SIDEBAR_WIDTH = 240;
+const SIDEBAR_WIDTH = 256;
 
 const NAV_ITEMS = () => [
   { to: '/profile', key: 'nav.profile', icon: '👤' },
@@ -25,8 +24,6 @@ const MainLayout = () => {
     { code: 'ru', label: 'RU' },
   ];
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < BREAKPOINTS.TABLET);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
 
   const langDropdownRef = useRef(null);
@@ -45,20 +42,6 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < BREAKPOINTS.TABLET;
-      setIsMobile(mobile);
-      if (!mobile) setSidebarOpen(false);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) setSidebarOpen(false);
-  }, [location.pathname, isMobile]);
-
-  useEffect(() => {
     const handleMouseDown = (e) => {
       if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
         setLangOpen(false);
@@ -75,51 +58,21 @@ const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-surface-light">
 
-      {/* Mobile top bar */}
-      {isMobile && (
-        <header className="flex items-center gap-3 px-4 py-3 bg-surface-dark text-white sticky top-0 z-[1001] shadow-lg">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-            className="bg-transparent border-none text-white text-2xl cursor-pointer leading-none px-1"
-          >
-            ☰
-          </button>
-          <span className="font-bold text-base">PixelForge</span>
-        </header>
-      )}
-
       {/* Row: sidebar + content */}
       <div className="flex flex-1 relative">
 
-        {/* Overlay (mobile) */}
-        {isMobile && sidebarOpen && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/50 z-[1002]"
-          />
-        )}
-
         {/* Sidebar */}
         <aside
-          className={`bg-surface-dark flex flex-col top-0 h-screen z-[1003] overflow-y-auto${isMobile ? ' fixed' : ' sticky'}`}
+          className="bg-surface-dark flex flex-col top-0 h-screen sticky overflow-y-auto"
           style={{
             width: SIDEBAR_WIDTH,
             minWidth: SIDEBAR_WIDTH,
-            left: isMobile ? (sidebarOpen ? 0 : -SIDEBAR_WIDTH) : 0,
-            transition: 'left 0.25s ease',
-            boxShadow: isMobile && sidebarOpen ? '4px 0 24px rgba(0,0,0,0.4)' : 'none',
           }}
         >
 
           {/* Sidebar header */}
           <div className="pt-6 px-5 pb-4 border-b border-white/[0.08]">
-            <div className="flex items-center justify-between">
-              <span className="font-extrabold text-lg text-white tracking-[0.5px]">PixelForge</span>
-              {isMobile && (
-                <button onClick={() => setSidebarOpen(false)} aria-label="Close menu" className="bg-transparent border-none text-sidebar-text text-xl cursor-pointer">✕</button>
-              )}
-            </div>
+            <span className="font-extrabold text-lg text-white tracking-[0.5px]">PixelForge</span>
             {user && (
               <div className="mt-3.5 flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
@@ -195,7 +148,7 @@ const MainLayout = () => {
           </div>
 
           {/* Page content */}
-          <main className={isMobile ? 'p-4' : 'py-7 px-8'}>
+          <main className="py-7 px-8">
             <Outlet />
           </main>
 

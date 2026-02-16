@@ -6,7 +6,8 @@
     "profile": "Profilis",
     "collections": "Kolekcijos",
     "payments": "Mokėjimai",
-    "logout": "Atsijungti"
+    "logout": "Atsijungti",
+    "mainNavigation": "Pagrindinis meniu"
   },
   "home": {
     "navLogin": "Prisijungti",

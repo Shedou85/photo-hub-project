@@ -6,7 +6,8 @@
     "profile": "Профиль",
     "collections": "Коллекции",
     "payments": "Оплата",
-    "logout": "Выйти"
+    "logout": "Выйти",
+    "mainNavigation": "Основная навигация"
   },
   "home": {
     "navLogin": "Войти",
