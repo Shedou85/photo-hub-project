@@ -101,10 +101,11 @@ Plans:
   3. SharePage and DeliveryPage use primitive components with improved mobile touch targets
   4. Photo grids use lazy loading for images to improve performance
   5. All new UI strings added to en.json, lt.json, and ru.json (i18n maintained across all 3 locales)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 14-01: TBD
+- [ ] 14-01-PLAN.md — Create CollectionCard primitive with edge-to-edge cover images, update Badge with colored dot, refactor CollectionsListPage
+- [ ] 14-02-PLAN.md — Refactor SharePage/DeliveryPage to use Button primitive, extract photo grid shared constant
 
 #### Phase 15: Workflow Enhancement
 **Goal**: Extract workflow phase components and implement state-based UI improvements
