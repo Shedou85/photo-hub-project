@@ -27,8 +27,14 @@ backend/config.php
 .claude/
 Api problem.txt
 nul
+Million dollar dizainas.txt
 
 # Research and test files
 .planning/phases/08-client-delivery-interface/08-RESEARCH.md
 .planning/phases/09-photographer-dashboard-integration/09-RESEARCH.md
 backend/create-test-delivery.php
+
+# Playwright test artifacts
+frontend/playwright-report/
+frontend/test-results/
+frontend/e2e/__screenshots__/
