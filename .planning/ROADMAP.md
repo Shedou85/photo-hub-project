@@ -69,10 +69,11 @@ Plans:
   3. Badge component exists with status colors (gray=DRAFT, blue=SELECTING, green=REVIEWING, purple=DELIVERED)
   4. PhotoCard and UploadZone components are reusable with prop-based customization (no copy-paste variants)
   5. All primitive components documented with JSDoc and usage examples
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 12-01-PLAN.md — Install clsx and create Button, Card, Badge atomic primitives
+- [ ] 12-02-PLAN.md — Create PhotoCard and UploadZone complex components
 
 #### Phase 13: Responsive Layout Refactor
 **Goal**: Add mobile bottom navigation and refine desktop sidebar before page redesigns
