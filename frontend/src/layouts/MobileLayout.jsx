@@ -67,10 +67,10 @@ const MobileLayout = () => {
           {/* Logout button */}
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center min-w-[40px] min-h-[40px] rounded-md text-red-500 hover:bg-red-50 transition-colors duration-150"
+            className="flex items-center justify-center w-8 h-8 rounded-md text-red-500 hover:bg-red-50 transition-colors duration-150"
             aria-label={t('nav.logout')}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />

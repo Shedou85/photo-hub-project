@@ -61,7 +61,14 @@ try {
         echo json_encode([
             "status" => "OK",
             "message" => "Collection created successfully!",
-            "collectionId" => $collectionId
+            "collection" => [
+                "id" => $collectionId,
+                "name" => $name,
+                "shareId" => $shareId,
+                "status" => "DRAFT",
+                "createdAt" => $currentDateTime,
+                "updatedAt" => $currentDateTime
+            ]
         ]);
         exit;
     }

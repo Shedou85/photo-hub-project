@@ -101,8 +101,8 @@ const MainLayout = () => {
 
           {/* Logout button */}
           <div className="p-3">
-            <button onClick={handleLogout} className="w-full flex items-center gap-2.5 py-2.5 px-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium cursor-pointer text-left">
-              <span className="text-base">🚪</span>
+            <button onClick={handleLogout} className="w-full flex items-center gap-2 py-2 px-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs md:text-sm font-medium cursor-pointer text-left">
+              <span className="text-sm md:text-base">🚪</span>
               {t('nav.logout')}
             </button>
           </div>
