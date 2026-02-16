@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Phase 15: Workflow Enhancement
+**Current focus:** Phase 16: Testing & QA
 
 ## Current Position
 
-Phase: 15 of 16 (Workflow Enhancement)
-Plan: 2 of 2 in current phase
-Status: Complete
-Last activity: 2026-02-16 — Completed Phase 15 (Workflow Enhancement) - Auto-navigation, conditional UI, workflow phase components
+Phase: 16 of 16 (Testing & QA)
+Plan: 2 of TBD in current phase
+Status: In Progress
+Last activity: 2026-02-16 — Completed 16-02 (Performance Monitoring Infrastructure) - Bundle size analysis, Lighthouse CI configuration
 
 Progress: [███████████████████░] 94% (15 of 16 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
-- Average duration: 6.3 min
-- Total execution time: 3.59 hours
+- Total plans completed: 28
+- Average duration: 6.1 min
+- Total execution time: 3.63 hours
 
 **By Phase:**
 
@@ -42,13 +42,14 @@ Progress: [███████████████████░] 94% (15
 | 13-responsive-layout-refactor | 2/2 | 5.33 min | 2.7 min |
 | 14-collection-cards-and-simple-pages | 2/2 | 8.97 min | 4.5 min |
 | 15-workflow-enhancement | 2/2 | 5.37 min | 2.69 min |
-| 16 | TBD | TBD | TBD (v3.0 in progress) |
+| 16-testing-and-qa | 2/? | 2.25 min | 2.25 min (in progress) |
 
 **Recent Trend:**
-- Last 5 plans: 14-01 (4.17 min), 14-02 (4.8 min), 15-01 (2.52 min), 15-02 (2.85 min)
-- Trend: Phase 15 plans consistently fast (2.52-2.85 min) — focused component extraction and refactoring
+- Last 5 plans: 14-02 (4.8 min), 15-01 (2.52 min), 15-02 (2.85 min), 16-02 (2.25 min)
+- Trend: Consistent fast execution (2.25-2.85 min) — focused infrastructure and tooling tasks
 
 *Updated after 15-02 completion*
+| Phase 16 P02 | 2.25 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase 15-02]: Use IIFE for inline PhaseComponent resolution in JSX to keep lookup logic colocated with rendering
 - [Phase 15-02]: ReviewingPhase uses primary button variant instead of custom green gradient for design system consistency
 - [Phase 15-02]: Underscore prefix for unused collection prop in phase components for future extensibility
+- [Phase 16-02]: Use rollup-plugin-visualizer for bundle analysis — native Rollup integration with Vite, generates interactive treemap HTML
+- [Phase 16-02]: Do not install @lhci/cli locally (200MB+) — recommend global install for on-demand Lighthouse auditing
+- [Phase 16-02]: CSS bundle budget 50KB gzipped (QUALITY-01) — current usage 7.64 KB leaves 42 KB headroom for future styling
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed Phase 15 (Workflow Enhancement) - Auto-navigation, conditional UI, workflow phase components - v3.0 near completion
+Stopped at: Completed 16-02 (Performance Monitoring Infrastructure) - Bundle size analysis, Lighthouse CI configuration
 Resume file: None
-Next step: Begin Phase 16 (Testing & QA) - final v3.0 phase
+Next step: Continue Phase 16 (Testing & QA) - Next plan in queue
