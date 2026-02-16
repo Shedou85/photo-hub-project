@@ -5,7 +5,7 @@ const PaymentsPage = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
+    <div className="font-sans max-w-6xl mx-auto">
       {/* ── Page Header ── */}
       <div className="flex items-center mb-7 gap-3.5">
         {/* Icon circle */}

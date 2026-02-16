@@ -160,7 +160,7 @@ function CollectionsListPage() {
   }
 
   return (
-    <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
+    <div className="font-sans max-w-6xl mx-auto">
       {/* ── Page Header ── */}
       <div className="flex items-center mb-7 gap-3.5">
         <div className="w-13 h-13 rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-xl shrink-0 select-none">
@@ -213,7 +213,7 @@ function CollectionsListPage() {
             {t('collections.empty')}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((collection) => {
               const statusBorder = STATUS_BORDER[collection.status] ?? '';
               return (

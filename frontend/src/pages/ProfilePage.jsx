@@ -95,7 +95,7 @@ function ProfilePage() {
   }
 
   return (
-    <div className="px-6 py-7 font-sans max-w-[720px] mx-auto">
+    <div className="font-sans max-w-6xl mx-auto">
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
         <div className="flex items-center gap-3.5">

@@ -569,7 +569,7 @@ function CollectionDetailsPage() {
 
   if (error) {
     return (
-      <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
+      <div className="font-sans max-w-6xl mx-auto">
         <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-3.5 py-3 text-sm">
           {t("collection.error")} {error}
         </div>
@@ -586,7 +586,7 @@ function CollectionDetailsPage() {
   }
 
   return (
-    <div className="py-7 px-6 font-sans max-w-[720px] mx-auto">
+    <div className="font-sans max-w-6xl mx-auto">
       {/* ── Back link ── */}
       <Link
         to="/collections"
@@ -830,7 +830,7 @@ function CollectionDetailsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredPhotos.map((photo) => {
               // Find index in full photos array for lightbox navigation
               const photoIndex = photos.findIndex(p => p.id === photo.id);
@@ -960,7 +960,7 @@ function CollectionDetailsPage() {
 
           {/* Edited photos grid */}
           {editedPhotos.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {editedPhotos.map((photo) => (
                 <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
                   <img
