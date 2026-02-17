@@ -19,6 +19,7 @@ Thumbs.db
 .env.*.local
 
 cookies.txt
+DB_OPTIMIZATION_TODO.txt
 
 # DB credentials — keep real config off git
 backend/config.php

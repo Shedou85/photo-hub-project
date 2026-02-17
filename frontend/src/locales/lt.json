@@ -68,7 +68,27 @@
     "networkError": "Tinklo klaida:",
     "backHome": "Pradžia",
     "noAccount": "Neturite paskyros?",
-    "signupText": "Registruotis"
+    "signupText": "Registruotis",
+    "forgotPassword": "Pamiršote slaptažodį?"
+  },
+  "passwordReset": {
+    "forgotTitle": "Atstatyti slaptažodį",
+    "forgotDesc": "Įveskite el. paštą ir mes išsiųsime nuorodą slaptažodžio keitimui.",
+    "emailLabel": "El. paštas",
+    "sendLink": "Siųsti nuorodą",
+    "successTitle": "Patikrinkite el. paštą",
+    "successDesc": "Jei paskyra egzistuoja, nuoroda buvo išsiųsta.",
+    "backToLogin": "Grįžti į prisijungimą",
+    "resetTitle": "Nustatyti naują slaptažodį",
+    "newPassword": "Naujas slaptažodis",
+    "confirmPassword": "Patvirtinkite slaptažodį",
+    "submit": "Atnaujinti slaptažodį",
+    "passwordMismatch": "Slaptažodžiai nesutampa",
+    "passwordTooShort": "Slaptažodis turi būti bent 8 simbolių",
+    "expiredLink": "Nuoroda nebegalioja. Paprašykite naujos.",
+    "successReset": "Slaptažodis atnaujintas! Galite prisijungti.",
+    "networkError": "Tinklo klaida:",
+    "requestNew": "Gauti naują nuorodą"
   },
   "register": {
     "title": "Sukurti paskyrą",

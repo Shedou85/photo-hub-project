@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
@@ -17,8 +17,11 @@ function LoginPage() {
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const { t, i18n } = useTranslation();
+
+  const resetSuccess = searchParams.get("reset") === "success";
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[1];
 
@@ -137,6 +140,12 @@ function LoginPage() {
             {t("login.title")}
           </h1>
 
+          {resetSuccess && (
+            <div className="bg-green-500/10 border border-green-500/20 text-green-400 rounded-sm px-4 py-3 text-sm mb-4">
+              {t("passwordReset.successReset")}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="mb-4">
@@ -154,7 +163,7 @@ function LoginPage() {
             </div>
 
             {/* Password field */}
-            <div className="mb-6">
+            <div className="mb-2">
               <label htmlFor="password" className="block mb-1 text-sm font-medium text-white/50">
                 {t("login.password")}
               </label>
@@ -166,6 +175,16 @@ function LoginPage() {
                 required
                 className="bg-white/[0.06] border border-white/[0.12] text-white placeholder:text-white/20 focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm py-2.5 px-3.5 text-sm outline-none transition-all duration-150 w-full"
               />
+            </div>
+
+            {/* Forgot password link */}
+            <div className="mb-4 text-right">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-white/40 hover:text-indigo-400 transition-colors duration-150 no-underline"
+              >
+                {t("login.forgotPassword")}
+              </Link>
             </div>
 
             {/* Error message */}

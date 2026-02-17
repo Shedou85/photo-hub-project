@@ -140,6 +140,24 @@ switch ($requestUri) {
         }
         break;
 
+    case '/forgot-password':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/auth/forgot-password.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
+    case '/reset-password':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/auth/reset-password.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     case '/logout':
         if ($requestMethod == 'POST') {
             require_once __DIR__ . '/auth/logout.php';

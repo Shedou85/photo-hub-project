@@ -10,6 +10,8 @@ import CollectionsListPage from './pages/CollectionsListPage';
 import CollectionDetailsPage from './pages/CollectionDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import PaymentsPage from './pages/PaymentsPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
@@ -24,6 +26,8 @@ function App() {
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />
       <Route path="/register" element={isAuthenticated ? <Navigate to="/collections" replace /> : <RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/share/:shareId" element={<SharePage />} />
       <Route path="/deliver/:deliveryToken" element={<DeliveryPage />} />
 

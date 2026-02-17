@@ -68,7 +68,27 @@
     "networkError": "Network error:",
     "backHome": "Home",
     "noAccount": "Don't have an account?",
-    "signupText": "Sign up"
+    "signupText": "Sign up",
+    "forgotPassword": "Forgot password?"
+  },
+  "passwordReset": {
+    "forgotTitle": "Reset your password",
+    "forgotDesc": "Enter your email and we'll send you a reset link.",
+    "emailLabel": "Email",
+    "sendLink": "Send reset link",
+    "successTitle": "Check your email",
+    "successDesc": "If an account exists, a reset link has been sent.",
+    "backToLogin": "Back to login",
+    "resetTitle": "Set new password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Update password",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "expiredLink": "Link expired or invalid. Request a new one.",
+    "successReset": "Password updated! You can now log in.",
+    "networkError": "Network error:",
+    "requestNew": "Request a new link"
   },
   "register": {
     "title": "Create Account",
