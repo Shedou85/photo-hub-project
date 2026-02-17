@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent Usage Rules
+
+- For all PHP backend changes, always use the php-pro agent
+- For React component work, always use the react-specialist agent
+- For any api work, always use api-designer agent
+- For any work done by api-designer check hes work with sql-pro agent
+- Before any merge/commit, run code-reviewer agent
+
 ## Project Overview
 
 Photo Hub (pixelforge.pro) is a photo collection management app for professional photographers. The UI supports Lithuanian, English, and Russian via i18n. It uses a React frontend with a vanilla PHP API backend and MySQL database.
@@ -9,6 +17,7 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 ## Architecture
 
 ### Frontend (`frontend/`)
+
 - **React 18** with **React Router DOM v7** and **Vite 5**
 - **Tailwind CSS v3** for all styling — no inline styles, no CSS modules
 - **react-i18next** for internationalization (LT/EN/RU). Locale files in `frontend/src/locales/`
@@ -20,6 +29,7 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 - Pages live in `frontend/src/pages/`
 
 ### Styling conventions
+
 - Use **Tailwind utility classes** exclusively. No inline `style={{}}` props except where dynamic JS values are unavoidable (e.g. sidebar `left` position for slide animation)
 - Use Tailwind `hover:` and `focus:` pseudo-class variants instead of JS state for hover/focus styling
 - Gradients via arbitrary value: `bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]`
@@ -27,11 +37,13 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 - Design system: white cards with `border border-gray-200 rounded-[10px] px-6 py-5`, blue/indigo gradient accents
 
 ### i18n conventions
+
 - All user-visible strings must use `t('namespace.key')` — no hardcoded strings in JSX
 - Locale files: `frontend/src/locales/en.json`, `lt.json`, `ru.json` — keep all three in sync
 - Namespaces: `nav`, `home`, `login`, `profile`, `collections`, `collection`, `payments`
 
 ### Backend (`backend/`)
+
 - **Vanilla PHP** (no framework) with **PDO** for MySQL
 - `backend/index.php` is the main router — a single `switch` statement dispatching to handler files
 - Route handlers are organized by feature: `auth/`, `_collections/`, `profile/`
@@ -41,11 +53,13 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 - Apache `.htaccess` rewrites all requests to `index.php`
 
 ### Cross-Domain Setup
+
 - Frontend: `pixelforge.pro` / Backend API: `api.pixelforge.pro/backend/`
 - PHP sessions with cookies scoped to `.pixelforge.pro`, secure, httponly, SameSite=None
 - All frontend API calls use `credentials: "include"`
 
 ### Database
+
 - MySQL with `utf8mb4` charset
 - Schema defined in `database_schema.sql` at project root
 - Key tables: `User`, `Collection`, `Photo`, `EditedPhoto`, `Selection`, `PromotionalPhoto`
@@ -54,14 +68,14 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 
 ## Routes (frontend)
 
-| Path | Page | Auth required |
-|------|------|---------------|
-| `/` | `HomePage` | No (redirects to `/collections` if logged in) |
-| `/login` | `LoginPage` | No (redirects to `/collections` if logged in) |
-| `/profile` | `ProfilePage` | Yes |
-| `/collections` | `CollectionsListPage` | Yes |
-| `/collection/:id` | `CollectionDetailsPage` | Yes |
-| `/payments` | `PaymentsPage` | Yes |
+| Path              | Page                    | Auth required                                 |
+| ----------------- | ----------------------- | --------------------------------------------- |
+| `/`               | `HomePage`              | No (redirects to `/collections` if logged in) |
+| `/login`          | `LoginPage`             | No (redirects to `/collections` if logged in) |
+| `/profile`        | `ProfilePage`           | Yes                                           |
+| `/collections`    | `CollectionsListPage`   | Yes                                           |
+| `/collection/:id` | `CollectionDetailsPage` | Yes                                           |
+| `/payments`       | `PaymentsPage`          | Yes                                           |
 
 ## Commands
 
@@ -75,21 +89,22 @@ npm run preview   # Preview production build locally
 ```
 
 Backend has no build step. PHP files are served directly by Apache. Composer dependencies:
+
 ```bash
 cd backend && composer install
 ```
 
 ## API Routes (backend/index.php)
 
-| Method | Path | Handler |
-|--------|------|---------|
-| POST | `/login` | `auth/login.php` |
-| GET | `/auth/me` | `auth/me.php` |
-| POST | `/register` | inline in `index.php` |
-| PATCH | `/profile/me` | `profile/me.php` |
-| GET/POST | `/collections` | `_collections/index.php` |
-| GET | `/collections/{id}` | `_collections/id.php` |
-| GET | `/test`, `/db-test` | inline health checks |
+| Method   | Path                | Handler                  |
+| -------- | ------------------- | ------------------------ |
+| POST     | `/login`            | `auth/login.php`         |
+| GET      | `/auth/me`          | `auth/me.php`            |
+| POST     | `/register`         | inline in `index.php`    |
+| PATCH    | `/profile/me`       | `profile/me.php`         |
+| GET/POST | `/collections`      | `_collections/index.php` |
+| GET      | `/collections/{id}` | `_collections/id.php`    |
+| GET      | `/test`, `/db-test` | inline health checks     |
 
 ## Key Patterns
 

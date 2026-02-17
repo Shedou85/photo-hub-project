@@ -19,7 +19,8 @@ try {
         $stmt = $pdo->prepare("
             SELECT c.id, c.name, c.status, c.clientName, c.clientEmail, c.shareId,
                    c.coverPhotoId, c.createdAt, c.updatedAt,
-                   p.thumbnailPath as coverPhotoPath
+                   p.thumbnailPath as coverPhotoPath,
+                   (SELECT COUNT(*) FROM `Photo` ph WHERE ph.collectionId = c.id) as photoCount
             FROM `Collection` c
             LEFT JOIN `Photo` p ON c.coverPhotoId = p.id
             WHERE c.userId = ?

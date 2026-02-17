@@ -8,7 +8,20 @@
       "Bash(git push:*)",
       "Bash(curl:*)",
       "Bash(git add:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(node:*)",
+      "WebSearch",
+      "Bash(npx eslint:*)",
+      "Bash(npx playwright show-report:*)",
+      "Bash(test:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(pkill:*)",
+      "Bash(cat:*)",
+      "Bash(npm test:*)",
+      "Bash(ls:*)",
+      "Bash(gzip:*)",
+      "Bash(/c/Users/Marius/Documents/Gemini/photo-hub/.planning/phases/16-testing-and-qa/16-VERIFICATION.md:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }
