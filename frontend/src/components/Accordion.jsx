@@ -33,7 +33,7 @@ function Accordion({ title, children, defaultOpen = false }) {
       {/* Accordion Content */}
       <div
         className={`transition-all ease-in-out duration-700 overflow-hidden ${
-          isOpen ? "max-h-[700px]" : "max-h-0"
+          isOpen ? "max-h-[1000px]" : "max-h-0"
         }`}
       >
         <div className="px-6 pb-5 pt-1">

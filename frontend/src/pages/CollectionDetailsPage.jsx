@@ -615,109 +615,188 @@ function CollectionDetailsPage() {
           />
           <InfoRow
             label={t("collection.statusLabel")}
-            value={t(`collection.status.${collection.status}`)}
+            value={
+              <Badge status={collection.status}>
+                {t(`collection.status.${collection.status}`)}
+              </Badge>
+            }
           />
         </div>
 
         {/* Divider */}
         <div className="border-t border-gray-200 my-4" />
 
-        {/* Upload Section - Only show in DRAFT status */}
+        {/* DRAFT stage — 3 numbered steps */}
         {collection.status === 'DRAFT' && (
-          <div className="mb-4">
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-              {t("collection.uploadSection")}
-            </h3>
-            <Button
-              variant="secondary"
-              onClick={() => setShowUploadZone(!showUploadZone)}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
-            </Button>
-          </div>
-        )}
-
-        {/* Share Section - Only visible when photos exist */}
-        {photos.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-              {t("collection.shareSection")}
-            </h3>
-            <Button variant="primary" onClick={handleCopyShareLink}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-              {t("collection.copyShareLink")}
-            </Button>
-          </div>
-        )}
-
-        {/* Phase-specific Actions */}
-        {collection.status === 'DRAFT' && photos.length > 0 && (
           <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
-              {t("collection.workflowActions")}
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
+              {t("collection.draftPhase")}
             </h3>
-            <Button variant="secondary" onClick={handleStartSelecting}>
-              {t("collection.startSelecting")}
-            </Button>
+
+            {/* Step 1 — Add Photos */}
+            <div className="flex gap-3 mb-0">
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+                <div className="w-px flex-1 bg-gray-200 mt-1 mb-1" />
+              </div>
+              <div className="pb-4 flex-1">
+                <p className="text-sm font-semibold text-gray-700 mb-2">
+                  {photos.length === 0 ? t("collection.addPhotos") : t("collection.addMorePhotos")}
+                </p>
+                <Button variant="secondary" onClick={() => setShowUploadZone(!showUploadZone)}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  {photos.length === 0 ? t("collection.addPhotos") : t("collection.addMorePhotos")}
+                </Button>
+                {photos.length > 0 && (
+                  <p className="mt-2 text-xs text-gray-500">{t("collection.photosCount", { count: photos.length })}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Step 2 — Share with client */}
+            <div className="flex gap-3 mb-0">
+              <div className="flex flex-col items-center">
+                <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${photos.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>2</div>
+                <div className="w-px flex-1 bg-gray-200 mt-1 mb-1" />
+              </div>
+              <div className="pb-4 flex-1">
+                <p className={`text-sm font-semibold mb-2 ${photos.length > 0 ? 'text-gray-700' : 'text-gray-400'}`}>{t("collection.copyShareLink")}</p>
+                <Button variant="secondary" onClick={handleCopyShareLink} disabled={photos.length === 0}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  {t("collection.copyShareLink")}
+                </Button>
+                {photos.length === 0 && (
+                  <p className="mt-2 text-xs text-gray-400 italic">{t("collection.addPhotosFirst")}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Step 3 — Start Selecting */}
+            <div className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${photos.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>3</div>
+              </div>
+              <div className="flex-1">
+                <p className={`text-sm font-semibold mb-2 ${photos.length > 0 ? 'text-gray-700' : 'text-gray-400'}`}>{t("collection.startSelecting")}</p>
+                <Button variant="primary" onClick={handleStartSelecting} disabled={photos.length === 0}>
+                  {t("collection.startSelecting")}
+                </Button>
+                {photos.length === 0 && (
+                  <p className="mt-2 text-xs text-gray-400 italic">{t("collection.addPhotosFirst")}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SELECTING stage — 1 numbered step */}
+        {collection.status === 'SELECTING' && (
+          <div>
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
+              {t("collection.selectingPhase")}
+            </h3>
+
+            {/* Step 1 — Share link */}
+            <div className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-700 mb-2">{t("collection.copyShareLink")}</p>
+                <Button variant="secondary" onClick={handleCopyShareLink}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  {t("collection.copyShareLink")}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 
         {collection.status === 'REVIEWING' && (
           <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
               {t("collection.reviewPhase")}
             </h3>
 
-            {/* Shimmer button to toggle upload zone */}
-            <div className="mb-3">
-              <button
-                onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
-                className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                {t("collection.uploadEditedFinalsButton")}
-              </button>
-              {/* Helper text */}
-              <p className="mt-2 text-xs text-gray-500">
-                {t("collection.uploadEditedFinalsHint")}
-              </p>
+            {/* Step 1 — Upload */}
+            <div className="flex gap-3 mb-0">
+              {/* Step badge + connector */}
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+                <div className="w-px flex-1 bg-gray-200 mt-1 mb-1" />
+              </div>
+              {/* Step content */}
+              <div className="pb-4 flex-1">
+                <p className="text-sm font-semibold text-gray-700 mb-2">{t("collection.uploadEditedFinalsButton")}</p>
+                <button
+                  onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
+                  className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  {t("collection.uploadEditedFinalsButton")}
+                </button>
+                <p className="mt-2 text-xs text-gray-500">
+                  {editedPhotos.length > 0
+                    ? t("collection.editedPhotosCount", { count: editedPhotos.length })
+                    : t("collection.uploadEditedFinalsHint")}
+                </p>
+              </div>
             </div>
 
-            {/* Divider */}
-            <div className="border-t border-gray-200 my-4" />
-
-            {/* Existing Mark as Delivered button */}
-            <Button
-              variant="primary"
-              onClick={() => setShowPromotionalModal(true)}
-              disabled={editedPhotos.length === 0}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              {t("collection.markAsDelivered")}
-            </Button>
+            {/* Step 2 — Deliver */}
+            <div className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${editedPhotos.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>2</div>
+              </div>
+              <div className="flex-1">
+                <p className={`text-sm font-semibold mb-2 ${editedPhotos.length > 0 ? 'text-gray-700' : 'text-gray-400'}`}>{t("collection.markAsDelivered")}</p>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowPromotionalModal(true)}
+                  disabled={editedPhotos.length === 0}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {t("collection.markAsDelivered")}
+                </Button>
+                {editedPhotos.length === 0 && (
+                  <p className="mt-2 text-xs text-gray-400 italic">{t("collection.markAsDeliveredHint")}</p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && collection.deliveryToken && (
           <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
               {t("collection.deliverPhase")}
             </h3>
-            <Button variant="primary" onClick={handleCopyDeliveryLink}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              {t("collection.copyDeliveryLink")}
-            </Button>
+
+            {/* Step 1 — Copy delivery link */}
+            <div className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-700 mb-2">{t("collection.copyDeliveryLink")}</p>
+                <Button variant="primary" onClick={handleCopyDeliveryLink}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  {t("collection.copyDeliveryLink")}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </Accordion>
