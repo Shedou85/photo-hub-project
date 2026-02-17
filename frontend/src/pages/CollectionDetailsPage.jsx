@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { PHOTO_GRID_CLASSES } from '../constants/styles';
@@ -8,18 +8,6 @@ import Badge from '../components/primitives/Badge';
 import Accordion from '../components/Accordion';
 import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
 
-function InfoRow({ label, value }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
-        {label}
-      </span>
-      <span className="text-sm text-gray-800 font-medium">
-        {value}
-      </span>
-    </div>
-  );
-}
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -33,6 +21,7 @@ const photoUrl = (storagePath) => {
 
 function CollectionDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
   const editedFileInputRef = useRef(null);
@@ -52,6 +41,12 @@ function CollectionDetailsPage() {
   const [showUploadZone, setShowUploadZone] = useState(false);
   const [showEditedFinalsZone, setShowEditedFinalsZone] = useState(false);
   const [showPromotionalModal, setShowPromotionalModal] = useState(false);
+  const [actionCardOpen, setActionCardOpen] = useState(true);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editClientName, setEditClientName] = useState('');
+  const [editClientEmail, setEditClientEmail] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -506,6 +501,69 @@ function CollectionDetailsPage() {
     }
   };
 
+  const doDeleteCollection = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        navigate('/collections');
+        toast.success(t('collection.collectionDeleted'));
+      } else {
+        toast.error(t('collection.collectionDeleteError'));
+      }
+    } catch {
+      toast.error(t('collection.collectionDeleteError'));
+    }
+  };
+
+  const handleDeleteCollection = () => {
+    toast(t('collection.confirmDeleteCollection'), {
+      position: 'bottom-center',
+      action: {
+        label: t('collection.delete'),
+        onClick: doDeleteCollection,
+      },
+      cancel: {
+        label: t('common.cancel'),
+        onClick: () => {},
+      },
+      duration: 8000,
+    });
+  };
+
+  const handleEditCollection = () => {
+    setEditName(collection.name || '');
+    setEditClientName(collection.clientName || '');
+    setEditClientEmail(collection.clientEmail || '');
+    setShowEditForm(f => !f);
+  };
+
+  const handleSaveEdit = async () => {
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName, clientName: editClientName, clientEmail: editClientEmail }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCollection(data.collection);
+        setShowEditForm(false);
+        toast.success(t('collection.collectionUpdated'));
+      } else {
+        toast.error(t('collection.saveError'));
+      }
+    } catch {
+      toast.error(t('collection.saveError'));
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   const anyUploading = useMemo(
     () => Object.values(uploadStates).some((s) => s === "uploading"),
     [uploadStates]
@@ -570,6 +628,40 @@ function CollectionDetailsPage() {
     );
   }
 
+  const getStepperConfig = () => {
+    const status = collection.status;
+    if (status === 'DRAFT') {
+      const activeStep = photos.length === 0 ? 0 : 1;
+      return {
+        steps: [t('collection.stepAddPhotos'), t('collection.stepShareLink'), t('collection.stepStartSelecting')],
+        activeStep,
+        phaseLabel: t('collection.draftPhaseInProgress'),
+      };
+    }
+    if (status === 'SELECTING') {
+      return {
+        steps: [t('collection.stepUploadPhotos'), t('collection.stepClientSelecting'), t('collection.stepUploadFinals')],
+        activeStep: 1,
+        phaseLabel: t('collection.selectingPhaseInProgress'),
+      };
+    }
+    if (status === 'REVIEWING') {
+      return {
+        steps: [t('collection.stepClientSelection'), t('collection.stepUploadFinals'), t('collection.stepDelivered')],
+        activeStep: 1,
+        phaseLabel: t('collection.reviewPhaseInProgress'),
+      };
+    }
+    if (status === 'DELIVERED' || status === 'DOWNLOADED') {
+      return {
+        steps: [t('collection.stepClientSelection'), t('collection.stepUploadFinals'), t('collection.stepDelivered')],
+        activeStep: 2,
+        phaseLabel: t('collection.deliveredPhaseComplete'),
+      };
+    }
+    return { steps: [], activeStep: 0, phaseLabel: '' };
+  };
+
   return (
     <div className="font-sans max-w-6xl mx-auto">
       {/* ── Back link ── */}
@@ -583,223 +675,270 @@ function CollectionDetailsPage() {
         {t("collection.backToCollections")}
       </Link>
 
-      {/* ── Page Header ── */}
-      <div className="flex items-center mb-7 gap-3.5">
-        <div className="w-13 h-13 rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-xl shrink-0 select-none">
-          🗂️
-        </div>
-        <div className="flex items-center gap-3">
-          <h1 className="m-0 text-xl font-bold text-gray-900 leading-tight">
-            {collection.name}
-          </h1>
-          {collection.status !== 'DRAFT' && (
-            <Badge status={collection.status}>
-              {t(`collection.status.${collection.status}`)}
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      {/* Next-step guidance (WORKFLOW-06) */}
-      <p className="text-sm text-gray-500 mb-3 -mt-4">
-        {t(`collection.nextStep.${collection.status}`)}
-      </p>
-
-      {/* ── Collection Info & Actions Accordion ── */}
-      <Accordion title={t("collection.infoAndActions")} defaultOpen={true}>
-        {/* Collection Info Grid */}
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4 mb-4">
-          <InfoRow
-            label={t("collection.createdAt")}
-            value={new Date(collection.createdAt).toLocaleDateString()}
-          />
-          <InfoRow
-            label={t("collection.statusLabel")}
-            value={
-              <Badge status={collection.status}>
-                {t(`collection.status.${collection.status}`)}
-              </Badge>
-            }
-          />
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-gray-200 my-4" />
-
-        {/* DRAFT stage — 3 numbered steps */}
-        {collection.status === 'DRAFT' && (
-          <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
-              {t("collection.draftPhase")}
-            </h3>
-
-            {/* Step 1 — Add Photos */}
-            <div className="flex gap-3 mb-0">
-              <div className="flex flex-col items-center">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
-                <div className="w-px flex-1 bg-gray-200 mt-1 mb-1" />
-              </div>
-              <div className="pb-4 flex-1">
-                <p className="text-sm font-semibold text-gray-700 mb-2">
-                  {photos.length === 0 ? t("collection.addPhotos") : t("collection.addMorePhotos")}
-                </p>
-                <Button variant="secondary" onClick={() => setShowUploadZone(!showUploadZone)}>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                  {photos.length === 0 ? t("collection.addPhotos") : t("collection.addMorePhotos")}
-                </Button>
-                {photos.length > 0 && (
-                  <p className="mt-2 text-xs text-gray-500">{t("collection.photosCount", { count: photos.length })}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Step 2 — Share with client */}
-            <div className="flex gap-3 mb-0">
-              <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${photos.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>2</div>
-                <div className="w-px flex-1 bg-gray-200 mt-1 mb-1" />
-              </div>
-              <div className="pb-4 flex-1">
-                <p className={`text-sm font-semibold mb-2 ${photos.length > 0 ? 'text-gray-700' : 'text-gray-400'}`}>{t("collection.copyShareLink")}</p>
-                <Button variant="secondary" onClick={handleCopyShareLink} disabled={photos.length === 0}>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                  {t("collection.copyShareLink")}
-                </Button>
-                {photos.length === 0 && (
-                  <p className="mt-2 text-xs text-gray-400 italic">{t("collection.addPhotosFirst")}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Step 3 — Start Selecting */}
-            <div className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${photos.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>3</div>
-              </div>
-              <div className="flex-1">
-                <p className={`text-sm font-semibold mb-2 ${photos.length > 0 ? 'text-gray-700' : 'text-gray-400'}`}>{t("collection.startSelecting")}</p>
-                <Button variant="primary" onClick={handleStartSelecting} disabled={photos.length === 0}>
-                  {t("collection.startSelecting")}
-                </Button>
-                {photos.length === 0 && (
-                  <p className="mt-2 text-xs text-gray-400 italic">{t("collection.addPhotosFirst")}</p>
-                )}
-              </div>
-            </div>
+      {/* ── Collection Action Card ── */}
+      <div className="bg-white border border-gray-200 rounded-[10px] shadow-sm mb-5">
+        {/* Header */}
+        <button
+          onClick={() => setActionCardOpen(o => !o)}
+          className="w-full flex items-center px-5 py-4 cursor-pointer gap-3 text-left bg-transparent border-none"
+        >
+          <div className="w-9 h-9 rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
           </div>
-        )}
+          <div className="flex-1 min-w-0">
+            <span className="text-base font-bold text-gray-900">{collection.name}</span>
+            {(collection.clientName || collection.clientEmail) && (
+              <span className="ml-2 text-sm text-gray-400 font-normal">
+                {[collection.clientName, collection.clientEmail].filter(Boolean).join(' · ')}
+              </span>
+            )}
+          </div>
+          <Badge status={collection.status}>{t(`collection.status.${collection.status}`)}</Badge>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${actionCardOpen ? 'rotate-180' : ''}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-        {/* SELECTING stage — 1 numbered step */}
-        {collection.status === 'SELECTING' && (
-          <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
-              {t("collection.selectingPhase")}
-            </h3>
+        {/* Body */}
+        <div className={`transition-all duration-300 overflow-hidden ${actionCardOpen ? 'max-h-[900px]' : 'max-h-0'}`}>
+          <div className="px-5 pb-5">
+            {/* Phase subtitle + horizontal stepper */}
+            {(() => {
+              const { steps, activeStep, phaseLabel } = getStepperConfig();
+              return (
+                <>
+                  <p className="text-sm text-gray-500 mb-4">{phaseLabel}</p>
 
-            {/* Step 1 — Share link */}
-            <div className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+                  {/* Horizontal stepper */}
+                  {steps.length > 0 && (
+                    <div className="flex items-start gap-0 mb-5">
+                      {steps.map((step, idx) => (
+                        <div key={idx} className="flex items-start" style={{ flex: idx < steps.length - 1 ? '1 1 0%' : '0 0 auto' }}>
+                          <div className="flex flex-col items-center gap-1 min-w-0">
+                            <div className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0
+                              ${idx < activeStep ? 'bg-blue-600 text-white' : ''}
+                              ${idx === activeStep ? 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white ring-4 ring-blue-100' : ''}
+                              ${idx > activeStep ? 'bg-gray-100 text-gray-400' : ''}`}
+                            >
+                              {idx < activeStep ? (
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : idx + 1}
+                            </div>
+                            <span className={`text-[11px] font-medium text-center leading-tight
+                              ${idx === activeStep ? 'text-blue-600' : 'text-gray-400'}`}
+                              style={{ maxWidth: '70px' }}
+                            >
+                              {step}
+                            </span>
+                          </div>
+                          {idx < steps.length - 1 && (
+                            <div className={`flex-1 h-px mx-2 mt-3.5 ${idx < activeStep ? 'bg-blue-400' : 'bg-gray-200'}`} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+
+            {/* Gradient Action Card */}
+            {collection.status === 'DRAFT' && (
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] mb-2">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                <div>
+                  <p className="text-white font-bold text-lg m-0">{t('collection.addPhotosTitle')}</p>
+                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.addPhotosDesc')}</p>
+                </div>
+                <div className="flex gap-2 flex-wrap justify-center">
+                  <Button variant="secondary" onClick={() => setShowUploadZone(!showUploadZone)}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
+                  </Button>
+                  {photos.length > 0 && (
+                    <>
+                      <Button variant="secondary" onClick={handleCopyShareLink}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        {t('collection.copyShareLink')}
+                      </Button>
+                      <Button variant="primary" onClick={handleStartSelecting}>
+                        {t('collection.startSelecting')}
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {photos.length > 0 && (
+                  <p className="text-white/60 text-xs m-0">{t('collection.photosCount', { count: photos.length })}</p>
+                )}
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-700 mb-2">{t("collection.copyShareLink")}</p>
+            )}
+
+            {collection.status === 'SELECTING' && (
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] mb-2">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <div>
+                  <p className="text-white font-bold text-lg m-0">{t('collection.waitingForClientTitle')}</p>
+                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.waitingForClientDesc')}</p>
+                </div>
                 <Button variant="secondary" onClick={handleCopyShareLink}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
-                  {t("collection.copyShareLink")}
+                  {t('collection.copyShareLink')}
                 </Button>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {collection.status === 'REVIEWING' && (
-          <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
-              {t("collection.reviewPhase")}
-            </h3>
-
-            {/* Step 1 — Upload */}
-            <div className="flex gap-3 mb-0">
-              {/* Step badge + connector */}
-              <div className="flex flex-col items-center">
-                <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
-                <div className="w-px flex-1 bg-gray-200 mt-1 mb-1" />
-              </div>
-              {/* Step content */}
-              <div className="pb-4 flex-1">
-                <p className="text-sm font-semibold text-gray-700 mb-2">{t("collection.uploadEditedFinalsButton")}</p>
-                <button
-                  onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
-                  className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  {t("collection.uploadEditedFinalsButton")}
-                </button>
-                <p className="mt-2 text-xs text-gray-500">
-                  {editedPhotos.length > 0
-                    ? t("collection.editedPhotosCount", { count: editedPhotos.length })
-                    : t("collection.uploadEditedFinalsHint")}
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2 — Deliver */}
-            <div className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${editedPhotos.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>2</div>
-              </div>
-              <div className="flex-1">
-                <p className={`text-sm font-semibold mb-2 ${editedPhotos.length > 0 ? 'text-gray-700' : 'text-gray-400'}`}>{t("collection.markAsDelivered")}</p>
-                <Button
-                  variant="primary"
-                  onClick={() => setShowPromotionalModal(true)}
-                  disabled={editedPhotos.length === 0}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {t("collection.markAsDelivered")}
-                </Button>
+            {collection.status === 'REVIEWING' && (
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#3b82f6,#0d9488)] mb-2">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                <div>
+                  <p className="text-white font-bold text-lg m-0">{t('collection.uploadFinalsHeroTitle')}</p>
+                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.uploadFinalsHeroDesc')}</p>
+                </div>
+                <div className="flex gap-2 flex-wrap justify-center">
+                  <button
+                    onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
+                    className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    {t('collection.uploadEditedFinalsButton')}
+                  </button>
+                  {editedPhotos.length > 0 && (
+                    <Button variant="primary" onClick={() => setShowPromotionalModal(true)}>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {t('collection.markAsDelivered')}
+                    </Button>
+                  )}
+                </div>
+                {editedPhotos.length > 0 && (
+                  <p className="text-white/60 text-xs m-0">{t('collection.editedPhotosCount', { count: editedPhotos.length })}</p>
+                )}
                 {editedPhotos.length === 0 && (
-                  <p className="mt-2 text-xs text-gray-400 italic">{t("collection.markAsDeliveredHint")}</p>
+                  <p className="text-white/60 text-xs m-0">{t('collection.markAsDeliveredHint')}</p>
                 )}
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && collection.deliveryToken && (
-          <div>
-            <h3 className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-4">
-              {t("collection.deliverPhase")}
-            </h3>
-
-            {/* Step 1 — Copy delivery link */}
-            <div className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-700 mb-2">{t("collection.copyDeliveryLink")}</p>
-                <Button variant="primary" onClick={handleCopyDeliveryLink}>
+            {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && (
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#10b981,#059669)] mb-2">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <div>
+                  <p className="text-white font-bold text-lg m-0">{t('collection.readyToDeliverTitle')}</p>
+                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.readyToDeliverDesc')}</p>
+                </div>
+                <Button variant="secondary" onClick={handleCopyDeliveryLink}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  {t("collection.copyDeliveryLink")}
+                  {t('collection.copyDeliveryLink')}
                 </Button>
               </div>
+            )}
+
+            {collection.status === 'ARCHIVED' && (
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#9ca3af,#6b7280)] mb-2">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <div>
+                  <p className="text-white font-bold text-lg m-0">{t('collection.status.ARCHIVED')}</p>
+                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.nextStep.ARCHIVED')}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Action Bar */}
+          <div className="border-t border-gray-100 px-5 py-3 flex items-center gap-5">
+            <button
+              onClick={handleEditCollection}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              {t('collection.editCollection')}
+            </button>
+            <button
+              onClick={handleDeleteCollection}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition-colors bg-transparent border-none cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              {t('collection.delete')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Inline Edit Form ── */}
+      {showEditForm && (
+        <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
+          <h3 className="text-sm font-bold text-gray-700 mb-4">{t('collection.editCollection')}</h3>
+          <div className="flex flex-col gap-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editName')}</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientName')}</label>
+              <input
+                type="text"
+                value={editClientName}
+                onChange={e => setEditClientName(e.target.value)}
+                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientEmail')}</label>
+              <input
+                type="email"
+                value={editClientEmail}
+                onChange={e => setEditClientEmail(e.target.value)}
+                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
-        )}
-      </Accordion>
+          <div className="flex gap-2 mt-4">
+            <Button variant="primary" onClick={handleSaveEdit} disabled={isSavingEdit}>
+              {t('collection.saveChanges')}
+            </Button>
+            <Button variant="secondary" onClick={() => setShowEditForm(false)}>
+              {t('common.cancel')}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {showPromotionalModal && (
         <PromotionalConsentModal
