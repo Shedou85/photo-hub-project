@@ -312,7 +312,13 @@
     "submitSelectionsError": "Nepavyko pateikti pasirinkimų. Bandykite dar kartą.",
     "selectionsSubmitted": "Pasirinkimai pateikti",
     "selectionsSubmittedMessage": "Ačiū! Jūsų fotografas peržiūrės pasirinkimus ir paruoš galutinius redaguotus failus.",
-    "submitting": "Pateikiama..."
+    "submitting": "Pateikiama...",
+    "passwordRequired": "Ši galerija apsaugota slaptažodžiu.",
+    "passwordLabel": "Slaptažodis",
+    "passwordPlaceholder": "Įveskite galerijos slaptažodį",
+    "passwordSubmit": "Peržiūrėti galeriją",
+    "passwordError": "Neteisingas slaptažodis. Bandykite dar kartą.",
+    "passwordSubmitting": "Tikrinama..."
   },
   "payments": {
     "title": "Mokėjimai",

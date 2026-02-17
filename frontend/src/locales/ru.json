@@ -312,7 +312,13 @@
     "submitSelectionsError": "Не удалось отправить выбор. Попробуйте ещё раз.",
     "selectionsSubmitted": "Выбор отправлен",
     "selectionsSubmittedMessage": "Спасибо! Ваш фотограф рассмотрит ваш выбор и подготовит готовые файлы.",
-    "submitting": "Отправка..."
+    "submitting": "Отправка...",
+    "passwordRequired": "Эта галерея защищена паролем.",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Введите пароль галереи",
+    "passwordSubmit": "Открыть галерею",
+    "passwordError": "Неверный пароль. Попробуйте ещё раз.",
+    "passwordSubmitting": "Проверка..."
   },
   "payments": {
     "title": "Оплата",

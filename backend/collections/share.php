@@ -38,7 +38,7 @@ if ($requestMethod === 'PATCH') {
 
         // Query collection by shareId
         $stmt = $pdo->prepare("
-            SELECT id, status
+            SELECT id, status, password
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1
@@ -50,6 +50,16 @@ if ($requestMethod === 'PATCH') {
             http_response_code(404);
             echo json_encode(['error' => 'Collection not found.']);
             exit;
+        }
+
+        // Password check
+        if (!empty($collection['password'])) {
+            $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
+            if (!password_verify($provided, $collection['password'])) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Password required.', 'passwordRequired' => true]);
+                exit;
+            }
         }
 
         // Validate status transition: Only allow SELECTING → REVIEWING
@@ -81,7 +91,8 @@ if ($requestMethod === 'PATCH') {
 
     } catch (Throwable $e) {
         http_response_code(500);
-        echo json_encode(['error' => 'Server error', 'details' => $e->getMessage()]);
+        error_log($e->getMessage());
+        echo json_encode(['error' => 'Internal server error.']);
     }
 
 } else {
@@ -89,7 +100,7 @@ if ($requestMethod === 'PATCH') {
     try {
         // Query collection by shareId — explicitly exclude sensitive fields
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, shareId, coverPhotoId, deliveryToken, createdAt
+            SELECT id, name, status, clientName, shareId, coverPhotoId, deliveryToken, createdAt, password
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1
@@ -102,6 +113,19 @@ if ($requestMethod === 'PATCH') {
             echo json_encode(['error' => 'Collection not found.']);
             exit;
         }
+
+        // Password check
+        if (!empty($collection['password'])) {
+            $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
+            if (!password_verify($provided, $collection['password'])) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Password required.', 'passwordRequired' => true]);
+                exit;
+            }
+        }
+
+        // Remove sensitive field before sending to client
+        unset($collection['password']);
 
         // Query photos for this collection
         $stmt = $pdo->prepare("
@@ -133,6 +157,7 @@ if ($requestMethod === 'PATCH') {
 
     } catch (Throwable $e) {
         http_response_code(500);
-        echo json_encode(['error' => 'Server error', 'details' => $e->getMessage()]);
+        error_log($e->getMessage());
+        echo json_encode(['error' => 'Internal server error.']);
     }
 }

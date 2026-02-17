@@ -50,7 +50,7 @@ try {
 
         // Generate CUID for the new collection
         $collectionId = generateCuid();
-        $shareId = bin2hex(random_bytes(8)); // Simple random string for shareId
+        $shareId = bin2hex(random_bytes(16)); // 128-bit entropy shareId
         $currentDateTime = date('Y-m-d H:i:s.v');
 
         $stmt = $pdo->prepare("
@@ -80,8 +80,6 @@ try {
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode([
-        "error" => "Server error",
-        "details" => $e->getMessage()
-    ]);
+    error_log($e->getMessage());
+    echo json_encode(["error" => "Internal server error."]);
 }

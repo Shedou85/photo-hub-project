@@ -305,7 +305,13 @@
     "submitSelectionsError": "Failed to submit selections. Please try again.",
     "selectionsSubmitted": "Selections submitted",
     "selectionsSubmittedMessage": "Thank you! Your photographer will review your selections and prepare the final edited photos.",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "passwordRequired": "This gallery is password protected.",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter gallery password",
+    "passwordSubmit": "View Gallery",
+    "passwordError": "Incorrect password. Please try again.",
+    "passwordSubmitting": "Verifying..."
   },
   "payments": {
     "title": "Payments",

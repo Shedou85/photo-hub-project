@@ -69,22 +69,24 @@ CREATE TABLE `Collection` (
   `name` VARCHAR(191) NOT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
-  `shareId` VARCHAR(191) NOT NULL,
-  `deliveryToken` VARCHAR(191) NULL,
+  `shareId` VARCHAR(255) NOT NULL,
+  `deliveryToken` VARCHAR(255) NULL,
   `userId` VARCHAR(191) NOT NULL,
-  `processedZipPath` VARCHAR(191) NULL,
+  `processedZipPath` VARCHAR(255) NULL,
   `clientEmail` VARCHAR(191) NULL,
   `clientName` VARCHAR(191) NULL,
   `expiresAt` DATETIME(3) NULL,
-  `password` VARCHAR(191) NULL,
+  `password` VARCHAR(255) NULL,
   `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
   `allowPromotionalUse` BOOLEAN NOT NULL DEFAULT false,
   `coverPhotoId` VARCHAR(191) NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `Collection_shareId_key` (`shareId`),
   UNIQUE KEY `Collection_deliveryToken_key` (`deliveryToken`),
-  UNIQUE KEY `Collection_coverPhotoId_key` (`coverPhotoId`),
-  KEY `Collection_userId_idx` (`userId`)
+  KEY `Collection_coverPhotoId_idx` (`coverPhotoId`),
+  KEY `Collection_userId_idx` (`userId`),
+  KEY `Collection_userId_status_idx` (`userId`, `status`),
+  KEY `Collection_expiresAt_idx` (`expiresAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -95,9 +97,9 @@ CREATE TABLE `Collection` (
 
 CREATE TABLE `Photo` (
   `id` VARCHAR(191) NOT NULL,
-  `filename` VARCHAR(191) NOT NULL,
-  `storagePath` VARCHAR(191) NOT NULL,
-  `thumbnailPath` VARCHAR(191) NULL DEFAULT NULL,
+  `filename` VARCHAR(255) NOT NULL,
+  `storagePath` VARCHAR(255) NOT NULL,
+  `thumbnailPath` VARCHAR(255) NULL DEFAULT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `collectionId` VARCHAR(191) NOT NULL,
   PRIMARY KEY (`id`),
@@ -112,8 +114,8 @@ CREATE TABLE `Photo` (
 
 CREATE TABLE `EditedPhoto` (
   `id` VARCHAR(191) NOT NULL,
-  `filename` VARCHAR(191) NOT NULL,
-  `storagePath` VARCHAR(191) NOT NULL,
+  `filename` VARCHAR(255) NOT NULL,
+  `storagePath` VARCHAR(255) NOT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `collectionId` VARCHAR(191) NOT NULL,
   PRIMARY KEY (`id`),
@@ -146,12 +148,13 @@ CREATE TABLE `PromotionalPhoto` (
   `id` VARCHAR(191) NOT NULL,
   `collectionId` VARCHAR(191) NOT NULL,
   `photoId` VARCHAR(191) NOT NULL,
-  `order` INT NULL,
+  `order` INT NOT NULL DEFAULT 0,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `PromotionalPhoto_photoId_key` (`photoId`),
-  UNIQUE KEY `PromotionalPhoto_collectionId_photoId_key` (`collectionId`, `photoId`)
+  UNIQUE KEY `PromotionalPhoto_collectionId_photoId_key` (`collectionId`, `photoId`),
+  KEY `PromotionalPhoto_collectionId_order_idx` (`collectionId`, `order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -167,10 +170,12 @@ CREATE TABLE `Download` (
   `photoId` VARCHAR(191) NULL,
   `sessionId` VARCHAR(191) NOT NULL,
   `downloadedAt` DATETIME(3) NOT NULL,
-  `userAgent` VARCHAR(500) NULL,
+  `userAgent` TEXT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   PRIMARY KEY (`id`),
   KEY `Download_collectionId_idx` (`collectionId`),
+  KEY `Download_photoId_idx` (`photoId`),
+  KEY `Download_collectionId_downloadedAt_idx` (`collectionId`, `downloadedAt`),
   UNIQUE KEY `Download_deduplication_key` (`collectionId`, `downloadType`, `sessionId`, `downloadedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -264,3 +269,38 @@ ALTER TABLE `Download`
 -- Migration: Add DOWNLOADED status to Collection ENUM (run on existing databases)
 --
 -- ALTER TABLE `Collection` MODIFY COLUMN `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT';
+
+-- --------------------------------------------------------
+--
+-- Migration: Wave 1 — Add indexes (run on existing databases)
+--
+-- CREATE INDEX Collection_userId_status_idx ON `Collection`(`userId`, `status`);
+-- CREATE INDEX Collection_expiresAt_idx ON `Collection`(`expiresAt`);
+-- CREATE INDEX Download_photoId_idx ON `Download`(`photoId`);
+-- CREATE INDEX Download_collectionId_downloadedAt_idx ON `Download`(`collectionId`, `downloadedAt`);
+-- CREATE INDEX PromotionalPhoto_collectionId_order_idx ON `PromotionalPhoto`(`collectionId`, `order`);
+-- ALTER TABLE `Collection`
+--   DROP KEY `Collection_coverPhotoId_key`,
+--   ADD KEY `Collection_coverPhotoId_idx` (`coverPhotoId`);
+
+-- --------------------------------------------------------
+--
+-- Migration: Wave 2 — Column type changes (run on existing databases)
+--
+-- ALTER TABLE `Collection`
+--   MODIFY COLUMN `shareId` VARCHAR(255) NOT NULL,
+--   MODIFY COLUMN `deliveryToken` VARCHAR(255) NULL,
+--   MODIFY COLUMN `processedZipPath` VARCHAR(255) NULL,
+--   MODIFY COLUMN `password` VARCHAR(255) NULL;
+-- ALTER TABLE `Photo`
+--   MODIFY COLUMN `filename` VARCHAR(255) NOT NULL,
+--   MODIFY COLUMN `storagePath` VARCHAR(255) NOT NULL,
+--   MODIFY COLUMN `thumbnailPath` VARCHAR(255) NULL DEFAULT NULL;
+-- ALTER TABLE `EditedPhoto`
+--   MODIFY COLUMN `filename` VARCHAR(255) NOT NULL,
+--   MODIFY COLUMN `storagePath` VARCHAR(255) NOT NULL;
+-- ALTER TABLE `Download`
+--   MODIFY COLUMN `userAgent` TEXT NULL;
+-- UPDATE `PromotionalPhoto` SET `order` = 0 WHERE `order` IS NULL;
+-- ALTER TABLE `PromotionalPhoto`
+--   MODIFY COLUMN `order` INT NOT NULL DEFAULT 0;

@@ -23,6 +23,11 @@ function SharePage() {
   const [requestsInFlight, setRequestsInFlight] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [passwordRequired, setPasswordRequired] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const [collectionPassword, setCollectionPassword] = useState('');
 
   const canSelect = collection?.status === 'SELECTING';
 
@@ -43,13 +48,17 @@ function SharePage() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const pwHeader = collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
       if (wasSelected) {
-        const res = await fetch(`${baseUrl}/share/${shareId}/selections/${photoId}`, { method: 'DELETE' });
+        const res = await fetch(`${baseUrl}/share/${shareId}/selections/${photoId}`, {
+          method: 'DELETE',
+          headers: pwHeader,
+        });
         if (!res.ok) throw new Error('Deselect failed');
       } else {
         const res = await fetch(`${baseUrl}/share/${shareId}/selections`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...pwHeader },
           body: JSON.stringify({ photoId }),
         });
         if (!res.ok) throw new Error('Select failed');
@@ -78,9 +87,10 @@ function SharePage() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const pwHeader = collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
       const res = await fetch(`${baseUrl}/share/${shareId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...pwHeader },
         body: JSON.stringify({ status: 'REVIEWING' }),
       });
 
@@ -101,6 +111,14 @@ function SharePage() {
     }
   };
 
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!passwordInput.trim() || passwordSubmitting) return;
+    setPasswordSubmitting(true);
+    setPasswordError(false);
+    setCollectionPassword(passwordInput);
+  };
+
   // Keyboard navigation for lightbox
   useEffect(() => {
     if (lightboxIndex === null || !collection?.photos) return;
@@ -119,11 +137,27 @@ function SharePage() {
     const fetchCollection = async () => {
       try {
         // PUBLIC endpoint — no credentials needed
+        const headers = {};
+        if (collectionPassword) {
+          headers['X-Collection-Password'] = collectionPassword;
+        }
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/share/${shareId}`
+          `${import.meta.env.VITE_API_BASE_URL}/share/${shareId}`,
+          { headers }
         );
 
         if (!response.ok) {
+          if (response.status === 401) {
+            const body = await response.json().catch(() => ({}));
+            if (body.passwordRequired) {
+              setPasswordRequired(true);
+              setPasswordError(!!collectionPassword); // only show error if user already attempted
+              setPasswordSubmitting(false);
+              setCollectionPassword('');
+              setLoading(false);
+              return;
+            }
+          }
           if (response.status === 404) {
             setError("notFound");
           } else {
@@ -143,6 +177,8 @@ function SharePage() {
             return;
           }
 
+          setPasswordRequired(false);
+          setPasswordSubmitting(false);
           setCollection(coll);
           // Initialize selections from share endpoint response (added by 03-01)
           const initialSelections = new Set(
@@ -160,12 +196,56 @@ function SharePage() {
     };
 
     fetchCollection();
-  }, [shareId]);
+  }, [shareId, collectionPassword]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center font-sans">
         <div className="text-gray-500 text-sm">{t("share.loading")}</div>
+      </div>
+    );
+  }
+
+  if (passwordRequired && !collection) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans px-5">
+        <div className="w-full max-w-[360px]">
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <p className="text-gray-600 text-sm">{t('share.passwordRequired')}</p>
+          </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('share.passwordLabel')}
+              </label>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder={t('share.passwordPlaceholder')}
+                className={`w-full px-3 py-2 border rounded-[8px] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  passwordError ? 'border-red-400 bg-red-50' : 'border-gray-300'
+                }`}
+                autoFocus
+              />
+              {passwordError && (
+                <p className="text-red-500 text-xs mt-1">{t('share.passwordError')}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={!passwordInput.trim() || passwordSubmitting}
+              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium rounded-[8px] transition-colors"
+            >
+              {passwordSubmitting ? t('share.passwordSubmitting') : t('share.passwordSubmit')}
+            </button>
+          </form>
+        </div>
       </div>
     );
   }

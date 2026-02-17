@@ -21,7 +21,7 @@ try {
 
     // Query collection by shareId to get id and status
     $stmt = $pdo->prepare("
-        SELECT id, status
+        SELECT id, status, password
         FROM `Collection`
         WHERE shareId = ?
         LIMIT 1
@@ -33,6 +33,16 @@ try {
         http_response_code(404);
         echo json_encode(['error' => 'Collection not found.']);
         exit;
+    }
+
+    // Password check
+    if (!empty($collection['password'])) {
+        $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
+        if (!password_verify($provided, $collection['password'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Password required.', 'passwordRequired' => true]);
+            exit;
+        }
     }
 
     $collectionId = $collection['id'];
@@ -157,5 +167,6 @@ try {
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server error', 'details' => $e->getMessage()]);
+    error_log($e->getMessage());
+    echo json_encode(['error' => 'Internal server error.']);
 }
