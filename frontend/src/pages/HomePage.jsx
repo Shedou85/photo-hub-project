@@ -76,6 +76,7 @@ function HomePage() {
   const { t, i18n } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [promoPhotos, setPromoPhotos] = useState([]);
   const langRef = useRef(null);
   const featuresRef = useRef(null);
 
@@ -95,6 +96,17 @@ function HomePage() {
     };
     document.addEventListener('mousedown', onMouseDown);
     return () => document.removeEventListener('mousedown', onMouseDown);
+  }, []);
+
+  useEffect(() => {
+    fetch(import.meta.env.VITE_API_BASE_URL + '/promotional')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.status === 'OK' && data.photos?.length > 0) {
+          setPromoPhotos(data.photos.slice(0, 12));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const scrollToFeatures = (e) => {
@@ -341,6 +353,39 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Portfolio showcase ───────────────────────────────────── */}
+      {promoPhotos.length > 0 && (
+        <section className="bg-surface-darker py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="lp-fade font-serif-display text-[clamp(32px,4vw,48px)] font-bold text-white mb-4 leading-tight">
+                {t('promotional.homeSectionTitle')}
+              </h2>
+            </div>
+            <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+              {promoPhotos.map((photo) => {
+                const src = photo.thumbnailPath
+                  ? `${import.meta.env.VITE_API_BASE_URL}/${photo.thumbnailPath}`
+                  : `${import.meta.env.VITE_API_BASE_URL}/${photo.storagePath}`;
+                return (
+                  <div
+                    key={photo.photoId}
+                    className="overflow-hidden rounded-lg break-inside-avoid group"
+                  >
+                    <img
+                      src={src}
+                      alt=""
+                      className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={(e) => { e.target.closest('.break-inside-avoid')?.classList.add('hidden'); }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Plans ────────────────────────────────────────────────── */}
       <section id="plans" className="bg-surface-darker py-24 px-6 relative overflow-hidden">

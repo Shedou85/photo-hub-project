@@ -174,6 +174,15 @@ switch ($requestUri) {
         require_once __DIR__ . '/collections/index.php';
         break;
 
+    case '/promotional':
+        if ($requestMethod == 'GET') {
+            require_once __DIR__ . '/promotional.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     default:
         // Handle /share/ routes (public endpoints)
         if (strpos($requestUri, '/share/') === 0) {
@@ -262,6 +271,9 @@ switch ($requestUri) {
                     break;
                 case 'delivery':
                     require_once __DIR__ . '/collections/delivery.php';
+                    break;
+                case 'promotional':
+                    require_once __DIR__ . '/collections/promotional.php';
                     break;
                 default:
                     http_response_code(404);

@@ -276,6 +276,15 @@
     "historyTitle": "Payment History",
     "noPayments": "No payments at this time."
   },
+  "promotional": {
+    "modalTitle": "Share your work with the world",
+    "modalDesc": "May we use up to 5 photos from this collection on our homepage to showcase the quality of work done by PixelForge photographers?",
+    "selectHint": "Select up to 5 photos",
+    "allowBtn": "Allow & Deliver",
+    "skipBtn": "Skip",
+    "homeSectionTitle": "As seen in our portfolio",
+    "selectedCount": "{{count}} selected"
+  },
   "delivery": {
     "loading": "Loading gallery...",
     "notFound": "This delivery page could not be found or the link may have expired.",

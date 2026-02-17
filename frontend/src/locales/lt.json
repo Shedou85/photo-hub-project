@@ -283,6 +283,15 @@
     "historyTitle": "Mokėjimų istorija",
     "noPayments": "Šiuo metu mokėjimų nėra."
   },
+  "promotional": {
+    "modalTitle": "Pasidalinkite savo darbais su pasauliu",
+    "modalDesc": "Ar galime naudoti iki 5 nuotraukų iš šios kolekcijos mūsų pagrindiniame puslapyje, kad parodytume PixelForge fotografų darbo kokybę?",
+    "selectHint": "Pasirinkite iki 5 nuotraukų",
+    "allowBtn": "Leisti ir pristatyti",
+    "skipBtn": "Praleisti",
+    "homeSectionTitle": "Iš mūsų portfelio",
+    "selectedCount": "{{count}} pasirinkta"
+  },
   "delivery": {
     "loading": "Kraunama galerija...",
     "notFound": "Šis pristatymo puslapis nerastas arba nuoroda galimai nebegalioja.",

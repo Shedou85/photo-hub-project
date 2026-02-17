@@ -6,6 +6,7 @@ import { PHOTO_GRID_CLASSES } from '../constants/styles';
 import Button from '../components/primitives/Button';
 import Badge from '../components/primitives/Badge';
 import Accordion from '../components/Accordion';
+import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
 
 function InfoRow({ label, value }) {
   return (
@@ -50,6 +51,7 @@ function CollectionDetailsPage() {
   const [filter, setFilter] = useState('all');
   const [showUploadZone, setShowUploadZone] = useState(false);
   const [showEditedFinalsZone, setShowEditedFinalsZone] = useState(false);
+  const [showPromotionalModal, setShowPromotionalModal] = useState(false);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -504,31 +506,6 @@ function CollectionDetailsPage() {
     }
   };
 
-  const handleMarkAsDelivered = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'DELIVERED' }),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === 'OK') {
-          setCollection(data.collection);
-          toast.success(t('collection.markedAsDelivered'));
-        }
-      } else {
-        toast.error(t('collection.statusUpdateError'));
-      }
-    } catch {
-      toast.error(t('collection.statusUpdateError'));
-    }
-  };
-
   const anyUploading = useMemo(
     () => Object.values(uploadStates).some((s) => s === "uploading"),
     [uploadStates]
@@ -719,7 +696,7 @@ function CollectionDetailsPage() {
             {/* Existing Mark as Delivered button */}
             <Button
               variant="primary"
-              onClick={handleMarkAsDelivered}
+              onClick={() => setShowPromotionalModal(true)}
               disabled={editedPhotos.length === 0}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -744,6 +721,19 @@ function CollectionDetailsPage() {
           </div>
         )}
       </Accordion>
+
+      {showPromotionalModal && (
+        <PromotionalConsentModal
+          collection={collection}
+          photos={photos}
+          onClose={() => setShowPromotionalModal(false)}
+          onDelivered={(updatedCollection) => {
+            setCollection(updatedCollection);
+            setShowPromotionalModal(false);
+            toast.success(t('collection.markedAsDelivered'));
+          }}
+        />
+      )}
 
       {/* ── Upload Dropzone (only shown when showUploadZone is true and status is DRAFT) ── */}
       {showUploadZone && collection.status === 'DRAFT' && (
