@@ -36,7 +36,7 @@
       "free": "Nemokama versija",
       "freePrice": "Nemokamai",
       "standard": "Standartinis",
-      "standardPrice": "$12",
+      "standardPrice": "$15",
       "pro": "Pro",
       "proPrice": "$29",
       "perMonth": "/ mėn.",
@@ -358,7 +358,11 @@
     "title": "Mokėjimai",
     "subtitle": "Sąskaitų ir mokėjimų istorija",
     "historyTitle": "Mokėjimų istorija",
-    "noPayments": "Šiuo metu mokėjimų nėra."
+    "noPayments": "Šiuo metu mokėjimų nėra.",
+    "plansTitle": "Planai",
+    "plansSubtitle": "Jūsų dabartinis planas ir galimi atnaujinimai",
+    "currentPlan": "Dabartinis planas",
+    "comingSoon": "Netrukus"
   },
   "promotional": {
     "modalTitle": "Pasidalinkite savo darbais su pasauliu",

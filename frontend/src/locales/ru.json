@@ -36,7 +36,7 @@
       "free": "Пробный",
       "freePrice": "Бесплатно",
       "standard": "Стандартный",
-      "standardPrice": "$12",
+      "standardPrice": "$15",
       "pro": "Pro",
       "proPrice": "$29",
       "perMonth": "/ мес.",
@@ -358,7 +358,11 @@
     "title": "Оплата",
     "subtitle": "История счетов и платежей",
     "historyTitle": "История платежей",
-    "noPayments": "Платежей пока нет."
+    "noPayments": "Платежей пока нет.",
+    "plansTitle": "Планы",
+    "plansSubtitle": "Ваш текущий план и доступные апгрейды",
+    "currentPlan": "Текущий план",
+    "comingSoon": "Скоро"
   },
   "promotional": {
     "modalTitle": "Поделитесь своими работами с миром",

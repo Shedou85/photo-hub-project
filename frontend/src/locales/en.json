@@ -36,7 +36,7 @@
       "free": "Free Trial",
       "freePrice": "Free",
       "standard": "Standard",
-      "standardPrice": "$12",
+      "standardPrice": "$15",
       "pro": "Pro",
       "proPrice": "$29",
       "perMonth": "/ month",
@@ -351,7 +351,11 @@
     "title": "Payments",
     "subtitle": "Billing & payment history",
     "historyTitle": "Payment History",
-    "noPayments": "No payments at this time."
+    "noPayments": "No payments at this time.",
+    "plansTitle": "Plans",
+    "plansSubtitle": "Your current plan and available upgrades",
+    "currentPlan": "Current plan",
+    "comingSoon": "Coming soon"
   },
   "promotional": {
     "modalTitle": "Share your work with the world",
