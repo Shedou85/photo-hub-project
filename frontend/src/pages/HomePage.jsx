@@ -165,7 +165,7 @@ function HomePage() {
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="PixelForge" className="w-10 h-10 rounded-full" />
-            <span className="font-semibold text-white text-base tracking-tight">PixelForge</span>
+            <span className="hidden sm:inline font-semibold text-white text-base tracking-tight">PixelForge</span>
           </div>
 
           {/* Right: lang switcher + login */}
@@ -198,7 +198,7 @@ function HomePage() {
             <div className="flex gap-3">
               <Link
                 to="/register"
-                className="px-4 py-2 rounded-sm text-sm font-semibold text-white/80 no-underline bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] transition-colors duration-150"
+                className="hidden sm:inline-flex px-4 py-2 rounded-sm text-sm font-semibold text-white/80 no-underline bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] transition-colors duration-150"
               >
                 {t('home.navSignup')}
               </Link>
