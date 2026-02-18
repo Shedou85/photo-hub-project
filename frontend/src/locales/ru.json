@@ -6,6 +6,7 @@
     "profile": "Профиль",
     "collections": "Коллекции",
     "payments": "Оплата",
+    "admin": "Админ",
     "logout": "Выйти",
     "mainNavigation": "Основная навигация"
   },
@@ -372,6 +373,66 @@
     "skipBtn": "Пропустить",
     "homeSectionTitle": "Из нашего портфолио",
     "selectedCount": "{{count}} выбрано"
+  },
+  "admin": {
+    "title": "Админ-Панель",
+    "subtitle": "Управление платформой и пользователями",
+    "loading": "Загрузка...",
+    "noData": "Нет данных",
+    "stats": {
+      "title": "Статистика Платформы",
+      "totalUsers": "Всего Пользователей",
+      "activeUsers": "Активные Пользователи",
+      "suspendedUsers": "Заблокированные",
+      "totalCollections": "Всего Коллекций",
+      "totalDownloads": "Всего Загрузок",
+      "planBreakdown": "Распределение по Тарифам",
+      "collectionsByStatus": "Коллекции по Статусу"
+    },
+    "users": {
+      "title": "Управление Пользователями",
+      "searchPlaceholder": "Поиск по имени или email...",
+      "allRoles": "Все Роли",
+      "allStatuses": "Все Статусы",
+      "allPlans": "Все Тарифы",
+      "columns": {
+        "name": "Имя / Email",
+        "email": "Email",
+        "role": "Роль",
+        "plan": "Тариф",
+        "status": "Статус",
+        "collections": "Коллекции",
+        "joined": "Зарегистрирован",
+        "actions": "Действия"
+      }
+    },
+    "collections": {
+      "title": "Все Коллекции",
+      "allStatuses": "Все Статусы",
+      "columns": {
+        "name": "Название коллекции",
+        "photographer": "Фотограф",
+        "status": "Статус",
+        "photos": "Фото",
+        "client": "Клиент",
+        "created": "Создана"
+      }
+    },
+    "actions": {
+      "updateSuccess": "Успешно обновлено",
+      "makeAdmin": "Сделать администратором",
+      "makeUser": "Сделать пользователем",
+      "suspend": "Заблокировать",
+      "activate": "Активировать",
+      "changePlan": "Изменить тариф"
+    },
+    "pagination": {
+      "prev": "Назад",
+      "next": "Вперёд",
+      "perPage": "На странице",
+      "page": "Страница",
+      "total": "всего"
+    }
   },
   "delivery": {
     "loading": "Загрузка галереи...",

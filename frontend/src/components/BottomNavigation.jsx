@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Mobile bottom tab navigation bar.
@@ -20,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   const navItems = [
     {
@@ -53,6 +55,19 @@ const BottomNavigation = () => {
     },
   ];
 
+  const allNavItems = [...navItems];
+  if (user?.role === 'ADMIN') {
+    allNavItems.push({
+      to: '/admin',
+      label: t('nav.admin'),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      ),
+    });
+  }
+
   return (
     <nav
       role="navigation"
@@ -61,7 +76,7 @@ const BottomNavigation = () => {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-center justify-around">
-        {navItems.map(({ to, label, icon }) => {
+        {allNavItems.map(({ to, label, icon }) => {
           const isActive = location.pathname === to;
           return (
             <Link

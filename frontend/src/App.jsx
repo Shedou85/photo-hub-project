@@ -14,7 +14,9 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -36,6 +38,10 @@ function App() {
         <Route path="/collections" element={<CollectionsListPage />} />
         <Route path="/collection/:id" element={<CollectionDetailsPage />} />
         <Route path="/payments" element={<PaymentsPage />} />
+      </Route>
+
+      <Route path="/admin" element={<AdminRoute><ResponsiveLayout /></AdminRoute>}>
+        <Route index element={<AdminPage />} />
       </Route>
     </Routes>
     </>

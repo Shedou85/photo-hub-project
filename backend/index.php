@@ -274,6 +274,27 @@ switch ($requestUri) {
             break;
         }
 
+        // Handle /admin/ routes
+        if (strpos($requestUri, '/admin/') === 0 || $requestUri === '/admin') {
+            $uriParts = explode('/', ltrim($requestUri, '/'));
+            $resource = $uriParts[1] ?? '';
+            switch ($resource) {
+                case 'stats':
+                    require_once __DIR__ . '/admin/stats.php';
+                    break;
+                case 'users':
+                    require_once __DIR__ . '/admin/users.php';
+                    break;
+                case 'collections':
+                    require_once __DIR__ . '/admin/collections.php';
+                    break;
+                default:
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Not found']);
+            }
+            break;
+        }
+
         // Handle /collections/{id} and sub-routes
         if (strpos($requestUri, '/collections/') === 0) {
             $uriParts = explode('/', ltrim($requestUri, '/'));

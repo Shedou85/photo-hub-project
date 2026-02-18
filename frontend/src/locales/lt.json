@@ -6,6 +6,7 @@
     "profile": "Profilis",
     "collections": "Kolekcijos",
     "payments": "Mokėjimai",
+    "admin": "Administravimas",
     "logout": "Atsijungti",
     "mainNavigation": "Pagrindinis meniu"
   },
@@ -372,6 +373,66 @@
     "skipBtn": "Praleisti",
     "homeSectionTitle": "Iš mūsų portfelio",
     "selectedCount": "{{count}} pasirinkta"
+  },
+  "admin": {
+    "title": "Administravimo Pultas",
+    "subtitle": "Platformos valdymas ir vartotojų administravimas",
+    "loading": "Kraunama...",
+    "noData": "Duomenų nėra",
+    "stats": {
+      "title": "Platformos Statistika",
+      "totalUsers": "Visi Vartotojai",
+      "activeUsers": "Aktyvūs Vartotojai",
+      "suspendedUsers": "Sustabdyti Vartotojai",
+      "totalCollections": "Visos Kolekcijos",
+      "totalDownloads": "Visi Atsisiuntimai",
+      "planBreakdown": "Planų Pasiskirstymas",
+      "collectionsByStatus": "Kolekcijos pagal Statusą"
+    },
+    "users": {
+      "title": "Vartotojų Valdymas",
+      "searchPlaceholder": "Ieškoti pagal vardą ar el. paštą...",
+      "allRoles": "Visos Rolės",
+      "allStatuses": "Visi Statusai",
+      "allPlans": "Visi Planai",
+      "columns": {
+        "name": "Vardas / El. paštas",
+        "email": "El. paštas",
+        "role": "Rolė",
+        "plan": "Planas",
+        "status": "Statusas",
+        "collections": "Kolekcijos",
+        "joined": "Prisijungė",
+        "actions": "Veiksmai"
+      }
+    },
+    "collections": {
+      "title": "Visos Kolekcijos",
+      "allStatuses": "Visi Statusai",
+      "columns": {
+        "name": "Kolekcijos Pavadinimas",
+        "photographer": "Fotografas",
+        "status": "Statusas",
+        "photos": "Nuotraukos",
+        "client": "Klientas",
+        "created": "Sukurta"
+      }
+    },
+    "actions": {
+      "updateSuccess": "Sėkmingai atnaujinta",
+      "makeAdmin": "Padaryti administratoriumi",
+      "makeUser": "Padaryti vartotoju",
+      "suspend": "Sustabdyti",
+      "activate": "Aktyvuoti",
+      "changePlan": "Keisti planą"
+    },
+    "pagination": {
+      "prev": "Ankstesnis",
+      "next": "Kitas",
+      "perPage": "Puslapyje",
+      "page": "Puslapis",
+      "total": "viso"
+    }
   },
   "delivery": {
     "loading": "Kraunama galerija...",

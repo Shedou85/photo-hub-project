@@ -6,6 +6,7 @@
     "profile": "Profile",
     "collections": "Collections",
     "payments": "Payments",
+    "admin": "Admin",
     "logout": "Sign out",
     "mainNavigation": "Main navigation"
   },
@@ -365,6 +366,66 @@
     "skipBtn": "Skip",
     "homeSectionTitle": "As seen in our portfolio",
     "selectedCount": "{{count}} selected"
+  },
+  "admin": {
+    "title": "Admin Console",
+    "subtitle": "Platform management & user administration",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "stats": {
+      "title": "Platform Stats",
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "suspendedUsers": "Suspended Users",
+      "totalCollections": "Total Collections",
+      "totalDownloads": "Total Downloads",
+      "planBreakdown": "Plan Distribution",
+      "collectionsByStatus": "Collections by Status"
+    },
+    "users": {
+      "title": "User Management",
+      "searchPlaceholder": "Search by name or email...",
+      "allRoles": "All Roles",
+      "allStatuses": "All Statuses",
+      "allPlans": "All Plans",
+      "columns": {
+        "name": "Name / Email",
+        "email": "Email",
+        "role": "Role",
+        "plan": "Plan",
+        "status": "Status",
+        "collections": "Collections",
+        "joined": "Joined",
+        "actions": "Actions"
+      }
+    },
+    "collections": {
+      "title": "All Collections",
+      "allStatuses": "All Statuses",
+      "columns": {
+        "name": "Collection Name",
+        "photographer": "Photographer",
+        "status": "Status",
+        "photos": "Photos",
+        "client": "Client",
+        "created": "Created"
+      }
+    },
+    "actions": {
+      "updateSuccess": "Updated successfully",
+      "makeAdmin": "Make Admin",
+      "makeUser": "Make User",
+      "suspend": "Suspend",
+      "activate": "Activate",
+      "changePlan": "Change Plan"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "perPage": "Per page",
+      "page": "Page",
+      "total": "total"
+    }
   },
   "delivery": {
     "loading": "Loading gallery...",
