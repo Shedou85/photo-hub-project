@@ -116,6 +116,7 @@
     "loginText": "Login"
   },
   "profile": {
+    "pageTitle": "Profile",
     "subtitle": "Your profile & account settings",
     "accountInfo": "Account Information",
     "email": "Email",
@@ -147,6 +148,7 @@
   },
   "collections": {
     "title": "My Collections",
+    "subtitle": "Manage and share your photo collections",
     "createTitle": "Create New Collection",
     "nameLabel": "Collection Name",
     "descLabel": "Description (optional)",

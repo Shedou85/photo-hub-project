@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import Accordion from "../components/Accordion"; // Import Accordion component
+import PageHeader from "../components/PageHeader";
 
 // --- Helper: derive initials from a display name ---
 function getInitials(name) {
@@ -97,25 +98,11 @@ function ProfilePage() {
   return (
     <div className="font-sans max-w-6xl mx-auto">
       {/* ── Page Header ── */}
-      <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
-        <div className="flex items-center gap-3.5">
-          {/* Avatar initials circle */}
-          <div
-            className="w-13 h-13 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0 select-none bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
-          >
-            {getInitials(user.name)}
-          </div>
-
-          <div>
-            <h1 className="m-0 text-xl font-bold text-gray-900 leading-tight">
-              {user.name}
-            </h1>
-            <p className="mt-[2px] mb-0 text-sm text-gray-500">
-              {t('profile.subtitle')}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={getInitials(user.name)}
+        title={user.name}
+        subtitle={t('profile.subtitle')}
+      />
 
       {/* ── Edit Profile Accordion ── */}
       <Accordion title={t('profile.editProfile')}>

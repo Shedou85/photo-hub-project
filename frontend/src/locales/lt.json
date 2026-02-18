@@ -116,6 +116,7 @@
     "loginText": "Prisijungti"
   },
   "profile": {
+    "pageTitle": "Profilis",
     "subtitle": "Jūsų profilis ir paskyros nustatymai",
     "accountInfo": "Paskyros informacija",
     "email": "El. paštas",
@@ -147,6 +148,7 @@
   },
   "collections": {
     "title": "Mano Kolekcijos",
+    "subtitle": "Tvarkykite ir dalinkitės savo nuotraukų kolekcijomis",
     "createTitle": "Sukurti naują kolekciją",
     "nameLabel": "Kolekcijos pavadinimas",
     "descLabel": "Aprašymas (neprivaloma)",

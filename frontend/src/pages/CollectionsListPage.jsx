@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import Accordion from "../components/Accordion";
+import PageHeader from "../components/PageHeader";
 import Button from "../components/primitives/Button";
 import CollectionCard from "../components/primitives/CollectionCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -161,14 +162,11 @@ function CollectionsListPage() {
   return (
     <div className="font-sans max-w-6xl mx-auto">
       {/* ── Page Header ── */}
-      <div className="flex items-center mb-7 gap-3.5">
-        <div className="w-13 h-13 rounded-full bg-[linear-gradient(135deg,#3b82f6,#6366f1)] flex items-center justify-center text-xl shrink-0 select-none">
-          🗂️
-        </div>
-        <h1 className="m-0 text-xl font-bold text-gray-900 leading-tight">
-          {t('collections.title')}
-        </h1>
-      </div>
+      <PageHeader
+        icon="🗂️"
+        title={t('collections.title')}
+        subtitle={t('collections.subtitle')}
+      />
 
       {/* ── Free Trial Limit Banner ── */}
       {isFreeTrial && (
