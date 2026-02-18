@@ -18,6 +18,7 @@ function RegisterPage() {
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
+  const googleCallbackRef = useRef(null);
   const navigate = useNavigate();
   const { login } = useAuth();
   const { t, i18n } = useTranslation();
@@ -38,6 +39,52 @@ function RegisterPage() {
     };
     document.addEventListener("mousedown", onMouseDown);
     return () => document.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
+  const handleGoogleCredential = async (response) => {
+    setError('');
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/google`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+      const data = await res.json();
+      if (data.status === 'OK') {
+        login(data.user);
+        navigate('/collections');
+      } else {
+        setError(data.error || t('login.googleError'));
+      }
+    } catch (err) {
+      setError(t('login.googleError'));
+    }
+  };
+  googleCallbackRef.current = handleGoogleCredential;
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      window.google?.accounts.id.initialize({
+        client_id: clientId,
+        callback: (r) => googleCallbackRef.current(r),
+      });
+      window.google?.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { theme: 'filled_black', size: 'large', width: 360, text: 'continue_with' }
+      );
+    };
+    document.head.appendChild(script);
+    return () => {
+      script.parentNode?.removeChild(script);
+    };
   }, []);
 
   const validateForm = () => {
@@ -269,6 +316,16 @@ function RegisterPage() {
               {isSubmitting ? t("register.creating") : t("register.submit")}
             </button>
           </form>
+
+          {/* ── OR divider ──────────────────────────────────────── */}
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs text-white/30 uppercase tracking-widest">{t('login.orDivider')}</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          {/* Google Sign-In button */}
+          <div id="google-signin-btn" className="flex justify-center" />
 
           {/* Login link */}
           <p className="text-center text-sm text-white/40 mt-4">

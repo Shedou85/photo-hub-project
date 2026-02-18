@@ -69,7 +69,10 @@
     "backHome": "Home",
     "noAccount": "Don't have an account?",
     "signupText": "Sign up",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    "continueWithGoogle": "Continue with Google",
+    "orDivider": "or",
+    "googleError": "Google sign-in failed. Please try again."
   },
   "passwordReset": {
     "forgotTitle": "Reset your password",

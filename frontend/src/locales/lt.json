@@ -69,7 +69,10 @@
     "backHome": "Pradžia",
     "noAccount": "Neturite paskyros?",
     "signupText": "Registruotis",
-    "forgotPassword": "Pamiršote slaptažodį?"
+    "forgotPassword": "Pamiršote slaptažodį?",
+    "continueWithGoogle": "Tęsti su Google",
+    "orDivider": "arba",
+    "googleError": "Google prisijungimas nepavyko. Bandykite dar kartą."
   },
   "passwordReset": {
     "forgotTitle": "Atstatyti slaptažodį",

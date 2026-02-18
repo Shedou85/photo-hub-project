@@ -178,6 +178,15 @@ switch ($requestUri) {
         }
         break;
 
+    case '/auth/google':
+        if ($requestMethod == 'POST') {
+            require __DIR__ . '/auth/google.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     case '/profile/me':
         if ($requestMethod == 'PATCH') {
             require_once __DIR__ . '/profile/me.php';

@@ -69,7 +69,10 @@
     "backHome": "Главная",
     "noAccount": "Нет аккаунта?",
     "signupText": "Зарегистрироваться",
-    "forgotPassword": "Забыли пароль?"
+    "forgotPassword": "Забыли пароль?",
+    "continueWithGoogle": "Продолжить через Google",
+    "orDivider": "или",
+    "googleError": "Ошибка входа через Google. Попробуйте снова."
   },
   "passwordReset": {
     "forgotTitle": "Сбросить пароль",
