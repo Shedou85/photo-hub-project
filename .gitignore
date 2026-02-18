@@ -17,7 +17,6 @@ Thumbs.db
 # dotenv local overrides (may contain secrets)
 .env.local
 .env.*.local
-frontend/.env
 
 # Playwright MCP artifacts
 .playwright-mcp/
