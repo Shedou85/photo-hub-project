@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useAuth } from '../contexts/AuthContext';
 import { PHOTO_GRID_CLASSES } from '../constants/styles';
 import Button from '../components/primitives/Button';
 import Badge from '../components/primitives/Badge';
@@ -47,6 +48,13 @@ function CollectionDetailsPage() {
   const [editClientName, setEditClientName] = useState('');
   const [editClientEmail, setEditClientEmail] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const { user } = useAuth();
+  const FREE_TRIAL_PHOTO_LIMIT = 50;
+  const isFreeTrial = user?.plan === 'FREE_TRIAL';
+  const photoCount = photos.length;
+  const atPhotoLimit = isFreeTrial && photoCount >= FREE_TRIAL_PHOTO_LIMIT;
+  const nearPhotoLimit = isFreeTrial && photoCount >= 45;
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -211,11 +219,18 @@ function CollectionDetailsPage() {
             } catch {
               // non-critical: response parse failure doesn't block upload
             }
+            setUploadStates((prev) => ({ ...prev, [key]: "done" }));
+          } else {
+            try {
+              const errData = await res.json();
+              if (errData.error === 'PHOTO_LIMIT_REACHED') {
+                toast.error(t('plans.limitReachedPhotos') + ' ' + t('plans.upgradeHint'));
+              }
+            } catch {
+              // non-critical
+            }
+            setUploadStates((prev) => ({ ...prev, [key]: "error" }));
           }
-          setUploadStates((prev) => ({
-            ...prev,
-            [key]: res.ok ? "done" : "error",
-          }));
         } catch {
           setUploadStates((prev) => ({ ...prev, [key]: "error" }));
         }
@@ -960,31 +975,49 @@ function CollectionDetailsPage() {
             {photos.length === 0 ? t("collection.photos") : t("collection.uploadMore")}
           </h2>
 
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label={t("collection.uploadZoneLabel")}
-            onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 cursor-pointer transition-all duration-300 select-none
-              ${dragOver
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
-              }`}
-          >
-            <svg className={`w-9 h-9 ${dragOver ? "text-blue-500" : "text-gray-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-            </svg>
-            <p className="m-0 text-sm font-medium text-gray-600">
-              {t("collection.uploadZoneLabel")}
-            </p>
-            <p className="m-0 text-xs text-gray-400">
-              {t("collection.uploadZoneHint")}
-            </p>
-          </div>
+          {isFreeTrial && nearPhotoLimit && (
+            <div className={`mb-3 px-3 py-2 rounded-md text-xs flex items-center justify-between gap-2 ${
+              atPhotoLimit
+                ? 'bg-red-50 border border-red-200 text-red-700'
+                : 'bg-amber-50 border border-amber-200 text-amber-700'
+            }`}>
+              <span>{t('plans.photosUsed', { used: photoCount, limit: FREE_TRIAL_PHOTO_LIMIT })}{atPhotoLimit ? ' — ' + t('plans.limitReachedPhotos') : ''}</span>
+              <Link to="/payments" className="font-semibold underline shrink-0 hover:no-underline">{t('plans.upgradeLink')}</Link>
+            </div>
+          )}
+
+          {atPhotoLimit ? (
+            <div className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
+              <p className="m-0 text-sm font-medium text-gray-500">{t('plans.limitReachedPhotos')}</p>
+              <Link to="/payments" className="text-xs text-blue-600 underline">{t('plans.upgradeLink')}</Link>
+            </div>
+          ) : (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label={t("collection.uploadZoneLabel")}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 cursor-pointer transition-all duration-300 select-none
+                ${dragOver
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
+                }`}
+            >
+              <svg className={`w-9 h-9 ${dragOver ? "text-blue-500" : "text-gray-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              <p className="m-0 text-sm font-medium text-gray-600">
+                {t("collection.uploadZoneLabel")}
+              </p>
+              <p className="m-0 text-xs text-gray-400">
+                {t("collection.uploadZoneHint")}
+              </p>
+            </div>
+          )}
           <button
             onClick={() => setShowUploadZone(false)}
             className="mt-3 text-xs text-gray-500 hover:text-gray-700 bg-transparent border-none cursor-pointer"

@@ -343,6 +343,15 @@
     "passwordError": "Неверный пароль. Попробуйте ещё раз.",
     "passwordSubmitting": "Проверка..."
   },
+  "plans": {
+    "freeTrialBadge": "Пробный план",
+    "collectionsUsed": "{{used}}/{{limit}} коллекций использовано",
+    "photosUsed": "{{used}}/{{limit}} фото",
+    "limitReachedCollections": "Вы достигли лимита в 3 коллекции на пробном плане.",
+    "limitReachedPhotos": "Вы достигли лимита в 50 фото на пробном плане.",
+    "upgradeHint": "Перейдите на Standard или Pro для большего.",
+    "upgradeLink": "Посмотреть планы"
+  },
   "payments": {
     "title": "Оплата",
     "subtitle": "История счетов и платежей",

@@ -343,6 +343,15 @@
     "passwordError": "Neteisingas slaptažodis. Bandykite dar kartą.",
     "passwordSubmitting": "Tikrinama..."
   },
+  "plans": {
+    "freeTrialBadge": "Nemokama versija",
+    "collectionsUsed": "{{used}}/{{limit}} kolekcijų naudojama",
+    "photosUsed": "{{used}}/{{limit}} nuotraukų",
+    "limitReachedCollections": "Pasiekėte 3 kolekcijų limitą nemokamoje versijoje.",
+    "limitReachedPhotos": "Pasiekėte 50 nuotraukų limitą nemokamoje versijoje.",
+    "upgradeHint": "Patobulinkite planą daugiau galimybių.",
+    "upgradeLink": "Peržiūrėti planus"
+  },
   "payments": {
     "title": "Mokėjimai",
     "subtitle": "Sąskaitų ir mokėjimų istorija",

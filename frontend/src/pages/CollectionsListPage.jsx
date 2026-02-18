@@ -1,21 +1,28 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import Accordion from "../components/Accordion";
 import Button from "../components/primitives/Button";
 import CollectionCard from "../components/primitives/CollectionCard";
+import { useAuth } from "../contexts/AuthContext";
 
 function CollectionsListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
+
+  const FREE_TRIAL_COLLECTION_LIMIT = 3;
+  const activeCount = collections.filter(c => c.status !== 'ARCHIVED').length;
+  const isFreeTrial = user?.plan === 'FREE_TRIAL';
+  const atLimit = isFreeTrial && activeCount >= FREE_TRIAL_COLLECTION_LIMIT;
 
   // Helper function to get photo URL
   const photoUrl = (storagePath) => {
@@ -74,6 +81,9 @@ function CollectionsListPage() {
         navigate(`/collection/${data.collection.id}`);
         setNewCollectionName("");
       } else {
+        if (data.error === 'COLLECTION_LIMIT_REACHED') {
+          throw new Error(t('plans.limitReachedCollections') + ' ' + t('plans.upgradeHint'));
+        }
         throw new Error(data.error || t('collections.createFailed'));
       }
     });
@@ -160,6 +170,27 @@ function CollectionsListPage() {
         </h1>
       </div>
 
+      {/* ── Free Trial Limit Banner ── */}
+      {isFreeTrial && (
+        <div className={`mb-4 px-4 py-3 rounded-lg border text-sm flex items-center justify-between gap-3 ${
+          atLimit
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : 'bg-blue-50 border-blue-100 text-blue-700'
+        }`}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold">{t('plans.freeTrialBadge')}</span>
+            <span>{t('plans.collectionsUsed', { used: activeCount, limit: FREE_TRIAL_COLLECTION_LIMIT })}</span>
+            {atLimit && <span>{t('plans.limitReachedCollections')}</span>}
+          </div>
+          <Link
+            to="/payments"
+            className="shrink-0 text-xs font-semibold underline hover:no-underline"
+          >
+            {t('plans.upgradeLink')}
+          </Link>
+        </div>
+      )}
+
       {/* ── Create Collection Accordion ── */}
       <Accordion title={t('collections.createTitle')}>
         <form onSubmit={handleCreateCollection}>
@@ -183,7 +214,7 @@ function CollectionsListPage() {
 
           {/* Submit button */}
           <div className="flex justify-end">
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" disabled={atLimit}>
               {t('collections.createBtn')}
             </Button>
           </div>

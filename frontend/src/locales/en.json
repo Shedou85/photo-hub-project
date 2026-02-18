@@ -336,6 +336,15 @@
     "passwordError": "Incorrect password. Please try again.",
     "passwordSubmitting": "Verifying..."
   },
+  "plans": {
+    "freeTrialBadge": "Free Trial",
+    "collectionsUsed": "{{used}}/{{limit}} collections used",
+    "photosUsed": "{{used}}/{{limit}} photos",
+    "limitReachedCollections": "You've reached the 3 collection limit on Free Trial.",
+    "limitReachedPhotos": "You've reached the 50 photo limit on Free Trial.",
+    "upgradeHint": "Upgrade to Standard or Pro for more.",
+    "upgradeLink": "View plans"
+  },
   "payments": {
     "title": "Payments",
     "subtitle": "Billing & payment history",

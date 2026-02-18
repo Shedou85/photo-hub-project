@@ -48,6 +48,25 @@ try {
             exit;
         }
 
+        // FREE_TRIAL: max 3 active (non-archived) collections
+        $planStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+        $planStmt->execute([$userId]);
+        $userPlan = $planStmt->fetchColumn();
+
+        if ($userPlan === 'FREE_TRIAL') {
+            $countStmt = $pdo->prepare(
+                "SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status != 'ARCHIVED'"
+            );
+            $countStmt->execute([$userId]);
+            $activeCount = (int)$countStmt->fetchColumn();
+
+            if ($activeCount >= 3) {
+                http_response_code(403);
+                echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 3]);
+                exit;
+            }
+        }
+
         // Generate CUID for the new collection
         $collectionId = generateCuid();
         $shareId = bin2hex(random_bytes(16)); // 128-bit entropy shareId
@@ -58,6 +77,8 @@ try {
             VALUES (?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([$collectionId, $name, $userId, $currentDateTime, $currentDateTime, $shareId]);
+
+        $pdo->prepare("UPDATE `User` SET collectionsCreatedCount = collectionsCreatedCount + 1 WHERE id = ?")->execute([$userId]);
 
         echo json_encode([
             "status" => "OK",

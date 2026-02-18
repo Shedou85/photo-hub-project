@@ -68,6 +68,23 @@ try {
             exit;
         }
 
+        // FREE_TRIAL: max 50 photos per collection
+        $planStmt = $pdo->prepare("SELECT u.plan FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+        $planStmt->execute([$collectionId]);
+        $userPlan = $planStmt->fetchColumn();
+
+        if ($userPlan === 'FREE_TRIAL') {
+            $photoCountStmt = $pdo->prepare("SELECT COUNT(*) FROM `Photo` WHERE collectionId = ?");
+            $photoCountStmt->execute([$collectionId]);
+            $photoCount = (int)$photoCountStmt->fetchColumn();
+
+            if ($photoCount >= 50) {
+                http_response_code(403);
+                echo json_encode(['error' => 'PHOTO_LIMIT_REACHED', 'limit' => 50]);
+                exit;
+            }
+        }
+
         $result = handleFileUpload($_FILES['file'], $collectionId);
         if (!$result['ok']) {
             http_response_code($result['code']);
