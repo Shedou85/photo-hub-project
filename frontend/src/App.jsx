@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -17,13 +17,31 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
 import AdminPage from './pages/AdminPage';
+import CookieConsentBanner from './components/CookieConsentBanner';
+import { initGA, trackPageView } from './lib/analytics';
 
 function App() {
   const { isAuthenticated } = useAuth();
 
+  // Fire GA on repeat visits (user already consented)
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('cookieConsent') === 'accepted') {
+        initGA();
+      }
+    } catch { /* storage unavailable */ }
+  }, []);
+
+  // Track SPA page views after GA is ready
+  const location = useLocation();
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location.pathname]);
+
   return (
     <>
     <Toaster position="bottom-right" richColors />
+    <CookieConsentBanner />
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />

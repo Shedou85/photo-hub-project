@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - For all PHP backend changes, always use the php-pro agent
 - For React component work, always use the react-specialist agent
+- For any design UI UX use ui-designer agent
 - For any api work, always use api-designer agent
 - For any work done by api-designer check hes work with sql-pro agent
 - Before any merge/commit, run code-reviewer agent

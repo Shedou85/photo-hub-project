@@ -434,6 +434,12 @@
       "total": "viso"
     }
   },
+  "cookieConsent": {
+    "title": "Slapukų pranešimas",
+    "description": "Naudojame būtinuosius slapukus, kad galėtumėte prisijungti, bei pasirinktinus analizės slapukus (Google Analytics), kad suprastume, kaip naudojate programėlę, ir ją tobulintume.",
+    "acceptAll": "Sutikti su visais",
+    "essentialOnly": "Tik būtinieji"
+  },
   "delivery": {
     "loading": "Kraunama galerija...",
     "notFound": "Šis pristatymo puslapis nerastas arba nuoroda galimai nebegalioja.",

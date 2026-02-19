@@ -427,6 +427,12 @@
       "total": "total"
     }
   },
+  "cookieConsent": {
+    "title": "Cookie Notice",
+    "description": "We use essential cookies to keep you logged in, and optional analytics cookies (Google Analytics) to understand how you use our app and improve it.",
+    "acceptAll": "Accept all",
+    "essentialOnly": "Essential only"
+  },
   "delivery": {
     "loading": "Loading gallery...",
     "notFound": "This delivery page could not be found or the link may have expired.",
