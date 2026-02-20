@@ -439,7 +439,15 @@
       "makeUser": "Padaryti vartotoju",
       "suspend": "Sustabdyti",
       "activate": "Aktyvuoti",
-      "changePlan": "Keisti planą"
+      "changePlan": "Keisti planą",
+      "delete": "Ištrinti",
+      "deleting": "Trinama...",
+      "deleteSuccess": "Vartotojas sėkmingai ištrintas",
+      "deleteError": "Nepavyko ištrinti vartotojo",
+      "deleteAdminBlocked": "Administratorių paskyrų negalima ištrinti. Pirmiausia pakeiskite rolę į USER.",
+      "deleteConfirmTitle": "Ištrinti vartotojo paskyrą",
+      "deleteConfirmMessage": "Ar tikrai norite visam laikui ištrinti {{name}}? Visos jų kolekcijos ir nuotraukos taip pat bus ištrintos. Šio veiksmo negalima atšaukti.",
+      "deleteConfirmBtn": "Ištrinti vartotoją"
     },
     "pagination": {
       "prev": "Ankstesnis",

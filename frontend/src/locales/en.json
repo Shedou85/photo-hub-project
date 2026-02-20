@@ -432,7 +432,15 @@
       "makeUser": "Make User",
       "suspend": "Suspend",
       "activate": "Activate",
-      "changePlan": "Change Plan"
+      "changePlan": "Change Plan",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "deleteSuccess": "User deleted successfully",
+      "deleteError": "Failed to delete user",
+      "deleteAdminBlocked": "Admin accounts cannot be deleted. Demote to USER first.",
+      "deleteConfirmTitle": "Delete User Account",
+      "deleteConfirmMessage": "Are you sure you want to permanently delete {{name}}? All their collections and photos will also be deleted. This cannot be undone.",
+      "deleteConfirmBtn": "Delete User"
     },
     "pagination": {
       "prev": "Previous",

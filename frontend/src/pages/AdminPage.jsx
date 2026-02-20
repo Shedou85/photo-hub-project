@@ -57,6 +57,8 @@ const AdminPage = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersFilters, setUsersFilters] = useState({ search: '', role: '', status: '', plan: '', page: 1, limit: 20 });
   const [updatingUserId, setUpdatingUserId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deletingUserId, setDeletingUserId] = useState(null);
   const searchTimer = useRef(null);
 
   const fetchUsers = useCallback(async () => {
@@ -103,6 +105,34 @@ const AdminPage = () => {
       toast.error(e.message ?? 'Network error');
     } finally {
       setUpdatingUserId(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    setDeletingUserId(userId);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error ?? t('admin.actions.deleteError'));
+        return;
+      }
+      setUsers((prev) => {
+        const next = prev.filter((u) => u.id !== userId);
+        if (next.length === 0 && usersFilters.page > 1) {
+          setUsersFilters((f) => ({ ...f, page: f.page - 1 }));
+        }
+        return next;
+      });
+      toast.success(t('admin.actions.deleteSuccess'));
+      setDeleteConfirm(null);
+    } catch (e) {
+      toast.error(e.message ?? t('admin.actions.deleteError'));
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -285,6 +315,7 @@ const AdminPage = () => {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.status')}</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.collections')}</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.joined')}</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -333,6 +364,16 @@ const AdminPage = () => {
                         <td className="px-4 py-3 text-gray-700">{u.collectionsCreatedCount ?? 0}</td>
                         <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
                           {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => setDeleteConfirm(u)}
+                            disabled={isUpdating || u.role === 'ADMIN'}
+                            title={u.role === 'ADMIN' ? t('admin.actions.deleteAdminBlocked') : t('admin.actions.delete')}
+                            className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {t('admin.actions.delete')}
+                          </button>
                         </td>
                       </tr>
                     );
@@ -466,6 +507,36 @@ const AdminPage = () => {
           )}
         </div>
       </section>
+
+      {/* ===== Delete User Confirmation Modal ===== */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-[10px] border border-gray-200 px-8 py-7 w-full max-w-sm shadow-xl">
+            <h3 className="text-base font-semibold text-gray-900 mb-2">
+              {t('admin.actions.deleteConfirmTitle')}
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              {t('admin.actions.deleteConfirmMessage', { name: deleteConfirm.name || deleteConfirm.email })}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                disabled={deletingUserId === deleteConfirm.id}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={() => handleDeleteUser(deleteConfirm.id)}
+                disabled={deletingUserId === deleteConfirm.id}
+                className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors disabled:opacity-50"
+              >
+                {deletingUserId === deleteConfirm.id ? t('admin.actions.deleting') : t('admin.actions.deleteConfirmBtn')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

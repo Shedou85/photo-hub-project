@@ -218,6 +218,49 @@ try {
         exit;
     }
 
+    // -------------------------------------------------------------------------
+    // DELETE /admin/users/{id} — permanently delete a user account
+    // -------------------------------------------------------------------------
+    if ($method === 'DELETE') {
+        if ($targetUserId === '') {
+            http_response_code(400);
+            echo json_encode(['error' => 'User ID is required.']);
+            exit;
+        }
+
+        // Self-deletion guard
+        if ($targetUserId === $_SESSION['user_id']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'You cannot delete your own account.']);
+            exit;
+        }
+
+        // Fetch target user to verify existence and role
+        $checkStmt = $pdo->prepare("SELECT id, role FROM `User` WHERE id = ? LIMIT 1");
+        $checkStmt->execute([$targetUserId]);
+        $targetUser = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$targetUser) {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found.']);
+            exit;
+        }
+
+        // Block deletion of any ADMIN — demote first, then delete
+        if ($targetUser['role'] === 'ADMIN') {
+            http_response_code(400);
+            echo json_encode(['error' => 'Admin accounts cannot be deleted. Demote the user to USER first.']);
+            exit;
+        }
+
+        // Perform deletion — CASCADE constraints handle Collections, Photos, etc.
+        $deleteStmt = $pdo->prepare("DELETE FROM `User` WHERE id = ?");
+        $deleteStmt->execute([$targetUserId]);
+
+        echo json_encode(['status' => 'OK']);
+        exit;
+    }
+
     http_response_code(405);
     echo json_encode(['error' => 'Method Not Allowed']);
 
