@@ -122,7 +122,8 @@ try {
 } catch (\Exception $e) {
     if (!headers_sent()) {
         http_response_code(500);
-        echo json_encode(['error' => 'Download failed: ' . $e->getMessage()]);
+        error_log('Photo download error: ' . $e->getMessage());
+        echo json_encode(['error' => 'Download failed.']);
     } else {
         error_log("Photo download error after streaming started: " . $e->getMessage());
     }

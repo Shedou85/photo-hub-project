@@ -15,23 +15,65 @@ try {
     $pdo = getDbConnection();
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Handle GET request - list all collections for the user
-        $stmt = $pdo->prepare("
+        // Handle GET request - paginated collection list for the user
+        $page   = max(1, (int) ($_GET['page']  ?? 1));
+        $limit  = max(1, min(50, (int) ($_GET['limit'] ?? 12)));
+        $offset = ($page - 1) * $limit;
+        $status = $_GET['status'] ?? '';
+
+        $allowedStatuses = ['DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED'];
+
+        $conditions = ['c.userId = ?'];
+        $params     = [$userId];
+
+        if ($status !== '' && in_array($status, $allowedStatuses, true)) {
+            $conditions[] = 'c.status = ?';
+            $params[]     = $status;
+        }
+
+        $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+
+        // Count total matching
+        $countStmt = $pdo->prepare("SELECT COUNT(*) FROM `Collection` c $whereClause");
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        // Fetch paginated results
+        $dataParams = $params;
+        $dataParams[] = $limit;
+        $dataParams[] = $offset;
+
+        $dataStmt = $pdo->prepare("
             SELECT c.id, c.name, c.status, c.clientName, c.clientEmail, c.shareId,
                    c.coverPhotoId, c.createdAt, c.updatedAt,
                    p.thumbnailPath as coverPhotoPath,
                    (SELECT COUNT(*) FROM `Photo` ph WHERE ph.collectionId = c.id) as photoCount
             FROM `Collection` c
             LEFT JOIN `Photo` p ON c.coverPhotoId = p.id
-            WHERE c.userId = ?
+            $whereClause
             ORDER BY c.createdAt DESC
+            LIMIT ? OFFSET ?
         ");
-        $stmt->execute([$userId]);
-        $collections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $paramIndex = 1;
+        foreach ($params as $paramValue) {
+            $dataStmt->bindValue($paramIndex++, $paramValue, PDO::PARAM_STR);
+        }
+        $dataStmt->bindValue($paramIndex++, $limit,  PDO::PARAM_INT);
+        $dataStmt->bindValue($paramIndex,   $offset, PDO::PARAM_INT);
+        $dataStmt->execute();
+
+        $collections = $dataStmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
             "status" => "OK",
-            "collections" => $collections
+            "collections" => $collections,
+            "pagination" => [
+                "total"      => $total,
+                "page"       => $page,
+                "limit"      => $limit,
+                "totalPages" => (int) ceil($total / $limit),
+            ]
         ]);
         exit;
     }

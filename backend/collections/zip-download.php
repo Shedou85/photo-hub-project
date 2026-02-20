@@ -161,7 +161,8 @@ try {
     // If headers haven't been sent yet, return JSON error
     if (!headers_sent()) {
         http_response_code(500);
-        echo json_encode(['error' => 'ZIP generation failed: ' . $e->getMessage()]);
+        error_log('ZIP download error: ' . $e->getMessage());
+        echo json_encode(['error' => 'ZIP generation failed.']);
     } else {
         // Headers already sent — can only log
         error_log("ZIP download error after streaming started: " . $e->getMessage());

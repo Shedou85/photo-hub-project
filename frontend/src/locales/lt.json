@@ -179,6 +179,11 @@
       "DELIVERED": "Pristatyta",
       "DOWNLOADED": "Atsisiųsta",
       "ARCHIVED": "Archyvuota"
+    },
+    "pagination": {
+      "prev": "Ankstesnis",
+      "next": "Kitas",
+      "page": "Puslapis {{page}} iš {{totalPages}}"
     }
   },
   "collection": {
@@ -456,6 +461,20 @@
       "page": "Puslapis",
       "total": "viso"
     }
+  },
+  "emailVerification": {
+    "verifying": "Tikrinamas el. paštas...",
+    "successTitle": "El. paštas patvirtintas!",
+    "successDesc": "Jūsų el. paštas patvirtintas. Dabar galite prisijungti prie savo paskyros.",
+    "loginBtn": "Eiti į prisijungimą",
+    "errorTitle": "Patvirtinimas nepavyko",
+    "errorDesc": "Ši patvirtinimo nuoroda negalioja arba jau buvo panaudota.",
+    "notVerified": "Jūsų el. paštas nepatvirtintas. Patikrinkite savo el. pašto dėžutę.",
+    "resendLink": "Siųsti patvirtinimo laišką iš naujo",
+    "resending": "Siunčiama...",
+    "resendSuccess": "Patvirtinimo laiškas išsiųstas! Patikrinkite el. paštą.",
+    "checkEmail": "Patikrinkite el. paštą",
+    "checkEmailDesc": "Išsiuntėme patvirtinimo nuorodą į jūsų el. paštą. Spustelėkite ją, kad aktyvuotumėte paskyrą."
   },
   "cookieConsent": {
     "title": "Slapukų pranešimas",

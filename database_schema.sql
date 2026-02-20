@@ -12,6 +12,7 @@
 CREATE TABLE `User` (
   `id` VARCHAR(191) NOT NULL,
   `email` VARCHAR(191) NOT NULL,
+  `emailVerified` BOOLEAN NOT NULL DEFAULT false,
   `password` VARCHAR(191) NOT NULL,
   `name` VARCHAR(191) NULL,
   `country` VARCHAR(191) NULL,
@@ -28,6 +29,7 @@ CREATE TABLE `User` (
   `emailNotifications` BOOLEAN NOT NULL DEFAULT true,
   `passwordResetExpires` DATETIME(3) NULL,
   `passwordResetToken` VARCHAR(191) NULL,
+  `emailVerificationToken` VARCHAR(191) NULL,
   `profileImageUrl` VARCHAR(191) NULL,
   `websiteUrl` VARCHAR(191) NULL,
   `plan` ENUM('FREE_TRIAL', 'STANDARD', 'PRO') NOT NULL DEFAULT 'FREE_TRIAL',
@@ -35,7 +37,8 @@ CREATE TABLE `User` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `User_email_key` (`email`),
   UNIQUE KEY `User_stripeCustomerId_key` (`stripeCustomerId`),
-  UNIQUE KEY `User_passwordResetToken_key` (`passwordResetToken`)
+  UNIQUE KEY `User_passwordResetToken_key` (`passwordResetToken`),
+  KEY `User_emailVerificationToken_idx` (`emailVerificationToken`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -311,3 +314,17 @@ ALTER TABLE `Download`
 -- Migration: Add planDowngradedAt to User table (run on existing databases)
 --
 -- ALTER TABLE `User` ADD COLUMN `planDowngradedAt` DATETIME(3) NULL AFTER `trialEndsAt`;
+
+-- --------------------------------------------------------
+--
+-- Migration: Add email verification columns to User table (run on existing databases)
+--
+-- ALTER TABLE `User` ADD COLUMN `emailVerified` BOOLEAN NOT NULL DEFAULT false AFTER `email`;
+-- ALTER TABLE `User` ADD COLUMN `emailVerificationToken` VARCHAR(191) NULL AFTER `passwordResetToken`;
+-- UPDATE `User` SET `emailVerified` = true;  -- Mark existing users as verified
+
+-- --------------------------------------------------------
+--
+-- Migration: Add emailVerificationToken index (run on existing databases)
+--
+-- CREATE INDEX User_emailVerificationToken_idx ON `User`(`emailVerificationToken`);

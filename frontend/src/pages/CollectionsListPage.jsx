@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -19,6 +19,8 @@ function CollectionsListPage() {
   const [deletingId, setDeletingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
 
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
@@ -50,32 +52,38 @@ function CollectionsListPage() {
     return `${base}/${path}`;
   };
 
-  useEffect(() => {
-    const fetchCollections = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
-          credentials: "include",
-        });
+  const fetchCollections = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('page', page);
+      params.set('limit', '12');
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch collections");
-        }
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections?${params}`, {
+        credentials: "include",
+      });
 
-        const data = await response.json();
-        if (data.status === "OK") {
-          setCollections(data.collections);
-        } else {
-          setError(data.error || "An unknown error occurred.");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch collections");
       }
-    };
 
+      const data = await response.json();
+      if (data.status === "OK") {
+        setCollections(data.collections);
+        setPagination(data.pagination ?? null);
+      } else {
+        setError(data.error || "An unknown error occurred.");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
+
+  useEffect(() => {
     fetchCollections();
-  }, []);
+  }, [fetchCollections]);
 
   const handleCreateCollection = (event) => {
     event.preventDefault();
@@ -120,7 +128,14 @@ function CollectionsListPage() {
         credentials: "include",
       });
       if (res.ok) {
-        setCollections((prev) => prev.filter((c) => c.id !== id));
+        setCollections((prev) => {
+          const next = prev.filter((c) => c.id !== id);
+          if (next.length === 0 && page > 1) {
+            setPage((p) => p - 1);
+          }
+          return next;
+        });
+        setPagination((prev) => prev ? { ...prev, total: prev.total - 1 } : prev);
         toast.success(t('collections.deleteCollectionSuccess'));
       } else {
         toast.error(t('collections.deleteCollectionFailed'));
@@ -285,6 +300,29 @@ function CollectionsListPage() {
                 }
               />
             ))}
+          </div>
+        )}
+
+        {/* ── Pagination Controls ── */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {t('collections.pagination.prev')}
+            </button>
+            <span className="text-sm text-gray-500">
+              {t('collections.pagination.page', { page, totalPages: pagination.totalPages })}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+              disabled={page >= pagination.totalPages}
+              className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {t('collections.pagination.next')}
+            </button>
           </div>
         )}
       </div>

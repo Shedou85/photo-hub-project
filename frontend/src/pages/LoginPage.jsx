@@ -13,6 +13,8 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resending, setResending] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
@@ -91,6 +93,7 @@ function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setEmailNotVerified(false);
 
     try {
       const response = await fetch(
@@ -108,6 +111,8 @@ function LoginPage() {
       if (response.ok && data.status === "OK" && data.user) {
         login(data.user);
         navigate("/collections");
+      } else if (data.error === "email_not_verified") {
+        setEmailNotVerified(true);
       } else {
         setError(
           `${t("login.failed")} ${data.error || data.message || "The server returned an unexpected response."}`
@@ -115,6 +120,24 @@ function LoginPage() {
       }
     } catch (err) {
       setError(`${t("login.networkError")} ${err.message}`);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    try {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/resend-verification`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      setEmailNotVerified(false);
+      setError(t('emailVerification.resendSuccess'));
+    } catch {
+      setError(t('login.networkError'));
+    } finally {
+      setResending(false);
     }
   };
 
@@ -233,6 +256,21 @@ function LoginPage() {
                 {t("login.forgotPassword")}
               </Link>
             </div>
+
+            {/* Email not verified */}
+            {emailNotVerified && (
+              <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-sm px-4 py-3 text-sm mb-4">
+                <p className="mb-2">{t('emailVerification.notVerified')}</p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  className="text-indigo-400 hover:text-indigo-300 text-sm underline transition-colors disabled:opacity-50 bg-transparent border-none cursor-pointer p-0"
+                >
+                  {resending ? t('emailVerification.resending') : t('emailVerification.resendLink')}
+                </button>
+              </div>
+            )}
 
             {/* Error message */}
             {error && (

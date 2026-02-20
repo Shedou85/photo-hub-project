@@ -178,6 +178,11 @@
       "DELIVERED": "Delivered",
       "DOWNLOADED": "Downloaded",
       "ARCHIVED": "Archived"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {{page}} of {{totalPages}}"
     }
   },
   "collection": {
@@ -449,6 +454,20 @@
       "page": "Page",
       "total": "total"
     }
+  },
+  "emailVerification": {
+    "verifying": "Verifying your email...",
+    "successTitle": "Email Verified!",
+    "successDesc": "Your email has been verified. You can now log in to your account.",
+    "loginBtn": "Go to Login",
+    "errorTitle": "Verification Failed",
+    "errorDesc": "This verification link is invalid or has already been used.",
+    "notVerified": "Your email is not verified. Please check your inbox for the verification link.",
+    "resendLink": "Resend verification email",
+    "resending": "Sending...",
+    "resendSuccess": "Verification email sent! Check your inbox.",
+    "checkEmail": "Check your email",
+    "checkEmailDesc": "We've sent a verification link to your email. Click it to activate your account."
   },
   "cookieConsent": {
     "title": "Cookie Notice",

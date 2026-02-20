@@ -15,6 +15,7 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
@@ -155,30 +156,9 @@ function RegisterPage() {
         return;
       }
 
-      // Step 2: Auto-login after successful registration
-      const loginResponse = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/login`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      const loginData = await loginResponse.json();
-
-      if (loginResponse.ok && loginData.status === "OK" && loginData.user) {
-        // Step 3: Update AuthContext
-        login(loginData.user);
-
-        // Step 4: Navigate to collections
-        navigate('/collections');
-      } else {
-        // Registration succeeded but login failed - should rarely happen
-        setError(`${t('register.success')} ${t('login.failed')}`);
-        setIsSubmitting(false);
-      }
+      // Show verification email sent message
+      setVerificationSent(true);
+      setIsSubmitting(false);
     } catch (err) {
       setError(`${t('register.networkError')} ${err.message}`);
       setIsSubmitting(false);
@@ -254,6 +234,24 @@ function RegisterPage() {
             {t("register.title")}
           </h1>
 
+          {verificationSent ? (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                <svg className="w-7 h-7 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold text-white mb-2">{t('emailVerification.checkEmail')}</h2>
+              <p className="text-white/50 text-sm mb-4">{t('emailVerification.checkEmailDesc')}</p>
+              <Link
+                to="/login"
+                className="text-indigo-400 hover:text-indigo-300 text-sm no-underline transition-colors"
+              >
+                {t('passwordReset.backToLogin')}
+              </Link>
+            </div>
+          ) : (
+          <>
           <form onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="mb-4">
@@ -344,6 +342,8 @@ function RegisterPage() {
               ← {t("register.backHome")}
             </Link>
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>
