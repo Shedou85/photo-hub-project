@@ -112,11 +112,12 @@ switch ($requestUri) {
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                 $userId = generateCuid();
 
-                $stmt = $pdo->prepare("INSERT INTO `User` (id, email, password, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)");
-                
-                $currentDateTime = date('Y-m-d H:i:s.v');
+                $stmt = $pdo->prepare("INSERT INTO `User` (id, email, password, createdAt, updatedAt, trialEndsAt) VALUES (?, ?, ?, ?, ?, ?)");
 
-                $stmt->execute([$userId, $email, $hashedPassword, $currentDateTime, $currentDateTime]);
+                $currentDateTime = date('Y-m-d H:i:s.v');
+                $trialEndsAt = date('Y-m-d H:i:s.v', strtotime('+30 days'));
+
+                $stmt->execute([$userId, $email, $hashedPassword, $currentDateTime, $currentDateTime, $trialEndsAt]);
 
                 echo json_encode(['status' => 'success', 'message' => 'User registered successfully!', 'userId' => $userId]);
 

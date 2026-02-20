@@ -143,16 +143,25 @@ const PaymentsPage = () => {
   const { user } = useAuth();
   const userPlan = user?.plan ?? 'FREE_TRIAL';
 
+  const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
+  const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
+
   const plans = [
     {
       key: 'FREE_TRIAL',
-      name: t('home.plans.free'),
+      name: isActiveTrial ? t('plans.trialBadge') : isExpiredTrial ? t('plans.freePlanBadge') : t('home.plans.free'),
       price: t('home.plans.freePrice'),
       perMonth: null,
-      features: [
-        t('home.plans.freeF1'),
-        t('home.plans.freeF2'),
-        t('home.plans.freeF3'),
+      features: isActiveTrial ? [
+        t('plans.trialActiveF1'),
+        t('plans.trialActiveF2'),
+        t('plans.trialActiveF3'),
+        t('plans.trialActiveF4'),
+      ] : [
+        t('plans.freeF1'),
+        t('plans.freeF2'),
+        t('plans.freeF3'),
+        t('plans.freeF4'),
       ],
     },
     {
@@ -164,6 +173,7 @@ const PaymentsPage = () => {
         t('home.plans.standardF1'),
         t('home.plans.standardF2'),
         t('home.plans.standardF3'),
+        t('plans.standardF4'),
       ],
       highlighted: true,
       badge: t('home.plans.popular'),
@@ -177,6 +187,7 @@ const PaymentsPage = () => {
         t('home.plans.proF1'),
         t('home.plans.proF2'),
         t('home.plans.proF3'),
+        t('plans.proF4'),
       ],
     },
   ];

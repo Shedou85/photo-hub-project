@@ -48,24 +48,60 @@ try {
             exit;
         }
 
-        // FREE_TRIAL: max 3 active (non-archived) collections
-        $planStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+        // Plan-based collection limits
+        $planStmt = $pdo->prepare("SELECT plan, subscriptionStatus, collectionsCreatedCount, trialEndsAt FROM `User` WHERE id = ? LIMIT 1");
         $planStmt->execute([$userId]);
-        $userPlan = $planStmt->fetchColumn();
+        $userData = $planStmt->fetch(PDO::FETCH_ASSOC);
+        $userPlan = $userData['plan'];
+        $subStatus = $userData['subscriptionStatus'];
+        $totalCreated = (int)$userData['collectionsCreatedCount'];
+
+        // Auto-downgrade expired trial if not yet marked
+        if ($userPlan === 'FREE_TRIAL' && !empty($userData['trialEndsAt']) && $subStatus !== 'INACTIVE') {
+            $trialEnd = new DateTime($userData['trialEndsAt']);
+            if (new DateTime() > $trialEnd) {
+                $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                    ->execute([date('Y-m-d H:i:s.v'), $userId]);
+                $subStatus = 'INACTIVE';
+            }
+        }
 
         if ($userPlan === 'FREE_TRIAL') {
+            if ($subStatus === 'INACTIVE') {
+                // Expired trial: cumulative limit of 5 total collections ever created
+                if ($totalCreated >= 5) {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 5, 'type' => 'cumulative']);
+                    exit;
+                }
+            } else {
+                // Active trial: STANDARD-level limit of 20 active collections
+                $countStmt = $pdo->prepare(
+                    "SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status != 'ARCHIVED'"
+                );
+                $countStmt->execute([$userId]);
+                $activeCount = (int)$countStmt->fetchColumn();
+
+                if ($activeCount >= 20) {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 20]);
+                    exit;
+                }
+            }
+        } elseif ($userPlan === 'STANDARD') {
             $countStmt = $pdo->prepare(
                 "SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status != 'ARCHIVED'"
             );
             $countStmt->execute([$userId]);
             $activeCount = (int)$countStmt->fetchColumn();
 
-            if ($activeCount >= 3) {
+            if ($activeCount >= 20) {
                 http_response_code(403);
-                echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 3]);
+                echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 20]);
                 exit;
             }
         }
+        // PRO plan: no limits
 
         // Generate CUID for the new collection
         $collectionId = generateCuid();

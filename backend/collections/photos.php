@@ -68,19 +68,38 @@ try {
             exit;
         }
 
-        // FREE_TRIAL: max 50 photos per collection
-        $planStmt = $pdo->prepare("SELECT u.plan FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+        // Plan-based photo limits
+        $planStmt = $pdo->prepare("SELECT u.id as uid, u.plan, u.subscriptionStatus, u.trialEndsAt FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
         $planStmt->execute([$collectionId]);
-        $userPlan = $planStmt->fetchColumn();
+        $planData = $planStmt->fetch(PDO::FETCH_ASSOC);
+        $userPlan = $planData['plan'];
+        $subStatus = $planData['subscriptionStatus'];
 
-        if ($userPlan === 'FREE_TRIAL') {
+        // Auto-downgrade expired trial if not yet marked
+        if ($userPlan === 'FREE_TRIAL' && !empty($planData['trialEndsAt']) && $subStatus !== 'INACTIVE') {
+            $trialEnd = new DateTime($planData['trialEndsAt']);
+            if (new DateTime() > $trialEnd) {
+                $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                    ->execute([date('Y-m-d H:i:s.v'), $planData['uid']]);
+                $subStatus = 'INACTIVE';
+            }
+        }
+
+        $photoLimit = null; // null = unlimited
+        if ($userPlan === 'FREE_TRIAL' && $subStatus === 'INACTIVE') {
+            $photoLimit = 30;
+        } elseif ($userPlan === 'FREE_TRIAL' || $userPlan === 'STANDARD') {
+            $photoLimit = 500;
+        }
+
+        if ($photoLimit !== null) {
             $photoCountStmt = $pdo->prepare("SELECT COUNT(*) FROM `Photo` WHERE collectionId = ?");
             $photoCountStmt->execute([$collectionId]);
             $photoCount = (int)$photoCountStmt->fetchColumn();
 
-            if ($photoCount >= 50) {
+            if ($photoCount >= $photoLimit) {
                 http_response_code(403);
-                echo json_encode(['error' => 'PHOTO_LIMIT_REACHED', 'limit' => 50]);
+                echo json_encode(['error' => 'PHOTO_LIMIT_REACHED', 'limit' => $photoLimit]);
                 exit;
             }
         }

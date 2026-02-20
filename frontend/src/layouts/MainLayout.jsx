@@ -67,6 +67,12 @@ const MainLayout = () => {
     });
   }
 
+  const daysLeft = user?.trialEndsAt
+    ? Math.max(0, Math.ceil((new Date(user.trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
+    : null;
+  const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL' && daysLeft !== null;
+  const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
+
   return (
     <div className="flex flex-col min-h-screen bg-surface-light">
 
@@ -95,6 +101,27 @@ const MainLayout = () => {
                   <div className="text-sidebar-text-dim text-xs mt-px">{user.plan?.replace('_', ' ')}</div>
                 </div>
               </div>
+            )}
+
+            {isActiveTrial && daysLeft !== null && (
+              <Link to="/payments" className="mt-3 block no-underline">
+                <div className={`px-3 py-2 rounded-lg text-xs font-medium ${
+                  daysLeft <= 3
+                    ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                    : daysLeft <= 7
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                }`}>
+                  {t('plans.trialDaysLeft', { days: daysLeft })}
+                </div>
+              </Link>
+            )}
+            {isExpiredTrial && (
+              <Link to="/payments" className="mt-3 block no-underline">
+                <div className="px-3 py-2 rounded-lg text-xs font-medium bg-red-500/20 text-red-300 border border-red-500/30">
+                  {t('plans.trialExpired')}
+                </div>
+              </Link>
             )}
           </div>
 

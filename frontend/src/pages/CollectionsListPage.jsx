@@ -20,10 +20,26 @@ function CollectionsListPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
 
-  const FREE_TRIAL_COLLECTION_LIMIT = 3;
+  const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
+  const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
+
+  // Expired trial: cumulative limit (collectionsCreatedCount)
+  // Active trial: 20 active collections (STANDARD level)
+  const FREE_CUMULATIVE_LIMIT = 5;
+  const ACTIVE_TRIAL_LIMIT = 20;
+
   const activeCount = collections.filter(c => c.status !== 'ARCHIVED').length;
-  const isFreeTrial = user?.plan === 'FREE_TRIAL';
-  const atLimit = isFreeTrial && activeCount >= FREE_TRIAL_COLLECTION_LIMIT;
+  const cumulativeCount = user?.collectionsCreatedCount ?? 0;
+
+  const atLimit = isExpiredTrial
+    ? cumulativeCount >= FREE_CUMULATIVE_LIMIT
+    : isActiveTrial
+      ? activeCount >= ACTIVE_TRIAL_LIMIT
+      : false;
+
+  const showLimitBanner = isExpiredTrial || isActiveTrial;
+  const limitUsed = isExpiredTrial ? cumulativeCount : activeCount;
+  const limitMax = isExpiredTrial ? FREE_CUMULATIVE_LIMIT : ACTIVE_TRIAL_LIMIT;
 
   // Helper function to get photo URL
   const photoUrl = (storagePath) => {
@@ -168,17 +184,19 @@ function CollectionsListPage() {
         subtitle={t('collections.subtitle')}
       />
 
-      {/* ── Free Trial Limit Banner ── */}
-      {isFreeTrial && (
+      {/* ── Plan Limit Banner ── */}
+      {showLimitBanner && (
         <div className={`mb-4 px-4 py-3 rounded-lg border text-sm flex items-center justify-between gap-3 ${
           atLimit
             ? 'bg-red-50 border-red-200 text-red-800'
             : 'bg-blue-50 border-blue-100 text-blue-700'
         }`}>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold">{t('plans.freeTrialBadge')}</span>
-            <span>{t('plans.collectionsUsed', { used: activeCount, limit: FREE_TRIAL_COLLECTION_LIMIT })}</span>
-            {atLimit && <span>{t('plans.limitReachedCollections')}</span>}
+            <span className="font-semibold">
+              {isExpiredTrial ? t('plans.freePlanBadge') : t('plans.trialBadge')}
+            </span>
+            <span>{t('plans.collectionsUsed', { used: limitUsed, limit: limitMax })}</span>
+            {atLimit && <span>{isExpiredTrial ? t('plans.limitReachedCumulative') : t('plans.limitReachedCollections')}</span>}
           </div>
           <Link
             to="/payments"

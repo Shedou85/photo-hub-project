@@ -50,11 +50,13 @@ function CollectionDetailsPage() {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const { user } = useAuth();
-  const FREE_TRIAL_PHOTO_LIMIT = 50;
-  const isFreeTrial = user?.plan === 'FREE_TRIAL';
+  const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
+  const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
+  const photoLimit = isExpiredTrial ? 30 : (isActiveTrial || user?.plan === 'STANDARD') ? 500 : null;
   const photoCount = photos.length;
-  const atPhotoLimit = isFreeTrial && photoCount >= FREE_TRIAL_PHOTO_LIMIT;
-  const nearPhotoLimit = isFreeTrial && photoCount >= 45;
+  const atPhotoLimit = photoLimit !== null && photoCount >= photoLimit;
+  const nearPhotoLimit = photoLimit !== null && photoCount >= (photoLimit - 5);
+  const showPhotoLimit = photoLimit !== null;
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -975,13 +977,13 @@ function CollectionDetailsPage() {
             {photos.length === 0 ? t("collection.photos") : t("collection.uploadMore")}
           </h2>
 
-          {isFreeTrial && nearPhotoLimit && (
+          {showPhotoLimit && nearPhotoLimit && (
             <div className={`mb-3 px-3 py-2 rounded-md text-xs flex items-center justify-between gap-2 ${
               atPhotoLimit
                 ? 'bg-red-50 border border-red-200 text-red-700'
                 : 'bg-amber-50 border border-amber-200 text-amber-700'
             }`}>
-              <span>{t('plans.photosUsed', { used: photoCount, limit: FREE_TRIAL_PHOTO_LIMIT })}{atPhotoLimit ? ' — ' + t('plans.limitReachedPhotos') : ''}</span>
+              <span>{t('plans.photosUsed', { used: photoCount, limit: photoLimit })}{atPhotoLimit ? ' — ' + t('plans.limitReachedPhotos') : ''}</span>
               <Link to="/payments" className="font-semibold underline shrink-0 hover:no-underline">{t('plans.upgradeLink')}</Link>
             </div>
           )}

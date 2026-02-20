@@ -18,6 +18,7 @@ CREATE TABLE `User` (
   `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
   `status` ENUM('ACTIVE', 'SUSPENDED') NOT NULL DEFAULT 'ACTIVE',
   `trialEndsAt` DATETIME(3) NULL,
+  `planDowngradedAt` DATETIME(3) NULL,
   `subscriptionStatus` ENUM('FREE_TRIAL', 'ACTIVE', 'CANCELED', 'INACTIVE') NOT NULL DEFAULT 'FREE_TRIAL',
   `subscriptionEndsAt` DATETIME(3) NULL,
   `stripeCustomerId` VARCHAR(191) NULL,
@@ -304,3 +305,9 @@ ALTER TABLE `Download`
 -- UPDATE `PromotionalPhoto` SET `order` = 0 WHERE `order` IS NULL;
 -- ALTER TABLE `PromotionalPhoto`
 --   MODIFY COLUMN `order` INT NOT NULL DEFAULT 0;
+
+-- --------------------------------------------------------
+--
+-- Migration: Add planDowngradedAt to User table (run on existing databases)
+--
+-- ALTER TABLE `User` ADD COLUMN `planDowngradedAt` DATETIME(3) NULL AFTER `trialEndsAt`;
