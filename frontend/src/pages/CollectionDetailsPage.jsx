@@ -37,6 +37,7 @@ function CollectionDetailsPage() {
   const [uploadStates, setUploadStates] = useState({});
   const [editedUploadStates, setEditedUploadStates] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [editedLightboxIndex, setEditedLightboxIndex] = useState(null);
   const [selections, setSelections] = useState([]);
   const [filter, setFilter] = useState('all');
   const [showUploadZone, setShowUploadZone] = useState(false);
@@ -791,7 +792,7 @@ function CollectionDetailsPage() {
                         </svg>
                         {t('collection.copyShareLink')}
                       </Button>
-                      <Button variant="primary" onClick={handleStartSelecting}>
+                      <Button variant="secondary" onClick={handleStartSelecting}>
                         {t('collection.startSelecting')}
                       </Button>
                     </>
@@ -960,7 +961,7 @@ function CollectionDetailsPage() {
       {showPromotionalModal && (
         <PromotionalConsentModal
           collection={collection}
-          photos={photos}
+          photos={editedPhotos}
           onClose={() => setShowPromotionalModal(false)}
           onDelivered={(updatedCollection) => {
             setCollection(updatedCollection);
@@ -1137,8 +1138,8 @@ function CollectionDetailsPage() {
         </div>
       )}
 
-      {/* ── Photo Grid Accordion ── */}
-      {photos.length > 0 && (
+      {/* ── Photo Grid Accordion (hidden when DELIVERED/DOWNLOADED — edited photos shown instead) ── */}
+      {photos.length > 0 && !['DELIVERED', 'DOWNLOADED'].includes(collection.status) && (
         <Accordion title={t("collection.photos")} defaultOpen={true}>
           {/* Filter tabs */}
           {selections.length > 0 && (
@@ -1237,6 +1238,79 @@ function CollectionDetailsPage() {
             })}
           </div>
         </Accordion>
+      )}
+
+      {/* ── Edited Photos Grid (DELIVERED/DOWNLOADED) ── */}
+      {editedPhotos.length > 0 && ['DELIVERED', 'DOWNLOADED'].includes(collection.status) && (
+        <Accordion title={t("collection.editedPhotos")} defaultOpen={true}>
+          <div className={PHOTO_GRID_CLASSES}>
+            {editedPhotos.map((photo, index) => (
+              <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
+                <button
+                  onClick={() => setEditedLightboxIndex(index)}
+                  className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
+                  aria-label={photo.filename}
+                >
+                  <img
+                    src={photoUrl(photo.storagePath)}
+                    alt={photo.filename}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
+        </Accordion>
+      )}
+
+      {/* ── Edited Photos Lightbox ── */}
+      {editedLightboxIndex !== null && editedPhotos[editedLightboxIndex] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center"
+          onClick={() => setEditedLightboxIndex(null)}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditedLightboxIndex((i) => (i > 0 ? i - 1 : editedPhotos.length - 1));
+            }}
+            aria-label={t("collection.lightboxPrev")}
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <img
+            src={photoUrl(editedPhotos[editedLightboxIndex].storagePath)}
+            alt={editedPhotos[editedLightboxIndex].filename}
+            className="max-w-[88vw] max-h-[88vh] object-contain rounded-[4px] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditedLightboxIndex((i) => (i < editedPhotos.length - 1 ? i + 1 : 0));
+            }}
+            aria-label={t("collection.lightboxNext")}
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setEditedLightboxIndex(null)}
+            aria-label={t("collection.lightboxClose")}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center font-bold text-xl transition-colors z-10 border border-white/30 cursor-pointer"
+          >
+            ×
+          </button>
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/60 text-sm select-none">
+            {editedLightboxIndex + 1} / {editedPhotos.length}
+          </div>
+        </div>
       )}
 
       {/* ── Lightbox ── */}

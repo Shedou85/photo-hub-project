@@ -36,9 +36,9 @@ try {
 
     if ($method === 'GET') {
         $stmt = $pdo->prepare("
-            SELECT pp.photoId, pp.`order`, p.storagePath, p.thumbnailPath, pp.createdAt
+            SELECT pp.photoId, pp.`order`, ep.storagePath, ep.filename, pp.createdAt
             FROM PromotionalPhoto pp
-            JOIN Photo p ON p.id = pp.photoId
+            JOIN EditedPhoto ep ON ep.id = pp.photoId
             WHERE pp.collectionId = ?
             ORDER BY pp.`order` ASC
         ");
@@ -67,8 +67,8 @@ try {
             exit;
         }
 
-        // Verify the photo belongs to this collection
-        $stmt = $pdo->prepare("SELECT id FROM Photo WHERE id = ? AND collectionId = ? LIMIT 1");
+        // Verify the edited photo belongs to this collection
+        $stmt = $pdo->prepare("SELECT id FROM EditedPhoto WHERE id = ? AND collectionId = ? LIMIT 1");
         $stmt->execute([$photoId, $collectionId]);
         if (!$stmt->fetch()) {
             http_response_code(404);

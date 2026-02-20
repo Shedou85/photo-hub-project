@@ -190,6 +190,7 @@
     "notFound": "Collection not found.",
     "createdAt": "Created:",
     "photos": "Photos",
+    "editedPhotos": "Edited Photos",
     "noPhotos": "No photos yet.",
     "error": "Error:",
     "infoAndActions": "Collection Details & Actions",

@@ -223,8 +223,7 @@ ALTER TABLE `Selection`
 -- Constraints for table `PromotionalPhoto`
 --
 ALTER TABLE `PromotionalPhoto`
-  ADD CONSTRAINT `PromotionalPhoto_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `PromotionalPhoto_photoId_fkey` FOREIGN KEY (`photoId`) REFERENCES `Photo` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `PromotionalPhoto_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Download`
@@ -328,3 +327,9 @@ ALTER TABLE `Download`
 -- Migration: Add emailVerificationToken index (run on existing databases)
 --
 -- CREATE INDEX User_emailVerificationToken_idx ON `User`(`emailVerificationToken`);
+
+-- --------------------------------------------------------
+--
+-- Migration: Drop PromotionalPhoto.photoId FK (now references EditedPhoto, validated in PHP)
+--
+-- ALTER TABLE `PromotionalPhoto` DROP FOREIGN KEY `PromotionalPhoto_photoId_fkey`;
