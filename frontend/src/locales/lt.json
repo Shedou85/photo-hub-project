@@ -180,10 +180,23 @@
       "DOWNLOADED": "Atsisiųsta",
       "ARCHIVED": "Archyvuota"
     },
+    "newCollection": "Nauja kolekcija",
+    "collectionsCount_one": "{{count}} kolekcija",
+    "collectionsCount_few": "{{count}} kolekcijos",
+    "collectionsCount_other": "{{count}} kolekcijų",
+    "emptyTitle": "Kolekcijų dar nėra",
+    "emptyDescription": "Sukurkite pirmąją kolekciją, kad pradėtumėte tvarkyti ir dalintis nuotraukomis su klientais.",
+    "emptyCreateBtn": "Sukurti pirmą kolekciją",
+    "deleteConfirmTitle": "Ištrinti kolekciją",
+    "deleteConfirmMessage": "Ar tikrai norite ištrinti \"{{name}}\"? Visos šios kolekcijos nuotraukos bus visam laikui pašalintos. Šio veiksmo negalima atšaukti.",
+    "deleteConfirmBtn": "Ištrinti kolekciją",
+    "deleting": "Trinama...",
+    "moreOptions": "Daugiau parinkčių",
     "pagination": {
       "prev": "Ankstesnis",
       "next": "Kitas",
-      "page": "Puslapis {{page}} iš {{totalPages}}"
+      "page": "Puslapis {{page}} iš {{totalPages}}",
+      "showing": "Rodoma {{from}}\u2013{{to}} iš {{total}}"
     }
   },
   "collection": {

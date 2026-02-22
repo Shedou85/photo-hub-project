@@ -22,7 +22,7 @@ import clsx from 'clsx';
  * </Card>
  */
 function Card({ children, className, noPadding = false }) {
-  const baseClasses = 'bg-white border border-gray-200 rounded';
+  const baseClasses = 'bg-white border border-gray-200 rounded-[10px]';
   const paddingClass = noPadding ? '' : 'px-6 py-5';
 
   return (

@@ -30,7 +30,7 @@ function Button({
   type = 'button',
   ...props
 }) {
-  const baseClasses = 'inline-flex items-center justify-center gap-2 font-semibold transition-opacity duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-sans rounded-sm';
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-semibold transition-opacity duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-sans rounded-lg';
 
   const variantClasses = {
     primary: 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white hover:opacity-90 border-none',

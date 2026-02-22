@@ -180,10 +180,23 @@
       "DOWNLOADED": "Скачана",
       "ARCHIVED": "Архив"
     },
+    "newCollection": "Новая коллекция",
+    "collectionsCount_one": "{{count}} коллекция",
+    "collectionsCount_few": "{{count}} коллекции",
+    "collectionsCount_other": "{{count}} коллекций",
+    "emptyTitle": "Коллекций пока нет",
+    "emptyDescription": "Создайте первую коллекцию, чтобы начать организовывать и делиться фотографиями с клиентами.",
+    "emptyCreateBtn": "Создать первую коллекцию",
+    "deleteConfirmTitle": "Удалить коллекцию",
+    "deleteConfirmMessage": "Вы уверены, что хотите удалить \"{{name}}\"? Все фотографии в этой коллекции будут безвозвратно удалены. Это действие нельзя отменить.",
+    "deleteConfirmBtn": "Удалить коллекцию",
+    "deleting": "Удаление...",
+    "moreOptions": "Ещё",
     "pagination": {
       "prev": "Назад",
       "next": "Вперёд",
-      "page": "Страница {{page}} из {{totalPages}}"
+      "page": "Страница {{page}} из {{totalPages}}",
+      "showing": "Показано {{from}}\u2013{{to}} из {{total}}"
     }
   },
   "collection": {

@@ -3,10 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import Accordion from "../components/Accordion";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/primitives/Button";
 import CollectionCard from "../components/primitives/CollectionCard";
+import CreateCollectionModal from "../components/CreateCollectionModal";
+import ConfirmModal from "../components/primitives/ConfirmModal";
 import { useAuth } from "../contexts/AuthContext";
 
 function CollectionsListPage() {
@@ -17,16 +18,14 @@ function CollectionsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [copiedId, setCopiedId] = useState(null);
-  const [newCollectionName, setNewCollectionName] = useState("");
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
 
-  // Expired trial: cumulative limit (collectionsCreatedCount)
-  // Active trial: 20 active collections (STANDARD level)
   const FREE_CUMULATIVE_LIMIT = 5;
   const ACTIVE_TRIAL_LIMIT = 20;
 
@@ -43,11 +42,11 @@ function CollectionsListPage() {
   const limitUsed = isExpiredTrial ? cumulativeCount : activeCount;
   const limitMax = isExpiredTrial ? FREE_CUMULATIVE_LIMIT : ACTIVE_TRIAL_LIMIT;
 
-  // Helper function to get photo URL
+  const totalCount = pagination?.total ?? collections.length;
+
   const photoUrl = (storagePath) => {
+    if (!storagePath) return null;
     const base = import.meta.env.VITE_API_BASE_URL;
-    // Assuming storagePath is relative, like "uploads/collectionId/photoId.jpg"
-    // And that the backend serves these from a base URL like VITE_API_BASE_URL
     const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
     return `${base}/${path}`;
   };
@@ -85,16 +84,7 @@ function CollectionsListPage() {
     fetchCollections();
   }, [fetchCollections]);
 
-  const handleCreateCollection = (event) => {
-    event.preventDefault();
-
-    if (!newCollectionName.trim()) {
-      toast.error(t('collections.nameRequired'));
-      return;
-    }
-
-    const name = newCollectionName;
-
+  const handleCreateCollection = async (name) => {
     const createPromise = fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
       method: "POST",
       credentials: "include",
@@ -103,8 +93,8 @@ function CollectionsListPage() {
     }).then(async (response) => {
       const data = await response.json();
       if (response.ok && data.status === "OK") {
+        setShowCreateModal(false);
         navigate(`/collection/${data.collection.id}`);
-        setNewCollectionName("");
       } else {
         if (data.error === 'COLLECTION_LIMIT_REACHED') {
           throw new Error(t('plans.limitReachedCollections') + ' ' + t('plans.upgradeHint'));
@@ -118,9 +108,17 @@ function CollectionsListPage() {
       success: t('collections.createSuccess'),
       error: (err) => err.message,
     });
+
+    return createPromise;
   };
 
-  const doDeleteCollection = async (id) => {
+  const handleDeleteCollection = (id, name) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { id } = deleteTarget;
     setDeletingId(id);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
@@ -137,6 +135,7 @@ function CollectionsListPage() {
         });
         setPagination((prev) => prev ? { ...prev, total: prev.total - 1 } : prev);
         toast.success(t('collections.deleteCollectionSuccess'));
+        setDeleteTarget(null);
       } else {
         toast.error(t('collections.deleteCollectionFailed'));
       }
@@ -147,61 +146,141 @@ function CollectionsListPage() {
     }
   };
 
-  const handleDeleteCollection = (id) => {
-    toast(t('collections.confirmDeleteCollection'), {
-      position: 'bottom-center',
-      action: {
-        label: t('collections.deleteCollection'),
-        onClick: () => doDeleteCollection(id),
-      },
-      cancel: {
-        label: t('common.cancel'),
-        onClick: () => {},
-      },
-      duration: 8000,
-    });
-  };
-
-  // This function is no longer directly used on the card but remains for the collection details page.
-  const handleShareCollection = (id, shareId) => {
-    const shareUrl = `${window.location.origin}/share/${shareId}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopiedId(id);
-      toast.success(t('collections.linkCopied'));
-      setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000);
-    });
-  };
-
+  // ── Loading skeleton ──
   if (loading) {
     return (
-      <div className="py-10 px-5 text-center font-sans text-gray-500">
-        {t('collections.loading')}
+      <div className="font-sans max-w-6xl mx-auto">
+        <div className="flex items-center justify-between pb-6 mb-6 border-b border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-[52px] h-[52px] rounded-full bg-gray-200 animate-pulse" />
+            <div className="flex flex-col gap-2">
+              <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 w-56 bg-gray-100 rounded animate-pulse" />
+            </div>
+          </div>
+          <div className="h-10 w-36 bg-gray-200 rounded-lg animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="rounded-[10px] overflow-hidden border border-gray-200"
+            >
+              <div
+                className="aspect-[3/2] bg-gray-200 animate-pulse"
+                style={{ animationDelay: `${i * 100}ms` }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
+  // ── Error state ──
   if (error) {
     return (
       <div className="py-10 px-5 text-center font-sans text-gray-500">
-        <div className="inline-block px-3.5 py-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-800">
+        <div className="inline-block px-3.5 py-3 bg-red-50 border border-red-200 rounded-[10px] text-sm text-red-800">
           {t('collections.error')} {error}
         </div>
       </div>
     );
   }
 
+  // ── Pagination helpers ──
+  const PAGE_SIZE = 12;
+  const renderPagination = () => {
+    if (!pagination || pagination.totalPages <= 1) return null;
+
+    const pageNumbers = Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+      .filter((p) => p === 1 || p === pagination.totalPages || Math.abs(p - page) <= 1)
+      .reduce((acc, p, idx, arr) => {
+        if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+        acc.push(p);
+        return acc;
+      }, []);
+
+    return (
+      <div className="flex items-center justify-between mt-8 pt-4 border-t border-gray-100 flex-wrap gap-3">
+        <span className="text-sm text-gray-500">
+          {t('collections.pagination.showing', {
+            from: (page - 1) * PAGE_SIZE + 1,
+            to: Math.min(page * PAGE_SIZE, pagination.total),
+            total: pagination.total,
+          })}
+        </span>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="px-3 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {t('collections.pagination.prev')}
+          </button>
+
+          {pagination.totalPages > 2 ? (
+            pageNumbers.map((item, idx) =>
+              item === '...' ? (
+                <span key={`ellipsis-${idx}`} className="px-2 text-gray-400">&hellip;</span>
+              ) : (
+                <button
+                  key={item}
+                  onClick={() => setPage(item)}
+                  className={`w-9 h-9 text-sm font-medium rounded-lg transition-colors ${
+                    page === item
+                      ? 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white'
+                      : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )
+          ) : (
+            <span className="px-3 py-2 text-sm text-gray-500">
+              {t('collections.pagination.page', { page, totalPages: pagination.totalPages })}
+            </span>
+          )}
+
+          <button
+            onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+            disabled={page >= pagination.totalPages}
+            className="px-3 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {t('collections.pagination.next')}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="font-sans max-w-6xl mx-auto">
-      {/* ── Page Header ── */}
+      {/* ── Page Header with New Collection button ── */}
       <PageHeader
         icon="🗂️"
         title={t('collections.title')}
-        subtitle={t('collections.subtitle')}
+        subtitle={`${t('collections.collectionsCount', { count: totalCount })} · ${t('collections.subtitle')}`}
+        actions={
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+            disabled={atLimit}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            {t('collections.newCollection')}
+          </Button>
+        }
       />
 
       {/* ── Plan Limit Banner ── */}
       {showLimitBanner && (
-        <div className={`mb-4 px-4 py-3 rounded-lg border text-sm flex items-center justify-between gap-3 ${
+        <div className={`mb-6 px-4 py-3 rounded-[10px] border text-sm flex items-center justify-between gap-3 ${
           atLimit
             ? 'bg-red-50 border-red-200 text-red-800'
             : 'bg-blue-50 border-blue-100 text-blue-700'
@@ -222,45 +301,32 @@ function CollectionsListPage() {
         </div>
       )}
 
-      {/* ── Create Collection Accordion ── */}
-      <Accordion title={t('collections.createTitle')}>
-        <form onSubmit={handleCreateCollection}>
-          {/* Name field */}
-          <div className="mb-6">
-            <label
-              htmlFor="collectionName"
-              className="block mb-1 text-sm font-semibold text-gray-700"
-            >
-              {t('collections.nameLabel')}
-            </label>
-            <input
-              type="text"
-              id="collectionName"
-              value={newCollectionName}
-              onChange={(e) => setNewCollectionName(e.target.value)}
-              required
-              className="w-full py-2.5 px-5 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-sm outline-none box-border transition-colors duration-150 font-sans"
-            />
+      {/* ── Empty State ── */}
+      {collections.length === 0 && (
+        <div className="py-20 flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center mb-5">
+            <svg className="w-10 h-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
           </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            {t('collections.emptyTitle')}
+          </h2>
+          <p className="text-sm text-gray-500 max-w-sm mb-6">
+            {t('collections.emptyDescription')}
+          </p>
+          <Button variant="primary" onClick={() => setShowCreateModal(true)} disabled={atLimit}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            {t('collections.emptyCreateBtn')}
+          </Button>
+        </div>
+      )}
 
-          {/* Submit button */}
-          <div className="flex justify-end">
-            <Button variant="primary" type="submit" disabled={atLimit}>
-              {t('collections.createBtn')}
-            </Button>
-          </div>
-        </form>
-      </Accordion>
-
-      {/* ── Collections List Card ── */}
-      <div className="bg-white border border-gray-200 rounded px-6 py-5">
-
-
-        {collections.length === 0 ? (
-          <div className="py-10 px-5 text-center text-gray-500 text-sm">
-            {t('collections.empty')}
-          </div>
-        ) : (
+      {/* ── Collections Grid ── */}
+      {collections.length > 0 && (
+        <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((collection) => (
               <CollectionCard
@@ -272,60 +338,48 @@ function CollectionsListPage() {
                 status={collection.status}
                 coverImageUrl={collection.coverPhotoPath ? photoUrl(collection.coverPhotoPath) : null}
                 actions={
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleShareCollection(collection.id, collection.shareId)}
-                      className="flex-1 min-h-[48px]"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                      {copiedId === collection.id ? t('collections.linkCopied') : t('collections.shareCollection')}
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDeleteCollection(collection.id)}
-                      disabled={deletingId === collection.id}
-                      className="flex-1 min-h-[48px]"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      {t('collections.deleteCollection')}
-                    </Button>
-                  </>
+                  <button
+                    onClick={() => handleDeleteCollection(collection.id, collection.name)}
+                    disabled={deletingId === collection.id}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    {t('collections.deleteCollection')}
+                  </button>
                 }
               />
             ))}
           </div>
-        )}
 
-        {/* ── Pagination Controls ── */}
-        {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {t('collections.pagination.prev')}
-            </button>
-            <span className="text-sm text-gray-500">
-              {t('collections.pagination.page', { page, totalPages: pagination.totalPages })}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-              disabled={page >= pagination.totalPages}
-              className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {t('collections.pagination.next')}
-            </button>
-          </div>
-        )}
-      </div>
+          {/* ── Pagination ── */}
+          {renderPagination()}
+        </>
+      )}
+
+      {/* ── Create Collection Modal ── */}
+      {showCreateModal && (
+        <CreateCollectionModal
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateCollection}
+          disabled={atLimit}
+        />
+      )}
+
+      {/* ── Delete Confirmation Modal ── */}
+      {deleteTarget && (
+        <ConfirmModal
+          title={t('collections.deleteConfirmTitle')}
+          message={t('collections.deleteConfirmMessage', { name: deleteTarget.name })}
+          confirmLabel={deletingId === deleteTarget.id ? t('collections.deleting') : t('collections.deleteConfirmBtn')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+          loading={deletingId === deleteTarget.id}
+          variant="danger"
+        />
+      )}
     </div>
   );
 }

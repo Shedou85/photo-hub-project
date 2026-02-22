@@ -4,7 +4,7 @@ function Accordion({ title, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-white border border-gray-200 rounded mb-5 transition-all duration-700">
+    <div className="bg-white border border-gray-200 rounded-[10px] mb-5 transition-all duration-700">
       {/* Accordion Header */}
       <div
         className="flex items-center justify-between px-6 py-4 cursor-pointer select-none"

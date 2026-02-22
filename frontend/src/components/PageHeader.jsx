@@ -1,4 +1,4 @@
-function PageHeader({ icon, title, subtitle }) {
+function PageHeader({ icon, title, subtitle, actions }) {
   return (
     <div className="flex items-center justify-between pb-6 mb-6 border-b border-gray-200 flex-wrap gap-3">
       <div className="flex items-center gap-4">
@@ -17,6 +17,11 @@ function PageHeader({ icon, title, subtitle }) {
           </p>
         </div>
       </div>
+      {actions && (
+        <div className="flex items-center gap-3">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }
