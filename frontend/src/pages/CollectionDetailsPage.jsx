@@ -34,6 +34,7 @@ function CollectionDetailsPage() {
   const [photos, setPhotos] = useState([]);
   const [editedPhotos, setEditedPhotos] = useState([]);
   const [dragOver, setDragOver] = useState(false);
+  const [dragOverEdited, setDragOverEdited] = useState(false);
   const [uploadStates, setUploadStates] = useState({});
   const [editedUploadStates, setEditedUploadStates] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -388,6 +389,19 @@ function CollectionDetailsPage() {
   };
 
   const handleDragLeave = () => setDragOver(false);
+
+  const handleEditedDrop = (e) => {
+    e.preventDefault();
+    setDragOverEdited(false);
+    uploadEditedFiles(e.dataTransfer.files);
+  };
+
+  const handleEditedDragOver = (e) => {
+    e.preventDefault();
+    setDragOverEdited(true);
+  };
+
+  const handleEditedDragLeave = () => setDragOverEdited(false);
 
   const doDeletePhoto = async (photoId) => {
     try {
@@ -1067,7 +1081,14 @@ function CollectionDetailsPage() {
             aria-label={t('collection.editedUploadZoneLabel')}
             onClick={() => editedFileInputRef.current?.click()}
             onKeyDown={(e) => e.key === 'Enter' && editedFileInputRef.current?.click()}
-            className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none border-green-300 bg-green-50 hover:border-green-400"
+            onDrop={handleEditedDrop}
+            onDragOver={handleEditedDragOver}
+            onDragLeave={handleEditedDragLeave}
+            className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none ${
+              dragOverEdited
+                ? 'border-green-500 bg-green-100'
+                : 'border-green-300 bg-green-50 hover:border-green-400'
+            }`}
           >
             <svg className="w-9 h-9 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
