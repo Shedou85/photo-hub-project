@@ -84,12 +84,12 @@ function CollectionsListPage() {
     fetchCollections();
   }, [fetchCollections]);
 
-  const handleCreateCollection = async (name) => {
+  const handleCreateCollection = async ({ name, clientName, clientEmail }) => {
     const createPromise = fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, clientName, clientEmail }),
     }).then(async (response) => {
       const data = await response.json();
       if (response.ok && data.status === "OK") {

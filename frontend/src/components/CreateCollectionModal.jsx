@@ -5,6 +5,8 @@ import Button from './primitives/Button';
 function CreateCollectionModal({ onClose, onSubmit, disabled = false }) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -22,7 +24,11 @@ function CreateCollectionModal({ onClose, onSubmit, disabled = false }) {
     if (!name.trim() || submitting) return;
     setSubmitting(true);
     try {
-      await onSubmit(name.trim());
+      await onSubmit({
+        name: name.trim(),
+        clientName: clientName.trim() || null,
+        clientEmail: clientEmail.trim() || null,
+      });
     } catch {
       // Error is handled by the caller via toast
     } finally {
@@ -58,20 +64,48 @@ function CreateCollectionModal({ onClose, onSubmit, disabled = false }) {
 
         {/* Content */}
         <form onSubmit={handleSubmit}>
-          <div className="px-6 py-5">
-            <label htmlFor="modal-collection-name" className="block mb-1.5 text-sm font-semibold text-gray-700">
-              {t('collections.nameLabel')}
-            </label>
-            <input
-              id="modal-collection-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-              required
-              className="w-full py-2.5 px-4 text-sm text-gray-800 bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-lg outline-none transition-all duration-150"
-              placeholder={t('collections.nameLabel')}
-            />
+          <div className="px-6 py-5 space-y-4">
+            <div>
+              <label htmlFor="modal-collection-name" className="block mb-1.5 text-sm font-semibold text-gray-700">
+                {t('collections.nameLabel')}
+              </label>
+              <input
+                id="modal-collection-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoFocus
+                required
+                className="w-full py-2.5 px-4 text-sm text-gray-800 bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-lg outline-none transition-all duration-150"
+                placeholder={t('collections.nameLabel')}
+              />
+            </div>
+            <div>
+              <label htmlFor="modal-client-name" className="block mb-1.5 text-sm font-semibold text-gray-700">
+                {t('collections.clientNameLabel')} <span className="font-normal text-gray-400">({t('collections.optional')})</span>
+              </label>
+              <input
+                id="modal-client-name"
+                type="text"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="w-full py-2.5 px-4 text-sm text-gray-800 bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-lg outline-none transition-all duration-150"
+                placeholder={t('collections.clientNamePlaceholder')}
+              />
+            </div>
+            <div>
+              <label htmlFor="modal-client-email" className="block mb-1.5 text-sm font-semibold text-gray-700">
+                {t('collections.clientEmailLabel')} <span className="font-normal text-gray-400">({t('collections.optional')})</span>
+              </label>
+              <input
+                id="modal-client-email"
+                type="email"
+                value={clientEmail}
+                onChange={(e) => setClientEmail(e.target.value)}
+                className="w-full py-2.5 px-4 text-sm text-gray-800 bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-lg outline-none transition-all duration-150"
+                placeholder={t('collections.clientEmailPlaceholder')}
+              />
+            </div>
           </div>
 
           {/* Footer */}

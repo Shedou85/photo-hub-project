@@ -83,6 +83,8 @@ try {
         $data = json_decode(file_get_contents('php://input'), true);
 
         $name = $data['name'] ?? null;
+        $clientName = $data['clientName'] ?? null;
+        $clientEmail = $data['clientEmail'] ?? null;
 
         if (empty($name)) {
             http_response_code(400);
@@ -151,10 +153,10 @@ try {
         $currentDateTime = date('Y-m-d H:i:s.v');
 
         $stmt = $pdo->prepare("
-            INSERT INTO `Collection` (id, name, userId, createdAt, updatedAt, shareId)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO `Collection` (id, name, clientName, clientEmail, userId, createdAt, updatedAt, shareId)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$collectionId, $name, $userId, $currentDateTime, $currentDateTime, $shareId]);
+        $stmt->execute([$collectionId, $name, $clientName, $clientEmail, $userId, $currentDateTime, $currentDateTime, $shareId]);
 
         $pdo->prepare("UPDATE `User` SET collectionsCreatedCount = collectionsCreatedCount + 1 WHERE id = ?")->execute([$userId]);
 
