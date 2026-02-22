@@ -124,6 +124,13 @@ if ($requestMethod === 'PATCH') {
             }
         }
 
+        // Only allow access to collections that are in SELECTING status or beyond
+        if (!in_array($collection['status'], ['SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Collection is not ready for sharing yet.']);
+            exit;
+        }
+
         // Remove sensitive field before sending to client
         unset($collection['password']);
 

@@ -651,7 +651,7 @@ function CollectionDetailsPage() {
     if (status === 'DRAFT') {
       const activeStep = photos.length === 0 ? 0 : 1;
       return {
-        steps: [t('collection.stepAddPhotos'), t('collection.stepShareLink'), t('collection.stepStartSelecting')],
+        steps: [t('collection.stepAddPhotos'), t('collection.stepStartSelecting')],
         activeStep,
         phaseLabel: t('collection.draftPhaseInProgress'),
       };
@@ -785,17 +785,9 @@ function CollectionDetailsPage() {
                     {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
                   </Button>
                   {photos.length > 0 && (
-                    <>
-                      <Button variant="secondary" onClick={handleCopyShareLink}>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        {t('collection.copyShareLink')}
-                      </Button>
-                      <Button variant="secondary" onClick={handleStartSelecting}>
-                        {t('collection.startSelecting')}
-                      </Button>
-                    </>
+                    <Button variant="secondary" onClick={handleStartSelecting}>
+                      {t('collection.startSelecting')}
+                    </Button>
                   )}
                 </div>
                 {photos.length > 0 && (
