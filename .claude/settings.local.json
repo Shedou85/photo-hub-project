@@ -50,7 +50,13 @@
       "Bash(cmd.exe /c \"dir \"\"C:\\\\Users\\\\Marius\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\\"\" 2>&1\")",
       "Bash(git rm:*)",
       "mcp__plugin_playwright_playwright__browser_fill_form",
-      "mcp__plugin_playwright_playwright__browser_take_screenshot"
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub status)",
+      "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub diff)",
+      "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub log --oneline -5)",
+      "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub add:*)",
+      "Bash(git -C:*)"
     ]
   }
 }

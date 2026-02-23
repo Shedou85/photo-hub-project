@@ -3,6 +3,15 @@
 
 header('Content-Type: application/json');
 
+require_once __DIR__ . '/../helpers/rate-limiter.php';
+
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!checkRateLimit('resend-verify:' . $clientIp, 3, 3600)) {
+    http_response_code(429);
+    echo json_encode(['error' => 'too_many_requests']);
+    exit();
+}
+
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/mailer.php';
 

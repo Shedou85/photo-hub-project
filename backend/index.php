@@ -41,8 +41,32 @@ if (strpos($requestUri, $basePath) === 0) {
 // Strip trailing slash (e.g. /collections/ -> /collections)
 $requestUri = rtrim($requestUri, '/');
 
+// CSRF protection for state-changing requests
+require_once __DIR__ . '/helpers/csrf.php';
+if (in_array($requestMethod, ['POST', 'PATCH', 'PUT', 'DELETE'])) {
+    $csrfExemptPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/resend-verification', '/auth/google'];
+    $isShareRoute = strpos($requestUri, '/share/') === 0;
+    $isDeliverRoute = strpos($requestUri, '/deliver/') === 0;
+
+    if (!in_array($requestUri, $csrfExemptPaths) && !$isShareRoute && !$isDeliverRoute) {
+        session_start();
+        requireCsrfToken();
+    }
+}
+
 // Basic router
 switch ($requestUri) {
+    case '/csrf-token':
+        if ($requestMethod == 'GET') {
+            session_start();
+            header('Content-Type: application/json');
+            echo json_encode(['csrfToken' => generateCsrfToken()]);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     case '/':
     case '':
         echo json_encode(['message' => 'Welcome to the Photo-Hub API']);
@@ -82,6 +106,14 @@ switch ($requestUri) {
 
     case '/register':
         if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/helpers/rate-limiter.php';
+            $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            if (!checkRateLimit('register:' . $clientIp, 5, 3600)) {
+                http_response_code(429);
+                echo json_encode(['status' => 'error', 'message' => 'Too many registration attempts. Please try again later.']);
+                exit();
+            }
+
             $data = json_decode(file_get_contents('php://input'), true);
 
             $email = $data['email'] ?? '';

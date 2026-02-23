@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import { resetCsrfToken } from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
+        resetCsrfToken();
     };
 
     const isAuthenticated = user !== null;

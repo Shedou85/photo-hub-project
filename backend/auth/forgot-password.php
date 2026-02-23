@@ -3,6 +3,15 @@
 
 header('Content-Type: application/json');
 
+require_once __DIR__ . '/../helpers/rate-limiter.php';
+
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!checkRateLimit('forgot-password:' . $clientIp, 3, 3600)) {
+    http_response_code(429);
+    echo json_encode(['error' => 'too_many_requests']);
+    exit();
+}
+
 $data  = json_decode(file_get_contents('php://input'), true);
 $email = trim($data['email'] ?? '');
 
