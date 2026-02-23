@@ -517,5 +517,10 @@
     "lightboxClose": "Uždaryti",
     "lightboxPrev": "Ankstesnė nuotrauka",
     "lightboxNext": "Kita nuotrauka"
+  },
+  "errors": {
+    "boundary_title": "Kažkas nutiko",
+    "boundary_message": "Įvyko netikėta klaida. Bandykite dar kartą.",
+    "try_again": "Bandyti dar kartą"
   }
 }

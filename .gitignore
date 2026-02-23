@@ -26,6 +26,7 @@ DB_OPTIMIZATION_TODO.txt
 
 # DB credentials — keep real config off git
 backend/config.php
+backend/.env
 
 # Claude Code local files
 .claude/

@@ -19,6 +19,7 @@ import AdminRoute from './components/AdminRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
 import AdminPage from './pages/AdminPage';
 import CookieConsentBanner from './components/CookieConsentBanner';
+import ErrorBoundary from './components/ErrorBoundary';
 import { initGA, trackPageView } from './lib/analytics';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
     <>
     <Toaster position="bottom-right" richColors />
     <CookieConsentBanner />
+    <ErrorBoundary>
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />
@@ -64,6 +66,7 @@ function App() {
         <Route index element={<AdminPage />} />
       </Route>
     </Routes>
+    </ErrorBoundary>
     </>
   );
 }

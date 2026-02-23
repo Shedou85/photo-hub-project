@@ -507,5 +507,10 @@
     "lightboxClose": "Close",
     "lightboxPrev": "Previous photo",
     "lightboxNext": "Next photo"
+  },
+  "errors": {
+    "boundary_title": "Something went wrong",
+    "boundary_message": "An unexpected error occurred. Please try again.",
+    "try_again": "Try Again"
   }
 }

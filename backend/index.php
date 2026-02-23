@@ -11,7 +11,7 @@ session_set_cookie_params([
     'domain' => '.pixelforge.pro',
     'secure' => true,
     'httponly' => true,
-    'samesite' => 'None'
+    'samesite' => 'Lax'
 ]);
 
 // Helper function to generate CUIDs (simplified for demonstration)
