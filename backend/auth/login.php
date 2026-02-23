@@ -66,6 +66,7 @@ try {
     // OK → įrašom į session
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $user['role'];
+    $_SESSION['last_activity'] = time();
 
     echo json_encode([
         "status" => "OK",

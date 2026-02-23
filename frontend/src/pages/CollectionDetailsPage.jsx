@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuth } from '../contexts/AuthContext';
@@ -8,11 +8,10 @@ import Button from '../components/primitives/Button';
 import Badge from '../components/primitives/Badge';
 import Accordion from '../components/Accordion';
 import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
-
-
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
-const MAX_CONCURRENT_UPLOADS = 3;
+import { useCollectionData } from '../hooks/useCollectionData';
+import { usePhotoUpload } from '../hooks/usePhotoUpload';
+import { useLightbox } from '../hooks/useLightbox';
+import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
 
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -22,25 +21,37 @@ const photoUrl = (storagePath) => {
 
 function CollectionDetailsPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
   const editedFileInputRef = useRef(null);
-  const uploadBatchCounter = useRef(0);
 
-  const [collection, setCollection] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [photos, setPhotos] = useState([]);
-  const [editedPhotos, setEditedPhotos] = useState([]);
+  // Custom hooks
+  const {
+    collection, setCollection,
+    loading, error,
+    selections,
+    editedPhotos, fetchEditedPhotos,
+    handleStartSelecting,
+    doDeleteCollection,
+    handleSaveEdit: handleSaveEditHook,
+  } = useCollectionData(id);
+
+  const {
+    photos,
+    uploadFiles, uploadEditedFiles,
+    handleDeletePhoto, handleSetCover,
+    anyUploading, uploadErrors, validationErrors,
+    anyEditedUploading, editedUploadErrors, editedValidationErrors,
+    fetchPhotos,
+  } = usePhotoUpload(id, collection, setCollection);
+
+  const lightbox = useLightbox(photos.length);
+  const editedLightbox = useLightbox(editedPhotos.length);
+  const { filter, setFilter, selectedPhotoIds, filteredPhotos } = usePhotoFiltering(photos, selections, id);
+
+  // Local UI state
   const [dragOver, setDragOver] = useState(false);
   const [dragOverEdited, setDragOverEdited] = useState(false);
-  const [uploadStates, setUploadStates] = useState({});
-  const [editedUploadStates, setEditedUploadStates] = useState({});
-  const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [editedLightboxIndex, setEditedLightboxIndex] = useState(null);
-  const [selections, setSelections] = useState([]);
-  const [filter, setFilter] = useState('all');
   const [showUploadZone, setShowUploadZone] = useState(false);
   const [showEditedFinalsZone, setShowEditedFinalsZone] = useState(false);
   const [showPromotionalModal, setShowPromotionalModal] = useState(false);
@@ -60,327 +71,25 @@ function CollectionDetailsPage() {
   const nearPhotoLimit = photoLimit !== null && photoCount >= (photoLimit - 5);
   const showPhotoLimit = photoLimit !== null;
 
-  // Keyboard navigation for lightbox
+  // Fetch photos on mount
   useEffect(() => {
-    if (lightboxIndex === null) return;
-    const handler = (e) => {
-      if (e.key === "Escape") setLightboxIndex(null);
-      if (e.key === "ArrowLeft")
-        setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
-      if (e.key === "ArrowRight")
-        setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [lightboxIndex, photos.length]);
-
-  const fetchPhotos = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos`,
-        { credentials: "include" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "OK") setPhotos(data.photos || []);
-      }
-    } catch {
-      // non-critical, photos just won't refresh
-    }
-  }, [id]);
-
-  const fetchSelections = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/selections`,
-        { credentials: "include" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "OK") setSelections(data.selections || []);
-      }
-    } catch {
-      // non-critical, selections just won't load
-    }
-  }, [id]);
-
-  const fetchEditedPhotos = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/edited`,
-        { credentials: "include" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "OK") setEditedPhotos(data.editedPhotos || []);
-      }
-    } catch {
-      // non-critical, edited photos just won't load
-    }
-  }, [id]);
-
-  useEffect(() => {
-    const fetchCollection = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
-          { credentials: "include" }
-        );
-        if (!response.ok) throw new Error("Failed to fetch collection details");
-        const data = await response.json();
-        if (data.status === "OK") {
-          setCollection(data.collection);
-        } else {
-          setError(data.error || "An unknown error occurred.");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCollection();
     fetchPhotos();
-    fetchSelections();
-  }, [id, fetchPhotos, fetchSelections]);
-
-  // Fetch edited photos when collection is REVIEWING or DELIVERED
-  useEffect(() => {
-    if (collection && (collection.status === 'REVIEWING' || collection.status === 'DELIVERED')) {
-      fetchEditedPhotos();
-    }
-  }, [collection, fetchEditedPhotos]);
-
-  // Reset filter when collection changes
-  useEffect(() => {
-    setFilter('all');
-  }, [id]);
-
-  const uploadFiles = async (files) => {
-    const fileArray = Array.from(files);
-    if (!fileArray.length) return;
-
-    // Client-side validation before uploading
-    const batchId = ++uploadBatchCounter.current;
-    const validFiles = [];
-    const keys = [];
-    let hasValidationErrors = false;
-
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i];
-      const key = `${batchId}-${file.name}-${i}`;
-      keys.push(key);
-
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        setUploadStates((prev) => ({ ...prev, [key]: "invalid-type" }));
-        hasValidationErrors = true;
-        continue;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        setUploadStates((prev) => ({ ...prev, [key]: "too-large" }));
-        hasValidationErrors = true;
-        continue;
-      }
-      validFiles.push({ file, key });
-    }
-
-    if (hasValidationErrors) {
-      toast.error(t("collection.uploadValidationError"));
-    }
-
-    // Mark valid files as uploading
-    if (validFiles.length > 0) {
-      setUploadStates((prev) => {
-        const next = { ...prev };
-        validFiles.forEach(({ key }) => (next[key] = "uploading"));
-        return next;
-      });
-    }
-
-    // Upload with concurrency limiter
-    let idx = 0;
-    let successCount = 0;
-    let autoCoverPhotoId = null;
-    const uploadNext = async () => {
-      while (idx < validFiles.length) {
-        const current = idx++;
-        const { file, key } = validFiles[current];
-        const formData = new FormData();
-        formData.append("file", file);
-        try {
-          const res = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos`,
-            { method: "POST", credentials: "include", body: formData }
-          );
-          if (res.ok) {
-            successCount++;
-            try {
-              const data = await res.json();
-              if (data.autoSetCover && data.photo?.id) {
-                autoCoverPhotoId = data.photo.id;
-              }
-            } catch {
-              // non-critical: response parse failure doesn't block upload
-            }
-            setUploadStates((prev) => ({ ...prev, [key]: "done" }));
-          } else {
-            try {
-              const errData = await res.json();
-              if (errData.error === 'PHOTO_LIMIT_REACHED') {
-                toast.error(t('plans.limitReachedPhotos') + ' ' + t('plans.upgradeHint'));
-              }
-            } catch {
-              // non-critical
-            }
-            setUploadStates((prev) => ({ ...prev, [key]: "error" }));
-          }
-        } catch {
-          setUploadStates((prev) => ({ ...prev, [key]: "error" }));
-        }
-      }
-    };
-
-    const workers = [];
-    for (let w = 0; w < Math.min(MAX_CONCURRENT_UPLOADS, validFiles.length); w++) {
-      workers.push(uploadNext());
-    }
-    await Promise.all(workers);
-
-    if (autoCoverPhotoId) {
-      setCollection((prev) => ({ ...prev, coverPhotoId: autoCoverPhotoId }));
-    }
-
-    await fetchPhotos();
-
-    if (successCount > 0) {
-      toast.success(t("collection.uploadSuccess"));
-      // Auto-collapse upload zone after successful upload
-      setShowUploadZone(false);
-    }
-
-    // Clear done/validation states after a short delay
-    setTimeout(() => {
-      setUploadStates((prev) => {
-        const next = { ...prev };
-        keys.forEach((k) => {
-          if (next[k] === "done" || next[k] === "invalid-type" || next[k] === "too-large") {
-            delete next[k];
-          }
-        });
-        return next;
-      });
-    }, 3000);
-  };
+  }, [fetchPhotos]);
 
   const handleFileChange = (e) => {
-    uploadFiles(e.target.files);
+    uploadFiles(e.target.files, setShowUploadZone);
     e.target.value = "";
   };
 
-  const uploadEditedFiles = async (files) => {
-    const fileArray = Array.from(files);
-    if (!fileArray.length) return;
-
-    // Client-side validation before uploading
-    const batchId = ++uploadBatchCounter.current;
-    const validFiles = [];
-    const keys = [];
-    let hasValidationErrors = false;
-
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i];
-      const key = `edited-${batchId}-${file.name}-${i}`;
-      keys.push(key);
-
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        setEditedUploadStates((prev) => ({ ...prev, [key]: "invalid-type" }));
-        hasValidationErrors = true;
-        continue;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        setEditedUploadStates((prev) => ({ ...prev, [key]: "too-large" }));
-        hasValidationErrors = true;
-        continue;
-      }
-      validFiles.push({ file, key });
-    }
-
-    if (hasValidationErrors) {
-      toast.error(t("collection.uploadValidationError"));
-    }
-
-    // Mark valid files as uploading
-    if (validFiles.length > 0) {
-      setEditedUploadStates((prev) => {
-        const next = { ...prev };
-        validFiles.forEach(({ key }) => (next[key] = "uploading"));
-        return next;
-      });
-    }
-
-    // Upload with concurrency limiter
-    let idx = 0;
-    let successCount = 0;
-    const uploadNext = async () => {
-      while (idx < validFiles.length) {
-        const current = idx++;
-        const { file, key } = validFiles[current];
-        const formData = new FormData();
-        formData.append("file", file);
-        try {
-          const res = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/edited`,
-            { method: "POST", credentials: "include", body: formData }
-          );
-          if (res.ok) {
-            successCount++;
-          }
-          setEditedUploadStates((prev) => ({
-            ...prev,
-            [key]: res.ok ? "done" : "error",
-          }));
-        } catch {
-          setEditedUploadStates((prev) => ({ ...prev, [key]: "error" }));
-        }
-      }
-    };
-
-    const workers = [];
-    for (let w = 0; w < Math.min(MAX_CONCURRENT_UPLOADS, validFiles.length); w++) {
-      workers.push(uploadNext());
-    }
-    await Promise.all(workers);
-
-    await fetchEditedPhotos();
-
-    if (successCount > 0) {
-      toast.success(t("collection.editedUploadSuccess"));
-    }
-
-    // Clear done/validation states after a short delay
-    setTimeout(() => {
-      setEditedUploadStates((prev) => {
-        const next = { ...prev };
-        keys.forEach((k) => {
-          if (next[k] === "done" || next[k] === "invalid-type" || next[k] === "too-large") {
-            delete next[k];
-          }
-        });
-        return next;
-      });
-    }, 3000);
-  };
-
   const handleEditedFileChange = (e) => {
-    uploadEditedFiles(e.target.files);
+    uploadEditedFiles(e.target.files, fetchEditedPhotos);
     e.target.value = "";
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    uploadFiles(e.dataTransfer.files);
+    uploadFiles(e.dataTransfer.files, setShowUploadZone);
   };
 
   const handleDragOver = (e) => {
@@ -393,7 +102,7 @@ function CollectionDetailsPage() {
   const handleEditedDrop = (e) => {
     e.preventDefault();
     setDragOverEdited(false);
-    uploadEditedFiles(e.dataTransfer.files);
+    uploadEditedFiles(e.dataTransfer.files, fetchEditedPhotos);
   };
 
   const handleEditedDragOver = (e) => {
@@ -402,91 +111,6 @@ function CollectionDetailsPage() {
   };
 
   const handleEditedDragLeave = () => setDragOverEdited(false);
-
-  const doDeletePhoto = async (photoId) => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos/${photoId}`,
-        { method: "DELETE", credentials: "include" }
-      );
-      if (res.ok) {
-        const remaining = photos.filter((p) => p.id !== photoId);
-        setPhotos(remaining);
-
-        // Auto-promote cover if the deleted photo was the cover
-        if (collection.coverPhotoId === photoId && remaining.length > 0) {
-          // Find the next photo: the one after the deleted photo in the original list, or first if deleted was last
-          const deletedIndex = photos.findIndex((p) => p.id === photoId);
-          const promotedIndex = deletedIndex < remaining.length ? deletedIndex : 0;
-          const promotedId = remaining[promotedIndex].id;
-
-          // Update local state immediately (optimistic)
-          setCollection((prev) => ({ ...prev, coverPhotoId: promotedId }));
-
-          // Persist to backend
-          try {
-            await fetch(
-              `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
-              {
-                method: "PATCH",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ photoId: promotedId }),
-              }
-            );
-          } catch {
-            // Non-critical: cover badge already updated in UI; backend will be consistent on next load
-          }
-        } else if (collection.coverPhotoId === photoId) {
-          // No remaining photos — clear the cover
-          setCollection((prev) => ({ ...prev, coverPhotoId: null }));
-        }
-
-        // Close lightbox if open
-        setLightboxIndex(null);
-      } else {
-        toast.error(t("collection.deleteError"));
-      }
-    } catch {
-      toast.error(t("collection.deleteError"));
-    }
-  };
-
-  const handleDeletePhoto = (photoId) => {
-    toast(t("collection.confirmDelete"), {
-      position: "bottom-center",
-      action: {
-        label: t("collection.deletePhoto"),
-        onClick: () => doDeletePhoto(photoId),
-      },
-      cancel: {
-        label: t("common.cancel"),
-        onClick: () => {},
-      },
-      duration: 8000,
-    });
-  };
-
-  const handleSetCover = async (photoId) => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ photoId }),
-        }
-      );
-      if (res.ok) {
-        setCollection((prev) => ({ ...prev, coverPhotoId: photoId }));
-      } else {
-        toast.error(t("collection.setCoverError"));
-      }
-    } catch {
-      toast.error(t("collection.setCoverError"));
-    }
-  };
 
   const handleCopyShareLink = () => {
     const url = `${window.location.origin}/share/${collection.shareId}`;
@@ -506,48 +130,6 @@ function CollectionDetailsPage() {
     }).catch(() => {
       toast.error(t('collection.linkCopyFailed'));
     });
-  };
-
-  const handleStartSelecting = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'SELECTING' }),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === 'OK') {
-          setCollection(data.collection);
-          toast.success(t('collection.statusUpdated'));
-        }
-      } else {
-        toast.error(t('collection.statusUpdateError'));
-      }
-    } catch {
-      toast.error(t('collection.statusUpdateError'));
-    }
-  };
-
-  const doDeleteCollection = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        navigate('/collections');
-        toast.success(t('collection.collectionDeleted'));
-      } else {
-        toast.error(t('collection.collectionDeleteError'));
-      }
-    } catch {
-      toast.error(t('collection.collectionDeleteError'));
-    }
   };
 
   const handleDeleteCollection = () => {
@@ -575,64 +157,18 @@ function CollectionDetailsPage() {
   const handleSaveEdit = async () => {
     setIsSavingEdit(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editName, clientName: editClientName, clientEmail: editClientEmail }),
+      const success = await handleSaveEditHook({
+        name: editName,
+        clientName: editClientName,
+        clientEmail: editClientEmail,
       });
-      if (res.ok) {
-        const data = await res.json();
-        setCollection(data.collection);
+      if (success) {
         setShowEditForm(false);
-        toast.success(t('collection.collectionUpdated'));
-      } else {
-        toast.error(t('collection.saveError'));
       }
-    } catch {
-      toast.error(t('collection.saveError'));
     } finally {
       setIsSavingEdit(false);
     }
   };
-
-  const anyUploading = useMemo(
-    () => Object.values(uploadStates).some((s) => s === "uploading"),
-    [uploadStates]
-  );
-  const uploadErrors = useMemo(
-    () => Object.values(uploadStates).filter((s) => s === "error").length,
-    [uploadStates]
-  );
-  const validationErrors = useMemo(
-    () => Object.values(uploadStates).filter((s) => s === "invalid-type" || s === "too-large").length,
-    [uploadStates]
-  );
-
-  const selectedPhotoIds = useMemo(
-    () => new Set(selections.map(s => s.photoId)),
-    [selections]
-  );
-
-  const filteredPhotos = useMemo(() => {
-    if (filter === 'all') return photos;
-    if (filter === 'selected') return photos.filter(p => selectedPhotoIds.has(p.id));
-    if (filter === 'not-selected') return photos.filter(p => !selectedPhotoIds.has(p.id));
-    return photos;
-  }, [filter, photos, selectedPhotoIds]);
-
-  const anyEditedUploading = useMemo(
-    () => Object.values(editedUploadStates).some((s) => s === "uploading"),
-    [editedUploadStates]
-  );
-  const editedUploadErrors = useMemo(
-    () => Object.values(editedUploadStates).filter((s) => s === "error").length,
-    [editedUploadStates]
-  );
-  const editedValidationErrors = useMemo(
-    () => Object.values(editedUploadStates).filter((s) => s === "invalid-type" || s === "too-large").length,
-    [editedUploadStates]
-  );
 
   if (loading) {
     return (
@@ -1198,7 +734,7 @@ function CollectionDetailsPage() {
                 <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
                   {/* Thumbnail — click opens lightbox */}
                   <button
-                    onClick={() => setLightboxIndex(photoIndex)}
+                    onClick={() => lightbox.open(photoIndex)}
                     className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
                     aria-label={photo.filename}
                   >
@@ -1260,7 +796,7 @@ function CollectionDetailsPage() {
             {editedPhotos.map((photo, index) => (
               <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
                 <button
-                  onClick={() => setEditedLightboxIndex(index)}
+                  onClick={() => editedLightbox.open(index)}
                   className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
                   aria-label={photo.filename}
                 >
@@ -1278,15 +814,15 @@ function CollectionDetailsPage() {
       )}
 
       {/* ── Edited Photos Lightbox ── */}
-      {editedLightboxIndex !== null && editedPhotos[editedLightboxIndex] && (
+      {editedLightbox.lightboxIndex !== null && editedPhotos[editedLightbox.lightboxIndex] && (
         <div
           className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center"
-          onClick={() => setEditedLightboxIndex(null)}
+          onClick={() => editedLightbox.close()}
         >
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setEditedLightboxIndex((i) => (i > 0 ? i - 1 : editedPhotos.length - 1));
+              editedLightbox.prev();
             }}
             aria-label={t("collection.lightboxPrev")}
             className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
@@ -1296,15 +832,15 @@ function CollectionDetailsPage() {
             </svg>
           </button>
           <img
-            src={photoUrl(editedPhotos[editedLightboxIndex].storagePath)}
-            alt={editedPhotos[editedLightboxIndex].filename}
+            src={photoUrl(editedPhotos[editedLightbox.lightboxIndex].storagePath)}
+            alt={editedPhotos[editedLightbox.lightboxIndex].filename}
             className="max-w-[88vw] max-h-[88vh] object-contain rounded-[4px] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setEditedLightboxIndex((i) => (i < editedPhotos.length - 1 ? i + 1 : 0));
+              editedLightbox.next();
             }}
             aria-label={t("collection.lightboxNext")}
             className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
@@ -1314,29 +850,29 @@ function CollectionDetailsPage() {
             </svg>
           </button>
           <button
-            onClick={() => setEditedLightboxIndex(null)}
+            onClick={() => editedLightbox.close()}
             aria-label={t("collection.lightboxClose")}
             className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center font-bold text-xl transition-colors z-10 border border-white/30 cursor-pointer"
           >
             ×
           </button>
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/60 text-sm select-none">
-            {editedLightboxIndex + 1} / {editedPhotos.length}
+            {editedLightbox.lightboxIndex + 1} / {editedPhotos.length}
           </div>
         </div>
       )}
 
       {/* ── Lightbox ── */}
-      {lightboxIndex !== null && photos[lightboxIndex] && (
+      {lightbox.lightboxIndex !== null && photos[lightbox.lightboxIndex] && (
         <div
           className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center"
-          onClick={() => setLightboxIndex(null)}
+          onClick={() => lightbox.close()}
         >
           {/* Prev arrow */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
+              lightbox.prev();
             }}
             aria-label={t("collection.lightboxPrev")}
             className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
@@ -1348,8 +884,8 @@ function CollectionDetailsPage() {
 
           {/* Image */}
           <img
-            src={photoUrl(photos[lightboxIndex].storagePath)}
-            alt={photos[lightboxIndex].filename}
+            src={photoUrl(photos[lightbox.lightboxIndex].storagePath)}
+            alt={photos[lightbox.lightboxIndex].filename}
             className="max-w-[88vw] max-h-[88vh] object-contain rounded-[4px] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
@@ -1358,7 +894,7 @@ function CollectionDetailsPage() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
+              lightbox.next();
             }}
             aria-label={t("collection.lightboxNext")}
             className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors z-10 border border-white/30 cursor-pointer"
@@ -1370,7 +906,7 @@ function CollectionDetailsPage() {
 
           {/* Close button */}
           <button
-            onClick={() => setLightboxIndex(null)}
+            onClick={() => lightbox.close()}
             aria-label={t("collection.lightboxClose")}
             className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center font-bold text-xl transition-colors z-10 border border-white/30 cursor-pointer"
           >
@@ -1379,7 +915,7 @@ function CollectionDetailsPage() {
 
           {/* Counter */}
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/60 text-sm select-none">
-            {lightboxIndex + 1} / {photos.length}
+            {lightbox.lightboxIndex + 1} / {photos.length}
           </div>
         </div>
       )}

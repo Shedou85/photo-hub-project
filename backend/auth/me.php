@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../helpers/session.php';
 
-session_start();
+$sessionValid = startSessionWithTimeout();
 
-if (!isset($_SESSION['user_id'])) {
+if (!$sessionValid || !isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(["error" => "Not authenticated"]);
     exit;
