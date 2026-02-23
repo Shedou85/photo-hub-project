@@ -84,6 +84,7 @@ CREATE TABLE `Collection` (
   `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
   `allowPromotionalUse` BOOLEAN NOT NULL DEFAULT false,
   `coverPhotoId` VARCHAR(191) NULL,
+  `sourceFolder` VARCHAR(500) NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `Collection_shareId_key` (`shareId`),
   UNIQUE KEY `Collection_deliveryToken_key` (`deliveryToken`),

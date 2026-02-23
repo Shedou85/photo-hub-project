@@ -12,6 +12,7 @@ import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
+import { generateLightroomScript } from '../utils/lightroomScript';
 
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -60,6 +61,7 @@ function CollectionDetailsPage() {
   const [editName, setEditName] = useState('');
   const [editClientName, setEditClientName] = useState('');
   const [editClientEmail, setEditClientEmail] = useState('');
+  const [editSourceFolder, setEditSourceFolder] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const { user } = useAuth();
@@ -151,6 +153,7 @@ function CollectionDetailsPage() {
     setEditName(collection.name || '');
     setEditClientName(collection.clientName || '');
     setEditClientEmail(collection.clientEmail || '');
+    setEditSourceFolder(collection.sourceFolder || '');
     setShowEditForm(f => !f);
   };
 
@@ -161,6 +164,7 @@ function CollectionDetailsPage() {
         name: editName,
         clientName: editClientName,
         clientEmail: editClientEmail,
+        sourceFolder: editSourceFolder,
       });
       if (success) {
         setShowEditForm(false);
@@ -168,6 +172,20 @@ function CollectionDetailsPage() {
     } finally {
       setIsSavingEdit(false);
     }
+  };
+
+  const handleOpenInLightroom = () => {
+    if (!collection.sourceFolder) {
+      toast.error(t('collection.sourceFolderRequired'));
+      return;
+    }
+    const selectedPhotos = photos.filter(p => selectedPhotoIds.has(p.id));
+    if (selectedPhotos.length === 0) {
+      toast.error(t('collection.noSelectedPhotos'));
+      return;
+    }
+    generateLightroomScript(collection.sourceFolder, selectedPhotos, collection.name);
+    toast.success(t('collection.lightroomScriptGenerated'));
   };
 
   if (loading) {
@@ -374,6 +392,19 @@ function CollectionDetailsPage() {
                   <p className="text-white/75 text-sm m-0 mt-1">{t('collection.uploadFinalsHeroDesc')}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-center">
+                  {selectedPhotoIds.size > 0 && (
+                    <Button
+                      variant="secondary"
+                      onClick={handleOpenInLightroom}
+                      disabled={!collection.sourceFolder}
+                      title={!collection.sourceFolder ? t('collection.sourceFolderRequired') : ''}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {t('collection.openInLightroom')}
+                    </Button>
+                  )}
                   <button
                     onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
                     className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
@@ -397,6 +428,9 @@ function CollectionDetailsPage() {
                 )}
                 {editedPhotos.length === 0 && (
                   <p className="text-white/60 text-xs m-0">{t('collection.markAsDeliveredHint')}</p>
+                )}
+                {selectedPhotoIds.size > 0 && !collection.sourceFolder && (
+                  <p className="text-white/60 text-xs m-0">{t('collection.setSourceFolderHint')}</p>
                 )}
               </div>
             )}
@@ -487,6 +521,17 @@ function CollectionDetailsPage() {
                 onChange={e => setEditClientEmail(e.target.value)}
                 className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editSourceFolder')}</label>
+              <input
+                type="text"
+                value={editSourceFolder}
+                onChange={e => setEditSourceFolder(e.target.value)}
+                placeholder={t('collection.sourceFolderPlaceholder')}
+                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="text-[11px] text-gray-400 mt-1 mb-0">{t('collection.sourceFolderHint')}</p>
             </div>
           </div>
           <div className="flex gap-2 mt-4">
