@@ -18,7 +18,7 @@ try {
 
     $hashedToken = hash('sha256', $token);
 
-    $stmt = $pdo->prepare("SELECT id FROM `User` WHERE emailVerificationToken = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id FROM `User` WHERE emailVerificationToken = ? AND emailVerificationTokenExpires > NOW() LIMIT 1");
     $stmt->execute([$hashedToken]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -29,7 +29,7 @@ try {
     }
 
     $stmt = $pdo->prepare(
-        "UPDATE `User` SET emailVerified = true, emailVerificationToken = NULL, updatedAt = NOW(3) WHERE id = ?"
+        "UPDATE `User` SET emailVerified = true, emailVerificationToken = NULL, emailVerificationTokenExpires = NULL, updatedAt = NOW(3) WHERE id = ?"
     );
     $stmt->execute([$user['id']]);
 

@@ -138,11 +138,11 @@ function ForgotPasswordPage() {
               <h1 className="font-serif-display text-2xl font-bold text-white mb-3 mt-0">
                 {t("passwordReset.forgotTitle")}
               </h1>
-              <p className="text-white/50 text-sm mb-6">{t("passwordReset.forgotDesc")}</p>
+              <p className="text-white/70 text-sm mb-6">{t("passwordReset.forgotDesc")}</p>
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-6">
-                  <label htmlFor="email" className="block mb-1 text-sm font-medium text-white/50">
+                  <label htmlFor="email" className="block mb-1 text-sm font-medium text-white/60">
                     {t("passwordReset.emailLabel")}
                   </label>
                   <input

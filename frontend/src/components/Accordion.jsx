@@ -7,7 +7,7 @@ function Accordion({ title, children, defaultOpen = false }) {
     <div className="bg-white border border-gray-200 rounded-[10px] mb-5 transition-all duration-700">
       {/* Accordion Header */}
       <div
-        className="flex items-center justify-between px-6 py-4 cursor-pointer select-none"
+        className="flex items-center justify-between px-6 py-4 cursor-pointer select-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
         role="button"
         aria-expanded={isOpen}

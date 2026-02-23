@@ -39,11 +39,12 @@ try {
 
     $rawToken    = bin2hex(random_bytes(32));
     $hashedToken = hash('sha256', $rawToken);
+    $tokenExpiresAt = date('Y-m-d H:i:s.v', strtotime('+24 hours'));
 
     $stmt = $pdo->prepare(
-        "UPDATE `User` SET emailVerificationToken = ?, updatedAt = NOW(3) WHERE id = ?"
+        "UPDATE `User` SET emailVerificationToken = ?, emailVerificationTokenExpires = ?, updatedAt = NOW(3) WHERE id = ?"
     );
-    $stmt->execute([$hashedToken, $user['id']]);
+    $stmt->execute([$hashedToken, $tokenExpiresAt, $user['id']]);
 
     $verifyUrl = 'https://pixelforge.pro/verify-email?token=' . urlencode($rawToken);
     sendVerificationEmail($email, $verifyUrl);

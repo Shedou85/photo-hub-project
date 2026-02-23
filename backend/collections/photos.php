@@ -111,53 +111,62 @@ try {
             exit;
         }
 
-        $createdAt = date('Y-m-d H:i:s.v');
-        $stmt = $pdo->prepare(
-            "INSERT INTO `Photo` (id, filename, storagePath, thumbnailPath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
-        );
-        $stmt->execute([
-            $result['id'],
-            $result['filename'],
-            $result['storagePath'],
-            $result['thumbnailPath'],
-            $collectionId,
-            $createdAt,
-        ]);
-
-        // Auto-cover logic: set coverPhotoId on the collection if it is currently NULL
-        $wasAutoCoverSet = false;
-        $coverStmt = $pdo->prepare("SELECT coverPhotoId FROM `Collection` WHERE id = ? LIMIT 1");
-        $coverStmt->execute([$collectionId]);
-        $collection = $coverStmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($collection && $collection['coverPhotoId'] === null) {
-            $updateCover = $pdo->prepare(
-                "UPDATE `Collection` SET coverPhotoId = ?, updatedAt = ? WHERE id = ?"
+        try {
+            $createdAt = date('Y-m-d H:i:s.v');
+            $stmt = $pdo->prepare(
+                "INSERT INTO `Photo` (id, filename, storagePath, thumbnailPath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
             );
-            $updateCover->execute([$result['id'], date('Y-m-d H:i:s.v'), $collectionId]);
-            $wasAutoCoverSet = true;
-        }
+            $stmt->execute([
+                $result['id'],
+                $result['filename'],
+                $result['storagePath'],
+                $result['thumbnailPath'],
+                $collectionId,
+                $createdAt,
+            ]);
 
-        $response = [
-            "status" => "OK",
-            "photo" => [
-                "id"            => $result['id'],
-                "filename"      => $result['filename'],
-                "storagePath"   => $result['storagePath'],
-                "thumbnailPath" => $result['thumbnailPath'],
-                "createdAt"     => $createdAt,
-            ],
-        ];
+            // Auto-cover logic: set coverPhotoId on the collection if it is currently NULL
+            $wasAutoCoverSet = false;
+            $coverStmt = $pdo->prepare("SELECT coverPhotoId FROM `Collection` WHERE id = ? LIMIT 1");
+            $coverStmt->execute([$collectionId]);
+            $collection = $coverStmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($wasAutoCoverSet) {
-            $response["autoSetCover"] = [
-                "photoId"      => $result['id'],
-                "coverPhotoId" => $result['id'],
+            if ($collection && $collection['coverPhotoId'] === null) {
+                $updateCover = $pdo->prepare(
+                    "UPDATE `Collection` SET coverPhotoId = ?, updatedAt = ? WHERE id = ?"
+                );
+                $updateCover->execute([$result['id'], date('Y-m-d H:i:s.v'), $collectionId]);
+                $wasAutoCoverSet = true;
+            }
+
+            $response = [
+                "status" => "OK",
+                "photo" => [
+                    "id"            => $result['id'],
+                    "filename"      => $result['filename'],
+                    "storagePath"   => $result['storagePath'],
+                    "thumbnailPath" => $result['thumbnailPath'],
+                    "createdAt"     => $createdAt,
+                ],
             ];
-        }
 
-        echo json_encode($response);
-        exit;
+            if ($wasAutoCoverSet) {
+                $response["autoSetCover"] = [
+                    "photoId"      => $result['id'],
+                    "coverPhotoId" => $result['id'],
+                ];
+            }
+
+            echo json_encode($response);
+            exit;
+        } catch (Throwable $e) {
+            // CLEANUP: Remove uploaded files if DB insert failed
+            safeDeleteUploadedFile($result['storagePath']);
+            if (!empty($result['thumbnailPath'])) {
+                safeDeleteUploadedFile($result['thumbnailPath']);
+            }
+            throw $e;
+        }
     }
 
     if ($method === 'DELETE') {

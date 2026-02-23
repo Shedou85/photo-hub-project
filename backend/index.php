@@ -148,12 +148,13 @@ switch ($requestUri) {
                 $rawToken    = bin2hex(random_bytes(32));
                 $hashedVerifyToken = hash('sha256', $rawToken);
 
-                $stmt = $pdo->prepare("INSERT INTO `User` (id, email, emailVerified, emailVerificationToken, password, createdAt, updatedAt, trialEndsAt) VALUES (?, ?, false, ?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO `User` (id, email, emailVerified, emailVerificationToken, emailVerificationTokenExpires, password, createdAt, updatedAt, trialEndsAt) VALUES (?, ?, false, ?, ?, ?, ?, ?, ?)");
 
                 $currentDateTime = date('Y-m-d H:i:s.v');
                 $trialEndsAt = date('Y-m-d H:i:s.v', strtotime('+30 days'));
+                $tokenExpiresAt = date('Y-m-d H:i:s.v', strtotime('+24 hours'));
 
-                $stmt->execute([$userId, $email, $hashedVerifyToken, $hashedPassword, $currentDateTime, $currentDateTime, $trialEndsAt]);
+                $stmt->execute([$userId, $email, $hashedVerifyToken, $tokenExpiresAt, $hashedPassword, $currentDateTime, $currentDateTime, $trialEndsAt]);
 
                 // Send verification email
                 require_once __DIR__ . '/helpers/mailer.php';

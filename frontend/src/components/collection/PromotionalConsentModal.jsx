@@ -149,8 +149,11 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
                   <div
                     key={photo.id}
                     data-photo-item
-                    className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                    className="relative aspect-square rounded-md overflow-hidden cursor-pointer focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     onClick={() => togglePhoto(photo.id)}
+                    tabIndex={0}
+                    role="button"
+                    onKeyDown={(e) => e.key === 'Enter' && togglePhoto(photo.id)}
                   >
                     <img
                       src={src}

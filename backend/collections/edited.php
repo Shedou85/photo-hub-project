@@ -71,20 +71,26 @@ try {
             exit;
         }
 
-        $createdAt = date('Y-m-d H:i:s.v');
-        $stmt = $pdo->prepare("INSERT INTO `EditedPhoto` (id, filename, storagePath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$result['id'], $result['filename'], $result['storagePath'], $collectionId, $createdAt]);
+        try {
+            $createdAt = date('Y-m-d H:i:s.v');
+            $stmt = $pdo->prepare("INSERT INTO `EditedPhoto` (id, filename, storagePath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$result['id'], $result['filename'], $result['storagePath'], $collectionId, $createdAt]);
 
-        echo json_encode([
-            "status" => "OK",
-            "editedPhoto" => [
-                "id" => $result['id'],
-                "filename" => $result['filename'],
-                "storagePath" => $result['storagePath'],
-                "createdAt" => $createdAt
-            ]
-        ]);
-        exit;
+            echo json_encode([
+                "status" => "OK",
+                "editedPhoto" => [
+                    "id" => $result['id'],
+                    "filename" => $result['filename'],
+                    "storagePath" => $result['storagePath'],
+                    "createdAt" => $createdAt
+                ]
+            ]);
+            exit;
+        } catch (Throwable $e) {
+            // CLEANUP: Remove uploaded file if DB insert failed
+            safeDeleteUploadedFile($result['storagePath']);
+            throw $e;
+        }
     }
 
     if ($method === 'DELETE') {

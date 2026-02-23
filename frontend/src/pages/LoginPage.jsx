@@ -219,7 +219,7 @@ function LoginPage() {
           <form onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="mb-4">
-              <label htmlFor="email" className="block mb-1 text-sm font-medium text-white/50">
+              <label htmlFor="email" className="block mb-1 text-sm font-medium text-white/60">
                 {t("login.email")}
               </label>
               <input
@@ -234,7 +234,7 @@ function LoginPage() {
 
             {/* Password field */}
             <div className="mb-2">
-              <label htmlFor="password" className="block mb-1 text-sm font-medium text-white/50">
+              <label htmlFor="password" className="block mb-1 text-sm font-medium text-white/60">
                 {t("login.password")}
               </label>
               <input
@@ -291,7 +291,7 @@ function LoginPage() {
           {/* ── OR divider ──────────────────────────────────────── */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-white/30 uppercase tracking-widest">{t('login.orDivider')}</span>
+            <span className="text-xs text-white/60 uppercase tracking-widest">{t('login.orDivider')}</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 

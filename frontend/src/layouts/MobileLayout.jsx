@@ -81,7 +81,7 @@ const MobileLayout = () => {
           <div className="relative" ref={langDropdownRef}>
           <button
             onClick={() => setLangOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white text-xs font-bold text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white text-xs font-bold text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors duration-150 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             {currentLang.label}
             <span>▾</span>
