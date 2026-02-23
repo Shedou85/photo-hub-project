@@ -47,9 +47,14 @@ try {
             SELECT c.id, c.name, c.status, c.clientName, c.clientEmail, c.shareId,
                    c.coverPhotoId, c.createdAt, c.updatedAt,
                    p.thumbnailPath as coverPhotoPath,
-                   (SELECT COUNT(*) FROM `Photo` ph WHERE ph.collectionId = c.id) as photoCount
+                   COALESCE(pc.photoCount, 0) as photoCount
             FROM `Collection` c
             LEFT JOIN `Photo` p ON c.coverPhotoId = p.id
+            LEFT JOIN (
+                SELECT collectionId, COUNT(*) as photoCount
+                FROM `Photo`
+                GROUP BY collectionId
+            ) pc ON pc.collectionId = c.id
             $whereClause
             ORDER BY c.createdAt DESC
             LIMIT ? OFFSET ?

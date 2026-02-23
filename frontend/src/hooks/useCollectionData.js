@@ -102,6 +102,9 @@ export function useCollectionData(id) {
   }, [id, navigate, t]);
 
   const handleSaveEdit = useCallback(async (editData) => {
+    // Save previous state for rollback
+    const previousCollection = collection;
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
         method: 'PATCH',
@@ -119,10 +122,12 @@ export function useCollectionData(id) {
         return false;
       }
     } catch {
+      // Rollback on failure
+      setCollection(previousCollection);
       toast.error(t('collection.saveError'));
       return false;
     }
-  }, [id, t]);
+  }, [id, t, collection]);
 
   // Initial fetch
   useEffect(() => {

@@ -2,8 +2,46 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
 
-// This is a PUBLIC endpoint — no session_start, no auth check required
-// Authorization is via shareId token in the URL
+// This is a PUBLIC endpoint — no session_start required
+// Authorization is via shareId token in the URL and password/share token headers
+
+// Start session to validate share tokens
+session_start();
+
+/**
+ * Helper function to verify password or share token
+ * Returns true if access is granted, false otherwise
+ */
+function verifyShareAccess($shareId, $collectionPasswordHash) {
+    // Check for share token first (more secure, no password sent)
+    $shareToken = $_SERVER['HTTP_X_SHARE_TOKEN'] ?? '';
+    if (!empty($shareToken)) {
+        $sessionKey = 'share_token_' . $shareId;
+        $sessionTimeKey = 'share_token_' . $shareId . '_time';
+
+        if (isset($_SESSION[$sessionKey]) && $_SESSION[$sessionKey] === $shareToken) {
+            // Check if token has expired (2 hours)
+            $tokenTime = $_SESSION[$sessionTimeKey] ?? 0;
+            if (time() - $tokenTime < 7200) {
+                return true;
+            } else {
+                // Token expired, clear it
+                unset($_SESSION[$sessionKey]);
+                unset($_SESSION[$sessionTimeKey]);
+            }
+        }
+    }
+
+    // Fall back to password check
+    if (!empty($collectionPasswordHash)) {
+        $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
+        if (password_verify($provided, $collectionPasswordHash)) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 try {
     // Parse route parts: /share/{shareId}/selections[/{photoId}]
@@ -35,10 +73,9 @@ try {
         exit;
     }
 
-    // Password check
+    // Password check (with token support)
     if (!empty($collection['password'])) {
-        $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
-        if (!password_verify($provided, $collection['password'])) {
+        if (!verifyShareAccess($shareId, $collection['password'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Password required.', 'passwordRequired' => true]);
             exit;

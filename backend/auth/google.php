@@ -121,6 +121,7 @@ try {
     session_regenerate_id(true);
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role']    = $user['role'];
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
     echo json_encode([
         'status' => 'OK',

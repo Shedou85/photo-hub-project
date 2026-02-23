@@ -21,6 +21,18 @@ function startSessionWithTimeout(): bool {
         }
     }
 
+    // Validate User-Agent binding (session hijack detection)
+    if (isset($_SESSION['user_agent'])) {
+        $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        if ($_SESSION['user_agent'] !== $currentUserAgent) {
+            // User-Agent mismatch — possible session hijack
+            session_unset();
+            session_destroy();
+            session_start();
+            return false;
+        }
+    }
+
     // Update last activity timestamp
     $_SESSION['last_activity'] = time();
     return true;

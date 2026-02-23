@@ -22,6 +22,14 @@ import CookieConsentBanner from './components/CookieConsentBanner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initGA, trackPageView } from './lib/analytics';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   const { isAuthenticated } = useAuth();
 
@@ -45,6 +53,7 @@ function App() {
     <Toaster position="bottom-right" richColors />
     <CookieConsentBanner />
     <ErrorBoundary>
+    <ScrollToTop />
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/collections" replace /> : <HomePage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/collections" replace /> : <LoginPage />} />

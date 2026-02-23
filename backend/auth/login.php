@@ -4,12 +4,18 @@ require_once __DIR__ . '/../helpers/rate-limiter.php';
 
 session_start();
 
-// Tik POST
+// Only POST allowed
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["error" => "Method not allowed"]);
     exit;
 }
+
+// Parse JSON input first (needed for email rate limiting)
+$input = json_decode(file_get_contents("php://input"), true);
+
+$email = $input['email'] ?? '';
+$password = $input['password'] ?? '';
 
 // Rate limit: 5 attempts per 15 minutes per IP
 $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -19,11 +25,14 @@ if (!checkRateLimit('login:' . $clientIp, 5, 900)) {
     exit;
 }
 
-// JSON input
-$input = json_decode(file_get_contents("php://input"), true);
-
-$email = $input['email'] ?? '';
-$password = $input['password'] ?? '';
+// Rate limit: 10 attempts per 30 minutes per email address
+if ($email) {
+    if (!checkRateLimit('login:email:' . strtolower($email), 10, 1800)) {
+        http_response_code(429);
+        echo json_encode(["error" => "Too many login attempts for this email. Please try again later."]);
+        exit;
+    }
+}
 
 if (!$email || !$password) {
     http_response_code(400);
@@ -45,6 +54,10 @@ try {
     $user = $stmt->fetch();
 
     if (!$user || !password_verify($password, $user['password'])) {
+        // Record additional attempt for email rate limiting on failed login
+        if ($email) {
+            checkRateLimit('login:email:' . strtolower($email), 10, 1800);
+        }
         http_response_code(401);
         echo json_encode(["error" => "Invalid credentials"]);
         exit;
@@ -67,6 +80,12 @@ try {
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['last_activity'] = time();
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+    // Clear email rate limit on successful login
+    if ($email) {
+        clearRateLimit('login:email:' . strtolower($email));
+    }
 
     echo json_encode([
         "status" => "OK",

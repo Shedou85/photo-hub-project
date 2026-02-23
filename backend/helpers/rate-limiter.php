@@ -34,3 +34,15 @@ function checkRateLimit(string $key, int $maxAttempts = 5, int $windowSeconds = 
 
     return true; // Allowed
 }
+
+/**
+ * Clear rate limit entries for a given key (e.g., after successful login)
+ */
+function clearRateLimit(string $key): void {
+    $dir = sys_get_temp_dir() . '/photohub_ratelimit';
+    $file = $dir . '/' . md5($key) . '.json';
+
+    if (file_exists($file)) {
+        @unlink($file);
+    }
+}

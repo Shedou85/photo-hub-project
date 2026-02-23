@@ -26,6 +26,7 @@ function SharePage() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [collectionPassword, setCollectionPassword] = useState('');
+  const [shareToken, setShareToken] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState(new Set());
 
   const canSelect = collection?.status === 'SELECTING';
@@ -50,17 +51,20 @@ function SharePage() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      const pwHeader = collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
+      // Use share token if available, otherwise fall back to password
+      const authHeader = shareToken
+        ? { 'X-Share-Token': shareToken }
+        : collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
       if (wasSelected) {
         const res = await fetch(`${baseUrl}/share/${shareId}/selections/${photoId}`, {
           method: 'DELETE',
-          headers: pwHeader,
+          headers: authHeader,
         });
         if (!res.ok) throw new Error('Deselect failed');
       } else {
         const res = await fetch(`${baseUrl}/share/${shareId}/selections`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...pwHeader },
+          headers: { 'Content-Type': 'application/json', ...authHeader },
           body: JSON.stringify({ photoId }),
         });
         if (!res.ok) throw new Error('Select failed');
@@ -88,10 +92,13 @@ function SharePage() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      const pwHeader = collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
+      // Use share token if available, otherwise fall back to password
+      const authHeader = shareToken
+        ? { 'X-Share-Token': shareToken }
+        : collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
       const res = await fetch(`${baseUrl}/share/${shareId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', ...pwHeader },
+        headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({ status: 'REVIEWING' }),
       });
 
@@ -138,7 +145,10 @@ function SharePage() {
     const fetchCollection = async () => {
       try {
         const headers = {};
-        if (collectionPassword) {
+        // Use share token if available, otherwise use password
+        if (shareToken) {
+          headers['X-Share-Token'] = shareToken;
+        } else if (collectionPassword) {
           headers['X-Collection-Password'] = collectionPassword;
         }
         const response = await fetch(
@@ -154,6 +164,7 @@ function SharePage() {
               setPasswordError(!!collectionPassword);
               setPasswordSubmitting(false);
               setCollectionPassword('');
+              setShareToken(null);
               setLoading(false);
               return;
             }
@@ -176,6 +187,11 @@ function SharePage() {
             return;
           }
 
+          // Store share token if provided in response
+          if (data.shareToken) {
+            setShareToken(data.shareToken);
+          }
+
           setPasswordRequired(false);
           setPasswordSubmitting(false);
           setCollection(coll);
@@ -194,7 +210,7 @@ function SharePage() {
     };
 
     fetchCollection();
-  }, [shareId, collectionPassword]);
+  }, [shareId, collectionPassword, shareToken]);
 
   // ── Loading state (skeleton) ──
   if (loading) {

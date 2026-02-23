@@ -233,6 +233,10 @@ export function usePhotoUpload(id, collection, setCollection) {
   }, [id, t]);
 
   const doDeletePhoto = useCallback(async (photoId) => {
+    // Save previous states for rollback
+    const previousPhotos = photos;
+    const previousCoverPhotoId = collection?.coverPhotoId;
+
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos/${photoId}`,
@@ -266,11 +270,20 @@ export function usePhotoUpload(id, collection, setCollection) {
         toast.error(t("collection.deleteError"));
       }
     } catch {
+      // Rollback on failure
+      setPhotos(previousPhotos);
+      setCollection((c) => ({ ...c, coverPhotoId: previousCoverPhotoId }));
       toast.error(t("collection.deleteError"));
     }
-  }, [id, collection?.coverPhotoId, t, setCollection]);
+  }, [id, collection?.coverPhotoId, t, setCollection, photos]);
 
   const handleSetCover = useCallback(async (photoId) => {
+    // Save previous state for rollback
+    const previousCoverPhotoId = collection?.coverPhotoId;
+
+    // Optimistic update
+    setCollection((prev) => ({ ...prev, coverPhotoId: photoId }));
+
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
@@ -281,15 +294,15 @@ export function usePhotoUpload(id, collection, setCollection) {
           body: JSON.stringify({ photoId }),
         }
       );
-      if (res.ok) {
-        setCollection((prev) => ({ ...prev, coverPhotoId: photoId }));
-      } else {
-        toast.error(t("collection.setCoverError"));
+      if (!res.ok) {
+        throw new Error("Failed to set cover");
       }
     } catch {
+      // Rollback on failure
+      setCollection((prev) => ({ ...prev, coverPhotoId: previousCoverPhotoId }));
       toast.error(t("collection.setCoverError"));
     }
-  }, [id, t, setCollection]);
+  }, [id, t, setCollection, collection?.coverPhotoId]);
 
   const handleDeletePhoto = useCallback((photoId) => {
     toast(t("collection.confirmDelete"), {

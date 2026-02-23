@@ -68,6 +68,23 @@ function RegisterPage() {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) return;
 
+    // Check if Google Sign-In script is already loaded
+    if (window.google?.accounts) {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (r) => googleCallbackRef.current(r),
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { theme: 'filled_black', size: 'large', width: 360, text: 'continue_with' }
+      );
+      return;
+    }
+
+    // Check if script already exists in document
+    const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (existingScript) return;
+
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
@@ -83,9 +100,6 @@ function RegisterPage() {
       );
     };
     document.head.appendChild(script);
-    return () => {
-      script.parentNode?.removeChild(script);
-    };
   }, []);
 
   const validateForm = () => {
