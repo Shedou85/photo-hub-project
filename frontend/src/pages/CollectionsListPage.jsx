@@ -9,6 +9,7 @@ import CollectionCard from "../components/primitives/CollectionCard";
 import CreateCollectionModal from "../components/CreateCollectionModal";
 import ConfirmModal from "../components/primitives/ConfirmModal";
 import { useAuth } from "../contexts/AuthContext";
+import { api } from "../lib/api";
 
 function CollectionsListPage() {
   const navigate = useNavigate();
@@ -53,31 +54,22 @@ function CollectionsListPage() {
 
   const fetchCollections = useCallback(async () => {
     setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.set('page', page);
-      params.set('limit', '12');
+    const params = new URLSearchParams();
+    params.set('page', page);
+    params.set('limit', '12');
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections?${params}`, {
-        credentials: "include",
-      });
+    const { data, error: fetchError } = await api.get(`/collections?${params}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch collections");
-      }
-
-      const data = await response.json();
-      if (data.status === "OK") {
-        setCollections(data.collections);
-        setPagination(data.pagination ?? null);
-      } else {
-        setError(data.error || "An unknown error occurred.");
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (fetchError) {
+      setError(fetchError);
+    } else if (data?.status === "OK") {
+      setCollections(data.collections);
+      setPagination(data.pagination ?? null);
+    } else {
+      setError(data?.error || "An unknown error occurred.");
     }
+
+    setLoading(false);
   }, [page]);
 
   useEffect(() => {
@@ -85,21 +77,15 @@ function CollectionsListPage() {
   }, [fetchCollections]);
 
   const handleCreateCollection = async ({ name, clientName, clientEmail }) => {
-    const createPromise = fetch(`${import.meta.env.VITE_API_BASE_URL}/collections`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, clientName, clientEmail }),
-    }).then(async (response) => {
-      const data = await response.json();
-      if (response.ok && data.status === "OK") {
+    const createPromise = api.post('/collections', { name, clientName, clientEmail }).then(({ data, error: postError }) => {
+      if (!postError && data?.status === "OK") {
         setShowCreateModal(false);
         navigate(`/collection/${data.collection.id}`);
       } else {
-        if (data.error === 'COLLECTION_LIMIT_REACHED') {
+        if (data?.error === 'COLLECTION_LIMIT_REACHED') {
           throw new Error(t('plans.limitReachedCollections') + ' ' + t('plans.upgradeHint'));
         }
-        throw new Error(data.error || t('collections.createFailed'));
+        throw new Error(postError || t('collections.createFailed'));
       }
     });
 
@@ -120,30 +106,25 @@ function CollectionsListPage() {
     if (!deleteTarget) return;
     const { id } = deleteTarget;
     setDeletingId(id);
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
-        method: "DELETE",
-        credentials: "include",
+
+    const { error: deleteError } = await api.delete(`/collections/${id}`);
+
+    if (!deleteError) {
+      setCollections((prev) => {
+        const next = prev.filter((c) => c.id !== id);
+        if (next.length === 0 && page > 1) {
+          setPage((p) => p - 1);
+        }
+        return next;
       });
-      if (res.ok) {
-        setCollections((prev) => {
-          const next = prev.filter((c) => c.id !== id);
-          if (next.length === 0 && page > 1) {
-            setPage((p) => p - 1);
-          }
-          return next;
-        });
-        setPagination((prev) => prev ? { ...prev, total: prev.total - 1 } : prev);
-        toast.success(t('collections.deleteCollectionSuccess'));
-        setDeleteTarget(null);
-      } else {
-        toast.error(t('collections.deleteCollectionFailed'));
-      }
-    } catch {
+      setPagination((prev) => prev ? { ...prev, total: prev.total - 1 } : prev);
+      toast.success(t('collections.deleteCollectionSuccess'));
+      setDeleteTarget(null);
+    } else {
       toast.error(t('collections.deleteCollectionFailed'));
-    } finally {
-      setDeletingId(null);
     }
+
+    setDeletingId(null);
   };
 
   // ── Loading skeleton ──

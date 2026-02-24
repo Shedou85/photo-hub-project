@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { api } from '../lib/api';
 
 const SIDEBAR_WIDTH = 256;
 
@@ -29,14 +30,7 @@ const MainLayout = () => {
   const langDropdownRef = useRef(null);
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (_) {
-      // ignore network errors — still log out locally
-    }
+    await api.post('/logout');
     flushSync(() => logout());
     navigate('/');
   };

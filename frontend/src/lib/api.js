@@ -42,8 +42,10 @@ export async function apiRequest(endpoint, options = {}) {
     await fetchCsrfToken();
   }
 
+  const isFormData = body instanceof FormData;
+
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...customHeaders,
   };
 
@@ -59,7 +61,7 @@ export async function apiRequest(endpoint, options = {}) {
   };
 
   if (body && method !== 'GET') {
-    fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+    fetchOptions.body = isFormData ? body : (typeof body === 'string' ? body : JSON.stringify(body));
   }
 
   if (signal) {

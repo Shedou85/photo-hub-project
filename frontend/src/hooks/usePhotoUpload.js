@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { api } from '../lib/api';
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -17,14 +18,8 @@ export function usePhotoUpload(id, collection, setCollection) {
 
   const fetchPhotos = useCallback(async () => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos`,
-        { credentials: "include" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "OK") setPhotos(data.photos || []);
-      }
+      const { data } = await api.get(`/collections/${id}/photos`);
+      if (data?.status === "OK") setPhotos(data.photos || []);
     } catch { /* non-critical */ }
   }, [id]);
 
@@ -82,26 +77,17 @@ export function usePhotoUpload(id, collection, setCollection) {
         const formData = new FormData();
         formData.append("file", file);
         try {
-          const res = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos`,
-            { method: "POST", credentials: "include", body: formData }
-          );
-          if (res.ok) {
+          const { data, error, status } = await api.post(`/collections/${id}/photos`, formData);
+          if (!error && status >= 200 && status < 300) {
             successCount++;
-            try {
-              const data = await res.json();
-              if (data.autoSetCover && data.photo?.id) {
-                autoCoverPhotoId = data.photo.id;
-              }
-            } catch { /* non-critical */ }
+            if (data?.autoSetCover && data.photo?.id) {
+              autoCoverPhotoId = data.photo.id;
+            }
             setUploadStates((prev) => ({ ...prev, [key]: "done" }));
           } else {
-            try {
-              const errData = await res.json();
-              if (errData.error === 'PHOTO_LIMIT_REACHED') {
-                toast.error(t('plans.limitReachedPhotos') + ' ' + t('plans.upgradeHint'));
-              }
-            } catch { /* non-critical */ }
+            if (data?.error === 'PHOTO_LIMIT_REACHED') {
+              toast.error(t('plans.limitReachedPhotos') + ' ' + t('plans.upgradeHint'));
+            }
             setUploadStates((prev) => ({ ...prev, [key]: "error" }));
           }
         } catch {
@@ -192,14 +178,12 @@ export function usePhotoUpload(id, collection, setCollection) {
         const formData = new FormData();
         formData.append("file", file);
         try {
-          const res = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/edited`,
-            { method: "POST", credentials: "include", body: formData }
-          );
-          if (res.ok) successCount++;
+          const { error, status } = await api.post(`/collections/${id}/edited`, formData);
+          const ok = !error && status >= 200 && status < 300;
+          if (ok) successCount++;
           setEditedUploadStates((prev) => ({
             ...prev,
-            [key]: res.ok ? "done" : "error",
+            [key]: ok ? "done" : "error",
           }));
         } catch {
           setEditedUploadStates((prev) => ({ ...prev, [key]: "error" }));
@@ -238,11 +222,8 @@ export function usePhotoUpload(id, collection, setCollection) {
     const previousCoverPhotoId = collection?.coverPhotoId;
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/photos/${photoId}`,
-        { method: "DELETE", credentials: "include" }
-      );
-      if (res.ok) {
+      const { error } = await api.delete(`/collections/${id}/photos/${photoId}`);
+      if (!error) {
         setPhotos(prev => {
           const remaining = prev.filter((p) => p.id !== photoId);
 
@@ -253,13 +234,8 @@ export function usePhotoUpload(id, collection, setCollection) {
             const promotedId = remaining[promotedIndex].id;
             setCollection((c) => ({ ...c, coverPhotoId: promotedId }));
 
-            // Persist cover change
-            fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`, {
-              method: "PATCH",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ photoId: promotedId }),
-            }).catch(() => {});
+            // Persist cover change (fire-and-forget)
+            api.patch(`/collections/${id}/cover`, { photoId: promotedId }).catch(() => {});
           } else if (collection?.coverPhotoId === photoId) {
             setCollection((c) => ({ ...c, coverPhotoId: null }));
           }
@@ -285,16 +261,8 @@ export function usePhotoUpload(id, collection, setCollection) {
     setCollection((prev) => ({ ...prev, coverPhotoId: photoId }));
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/cover`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ photoId }),
-        }
-      );
-      if (!res.ok) {
+      const { error } = await api.patch(`/collections/${id}/cover`, { photoId });
+      if (error) {
         throw new Error("Failed to set cover");
       }
     } catch {
