@@ -56,7 +56,7 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 ### Cross-Domain Setup
 
 - Frontend: `pixelforge.pro` / Backend API: `api.pixelforge.pro/backend/`
-- PHP sessions with cookies scoped to `.pixelforge.pro`, secure, httponly, SameSite=None
+- PHP sessions with cookies scoped to `.pixelforge.pro`, secure, httponly, SameSite=Lax
 - All frontend API calls use `credentials: "include"`
 
 ### Database
@@ -106,6 +106,20 @@ cd backend && composer install
 | GET/POST | `/collections`      | `_collections/index.php` |
 | GET      | `/collections/{id}` | `_collections/id.php`    |
 | GET      | `/test`, `/db-test` | inline health checks     |
+
+### API Client & CSRF Protection
+
+- **All frontend API calls MUST use the centralized client** from `frontend/src/lib/api.js` — **NEVER use raw `fetch()`**
+- Import: `import { api } from '../lib/api'`
+- Methods: `api.get(path)`, `api.post(path, body)`, `api.patch(path, body)`, `api.put(path, body)`, `api.delete(path)`
+- The client automatically:
+  - Adds `credentials: 'include'` for cross-domain cookies
+  - Fetches and attaches `X-CSRF-Token` header on POST/PATCH/PUT/DELETE
+  - Retries once on 403 CSRF errors with a fresh token
+  - Returns `{ data, error, status }` — never throws
+- **FormData uploads**: Pass `FormData` as body directly — the client auto-detects it, skips `Content-Type` and `JSON.stringify()`
+- **CSRF-exempt routes** (these are the ONLY places where raw `fetch()` is acceptable): `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/resend-verification`, `/auth/google`, `/share/*`, `/deliver/*`
+- Backend CSRF logic: `backend/helpers/csrf.php` — token stored in `$_SESSION['csrf_token']`, validated via `hash_equals()`
 
 ## Key Patterns
 

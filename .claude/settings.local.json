@@ -56,7 +56,14 @@
       "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub diff)",
       "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub log --oneline -5)",
       "Bash(git -C /c/Users/Marius/Documents/Gemini/photo-hub add:*)",
-      "Bash(git -C:*)"
+      "Bash(git -C:*)",
+      "Bash(cd:*)",
+      "Bash(./node_modules/.bin/eslint:*)",
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm.cmd:*)",
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "mcp__plugin_playwright_playwright__browser_evaluate"
     ]
   }
 }
