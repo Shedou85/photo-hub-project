@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import PageHeader from '../components/PageHeader';
+import { api } from '../lib/api';
 
 const ShieldIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,11 +40,11 @@ const AdminPage = () => {
     const fetchStats = async () => {
       setStatsLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/stats`, { credentials: 'include' });
-        const data = await res.json();
-        setStats(data);
-      } catch {
-        // silently ignore — stats will just not show
+        const { data, error } = await api.get('/admin/stats');
+        if (!error) {
+          setStats(data);
+        }
+        // silently ignore errors — stats will just not show
       } finally {
         setStatsLoading(false);
       }
@@ -71,10 +72,13 @@ const AdminPage = () => {
       if (usersFilters.plan) params.set('plan', usersFilters.plan);
       params.set('page', usersFilters.page);
       params.set('limit', usersFilters.limit);
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/users?${params}`, { credentials: 'include' });
-      const data = await res.json();
-      setUsers(data.users ?? []);
-      setUsersMeta(data.pagination ?? null);
+      const { data, error } = await api.get(`/admin/users?${params}`);
+      if (error) {
+        setUsers([]);
+      } else {
+        setUsers(data.users ?? []);
+        setUsersMeta(data.pagination ?? null);
+      }
     } catch {
       setUsers([]);
     } finally {
@@ -87,19 +91,12 @@ const AdminPage = () => {
   const handleUserFieldChange = async (userId, field, value) => {
     setUpdatingUserId(userId);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${userId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [field]: value }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err.error ?? err.message ?? 'Update failed');
+      const { data, error } = await api.patch(`/admin/users/${userId}`, { [field]: value });
+      if (error) {
+        toast.error(data?.error ?? data?.message ?? 'Update failed');
         return;
       }
-      const updated = await res.json();
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, ...updated.user } : u)));
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, ...data.user } : u)));
       toast.success(t('admin.actions.updateSuccess'));
     } catch (e) {
       toast.error(e.message ?? 'Network error');
@@ -111,13 +108,9 @@ const AdminPage = () => {
   const handleDeleteUser = async (userId) => {
     setDeletingUserId(userId);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${userId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err.error ?? t('admin.actions.deleteError'));
+      const { data, error } = await api.delete(`/admin/users/${userId}`);
+      if (error) {
+        toast.error(data?.error ?? t('admin.actions.deleteError'));
         return;
       }
       setUsers((prev) => {
@@ -157,10 +150,13 @@ const AdminPage = () => {
       if (collectionsFilters.status) params.set('status', collectionsFilters.status);
       params.set('page', collectionsFilters.page);
       params.set('limit', collectionsFilters.limit);
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/collections?${params}`, { credentials: 'include' });
-      const data = await res.json();
-      setCollections(data.collections ?? []);
-      setCollectionsMeta(data.pagination ?? null);
+      const { data, error } = await api.get(`/admin/collections?${params}`);
+      if (error) {
+        setCollections([]);
+      } else {
+        setCollections(data.collections ?? []);
+        setCollectionsMeta(data.pagination ?? null);
+      }
     } catch {
       setCollections([]);
     } finally {

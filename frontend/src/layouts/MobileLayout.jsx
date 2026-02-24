@@ -4,6 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import BottomNavigation from '../components/BottomNavigation';
+import { api } from '../lib/api';
 
 /**
  * Mobile layout shell with bottom tab navigation.
@@ -33,14 +34,7 @@ const MobileLayout = () => {
   ];
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (_) {
-      // ignore network errors — still log out locally
-    }
+    await api.post('/logout');
     flushSync(() => logout());
     navigate('/');
   };

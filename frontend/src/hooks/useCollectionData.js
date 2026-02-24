@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { api } from '../lib/api';
 
 export function useCollectionData(id) {
   const navigate = useNavigate();
@@ -14,89 +15,45 @@ export function useCollectionData(id) {
   const [editedPhotos, setEditedPhotos] = useState([]);
 
   const fetchCollection = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
-        { credentials: "include" }
-      );
-      if (!response.ok) throw new Error("Failed to fetch collection details");
-      const data = await response.json();
-      if (data.status === "OK") {
-        setCollection(data.collection);
-      } else {
-        setError(data.error || "An unknown error occurred.");
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    const { data, error: fetchError } = await api.get(`/collections/${id}`);
+    if (!fetchError && data?.status === "OK") {
+      setCollection(data.collection);
+    } else {
+      setError(fetchError || data?.error || "An unknown error occurred.");
     }
+    setLoading(false);
   }, [id]);
 
   const fetchSelections = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/selections`,
-        { credentials: "include" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "OK") setSelections(data.selections || []);
-      }
-    } catch { /* non-critical */ }
+    const { data, error: fetchError } = await api.get(`/collections/${id}/selections`);
+    if (!fetchError && data?.status === "OK") {
+      setSelections(data.selections || []);
+    }
   }, [id]);
 
   const fetchEditedPhotos = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}/edited`,
-        { credentials: "include" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "OK") setEditedPhotos(data.editedPhotos || []);
-      }
-    } catch { /* non-critical */ }
+    const { data, error: fetchError } = await api.get(`/collections/${id}/edited`);
+    if (!fetchError && data?.status === "OK") {
+      setEditedPhotos(data.editedPhotos || []);
+    }
   }, [id]);
 
   const handleStartSelecting = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${id}`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'SELECTING' }),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === 'OK') {
-          setCollection(data.collection);
-          toast.success(t('collection.statusUpdated'));
-        }
-      } else {
-        toast.error(t('collection.statusUpdateError'));
-      }
-    } catch {
+    const { data, error: fetchError } = await api.patch(`/collections/${id}`, { status: 'SELECTING' });
+    if (!fetchError && data?.status === 'OK') {
+      setCollection(data.collection);
+      toast.success(t('collection.statusUpdated'));
+    } else {
       toast.error(t('collection.statusUpdateError'));
     }
   }, [id, t]);
 
   const doDeleteCollection = useCallback(async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        navigate('/collections');
-        toast.success(t('collection.collectionDeleted'));
-      } else {
-        toast.error(t('collection.collectionDeleteError'));
-      }
-    } catch {
+    const { error: fetchError } = await api.delete(`/collections/${id}`);
+    if (!fetchError) {
+      navigate('/collections');
+      toast.success(t('collection.collectionDeleted'));
+    } else {
       toast.error(t('collection.collectionDeleteError'));
     }
   }, [id, navigate, t]);
@@ -105,23 +62,12 @@ export function useCollectionData(id) {
     // Save previous state for rollback
     const previousCollection = collection;
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/collections/${id}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editData),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCollection(data.collection);
-        toast.success(t('collection.collectionUpdated'));
-        return true;
-      } else {
-        toast.error(t('collection.saveError'));
-        return false;
-      }
-    } catch {
+    const { data, error: fetchError } = await api.patch(`/collections/${id}`, editData);
+    if (!fetchError) {
+      setCollection(data.collection);
+      toast.success(t('collection.collectionUpdated'));
+      return true;
+    } else {
       // Rollback on failure
       setCollection(previousCollection);
       toast.error(t('collection.saveError'));
