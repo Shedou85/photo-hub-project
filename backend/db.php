@@ -22,8 +22,7 @@ function getDbConnection() {
         $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
         return $pdo;
     } catch (\PDOException $e) {
-        // In a real app, you would log this error and show a generic message
-        // For now, we'll just throw the exception during development
-        throw new \PDOException($e->getMessage(), (int)$e->getCode());
+        error_log('Database connection error: ' . $e->getMessage());
+        throw new \PDOException('Database connection failed.', (int)$e->getCode());
     }
 }

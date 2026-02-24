@@ -60,7 +60,13 @@ const AdminPage = () => {
   const [updatingUserId, setUpdatingUserId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deletingUserId, setDeletingUserId] = useState(null);
+  const [searchInput, setSearchInput] = useState('');
   const searchTimer = useRef(null);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => clearTimeout(searchTimer.current);
+  }, []);
 
   const fetchUsers = useCallback(async () => {
     setUsersLoading(true);
@@ -131,6 +137,7 @@ const AdminPage = () => {
 
   const handleSearchChange = (e) => {
     const val = e.target.value;
+    setSearchInput(val);
     clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
       setUsersFilters((f) => ({ ...f, search: val, page: 1 }));
@@ -248,7 +255,7 @@ const AdminPage = () => {
             <input
               type="text"
               placeholder={t('admin.users.searchPlaceholder')}
-              defaultValue={usersFilters.search}
+              value={searchInput}
               onChange={handleSearchChange}
               className="flex-1 min-w-[200px] text-sm text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-shadow"
             />

@@ -11,6 +11,8 @@ import ConfirmModal from "../components/primitives/ConfirmModal";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../lib/api";
 
+const PAGE_SIZE = 12;
+
 function CollectionsListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -56,7 +58,7 @@ function CollectionsListPage() {
     setLoading(true);
     const params = new URLSearchParams();
     params.set('page', page);
-    params.set('limit', '12');
+    params.set('limit', String(PAGE_SIZE));
 
     const { data, error: fetchError } = await api.get(`/collections?${params}`);
 
@@ -171,7 +173,6 @@ function CollectionsListPage() {
   }
 
   // ── Pagination helpers ──
-  const PAGE_SIZE = 12;
   const renderPagination = () => {
     if (!pagination || pagination.totalPages <= 1) return null;
 

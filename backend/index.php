@@ -14,14 +14,11 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 
-// Helper function to generate CUIDs (simplified for demonstration)
+// Generate cryptographically secure unique IDs (CUID-compatible length)
 function generateCuid() {
-    // In a real application, consider a more robust CUID library
-    // This is a basic example to match Prisma's CUID length and format.
-    $timestamp = round(microtime(true) * 1000);
-    $random = bin2hex(random_bytes(8)); // 16 characters
-    $counter = uniqid(); // 13 characters, pseudo-random
-    return 'cl' . substr(md5($timestamp . $random . $counter), 0, 22); // 'cl' + 22 chars = 24 chars, similar to Prisma's CUID length
+    $timestamp = dechex(intval(microtime(true) * 1000));
+    $random = bin2hex(random_bytes(12));
+    return 'cl' . substr($timestamp . $random, 0, 22);
 }
 
 

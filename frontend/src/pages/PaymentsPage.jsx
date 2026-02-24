@@ -57,8 +57,8 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
 
           {/* Features */}
           <ul className="flex flex-col gap-3 flex-1">
-            {features.map((f, i) => (
-              <li key={i} className="flex items-center gap-2.5 text-sm text-gray-600">
+            {features.map((f) => (
+              <li key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
                 <CheckIcon />
                 {f}
               </li>

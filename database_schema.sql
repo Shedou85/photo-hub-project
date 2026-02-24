@@ -331,6 +331,60 @@ ALTER TABLE `Download`
 
 -- --------------------------------------------------------
 --
+-- Table structure for table `AuditLog`
+--
+
+CREATE TABLE `AuditLog` (
+  `id` VARCHAR(191) NOT NULL,
+  `adminUserId` VARCHAR(191) NOT NULL,
+  `action` VARCHAR(100) NOT NULL,
+  `targetEntityType` VARCHAR(50) NOT NULL,
+  `targetEntityId` VARCHAR(191) NOT NULL,
+  `targetEmail` VARCHAR(191) NULL,
+  `changes` JSON NULL,
+  `ipAddress` VARCHAR(45) NULL,
+  `userAgent` VARCHAR(500) NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  KEY `AuditLog_adminUserId_idx` (`adminUserId`),
+  KEY `AuditLog_targetEntityId_idx` (`targetEntityId`),
+  KEY `AuditLog_action_idx` (`action`),
+  KEY `AuditLog_createdAt_idx` (`createdAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Constraints for table `AuditLog`
+--
+ALTER TABLE `AuditLog`
+  ADD CONSTRAINT `AuditLog_adminUserId_fkey` FOREIGN KEY (`adminUserId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- --------------------------------------------------------
+--
 -- Migration: Drop PromotionalPhoto.photoId FK (now references EditedPhoto, validated in PHP)
 --
 -- ALTER TABLE `PromotionalPhoto` DROP FOREIGN KEY `PromotionalPhoto_photoId_fkey`;
+
+-- --------------------------------------------------------
+--
+-- Migration: Create AuditLog table (run on existing databases)
+--
+-- CREATE TABLE `AuditLog` (
+--   `id` VARCHAR(191) NOT NULL,
+--   `adminUserId` VARCHAR(191) NOT NULL,
+--   `action` VARCHAR(100) NOT NULL,
+--   `targetEntityType` VARCHAR(50) NOT NULL,
+--   `targetEntityId` VARCHAR(191) NOT NULL,
+--   `targetEmail` VARCHAR(191) NULL,
+--   `changes` JSON NULL,
+--   `ipAddress` VARCHAR(45) NULL,
+--   `userAgent` VARCHAR(500) NULL,
+--   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+--   PRIMARY KEY (`id`),
+--   KEY `AuditLog_adminUserId_idx` (`adminUserId`),
+--   KEY `AuditLog_targetEntityId_idx` (`targetEntityId`),
+--   KEY `AuditLog_action_idx` (`action`),
+--   KEY `AuditLog_createdAt_idx` (`createdAt`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- ALTER TABLE `AuditLog`
+--   ADD CONSTRAINT `AuditLog_adminUserId_fkey` FOREIGN KEY (`adminUserId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

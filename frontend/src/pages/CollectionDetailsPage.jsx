@@ -14,6 +14,11 @@ import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
 import { generateLightroomScript } from '../utils/lightroomScript';
 
+const EXPIRED_TRIAL_PHOTO_LIMIT = 30;
+const STANDARD_PHOTO_LIMIT = 500;
+const PHOTO_LIMIT_WARNING_BUFFER = 5;
+const DELETE_CONFIRM_DURATION = 8000;
+
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
   const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
@@ -67,10 +72,10 @@ function CollectionDetailsPage() {
   const { user } = useAuth();
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
-  const photoLimit = isExpiredTrial ? 30 : (isActiveTrial || user?.plan === 'STANDARD') ? 500 : null;
+  const photoLimit = isExpiredTrial ? EXPIRED_TRIAL_PHOTO_LIMIT : (isActiveTrial || user?.plan === 'STANDARD') ? STANDARD_PHOTO_LIMIT : null;
   const photoCount = photos.length;
   const atPhotoLimit = photoLimit !== null && photoCount >= photoLimit;
-  const nearPhotoLimit = photoLimit !== null && photoCount >= (photoLimit - 5);
+  const nearPhotoLimit = photoLimit !== null && photoCount >= (photoLimit - PHOTO_LIMIT_WARNING_BUFFER);
   const showPhotoLimit = photoLimit !== null;
 
   // Fetch photos on mount
@@ -145,7 +150,7 @@ function CollectionDetailsPage() {
         label: t('common.cancel'),
         onClick: () => {},
       },
-      duration: 8000,
+      duration: DELETE_CONFIRM_DURATION,
     });
   };
 
@@ -304,7 +309,7 @@ function CollectionDetailsPage() {
                   {steps.length > 0 && (
                     <div className="flex items-start gap-0 mb-5">
                       {steps.map((step, idx) => (
-                        <div key={idx} className="flex items-start" style={{ flex: idx < steps.length - 1 ? '1 1 0%' : '0 0 auto' }}>
+                        <div key={step} className="flex items-start" style={{ flex: idx < steps.length - 1 ? '1 1 0%' : '0 0 auto' }}>
                           <div className="flex flex-col items-center gap-1 min-w-0">
                             <div className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0
                               ${idx < activeStep ? 'bg-blue-600 text-white' : ''}

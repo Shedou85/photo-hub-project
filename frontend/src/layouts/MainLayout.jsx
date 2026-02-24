@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 
 const SIDEBAR_WIDTH = 256;
+const MS_PER_DAY = 86_400_000;
 
 const NAV_ITEMS = () => [
   { to: '/profile', key: 'nav.profile', icon: '👤' },
@@ -62,7 +63,7 @@ const MainLayout = () => {
   }
 
   const daysLeft = user?.trialEndsAt
-    ? Math.max(0, Math.ceil((new Date(user.trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.ceil((new Date(user.trialEndsAt) - new Date()) / MS_PER_DAY))
     : null;
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL' && daysLeft !== null;
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';

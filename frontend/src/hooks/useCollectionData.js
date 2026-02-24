@@ -59,8 +59,9 @@ export function useCollectionData(id) {
   }, [id, navigate, t]);
 
   const handleSaveEdit = useCallback(async (editData) => {
-    // Save previous state for rollback
-    const previousCollection = collection;
+    // Save previous state for rollback via functional updater
+    let previousCollection = null;
+    setCollection((prev) => { previousCollection = prev; return prev; });
 
     const { data, error: fetchError } = await api.patch(`/collections/${id}`, editData);
     if (!fetchError) {
@@ -73,7 +74,7 @@ export function useCollectionData(id) {
       toast.error(t('collection.saveError'));
       return false;
     }
-  }, [id, t, collection]);
+  }, [id, t]);
 
   // Initial fetch
   useEffect(() => {

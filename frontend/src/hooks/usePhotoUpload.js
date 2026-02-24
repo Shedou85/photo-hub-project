@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { api } from '../lib/api';
@@ -6,6 +6,8 @@ import { api } from '../lib/api';
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const MAX_CONCURRENT_UPLOADS = 3;
+const UPLOAD_STATE_CLEANUP_DELAY = 3000;
+const DELETE_CONFIRM_DURATION = 8000;
 
 export function usePhotoUpload(id, collection, setCollection) {
   const { t } = useTranslation();
@@ -13,8 +15,14 @@ export function usePhotoUpload(id, collection, setCollection) {
   const [uploadStates, setUploadStates] = useState({});
   const [editedUploadStates, setEditedUploadStates] = useState({});
   const uploadBatchCounter = useRef(0);
+  const cleanupTimers = useRef([]);
   // Queue for thread-safe concurrent uploads (#11 race condition fix)
   const uploadQueueRef = useRef([]);
+
+  // Cleanup all pending timers on unmount
+  useEffect(() => {
+    return () => cleanupTimers.current.forEach(clearTimeout);
+  }, []);
 
   const fetchPhotos = useCallback(async () => {
     try {
@@ -113,17 +121,18 @@ export function usePhotoUpload(id, collection, setCollection) {
       if (setShowUploadZone) setShowUploadZone(false);
     }
 
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       setUploadStates((prev) => {
         const next = { ...prev };
         keys.forEach((k) => {
-          if (next[k] === "done" || next[k] === "invalid-type" || next[k] === "too-large") {
+          if (next[k] === "done" || next[k] === "error" || next[k] === "invalid-type" || next[k] === "too-large") {
             delete next[k];
           }
         });
         return next;
       });
-    }, 3000);
+    }, UPLOAD_STATE_CLEANUP_DELAY);
+    cleanupTimers.current.push(timerId);
   }, [id, t, fetchPhotos, setCollection]);
 
   const uploadEditedFiles = useCallback(async (files, fetchEditedPhotos) => {
@@ -203,17 +212,18 @@ export function usePhotoUpload(id, collection, setCollection) {
       toast.success(t("collection.editedUploadSuccess"));
     }
 
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       setEditedUploadStates((prev) => {
         const next = { ...prev };
         keys.forEach((k) => {
-          if (next[k] === "done" || next[k] === "invalid-type" || next[k] === "too-large") {
+          if (next[k] === "done" || next[k] === "error" || next[k] === "invalid-type" || next[k] === "too-large") {
             delete next[k];
           }
         });
         return next;
       });
-    }, 3000);
+    }, UPLOAD_STATE_CLEANUP_DELAY);
+    cleanupTimers.current.push(timerId);
   }, [id, t]);
 
   const doDeletePhoto = useCallback(async (photoId) => {
@@ -283,7 +293,7 @@ export function usePhotoUpload(id, collection, setCollection) {
         label: t("common.cancel"),
         onClick: () => {},
       },
-      duration: 8000,
+      duration: DELETE_CONFIRM_DURATION,
     });
   }, [t, doDeletePhoto]);
 

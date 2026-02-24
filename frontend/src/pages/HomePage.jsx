@@ -51,8 +51,8 @@ function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badg
         </div>
       </div>
       <ul className="flex flex-col gap-3 mb-8 flex-1">
-        {features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2.5 text-sm text-white/70">
+        {features.map((f) => (
+          <li key={f} className="flex items-start gap-2.5 text-sm text-white/70">
             {CHECK_ICON}
             {f}
           </li>
@@ -71,6 +71,8 @@ function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badg
     </div>
   );
 }
+
+const MAX_PROMO_PHOTOS = 12;
 
 function HomePage() {
   const { t, i18n } = useTranslation();
@@ -103,7 +105,7 @@ function HomePage() {
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data?.status === 'OK' && data.photos?.length > 0) {
-          setPromoPhotos(data.photos.slice(0, 12));
+          setPromoPhotos(data.photos.slice(0, MAX_PROMO_PHOTOS));
         }
       })
       .catch(() => {});
@@ -403,6 +405,7 @@ function HomePage() {
                       src={src}
                       alt=""
                       className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
                       onError={(e) => { e.target.closest('.break-inside-avoid')?.classList.add('hidden'); }}
                     />
                   </div>

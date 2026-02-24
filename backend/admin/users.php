@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 
 session_start();
 require_once __DIR__ . '/../admin/auth-check.php';
+require_once __DIR__ . '/../helpers/audit-logger.php';
 
 // Parse target user ID from the URI: /admin/users/{id}
 $uriParts    = explode('/', ltrim($requestUri, '/'));
@@ -146,6 +147,17 @@ try {
             exit;
         }
 
+        // Fetch current values for audit diff
+        $beforeStmt = $pdo->prepare("SELECT role, status, plan, email FROM `User` WHERE id = ? LIMIT 1");
+        $beforeStmt->execute([$targetUserId]);
+        $beforeUser = $beforeStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$beforeUser) {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found.']);
+            exit;
+        }
+
         $setParts = [];
         $params   = [];
 
@@ -214,6 +226,25 @@ try {
         $fetchStmt->execute([$targetUserId]);
         $user = $fetchStmt->fetch(PDO::FETCH_ASSOC);
 
+        // Audit log — record each changed field
+        $auditChanges = [];
+        foreach (['role', 'status', 'plan'] as $field) {
+            if (isset($data[$field]) && $data[$field] !== $beforeUser[$field]) {
+                $auditChanges[$field] = ['before' => $beforeUser[$field], 'after' => $data[$field]];
+            }
+        }
+        if (!empty($auditChanges)) {
+            logAuditAction(
+                $pdo,
+                $_SESSION['user_id'],
+                'USER_UPDATED',
+                'USER',
+                $targetUserId,
+                $auditChanges,
+                $beforeUser['email']
+            );
+        }
+
         echo json_encode(['status' => 'OK', 'user' => $user]);
         exit;
     }
@@ -236,7 +267,7 @@ try {
         }
 
         // Fetch target user to verify existence and role
-        $checkStmt = $pdo->prepare("SELECT id, role FROM `User` WHERE id = ? LIMIT 1");
+        $checkStmt = $pdo->prepare("SELECT id, email, role FROM `User` WHERE id = ? LIMIT 1");
         $checkStmt->execute([$targetUserId]);
         $targetUser = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -252,6 +283,17 @@ try {
             echo json_encode(['error' => 'Admin accounts cannot be deleted. Demote the user to USER first.']);
             exit;
         }
+
+        // Audit log — record before deletion (FK CASCADE will remove this user's data)
+        logAuditAction(
+            $pdo,
+            $_SESSION['user_id'],
+            'USER_DELETED',
+            'USER',
+            $targetUserId,
+            ['deleted' => true],
+            $targetUser['email']
+        );
 
         // Perform deletion — CASCADE constraints handle Collections, Photos, etc.
         $deleteStmt = $pdo->prepare("DELETE FROM `User` WHERE id = ?");
