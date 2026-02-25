@@ -143,6 +143,10 @@ const MainLayout = () => {
 
           {/* Sidebar footer */}
           <div className="py-3.5 px-5 border-t border-white/[0.08] text-xs text-sidebar-footer">
+            <a href="mailto:pixelforge@pixelforge.pro"
+               className="flex items-center gap-1.5 text-sidebar-footer hover:text-white transition-colors duration-150 no-underline mb-2">
+              ✉ {t('nav.contact')}
+            </a>
             © {new Date().getFullYear()} PixelForge
           </div>
         </aside>

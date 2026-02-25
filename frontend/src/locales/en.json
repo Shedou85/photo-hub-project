@@ -8,7 +8,8 @@
     "payments": "Payments",
     "admin": "Admin",
     "logout": "Sign out",
-    "mainNavigation": "Main navigation"
+    "mainNavigation": "Main navigation",
+    "contact": "pixelforge@pixelforge.pro"
   },
   "home": {
     "navLogin": "Login",

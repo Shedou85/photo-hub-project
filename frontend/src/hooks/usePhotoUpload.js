@@ -16,12 +16,11 @@ export function usePhotoUpload(id, collection, setCollection) {
   const [editedUploadStates, setEditedUploadStates] = useState({});
   const uploadBatchCounter = useRef(0);
   const cleanupTimers = useRef([]);
-  // Queue for thread-safe concurrent uploads (#11 race condition fix)
-  const uploadQueueRef = useRef([]);
 
   // Cleanup all pending timers on unmount
   useEffect(() => {
-    return () => cleanupTimers.current.forEach(clearTimeout);
+    const timers = cleanupTimers.current;
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   const fetchPhotos = useCallback(async () => {
@@ -76,7 +75,7 @@ export function usePhotoUpload(id, collection, setCollection) {
     let autoCoverPhotoId = null;
 
     const processNext = async () => {
-      while (true) {
+      for (;;) {
         // Atomically dequeue (safe because JS is single-threaded at this sync point)
         const item = queue.shift();
         if (!item) break;
@@ -179,7 +178,7 @@ export function usePhotoUpload(id, collection, setCollection) {
     let successCount = 0;
 
     const processNext = async () => {
-      while (true) {
+      for (;;) {
         const item = queue.shift();
         if (!item) break;
 

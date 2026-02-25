@@ -87,7 +87,7 @@ export function useCollectionData(id) {
     if (collection && (collection.status === 'REVIEWING' || collection.status === 'DELIVERED')) {
       fetchEditedPhotos();
     }
-  }, [collection?.status, fetchEditedPhotos]);
+  }, [collection, fetchEditedPhotos]);
 
   return {
     collection, setCollection,
