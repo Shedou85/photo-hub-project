@@ -36,7 +36,7 @@ try {
 
     if ($method === 'GET') {
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
@@ -67,7 +67,7 @@ try {
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
 
         $validStatuses = ['DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'ARCHIVED'];
-        $allowed = ['name', 'clientName', 'clientEmail', 'expiresAt', 'allowPromotionalUse', 'sourceFolder'];
+        $allowed = ['name', 'clientName', 'clientEmail', 'expiresAt', 'allowPromotionalUse', 'sourceFolder', 'lightroomPath'];
 
         $setParts = [];
         $params = [];
@@ -123,7 +123,7 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1

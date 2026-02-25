@@ -12,7 +12,7 @@ import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
-import { generateLightroomScript } from '../utils/lightroomScript';
+
 
 const EXPIRED_TRIAL_PHOTO_LIMIT = 30;
 const STANDARD_PHOTO_LIMIT = 500;
@@ -179,19 +179,6 @@ function CollectionDetailsPage() {
     }
   };
 
-  const handleOpenInLightroom = () => {
-    if (!collection.sourceFolder) {
-      toast.error(t('collection.sourceFolderRequired'));
-      return;
-    }
-    const selectedPhotos = photos.filter(p => selectedPhotoIds.has(p.id));
-    if (selectedPhotos.length === 0) {
-      toast.error(t('collection.noSelectedPhotos'));
-      return;
-    }
-    generateLightroomScript(collection.sourceFolder, selectedPhotos, collection.name);
-    toast.success(t('collection.lightroomScriptGenerated'));
-  };
 
   if (loading) {
     return (
@@ -397,19 +384,6 @@ function CollectionDetailsPage() {
                   <p className="text-white/75 text-sm m-0 mt-1">{t('collection.uploadFinalsHeroDesc')}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-center">
-                  {selectedPhotoIds.size > 0 && (
-                    <Button
-                      variant="secondary"
-                      onClick={handleOpenInLightroom}
-                      disabled={!collection.sourceFolder}
-                      title={!collection.sourceFolder ? t('collection.sourceFolderRequired') : ''}
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {t('collection.openInLightroom')}
-                    </Button>
-                  )}
                   <button
                     onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
                     className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
