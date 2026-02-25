@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 
 const LANGUAGES = [
   { code: "lt", label: "LT" },
@@ -125,7 +125,9 @@ function ForgotPasswordPage() {
               <h1 className="font-serif-display text-2xl font-bold text-white mb-3 mt-0">
                 {t("passwordReset.successTitle")}
               </h1>
-              <p className="text-white/50 text-sm mb-6">{t("passwordReset.successDesc")}</p>
+              <p className="text-white/50 text-sm mb-6">
+                <Trans i18nKey="passwordReset.successDesc" components={{ 1: <strong className="text-white/70 font-semibold" /> }} />
+              </p>
               <Link
                 to="/login"
                 className="text-indigo-400 hover:text-indigo-300 transition-colors duration-150 no-underline text-sm"

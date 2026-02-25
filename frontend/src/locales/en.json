@@ -82,7 +82,7 @@
     "emailLabel": "Email",
     "sendLink": "Send reset link",
     "successTitle": "Check your email",
-    "successDesc": "If an account exists, a reset link has been sent.",
+    "successDesc": "If an account exists, a reset link has been sent. <1>Check your spam folder</1> if you don't see it in your inbox.",
     "backToLogin": "Back to login",
     "resetTitle": "Set new password",
     "newPassword": "New password",
@@ -535,9 +535,9 @@
     "notVerified": "Your email is not verified. Please check your inbox for the verification link.",
     "resendLink": "Resend verification email",
     "resending": "Sending...",
-    "resendSuccess": "Verification email sent! Check your inbox.",
+    "resendSuccess": "Verification email sent! Check your inbox and spam folder.",
     "checkEmail": "Check your email",
-    "checkEmailDesc": "We've sent a verification link to your email. Click it to activate your account.",
+    "checkEmailDesc": "We've sent a verification link to your email. Click it to activate your account. <1>Check your spam folder</1> if you don't see it in your inbox.",
     "emailSendFailed": "We couldn't send the verification email. Please try the resend option from the login page."
   },
   "cookieConsent": {

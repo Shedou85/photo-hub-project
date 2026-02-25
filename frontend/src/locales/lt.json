@@ -82,7 +82,7 @@
     "emailLabel": "El. paštas",
     "sendLink": "Siųsti nuorodą",
     "successTitle": "Patikrinkite el. paštą",
-    "successDesc": "Jei paskyra egzistuoja, nuoroda buvo išsiųsta.",
+    "successDesc": "Jei paskyra egzistuoja, nuoroda buvo išsiųsta. <1>Patikrinkite spam aplanką</1>, jei nerandate laiško.",
     "backToLogin": "Grįžti į prisijungimą",
     "resetTitle": "Nustatyti naują slaptažodį",
     "newPassword": "Naujas slaptažodis",
@@ -543,9 +543,9 @@
     "notVerified": "Jūsų el. paštas nepatvirtintas. Patikrinkite savo el. pašto dėžutę.",
     "resendLink": "Siųsti patvirtinimo laišką iš naujo",
     "resending": "Siunčiama...",
-    "resendSuccess": "Patvirtinimo laiškas išsiųstas! Patikrinkite el. paštą.",
+    "resendSuccess": "Patvirtinimo laiškas išsiųstas! Patikrinkite el. paštą ir spam aplanką.",
     "checkEmail": "Patikrinkite el. paštą",
-    "checkEmailDesc": "Išsiuntėme patvirtinimo nuorodą į jūsų el. paštą. Spustelėkite ją, kad aktyvuotumėte paskyrą.",
+    "checkEmailDesc": "Išsiuntėme patvirtinimo nuorodą į jūsų el. paštą. Spustelėkite ją, kad aktyvuotumėte paskyrą. <1>Patikrinkite spam aplanką</1>, jei nerandate laiško.",
     "emailSendFailed": "Nepavyko išsiųsti patvirtinimo el. laiško. Pabandykite pakartotinio siuntimo funkciją prisijungimo puslapyje."
   },
   "cookieConsent": {

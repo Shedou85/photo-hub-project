@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 
 const LANGUAGES = [
   { code: "lt", label: "LT" },
@@ -268,7 +268,9 @@ function RegisterPage() {
               </div>
               <h2 className="text-lg font-semibold text-white mb-2">{t('emailVerification.checkEmail')}</h2>
               {emailSentOk ? (
-                <p className="text-white/50 text-sm mb-4">{t('emailVerification.checkEmailDesc')}</p>
+                <p className="text-white/50 text-sm mb-4">
+                  <Trans i18nKey="emailVerification.checkEmailDesc" components={{ 1: <strong className="text-white/70 font-semibold" /> }} />
+                </p>
               ) : (
                 <p className="text-amber-400/80 text-sm mb-4">{t('emailVerification.emailSendFailed')}</p>
               )}
