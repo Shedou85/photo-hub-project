@@ -16,6 +16,7 @@ function RegisterPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [emailSentOk, setEmailSentOk] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
@@ -136,6 +137,7 @@ function RegisterPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setEmailSentOk(true);
 
     if (!validateForm()) {
       return;
@@ -171,6 +173,9 @@ function RegisterPage() {
       }
 
       // Show verification email sent message
+      if (registerData.emailSent === false) {
+        setEmailSentOk(false);
+      }
       setVerificationSent(true);
       setIsSubmitting(false);
     } catch (err) {
@@ -250,13 +255,23 @@ function RegisterPage() {
 
           {verificationSent ? (
             <div className="text-center py-4">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                <svg className="w-7 h-7 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+              <div className={`w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center ${emailSentOk ? 'bg-green-500/20' : 'bg-amber-500/20'}`}>
+                {emailSentOk ? (
+                  <svg className="w-7 h-7 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                ) : (
+                  <svg className="w-7 h-7 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
               </div>
               <h2 className="text-lg font-semibold text-white mb-2">{t('emailVerification.checkEmail')}</h2>
-              <p className="text-white/50 text-sm mb-4">{t('emailVerification.checkEmailDesc')}</p>
+              {emailSentOk ? (
+                <p className="text-white/50 text-sm mb-4">{t('emailVerification.checkEmailDesc')}</p>
+              ) : (
+                <p className="text-amber-400/80 text-sm mb-4">{t('emailVerification.emailSendFailed')}</p>
+              )}
               <Link
                 to="/login"
                 className="text-indigo-400 hover:text-indigo-300 text-sm no-underline transition-colors"

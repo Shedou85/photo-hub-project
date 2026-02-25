@@ -545,7 +545,8 @@
     "resending": "Siunčiama...",
     "resendSuccess": "Patvirtinimo laiškas išsiųstas! Patikrinkite el. paštą.",
     "checkEmail": "Patikrinkite el. paštą",
-    "checkEmailDesc": "Išsiuntėme patvirtinimo nuorodą į jūsų el. paštą. Spustelėkite ją, kad aktyvuotumėte paskyrą."
+    "checkEmailDesc": "Išsiuntėme patvirtinimo nuorodą į jūsų el. paštą. Spustelėkite ją, kad aktyvuotumėte paskyrą.",
+    "emailSendFailed": "Nepavyko išsiųsti patvirtinimo el. laiško. Pabandykite pakartotinio siuntimo funkciją prisijungimo puslapyje."
   },
   "cookieConsent": {
     "title": "Slapukų pranešimas",

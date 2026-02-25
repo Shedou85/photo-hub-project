@@ -537,7 +537,8 @@
     "resending": "Sending...",
     "resendSuccess": "Verification email sent! Check your inbox.",
     "checkEmail": "Check your email",
-    "checkEmailDesc": "We've sent a verification link to your email. Click it to activate your account."
+    "checkEmailDesc": "We've sent a verification link to your email. Click it to activate your account.",
+    "emailSendFailed": "We couldn't send the verification email. Please try the resend option from the login page."
   },
   "cookieConsent": {
     "title": "Cookie Notice",

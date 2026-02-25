@@ -130,13 +130,19 @@ switch ($requestUri) {
                 // Send verification email
                 require_once __DIR__ . '/helpers/mailer.php';
                 $verifyUrl = 'https://pixelforge.pro/verify-email?token=' . urlencode($rawToken);
+                $emailSent = false;
                 try {
-                    sendVerificationEmail($email, $verifyUrl);
+                    $emailSent = sendVerificationEmail($email, $verifyUrl);
                 } catch (Throwable $mailErr) {
                     error_log('Verification email failed: ' . $mailErr->getMessage());
                 }
 
-                echo json_encode(['status' => 'success', 'message' => 'User registered successfully!', 'requiresVerification' => true]);
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'User registered successfully!',
+                    'requiresVerification' => true,
+                    'emailSent' => $emailSent
+                ]);
 
             } catch (PDOException $e) {
                 http_response_code(500);
