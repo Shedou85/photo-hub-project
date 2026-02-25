@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import { api } from "../lib/api";
 import { toast } from "sonner";
 import Accordion from "../components/Accordion"; // Import Accordion component
 import PageHeader from "../components/PageHeader";
@@ -58,26 +59,18 @@ function ProfilePage() {
     event.preventDefault();
     setLoading(true);
 
-    const savePromise = fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/profile/me`,
-      {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, bio }),
-      }
-    ).then(async (response) => {
-      const data = await response.json();
-      if (response.ok && data.status === "OK" && data.user) {
-        login(data.user);
-      } else {
-        throw new Error(
-          data.error || data.message || "The server returned an unexpected response."
-        );
-      }
-    }).finally(() => {
-      setLoading(false);
-    });
+    const savePromise = api.patch('/profile/me', { name, bio })
+      .then(({ data, error }) => {
+        if (error) throw new Error(error);
+        if (data?.status === "OK" && data?.user) {
+          login(data.user);
+        } else {
+          throw new Error(data?.message || "The server returned an unexpected response.");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     toast.promise(savePromise, {
       loading: t('profile.saving'),
