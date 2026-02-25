@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/rate-limiter.php';
 
+header('Content-Type: application/json');
 session_start();
 
 // Only POST allowed
@@ -77,6 +78,8 @@ try {
     }
 
     // OK → įrašom į session
+    session_regenerate_id(true);
+    unset($_SESSION['csrf_token']);
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['last_activity'] = time();

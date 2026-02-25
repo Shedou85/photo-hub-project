@@ -68,9 +68,10 @@ try {
         exit;
     }
 
-    $filePath = __DIR__ . '/../' . $photo['storagePath'];
+    $uploadsBase = realpath(__DIR__ . '/../uploads');
+    $filePath = realpath(__DIR__ . '/../' . $photo['storagePath']);
 
-    if (!file_exists($filePath)) {
+    if (!$filePath || !$uploadsBase || strpos($filePath, $uploadsBase) !== 0 || !file_exists($filePath)) {
         http_response_code(404);
         echo json_encode(['error' => 'Photo file not found on disk']);
         exit;
@@ -108,7 +109,8 @@ try {
     finfo_close($finfo);
 
     header('Content-Type: ' . $mimeType);
-    header('Content-Disposition: attachment; filename="' . addslashes($safeFilename) . '"');
+    $safeFilename = preg_replace('/[^A-Za-z0-9._\- ]/', '_', $safeFilename);
+    header('Content-Disposition: attachment; filename="' . $safeFilename . '"');
     header('Content-Length: ' . $fileSize);
     header('Content-Transfer-Encoding: binary');
     header('Accept-Ranges: bytes');

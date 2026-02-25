@@ -131,11 +131,12 @@ try {
 
     // Stream each photo into the ZIP
     $filesAdded = 0;
+    $uploadsBase = realpath(__DIR__ . '/../uploads');
     foreach ($photos as $photo) {
-        $filePath = __DIR__ . '/../' . $photo['storagePath'];
+        $filePath = realpath(__DIR__ . '/../' . $photo['storagePath']);
 
-        // Skip missing files (log and continue with partial ZIP)
-        if (!file_exists($filePath)) {
+        // Skip files outside uploads directory or missing files
+        if (!$filePath || !$uploadsBase || strpos($filePath, $uploadsBase) !== 0 || !file_exists($filePath)) {
             error_log("ZIP download: Missing file {$filePath} for photo {$photo['id']}, skipping");
             continue;
         }

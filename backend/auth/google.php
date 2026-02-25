@@ -112,6 +112,7 @@ try {
     }
 
     session_regenerate_id(true);
+    unset($_SESSION['csrf_token']);
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role']    = $user['role'];
     $_SESSION['last_activity'] = time();

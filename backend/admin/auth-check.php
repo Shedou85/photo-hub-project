@@ -2,11 +2,9 @@
 // backend/admin/auth-check.php
 // Reusable admin guard — require this at the top of every admin handler.
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../helpers/session.php';
 
-if (!isset($_SESSION['user_id'])) {
+if (!startSessionWithTimeout() || !isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Not authenticated']);
     exit;

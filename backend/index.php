@@ -69,38 +69,6 @@ switch ($requestUri) {
         echo json_encode(['message' => 'Welcome to the Photo-Hub API']);
         break;
         
-    case '/test':
-        if ($requestMethod == 'GET') {
-            echo json_encode(['status' => 'success', 'data' => 'This is a test response from the PHP backend.']);
-        }
-        else {
-            http_response_code(405); // Method Not Allowed
-            echo json_encode(['error' => 'Method Not Allowed']);
-        }
-        break;
-
-    case '/db-test':
-        if ($requestMethod == 'GET') {
-            try {
-                $pdo = getDbConnection();
-                $stmt = $pdo->query('SELECT 1');
-                if ($stmt) {
-                    echo json_encode(['status' => 'success', 'message' => 'Database connection successful!']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['status' => 'error', 'message' => 'Database connection failed: unable to execute query.']);
-                }
-            } catch (PDOException $e) {
-                http_response_code(500);
-                error_log('DB test error: ' . $e->getMessage());
-                echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
-            }
-        } else {
-            http_response_code(405); // Method Not Allowed
-            echo json_encode(['error' => 'Method Not Allowed']);
-        }
-        break;
-
     case '/register':
         if ($requestMethod == 'POST') {
             require_once __DIR__ . '/helpers/rate-limiter.php';
@@ -119,6 +87,12 @@ switch ($requestUri) {
             if (empty($email) || empty($password)) {
                 http_response_code(400); // Bad Request
                 echo json_encode(['status' => 'error', 'message' => 'Email and password are required.']);
+                exit();
+            }
+
+            if (strlen($password) < 8 || strlen($password) > 72) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Password must be between 8 and 72 characters.']);
                 exit();
             }
 
@@ -162,7 +136,7 @@ switch ($requestUri) {
                     error_log('Verification email failed: ' . $mailErr->getMessage());
                 }
 
-                echo json_encode(['status' => 'success', 'message' => 'User registered successfully!', 'userId' => $userId, 'requiresVerification' => true]);
+                echo json_encode(['status' => 'success', 'message' => 'User registered successfully!', 'requiresVerification' => true]);
 
             } catch (PDOException $e) {
                 http_response_code(500);

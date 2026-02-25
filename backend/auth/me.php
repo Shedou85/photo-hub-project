@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/session.php';
 
+header('Content-Type: application/json');
 $sessionValid = startSessionWithTimeout();
 
 if (!$sessionValid || !isset($_SESSION['user_id'])) {

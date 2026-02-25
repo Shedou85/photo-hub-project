@@ -1,9 +1,12 @@
 <?php
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
+require_once __DIR__ . '/../helpers/rate-limiter.php';
 
 // This is a PUBLIC endpoint — no session/auth check required
 // Authentication is handled via password (first request) or session token (subsequent requests)
+
+header('Content-Type: application/json');
 
 // Start session to manage share tokens
 session_start();
@@ -39,7 +42,7 @@ function verifyShareAccess($shareId, $collectionPasswordHash) {
         $sessionKey = 'share_token_' . $shareId;
         $sessionTimeKey = 'share_token_' . $shareId . '_time';
 
-        if (isset($_SESSION[$sessionKey]) && $_SESSION[$sessionKey] === $shareToken) {
+        if (isset($_SESSION[$sessionKey]) && hash_equals($_SESSION[$sessionKey], $shareToken)) {
             // Check if token has expired (2 hours)
             $tokenTime = $_SESSION[$sessionTimeKey] ?? 0;
             if (time() - $tokenTime < 7200) {
@@ -54,6 +57,14 @@ function verifyShareAccess($shareId, $collectionPasswordHash) {
 
     // Fall back to password check
     if (!empty($collectionPasswordHash)) {
+        // Rate limit password attempts: 10 per 15 minutes per IP
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        if (!checkRateLimit('share_pwd:' . $clientIp . ':' . $shareId, 10, 900)) {
+            http_response_code(429);
+            echo json_encode(['error' => 'Too many attempts. Please try again later.']);
+            exit;
+        }
+
         $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
         if (password_verify($provided, $collectionPasswordHash)) {
             return true;

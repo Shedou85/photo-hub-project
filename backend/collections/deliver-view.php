@@ -5,6 +5,8 @@ require_once __DIR__ . '/../utils.php';
 // This is a PUBLIC endpoint — no session/auth check required
 // Delivery token IS the credential
 
+header('Content-Type: application/json');
+
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 if ($requestMethod !== 'GET') {
