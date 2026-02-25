@@ -2,6 +2,14 @@
     "require": {
         "nelmio/cors-bundle": "^2.1",
         "maennchen/zipstream-php": "^3.0",
-        "vlucas/phpdotenv": "^5.5"
+        "vlucas/phpdotenv": "^5.5",
+        "google/apiclient": "^2.16"
+    },
+    "scripts": {
+        "post-install-cmd": "Google\\Task\\Composer::cleanup",
+        "post-update-cmd": "Google\\Task\\Composer::cleanup"
+    },
+    "extra": {
+        "google/apiclient-services": []
     }
 }

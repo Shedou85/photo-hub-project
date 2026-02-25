@@ -17,33 +17,26 @@ try {
         exit();
     }
 
-    // Verify token with Google tokeninfo endpoint
-    $tokeninfoUrl = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($credential);
+    // Verify Google ID token locally using JWT signature verification
+    $client = new Google_Client(['client_id' => $config['google_client_id']]);
+    $payload = $client->verifyIdToken($credential);
 
-    $ch = curl_init($tokeninfoUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    $tokenInfo = json_decode($response, true);
-
-    if (
-        $httpCode !== 200 ||
-        ($tokenInfo['aud'] ?? '') !== $config['google_client_id'] ||
-        ($tokenInfo['email_verified'] ?? '') !== 'true'
-    ) {
+    if (!$payload) {
         http_response_code(401);
         echo json_encode(['error' => 'Invalid Google token']);
         exit();
     }
 
-    $googleId = $tokenInfo['sub'];
-    $email    = $tokenInfo['email'];
-    $name     = $tokenInfo['name'] ?? '';
-    $picture  = $tokenInfo['picture'] ?? null;
+    if (empty($payload['email_verified'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Email not verified with Google']);
+        exit();
+    }
+
+    $googleId = $payload['sub'];
+    $email    = $payload['email'];
+    $name     = $payload['name'] ?? '';
+    $picture  = $payload['picture'] ?? null;
 
     $pdo = getDbConnection();
 

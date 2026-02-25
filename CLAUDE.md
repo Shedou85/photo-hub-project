@@ -23,9 +23,10 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 - **Tailwind CSS v3** for all styling — no inline styles, no CSS modules
 - **react-i18next** for internationalization (LT/EN/RU). Locale files in `frontend/src/locales/`
 - Entry point: `frontend/src/main.jsx` → `App.jsx` (route definitions)
-- Auth state managed via React Context (`contexts/AuthContext.jsx`) with synchronous localStorage initialization
-- `isAuthenticated` is a **boolean** (not a function) exposed from `AuthContext`
-- Protected routes wrap pages with `components/ProtectedRoute.jsx`
+- Auth state managed via React Context (`contexts/AuthContext.jsx`) — **no localStorage**, session restored via `GET /auth/me` on mount
+- `AuthContext` exposes `{ user, login, logout, isAuthenticated, loading }` — `isAuthenticated` is a **boolean**, `loading` is `true` until `/auth/me` resolves
+- `ProtectedRoute` and `AdminRoute` return `null` while `loading` is `true` (prevents flash redirect to /login)
+- `App.jsx` also guards on `loading` before rendering routes (prevents flash of HomePage/LoginPage)
 - `layouts/MainLayout.jsx` provides sidebar navigation for authenticated pages
 - Pages live in `frontend/src/pages/`
 
@@ -126,5 +127,5 @@ cd backend && composer install
 - **Adding a new API endpoint**: Add a `case` to the switch in `backend/index.php`, create a handler file in the appropriate subdirectory
 - **Adding a new page**: Create component in `frontend/src/pages/`, add route in `App.jsx`, wrap with `ProtectedRoute` if auth required. Add i18n keys to all 3 locale files.
 - **Auth check in PHP**: Start session, verify `$_SESSION['user_id']` exists, return 401 if not
-- **Auth check in React**: Use `const { isAuthenticated, user } = useAuth()` — `isAuthenticated` is a boolean. Pages inside `<ProtectedRoute>` do NOT need their own auth check.
+- **Auth check in React**: Use `const { isAuthenticated, user, loading } = useAuth()` — `isAuthenticated` is a boolean, `loading` is true until session check completes. Pages inside `<ProtectedRoute>` do NOT need their own auth check.
 - **Database queries**: Get connection via `getDbConnection()` from `db.php`, use PDO prepared statements
