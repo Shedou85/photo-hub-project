@@ -184,14 +184,16 @@ function ProfilePage() {
             </span>
             <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
-              {t('profile.role')}
-            </span>
-            <Badge variant={user.role === "ADMIN" ? "admin" : "role"}>
-              {t(`profile.roleLabel.${user.role}`, user.role)}
-            </Badge>
-          </div>
+          {user.role === 'ADMIN' && (
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
+                {t('profile.role')}
+              </span>
+              <Badge variant="admin">
+                {t('profile.roleLabel.ADMIN')}
+              </Badge>
+            </div>
+          )}
         </div>
       </div>
     </div>
