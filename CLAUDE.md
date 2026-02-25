@@ -42,15 +42,16 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 
 - All user-visible strings must use `t('namespace.key')` — no hardcoded strings in JSX
 - Locale files: `frontend/src/locales/en.json`, `lt.json`, `ru.json` — keep all three in sync
-- Namespaces: `nav`, `home`, `login`, `profile`, `collections`, `collection`, `payments`
+- Namespaces: `nav`, `home`, `login`, `register`, `profile`, `collections`, `collection`, `payments`, `emailVerification`, `passwordReset`, `share`, `delivery`, `plans`, `admin`, `promotional`, `cookieConsent`, `errors`
 
 ### Backend (`backend/`)
 
 - **Vanilla PHP** (no framework) with **PDO** for MySQL
 - `backend/index.php` is the main router — a single `switch` statement dispatching to handler files
 - Route handlers are organized by feature: `auth/`, `_collections/`, `profile/`
-- `backend/db.php` — PDO connection factory; `backend/config.php` — DB credentials
+- `backend/db.php` — PDO connection factory; `backend/config.php` — DB credentials (+ SMTP config)
 - `backend/cors.php` — CORS headers for cross-domain requests
+- `backend/helpers/mailer.php` — email sending via **PHPMailer ^7.0** (verification + password reset)
 - IDs use CUID format (generated via `generateCuid()` in `backend/index.php`)
 - Apache `.htaccess` rewrites all requests to `index.php`
 
@@ -129,3 +130,4 @@ cd backend && composer install
 - **Auth check in PHP**: Start session, verify `$_SESSION['user_id']` exists, return 401 if not
 - **Auth check in React**: Use `const { isAuthenticated, user, loading } = useAuth()` — `isAuthenticated` is a boolean, `loading` is true until session check completes. Pages inside `<ProtectedRoute>` do NOT need their own auth check.
 - **Database queries**: Get connection via `getDbConnection()` from `db.php`, use PDO prepared statements
+- **Email sending**: `backend/helpers/mailer.php` provides `sendVerificationEmail()` and `sendPasswordResetEmail()`. Uses PHPMailer with SMTP config from `config.php`. Registration endpoint returns `emailSent: bool` so frontend can warn on failure.
