@@ -33,15 +33,26 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     $pdo = getDbConnection();
+    $isAdmin = ($_SESSION['role'] ?? '') === 'ADMIN';
 
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
-            FROM `Collection`
-            WHERE id = ? AND userId = ?
-            LIMIT 1
-        ");
-        $stmt->execute([$collectionId, $userId]);
+        if ($isAdmin) {
+            $stmt = $pdo->prepare("
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+                FROM `Collection`
+                WHERE id = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$collectionId]);
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+                FROM `Collection`
+                WHERE id = ? AND userId = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$collectionId, $userId]);
+        }
         $collection = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$collection) {

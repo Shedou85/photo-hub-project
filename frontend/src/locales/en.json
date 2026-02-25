@@ -416,6 +416,11 @@
     "subtitle": "Platform management & user administration",
     "loading": "Loading...",
     "noData": "No data available",
+    "tabs": {
+      "stats": "Stats",
+      "users": "Users",
+      "auditLog": "Audit Log"
+    },
     "stats": {
       "title": "Platform Stats",
       "totalUsers": "Total Users",
@@ -438,10 +443,36 @@
         "role": "Role",
         "plan": "Plan",
         "status": "Status",
+        "emailVerified": "Verified",
         "collections": "Collections",
         "joined": "Joined",
         "actions": "Actions"
-      }
+      },
+      "exportCsv": "Export CSV",
+      "selectAll": "Select all",
+      "selectedCount": "{{count}} selected",
+      "bulkSuspend": "Suspend selected",
+      "bulkActivate": "Activate selected",
+      "bulkChangePlan": "Change plan",
+      "bulkActionSuccess": "Bulk action applied",
+      "bulkActionError": "Bulk action failed"
+    },
+    "userDetail": {
+      "title": "User Details",
+      "collections": "Collections",
+      "openCollection": "Open \u2192",
+      "deleteCollection": "Delete",
+      "deleteCollectionConfirm": "Delete this collection and all its photos?",
+      "deleteCollectionSuccess": "Collection deleted",
+      "deleteCollectionError": "Failed to delete collection",
+      "changeStatus": "Change status",
+      "totalPhotos": "Total Photos",
+      "emailVerified": "Email Verified",
+      "verified": "Verified",
+      "notVerified": "Not verified",
+      "close": "Close",
+      "loadingCollections": "Loading collections...",
+      "noCollections": "No collections yet"
     },
     "collections": {
       "title": "All Collections",
@@ -470,6 +501,21 @@
       "deleteConfirmTitle": "Delete User Account",
       "deleteConfirmMessage": "Are you sure you want to permanently delete {{name}}? All their collections and photos will also be deleted. This cannot be undone.",
       "deleteConfirmBtn": "Delete User"
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "columns": {
+        "date": "Date",
+        "admin": "Admin",
+        "action": "Action",
+        "target": "Target",
+        "changes": "Changes"
+      },
+      "allActions": "All actions",
+      "fromDate": "From",
+      "toDate": "To",
+      "clearFilters": "Clear",
+      "noLogs": "No audit log entries found"
     },
     "pagination": {
       "prev": "Previous",

@@ -79,7 +79,11 @@ try {
                 u.plan,
                 u.status,
                 u.createdAt,
-                u.collectionsCreatedCount
+                u.collectionsCreatedCount,
+                u.emailVerified,
+                (SELECT COUNT(*) FROM `Photo` p
+                 INNER JOIN `Collection` c ON c.id = p.collectionId
+                 WHERE c.userId = u.id) AS totalPhotos
             FROM `User` u
             $whereClause
             ORDER BY u.createdAt DESC
@@ -218,7 +222,7 @@ try {
         }
 
         $fetchStmt = $pdo->prepare("
-            SELECT id, email, name, role, plan, status, createdAt, collectionsCreatedCount
+            SELECT id, email, name, role, plan, status, createdAt, collectionsCreatedCount, emailVerified
             FROM `User`
             WHERE id = ?
             LIMIT 1
@@ -300,6 +304,71 @@ try {
         $deleteStmt->execute([$targetUserId]);
 
         echo json_encode(['status' => 'OK']);
+        exit;
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /admin/users/bulk — bulk action on multiple users
+    // -------------------------------------------------------------------------
+    if ($method === 'POST' && $targetUserId === 'bulk') {
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        $ids    = $data['ids']    ?? [];
+        $action = $data['action'] ?? '';
+        $value  = $data['value']  ?? '';
+
+        $allowedActions = ['suspend', 'activate', 'plan'];
+        $allowedPlans   = ['FREE_TRIAL', 'STANDARD', 'PRO'];
+
+        if (!is_array($ids) || empty($ids) || !in_array($action, $allowedActions, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid bulk action request.']);
+            exit;
+        }
+
+        if ($action === 'plan' && !in_array($value, $allowedPlans, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid plan value.']);
+            exit;
+        }
+
+        // Sanitize IDs — remove own ID from destructive actions to prevent self-harm
+        $currentUserId = $_SESSION['user_id'];
+        $safeIds = array_filter($ids, function($id) use ($action, $currentUserId) {
+            if ($id === $currentUserId && in_array($action, ['suspend', 'plan'], true)) return false;
+            return true;
+        });
+        $safeIds = array_values(array_filter($safeIds, fn($id) => is_string($id) && strlen($id) <= 64));
+
+        if (empty($safeIds)) {
+            echo json_encode(['status' => 'OK', 'updated' => 0]);
+            exit;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($safeIds), '?'));
+        $updatedCount = 0;
+
+        if ($action === 'suspend') {
+            $stmt = $pdo->prepare("UPDATE `User` SET status = 'SUSPENDED', updatedAt = ? WHERE id IN ($placeholders)");
+            $params = array_merge([date('Y-m-d H:i:s.v')], $safeIds);
+            $stmt->execute($params);
+            $updatedCount = $stmt->rowCount();
+            logAuditAction($pdo, $currentUserId, 'BULK_USER_SUSPENDED', 'USER', implode(',', $safeIds), ['action' => 'suspend', 'count' => $updatedCount]);
+        } elseif ($action === 'activate') {
+            $stmt = $pdo->prepare("UPDATE `User` SET status = 'ACTIVE', updatedAt = ? WHERE id IN ($placeholders)");
+            $params = array_merge([date('Y-m-d H:i:s.v')], $safeIds);
+            $stmt->execute($params);
+            $updatedCount = $stmt->rowCount();
+            logAuditAction($pdo, $currentUserId, 'BULK_USER_ACTIVATED', 'USER', implode(',', $safeIds), ['action' => 'activate', 'count' => $updatedCount]);
+        } elseif ($action === 'plan') {
+            $stmt = $pdo->prepare("UPDATE `User` SET plan = ?, updatedAt = ? WHERE id IN ($placeholders)");
+            $params = array_merge([$value, date('Y-m-d H:i:s.v')], $safeIds);
+            $stmt->execute($params);
+            $updatedCount = $stmt->rowCount();
+            logAuditAction($pdo, $currentUserId, 'BULK_PLAN_CHANGED', 'USER', implode(',', $safeIds), ['action' => 'plan', 'value' => $value, 'count' => $updatedCount]);
+        }
+
+        echo json_encode(['status' => 'OK', 'updated' => $updatedCount]);
         exit;
     }
 

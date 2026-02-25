@@ -424,6 +424,11 @@
     "subtitle": "Platformos valdymas ir vartotojų administravimas",
     "loading": "Kraunama...",
     "noData": "Duomenų nėra",
+    "tabs": {
+      "stats": "Statistika",
+      "users": "Vartotojai",
+      "auditLog": "Audito žurnalas"
+    },
     "stats": {
       "title": "Platformos Statistika",
       "totalUsers": "Visi Vartotojai",
@@ -446,10 +451,36 @@
         "role": "Rolė",
         "plan": "Planas",
         "status": "Statusas",
+        "emailVerified": "Patvirtintas",
         "collections": "Kolekcijos",
         "joined": "Prisijungė",
         "actions": "Veiksmai"
-      }
+      },
+      "exportCsv": "Eksportuoti CSV",
+      "selectAll": "Pasirinkti visus",
+      "selectedCount": "{{count}} pasirinkti",
+      "bulkSuspend": "Sustabdyti pasirinktus",
+      "bulkActivate": "Aktyvuoti pasirinktus",
+      "bulkChangePlan": "Keisti planą",
+      "bulkActionSuccess": "Grupinis veiksmas atliktas",
+      "bulkActionError": "Grupinis veiksmas nepavyko"
+    },
+    "userDetail": {
+      "title": "Vartotojo duomenys",
+      "collections": "Kolekcijos",
+      "openCollection": "Atidaryti \u2192",
+      "deleteCollection": "Trinti",
+      "deleteCollectionConfirm": "Trinti šią kolekciją ir visas jos nuotraukas?",
+      "deleteCollectionSuccess": "Kolekcija ištrinta",
+      "deleteCollectionError": "Nepavyko ištrinti kolekcijos",
+      "changeStatus": "Keisti statusą",
+      "totalPhotos": "Nuotraukos iš viso",
+      "emailVerified": "El. paštas patvirtintas",
+      "verified": "Patvirtintas",
+      "notVerified": "Nepatvirtintas",
+      "close": "Uždaryti",
+      "loadingCollections": "Kraunamos kolekcijos...",
+      "noCollections": "Kolekcijų dar nėra"
     },
     "collections": {
       "title": "Visos Kolekcijos",
@@ -478,6 +509,21 @@
       "deleteConfirmTitle": "Ištrinti vartotojo paskyrą",
       "deleteConfirmMessage": "Ar tikrai norite visam laikui ištrinti {{name}}? Visos jų kolekcijos ir nuotraukos taip pat bus ištrintos. Šio veiksmo negalima atšaukti.",
       "deleteConfirmBtn": "Ištrinti vartotoją"
+    },
+    "auditLog": {
+      "title": "Audito žurnalas",
+      "columns": {
+        "date": "Data",
+        "admin": "Administratorius",
+        "action": "Veiksmas",
+        "target": "Taikinys",
+        "changes": "Pakeitimai"
+      },
+      "allActions": "Visi veiksmai",
+      "fromDate": "Nuo",
+      "toDate": "Iki",
+      "clearFilters": "Valyti",
+      "noLogs": "Audito žurnalo įrašų nerasta"
     },
     "pagination": {
       "prev": "Ankstesnis",

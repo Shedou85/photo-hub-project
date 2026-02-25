@@ -424,6 +424,11 @@
     "subtitle": "Управление платформой и пользователями",
     "loading": "Загрузка...",
     "noData": "Нет данных",
+    "tabs": {
+      "stats": "Статистика",
+      "users": "Пользователи",
+      "auditLog": "Журнал аудита"
+    },
     "stats": {
       "title": "Статистика Платформы",
       "totalUsers": "Всего Пользователей",
@@ -446,10 +451,36 @@
         "role": "Роль",
         "plan": "Тариф",
         "status": "Статус",
+        "emailVerified": "Подтверждён",
         "collections": "Коллекции",
         "joined": "Зарегистрирован",
         "actions": "Действия"
-      }
+      },
+      "exportCsv": "Экспорт CSV",
+      "selectAll": "Выбрать все",
+      "selectedCount": "{{count}} выбрано",
+      "bulkSuspend": "Заблокировать выбранных",
+      "bulkActivate": "Активировать выбранных",
+      "bulkChangePlan": "Изменить план",
+      "bulkActionSuccess": "Групповое действие выполнено",
+      "bulkActionError": "Групповое действие не выполнено"
+    },
+    "userDetail": {
+      "title": "Данные пользователя",
+      "collections": "Коллекции",
+      "openCollection": "Открыть \u2192",
+      "deleteCollection": "Удалить",
+      "deleteCollectionConfirm": "Удалить эту коллекцию со всеми фотографиями?",
+      "deleteCollectionSuccess": "Коллекция удалена",
+      "deleteCollectionError": "Не удалось удалить коллекцию",
+      "changeStatus": "Изменить статус",
+      "totalPhotos": "Всего фотографий",
+      "emailVerified": "Email подтверждён",
+      "verified": "Подтверждён",
+      "notVerified": "Не подтверждён",
+      "close": "Закрыть",
+      "loadingCollections": "Загрузка коллекций...",
+      "noCollections": "Коллекций пока нет"
     },
     "collections": {
       "title": "Все Коллекции",
@@ -478,6 +509,21 @@
       "deleteConfirmTitle": "Удалить аккаунт пользователя",
       "deleteConfirmMessage": "Вы уверены, что хотите навсегда удалить {{name}}? Все их коллекции и фотографии также будут удалены. Это действие нельзя отменить.",
       "deleteConfirmBtn": "Удалить пользователя"
+    },
+    "auditLog": {
+      "title": "Журнал аудита",
+      "columns": {
+        "date": "Дата",
+        "admin": "Администратор",
+        "action": "Действие",
+        "target": "Цель",
+        "changes": "Изменения"
+      },
+      "allActions": "Все действия",
+      "fromDate": "С",
+      "toDate": "По",
+      "clearFilters": "Очистить",
+      "noLogs": "Записей в журнале не найдено"
     },
     "pagination": {
       "prev": "Назад",

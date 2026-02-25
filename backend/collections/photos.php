@@ -39,9 +39,15 @@ $method = $_SERVER['REQUEST_METHOD'];
 try {
     $pdo = getDbConnection();
 
-    // Verify collection ownership
-    $stmt = $pdo->prepare("SELECT id FROM `Collection` WHERE id = ? AND userId = ? LIMIT 1");
-    $stmt->execute([$collectionId, $userId]);
+    // Verify collection ownership (admin can access any collection)
+    $isAdmin = ($_SESSION['role'] ?? '') === 'ADMIN';
+    if ($isAdmin) {
+        $stmt = $pdo->prepare("SELECT id FROM `Collection` WHERE id = ? LIMIT 1");
+        $stmt->execute([$collectionId]);
+    } else {
+        $stmt = $pdo->prepare("SELECT id FROM `Collection` WHERE id = ? AND userId = ? LIMIT 1");
+        $stmt->execute([$collectionId, $userId]);
+    }
     if (!$stmt->fetch()) {
         http_response_code(404);
         echo json_encode(["error" => "Collection not found."]);
