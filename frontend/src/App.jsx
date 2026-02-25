@@ -31,7 +31,7 @@ function ScrollToTop() {
 }
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   // Fire GA on repeat visits (user already consented)
   useEffect(() => {
@@ -47,6 +47,8 @@ function App() {
   useEffect(() => {
     trackPageView(location.pathname);
   }, [location.pathname]);
+
+  if (loading) return null;
 
   return (
     <>

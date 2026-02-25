@@ -1,18 +1,21 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render as rtlRender, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render as rtlRender, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import { AuthProvider } from '../contexts/AuthContext';
 
-// Helper to render ProtectedRoute with controlled auth state
-// Note: We use rtlRender directly here to avoid nested Router from test-utils
-function renderProtectedRoute({ isAuthenticated, children }) {
-  // Mock localStorage for auth state
-  if (isAuthenticated) {
-    localStorage.setItem('user', JSON.stringify({ id: 'user123', email: 'test@example.com' }));
-  } else {
-    localStorage.removeItem('user');
-  }
+vi.mock('../lib/api', () => ({
+    api: {
+        get: vi.fn(),
+        post: vi.fn(),
+    },
+    resetCsrfToken: vi.fn(),
+}));
+
+import { api } from '../lib/api';
+
+function renderProtectedRoute({ mockAuthResponse, children }) {
+  api.get.mockResolvedValue(mockAuthResponse);
 
   return rtlRender(
     <AuthProvider>
@@ -27,24 +30,36 @@ function renderProtectedRoute({ isAuthenticated, children }) {
 }
 
 describe('ProtectedRoute', () => {
-  afterEach(() => {
-    localStorage.clear();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   describe('when authenticated', () => {
-    it('renders children', () => {
+    it('renders children after session check', async () => {
       renderProtectedRoute({
-        isAuthenticated: true,
+        mockAuthResponse: {
+          data: { status: 'OK', user: { id: 'u1', email: 'test@test.com' } },
+          status: 200
+        },
         children: <div>Protected Content</div>
       });
 
-      expect(screen.getByText('Protected Content')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Protected Content')).toBeInTheDocument();
+      });
     });
 
-    it('does not redirect to login', () => {
+    it('does not redirect to login', async () => {
       renderProtectedRoute({
-        isAuthenticated: true,
+        mockAuthResponse: {
+          data: { status: 'OK', user: { id: 'u1', email: 'test@test.com' } },
+          status: 200
+        },
         children: <div>Protected Content</div>
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Protected Content')).toBeInTheDocument();
       });
 
       expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
@@ -52,22 +67,28 @@ describe('ProtectedRoute', () => {
   });
 
   describe('when not authenticated', () => {
-    it('does not render children', () => {
+    it('redirects to /login', async () => {
       renderProtectedRoute({
-        isAuthenticated: false,
+        mockAuthResponse: { data: { error: 'Not authenticated' }, status: 401 },
         children: <div>Protected Content</div>
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Login Page')).toBeInTheDocument();
+      });
+    });
+
+    it('does not render children', async () => {
+      renderProtectedRoute({
+        mockAuthResponse: { data: { error: 'Not authenticated' }, status: 401 },
+        children: <div>Protected Content</div>
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Login Page')).toBeInTheDocument();
       });
 
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-    });
-
-    it('redirects to /login', () => {
-      renderProtectedRoute({
-        isAuthenticated: false,
-        children: <div>Protected Content</div>
-      });
-
-      expect(screen.getByText('Login Page')).toBeInTheDocument();
     });
   });
 });

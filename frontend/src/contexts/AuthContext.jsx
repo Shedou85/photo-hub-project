@@ -1,33 +1,47 @@
-import React, { createContext, useState, useContext } from 'react';
-import { resetCsrfToken } from '../lib/api';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { api, resetCsrfToken } from '../lib/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        try {
-            const stored = localStorage.getItem('user');
-            return stored ? JSON.parse(stored) : null;
-        } catch (error) {
-            return null;
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // On mount: check server session via /auth/me
+    useEffect(() => {
+        let cancelled = false;
+
+        async function checkSession() {
+            const { data, status } = await api.get('/auth/me');
+
+            if (!cancelled) {
+                if (status === 200 && data?.status === 'OK' && data?.user) {
+                    setUser(data.user);
+                } else {
+                    setUser(null);
+                }
+                setLoading(false);
+            }
         }
-    });
 
-    const login = (userData) => {
+        checkSession();
+
+        return () => { cancelled = true; };
+    }, []);
+
+    const login = useCallback((userData) => {
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-    };
+    }, []);
 
-    const logout = () => {
+    const logout = useCallback(() => {
         setUser(null);
-        localStorage.removeItem('user');
         resetCsrfToken();
-    };
+    }, []);
 
     const isAuthenticated = user !== null;
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
             {children}
         </AuthContext.Provider>
     );

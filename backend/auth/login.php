@@ -44,7 +44,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, email, emailVerified, password, role, status, name, createdAt, bio, plan, subscriptionStatus
+        SELECT id, email, emailVerified, password, role, status, name, createdAt, bio, plan, subscriptionStatus, trialEndsAt, collectionsCreatedCount
         FROM `User`
         WHERE email = ?
         LIMIT 1
@@ -97,7 +97,9 @@ try {
             "createdAt" => $user['createdAt'],
             "bio" => $user['bio'],
             "plan" => $user['plan'],
-            "subscriptionStatus" => $user['subscriptionStatus']
+            "subscriptionStatus" => $user['subscriptionStatus'],
+            "trialEndsAt" => $user['trialEndsAt'],
+            "collectionsCreatedCount" => (int)$user['collectionsCreatedCount']
         ]
     ]);
 

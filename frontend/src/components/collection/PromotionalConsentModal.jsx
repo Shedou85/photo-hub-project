@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { api } from '../../lib/api';
 
 const photoUrl = (storagePath) => {
   const base = import.meta.env.VITE_API_BASE_URL;
@@ -36,22 +37,11 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
   const handleAllow = async () => {
     setLoading(true);
     try {
-      const patchRes = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${collection.id}`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'DELIVERED', allowPromotionalUse: true }),
-        }
+      const { data: patchData, error: patchError } = await api.patch(
+        `/collections/${collection.id}`,
+        { status: 'DELIVERED', allowPromotionalUse: true }
       );
-      if (!patchRes.ok) {
-        toast.error(t('collection.statusUpdateError'));
-        setLoading(false);
-        return;
-      }
-      const patchData = await patchRes.json();
-      if (patchData.status !== 'OK') {
+      if (patchError || patchData?.status !== 'OK') {
         toast.error(t('collection.statusUpdateError'));
         setLoading(false);
         return;
@@ -61,14 +51,9 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
       for (let i = 0; i < selectedIds.length; i++) {
         const photoId = selectedIds[i];
         try {
-          await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/collections/${collection.id}/promotional`,
-            {
-              method: 'POST',
-              credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ photoId, order: i }),
-            }
+          await api.post(
+            `/collections/${collection.id}/promotional`,
+            { photoId, order: i }
           );
         } catch {
           // Non-critical: promotional photo submission failure doesn't block delivery
@@ -86,22 +71,11 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
   const handleSkip = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/collections/${collection.id}`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'DELIVERED' }),
-        }
+      const { data, error } = await api.patch(
+        `/collections/${collection.id}`,
+        { status: 'DELIVERED' }
       );
-      if (!res.ok) {
-        toast.error(t('collection.statusUpdateError'));
-        setLoading(false);
-        return;
-      }
-      const data = await res.json();
-      if (data.status !== 'OK') {
+      if (error || data?.status !== 'OK') {
         toast.error(t('collection.statusUpdateError'));
         setLoading(false);
         return;

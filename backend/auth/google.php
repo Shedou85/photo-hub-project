@@ -57,7 +57,7 @@ try {
     if ($account) {
         // Account found — fetch the associated User
         $stmt = $pdo->prepare(
-            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio
+            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount
              FROM `User` WHERE id=? LIMIT 1"
         );
         $stmt->execute([$account['userId']]);
@@ -65,7 +65,7 @@ try {
     } else {
         // No Account found — check if a User with this email already exists
         $stmt = $pdo->prepare(
-            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio
+            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount
              FROM `User` WHERE email=? LIMIT 1"
         );
         $stmt->execute([$email]);
@@ -121,19 +121,22 @@ try {
     session_regenerate_id(true);
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role']    = $user['role'];
+    $_SESSION['last_activity'] = time();
     $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
     echo json_encode([
         'status' => 'OK',
         'user'   => [
-            'id'                 => $user['id'],
-            'email'              => $user['email'],
-            'name'               => $user['name'],
-            'role'               => $user['role'],
-            'plan'               => $user['plan'],
-            'subscriptionStatus' => $user['subscriptionStatus'],
-            'createdAt'          => $user['createdAt'],
-            'bio'                => $user['bio'],
+            'id'                      => $user['id'],
+            'email'                   => $user['email'],
+            'name'                    => $user['name'],
+            'role'                    => $user['role'],
+            'plan'                    => $user['plan'],
+            'subscriptionStatus'      => $user['subscriptionStatus'],
+            'createdAt'               => $user['createdAt'],
+            'bio'                     => $user['bio'],
+            'trialEndsAt'             => $user['trialEndsAt'],
+            'collectionsCreatedCount' => (int)$user['collectionsCreatedCount'],
         ],
     ]);
 } catch (Throwable $e) {

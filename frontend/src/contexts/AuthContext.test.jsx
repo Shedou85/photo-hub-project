@@ -1,44 +1,61 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from './AuthContext';
+
+vi.mock('../lib/api', () => ({
+    api: {
+        get: vi.fn(),
+        post: vi.fn(),
+    },
+    resetCsrfToken: vi.fn(),
+}));
+
+import { api, resetCsrfToken } from '../lib/api';
 
 describe('AuthContext', () => {
   beforeEach(() => {
-    localStorage.clear();
-  });
-
-  afterEach(() => {
-    localStorage.clear();
+    vi.clearAllMocks();
   });
 
   describe('initial state', () => {
-    it('loads user from localStorage if present', () => {
-      const mockUser = { id: 'user123', email: 'test@example.com', name: 'Test User' };
-      localStorage.setItem('user', JSON.stringify(mockUser));
+    it('starts in loading state', () => {
+      api.get.mockReturnValue(new Promise(() => {})); // never resolves
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
 
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+      expect(result.current.loading).toBe(true);
+      expect(result.current.user).toBeNull();
+      expect(result.current.isAuthenticated).toBe(false);
+    });
+
+    it('sets user from /auth/me on valid session', async () => {
+      const mockUser = { id: 'user123', email: 'test@example.com', name: 'Test' };
+      api.get.mockResolvedValue({ data: { status: 'OK', user: mockUser }, status: 200 });
+
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
       expect(result.current.user).toEqual(mockUser);
       expect(result.current.isAuthenticated).toBe(true);
     });
 
-    it('starts with no user when localStorage is empty', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+    it('sets user to null on 401', async () => {
+      api.get.mockResolvedValue({ data: { error: 'Not authenticated' }, status: 401 });
+
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
     });
 
-    it('handles invalid JSON in localStorage gracefully', () => {
-      localStorage.setItem('user', 'invalid-json');
+    it('sets user to null on network error', async () => {
+      api.get.mockResolvedValue({ data: null, error: 'Network error', status: 0 });
 
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
@@ -46,139 +63,60 @@ describe('AuthContext', () => {
   });
 
   describe('login', () => {
-    it('sets user in state', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+    it('sets user in state', async () => {
+      api.get.mockResolvedValue({ data: null, status: 401 });
 
-      const mockUser = { id: 'user123', email: 'test@example.com', name: 'Test User' };
-
-      act(() => {
-        result.current.login(mockUser);
-      });
-
-      expect(result.current.user).toEqual(mockUser);
-    });
-
-    it('sets user in localStorage', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
-
-      const mockUser = { id: 'user123', email: 'test@example.com', name: 'Test User' };
-
-      act(() => {
-        result.current.login(mockUser);
-      });
-
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      expect(storedUser).toEqual(mockUser);
-    });
-
-    it('sets isAuthenticated to true', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
       const mockUser = { id: 'user123', email: 'test@example.com' };
+      act(() => { result.current.login(mockUser); });
 
-      act(() => {
-        result.current.login(mockUser);
-      });
-
+      expect(result.current.user).toEqual(mockUser);
       expect(result.current.isAuthenticated).toBe(true);
+    });
+
+    it('does not write to localStorage', async () => {
+      api.get.mockResolvedValue({ data: null, status: 401 });
+
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      act(() => { result.current.login({ id: 'u1', email: 'a@b.com' }); });
+
+      expect(localStorage.getItem('user')).toBeNull();
     });
   });
 
   describe('logout', () => {
-    it('clears user from state', () => {
+    it('clears user and resets CSRF token', async () => {
       const mockUser = { id: 'user123', email: 'test@example.com' };
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      api.get.mockResolvedValue({ data: { status: 'OK', user: mockUser }, status: 200 });
 
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
-      expect(result.current.user).toEqual(mockUser);
-
-      act(() => {
-        result.current.logout();
-      });
+      act(() => { result.current.logout(); });
 
       expect(result.current.user).toBeNull();
-    });
-
-    it('clears user from localStorage', () => {
-      const mockUser = { id: 'user123', email: 'test@example.com' };
-      localStorage.setItem('user', JSON.stringify(mockUser));
-
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
-
-      act(() => {
-        result.current.logout();
-      });
-
-      expect(localStorage.getItem('user')).toBeNull();
-    });
-
-    it('sets isAuthenticated to false', () => {
-      const mockUser = { id: 'user123', email: 'test@example.com' };
-      localStorage.setItem('user', JSON.stringify(mockUser));
-
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
-
-      expect(result.current.isAuthenticated).toBe(true);
-
-      act(() => {
-        result.current.logout();
-      });
-
       expect(result.current.isAuthenticated).toBe(false);
+      expect(resetCsrfToken).toHaveBeenCalled();
     });
   });
 
   describe('isAuthenticated computed value', () => {
-    it('is true when user exists', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+    it('updates reactively on login/logout', async () => {
+      api.get.mockResolvedValue({ data: null, status: 401 });
 
-      act(() => {
-        result.current.login({ id: 'user123', email: 'test@example.com' });
-      });
-
-      expect(result.current.isAuthenticated).toBe(true);
-    });
-
-    it('is false when user is null', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
-
-      expect(result.current.isAuthenticated).toBe(false);
-    });
-
-    it('updates reactively on state change', () => {
-      const { result } = renderHook(() => useAuth(), {
-        wrapper: AuthProvider
-      });
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
       expect(result.current.isAuthenticated).toBe(false);
 
-      act(() => {
-        result.current.login({ id: 'user123', email: 'test@example.com' });
-      });
-
+      act(() => { result.current.login({ id: 'user123', email: 'test@example.com' }); });
       expect(result.current.isAuthenticated).toBe(true);
 
-      act(() => {
-        result.current.logout();
-      });
-
+      act(() => { result.current.logout(); });
       expect(result.current.isAuthenticated).toBe(false);
     });
   });
