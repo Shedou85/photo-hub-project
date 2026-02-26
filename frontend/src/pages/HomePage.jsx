@@ -276,9 +276,9 @@ function HomePage() {
                       <img src={heroPhotoSrc(0)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)' }} />
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                      <span className="text-[9px] text-white/50 font-medium">DRAFT</span>
+                      <span className="text-[9px] text-white/90 font-medium">DRAFT</span>
                     </div>
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-slate-700 via-slate-800 to-blue-950 aspect-square shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden">
@@ -286,16 +286,16 @@ function HomePage() {
                       <img src={heroPhotoSrc(1)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 70% 70%, rgba(99,102,241,0.4) 0%, transparent 50%)' }} />
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                      <span className="text-[9px] text-white/50 font-medium">SELECTING</span>
+                      <span className="text-[9px] text-white/90 font-medium">SELECTING</span>
                     </div>
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-indigo-900 to-violet-950 aspect-[4/3] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden">
                     {heroPhotoSrc(2) && (
                       <img src={heroPhotoSrc(2)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
-                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full border border-white/20 flex items-center justify-center">
+                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full border border-white/40 flex items-center justify-center">
                       <div className="w-2 h-2 rounded-full bg-indigo-400" />
                     </div>
                   </div>
@@ -307,9 +307,9 @@ function HomePage() {
                       <img src={heroPhotoSrc(3)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(255,255,255,0.3) 0%, transparent 60%)' }} />
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
-                      <span className="text-[9px] text-white/50 font-medium">REVIEWING</span>
+                      <span className="text-[9px] text-white/90 font-medium">REVIEWING</span>
                     </div>
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-blue-800 to-slate-900 aspect-[4/3] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden">
@@ -318,7 +318,7 @@ function HomePage() {
                     )}
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(59,130,246,0.5) 0%, transparent 50%)' }} />
                     <div className="absolute top-3 right-3">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9l5 5 9-9" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9l5 5 9-9" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                     </div>
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-indigo-600 to-blue-700 aspect-square shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] relative overflow-hidden">
@@ -330,9 +330,9 @@ function HomePage() {
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,0.4)" strokeWidth="1" /><circle cx="7" cy="7" r="3" fill="rgba(255,255,255,0.2)" /></svg>
                       </div>
                     </div>
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span className="text-[9px] text-white/50 font-medium">DELIVERED</span>
+                      <span className="text-[9px] text-white/90 font-medium">DELIVERED</span>
                     </div>
                   </div>
                 </div>
