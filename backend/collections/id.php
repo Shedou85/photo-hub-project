@@ -114,6 +114,18 @@ try {
                 }
             }
 
+            // PRO-only: only PRO users can archive collections
+            if ($data['status'] === 'ARCHIVED') {
+                $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+                $userStmt->execute([$userId]);
+                $currentUser = $userStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$currentUser || $currentUser['plan'] !== 'PRO') {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'ARCHIVE_PRO_ONLY']);
+                    exit;
+                }
+            }
+
             $setParts[] = "`status` = ?";
             $params[] = $data['status'];
         }

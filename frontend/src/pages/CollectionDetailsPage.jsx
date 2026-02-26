@@ -39,6 +39,7 @@ function CollectionDetailsPage() {
     selections,
     editedPhotos, fetchEditedPhotos,
     handleStartSelecting,
+    handleArchive,
     doDeleteCollection,
     handleSaveEdit: handleSaveEditHook,
   } = useCollectionData(id);
@@ -510,6 +511,31 @@ function CollectionDetailsPage() {
               </svg>
               {t('collection.delete')}
             </button>
+            {(collection?.status === 'DELIVERED' || collection?.status === 'DOWNLOADED') && (
+              user?.plan === 'PRO' ? (
+                <button
+                  onClick={handleArchive}
+                  className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  {t('collection.archive')}
+                </button>
+              ) : (
+                <button
+                  disabled
+                  title={t('collection.archiveProOnly')}
+                  className="flex items-center gap-1.5 text-xs text-white/30 bg-transparent border-none cursor-not-allowed"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  {t('collection.archive')}
+                  <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">PRO</span>
+                </button>
+              )
+            )}
           </div>
         </div>
       </div>

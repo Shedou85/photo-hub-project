@@ -48,6 +48,18 @@ export function useCollectionData(id) {
     }
   }, [id, t]);
 
+  const handleArchive = useCallback(async () => {
+    const { data, error: fetchError } = await api.patch(`/collections/${id}`, { status: 'ARCHIVED' });
+    if (!fetchError && data?.status === 'OK') {
+      navigate('/collections');
+      toast.success(t('collection.collectionArchived'));
+    } else if (data?.error === 'ARCHIVE_PRO_ONLY') {
+      toast.error(t('collection.archiveProOnly'));
+    } else {
+      toast.error(t('collection.archiveError'));
+    }
+  }, [id, navigate, t]);
+
   const doDeleteCollection = useCallback(async () => {
     const { error: fetchError } = await api.delete(`/collections/${id}`);
     if (!fetchError) {
@@ -95,6 +107,7 @@ export function useCollectionData(id) {
     selections,
     editedPhotos, setEditedPhotos, fetchEditedPhotos,
     handleStartSelecting,
+    handleArchive,
     doDeleteCollection,
     handleSaveEdit,
   };

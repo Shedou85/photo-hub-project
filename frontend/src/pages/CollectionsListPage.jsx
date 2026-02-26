@@ -25,6 +25,7 @@ function CollectionsListPage() {
   const [pagination, setPagination] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [archiveFilter, setArchiveFilter] = useState('active');
 
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
@@ -283,6 +284,30 @@ function CollectionsListPage() {
         </div>
       )}
 
+      {/* ── Active / Archived Tabs ── */}
+      <div className="flex items-center gap-1 mb-6 p-1 bg-white/[0.04] border border-white/[0.08] rounded-lg w-fit">
+        <button
+          onClick={() => setArchiveFilter('active')}
+          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            archiveFilter === 'active'
+              ? 'bg-white/[0.1] text-white'
+              : 'text-white/50 hover:text-white/70'
+          }`}
+        >
+          {t('collection.archiveActive')}
+        </button>
+        <button
+          onClick={() => setArchiveFilter('archived')}
+          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            archiveFilter === 'archived'
+              ? 'bg-white/[0.1] text-white'
+              : 'text-white/50 hover:text-white/70'
+          }`}
+        >
+          {t('collection.archiveArchived')}
+        </button>
+      </div>
+
       {/* ── Empty State ── */}
       {collections.length === 0 && (
         <div className="py-20 flex flex-col items-center text-center">
@@ -310,7 +335,7 @@ function CollectionsListPage() {
       {collections.length > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map((collection) => (
+            {collections.filter(c => archiveFilter === 'archived' ? c.status === 'ARCHIVED' : c.status !== 'ARCHIVED').map((collection) => (
               <CollectionCard
                 key={collection.id}
                 id={collection.id}
