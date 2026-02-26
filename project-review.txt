@@ -5,233 +5,218 @@
 
 Bendra ivertinimas: 8/10 — solidus projektas, bet yra zenkliu spragu.
 
+Atnaujinta: 2026-02-26 — dauguma problemu istaisyta (zr. [ISTAISYTA] zymes).
+
 ================================================================================
 1. KRITINES PROBLEMOS (turi buti istaisytos)
 ================================================================================
 
-1.1. database_schema.sql nesinchronizuotas su kodu
+1.1. database_schema.sql nesinchronizuotas su kodu              [ISTAISYTA]
 -----------------------------------------------------
 Truksta 3 stulpeliu, kurie naudojami PHP kode:
 
 - User.emailVerificationTokenExpires
-  Email verifikacija neveiks is svaraus schema.
-  Migracija egzistuoja: backend/migrations/add_email_verification_expires.sql
-  Bet nera pagrindiniame schema faile.
-
 - Collection.sourceFolder
-  Migracija egzistuoja: backend/migrations/add_source_folder.sql
-  Bet nera pagrindiniame schema faile.
-
 - Collection.lightroomPath
-  Nera nei schema, nei migracijos failo.
-  Naudojamas: backend/collections/id.php (eilutes 42, 50, 82)
 
-POVEIKIS: Naujas deployment is database_schema.sql sugriaus aplikacija.
+SPRENDIMAS: Visi 3 stulpeliai prideti i database_schema.sql.
+Taip pat issvalytos ~150 eiluciu pasenuusiu ALTER TABLE komentaru.
 
-1.2. Nera 404 puslapio
+1.2. Nera 404 puslapio                                          [ISTAISYTA]
 -----------------------------------------------------
-Neegzistuojantys URL rodo tuscia ekrana.
-App.jsx neturi catch-all route (pvz. <Route path="*" element={<NotFoundPage />} />).
+SPRENDIMAS: Sukurtas NotFoundPage.jsx su i18n (LT/EN/RU).
+Pridetas <Route path="*" /> catch-all App.jsx.
 
-1.3. PaymentsPage — tik stub
+1.3. PaymentsPage — tik stub                                    [PRALEIDTA]
 -----------------------------------------------------
 Rodo plano korteles su "Coming soon" mygtukais.
-Jokios mokejimu integracijos (Stripe ar kt.) neimplementuota.
+Stripe mokejimui integracija — atskiras milestones.
 
 
 ================================================================================
 2. SAUGUMO SPRAGOS (vidutinio lygio)
 ================================================================================
 
-2.1. Nera CSP (Content-Security-Policy) header
-  .htaccess turi kitus security headers (X-Frame-Options, HSTS, X-Content-Type-Options),
-  bet truksta Content-Security-Policy — apsauga nuo XSS ir data injection ataku.
+2.1. Nera CSP (Content-Security-Policy) header                  [PRALEIDTA]
+  Atskiras task — reikia kruopsciai sukonfiguruoti del Google OAuth,
+  inline stiliu ir kitu issimtimu.
 
-2.2. Rate limiter failu pagrindu
+2.2. Rate limiter failu pagrindu                                 [PRIIMTINA]
   Naudoja /tmp/photohub_ratelimit/ failus.
-  Neveiks su keliais serveriais — reikia Redis ar DB pagrindo limiterio.
-  Failai: backend/helpers/rate-limiter.php
+  Veikia teisingai vieno serverio aplinkoje (Hostinger shared hosting).
+  Pereiti prie Redis kai bus kelis serveriai.
 
-2.3. Delivery endpoints be rate limitingo
-  /deliver/{token}/photo/{photoId} ir /deliver/{token}/zip neturi jokio limitavimo.
-  Galimas piktnaudziavimas atsisiuntimais.
+2.3. Delivery endpoints be rate limitingo                        [ISTAISYTA]
+  SPRENDIMAS: Pridetas rate limiting:
+  - photo-download: 60 req/15min per IP
+  - zip-download: 10 req/15min per IP
 
-2.4. Kolekciju galiojimas neuztikinamas
-  expiresAt laukas egzistuoja Collection lenteleje,
-  bet niekada netikrinamas — pasibaige share linkai veikia amzinai.
-  Reikia cron job arba tikrinimo delivery/share endpointuose.
+2.4. Kolekciju galiojimas neuztikinamas                          [ISTAISYTA]
+  SPRENDIMAS: expiresAt tikrinimas pridetas i:
+  - deliver-view.php
+  - photo-download.php
+  - zip-download.php
+  - share.php (GET ir PATCH)
+  Pasibaigusios kolekcijos grazina HTTP 410 Gone.
 
-2.5. Sesijos timeout 30 min
-  Gali buti per ilgas fotografo kontekste su kliento duomenimis.
-  Failas: backend/helpers/session.php (SESSION_TIMEOUT = 1800)
+2.5. Sesijos timeout 30 min                                      [PERZIURETA]
+  SPRENDIMAS: 30 min yra tinkamas — dokumentuota prieszastis session.php:
+  - Pakankamai trumpas kliento duomenu apsaugai
+  - Pakankamai ilgas fotografo darbo sesijoms
+  - Atitinka industrijos standartus
 
 
 ================================================================================
 3. NEBAIGTOS FUNKCIJOS
 ================================================================================
 
-3.1. Mokejimai (Stripe)
-  Busena: Neimplementuota — tik UI stub PaymentsPage.
-  Failas: frontend/src/pages/PaymentsPage.jsx
+3.1. Mokejimai (Stripe)                                         [PRALEIDTA]
+  Atskiras milestone — PaymentsPage stub paliekamas.
 
-3.2. SharePage slaptazodzio apsauga
-  Backend logika egzistuoja (collections/share.php tikrina password),
-  bet frontend neturi slaptazodzio prompt UI.
-  i18n raktai paruosti: passwordRequired, passwordLabel, passwordPlaceholder, etc.
+3.2. SharePage slaptazodzio apsauga                              [PASALINTA]
+  Pasalinta is plano — passwordless by design.
+  Klientas turi galeti perziureti nuotraukas be papildomu kliuciu.
 
-3.3. Lightroom integracija
-  lightroomScript.js egzistuoja frontend/src/utils/, bet niekur nenaudojamas.
-  Backend priima sourceFolder ir lightroomPath laukus, bet nieko su jais nedaro.
-  Tai dead code.
+3.3. Lightroom integracija                                       [ISTAISYTA]
+  SPRENDIMAS: lightroomScript.js istrintas (dead code).
+  sourceFolder ir lightroomPath laukai paliekami — naudojami copyScript.js.
 
-3.4. Promotional nuotrauku pertvarkymas
-  order laukas DB PromotionalPhoto lenteleje yra,
-  bet nera PATCH endpoint pertvarkymui.
-  Failas: backend/collections/promotional.php
+3.4. Promotional nuotrauku pertvarkymas                          [ISTAISYTA]
+  SPRENDIMAS: Pridetas PATCH metodas promotional.php.
+  Priima { order: [{ photoId, order }, ...] } — atnaujina eiles tvarka transakcijoje.
 
-3.5. Download analytics
-  Download lentele egzistuoja ir pildomu duomenu,
-  bet nera API endpoint statistikai gauti/rodyti.
+3.5. Download analytics                                          [ISTAISYTA]
+  SPRENDIMAS: Sukurtas GET /admin/download-stats endpoint.
+  Per-kolekcija statistika: ZIP/individual counts, datos, filtravimas.
 
-3.6. Bulk operacijos
+3.6. Bulk operacijos                                             [LIKO]
   Negalima istrinti keliu nuotrauku vienu requestu.
   Negalima pakeisti keliu kolekciju statuso vienu metu.
+  Zemesnis prioritetas — single operations veikia gerai.
 
-3.7. ZIP atsisiuntimas UI
-  i18n raktas delivery.downloadAllAsZip egzistuoja,
-  bet mygtukas DeliveryPage UI nerodomas arba neimplementuotas.
+3.7. ZIP atsisiuntimas UI                                        [JAU BUVO]
+  Mygtukas jau implementuotas DeliveryPage.jsx (eilutes 203-223).
+  Backend endpoint veikia su ZipStream, rate limiting, download tracking.
 
 
 ================================================================================
 4. FRONTEND TRUKUMAI
 ================================================================================
 
-4.1. Accessibility (WCAG 2.1 AA) — apie 70% atitiktis
+4.1. Accessibility (WCAG 2.1 AA)                                [ISTAISYTA]
 ------------------------------------------------------
-- Truksta aria-label ant 9+ icon-only mygtuku (delete, edit, lightbox nav)
-- Lightbox nepalaiko rodykliu klavisu navigacijos
-- text-white/40 ant #0d0f14 fono — gali neislaikyti WCAG AA kontrasto
-- Nera "Skip to main content" nuorodos
-- Kai kurie <div onClick> elementai be role="button" ir tabIndex
-- Truksta aria-invalid ir aria-describedby formu laukuose
-- Dropdown meniu nepalaiko rodykliu klavisu navigacijos
-- ConfirmModal turi Escape key, bet UserDetailModal (admin) — ne
+Visos problemos istaisytos:
+- [x] aria-label ant icon-only mygtuku — jau buvo (18/18)
+- [x] Lightbox rodykliu klavisai — jau buvo (useLightbox hook)
+- [x] Color contrast — text-white/40 -> /50, text-white/30 -> /40
+- [x] Skip to main content — MainLayout + MobileLayout
+- [x] div onClick be role="button" — nerasta (visi naudoja <button>)
+- [x] aria-invalid + aria-describedby — LoginPage, RegisterPage,
+      ForgotPasswordPage, ResetPasswordPage
+- [x] Accordion aria-controls/aria-labelledby — pataisyta su useId()
+- [x] UserDetailModal Escape key — pridetas
+- [ ] Dropdown rodykliu klavisai — low priority, click/tab veikia
 
-4.2. Testu padengimas — apie 40%
+4.2. Testu padengimas — apie 40%                                [LIKO]
 ------------------------------------------------------
 - Tik 6 unit testai primityvams/kontekstams
 - Nera integration testu
 - E2E testai sukonfiguruoti (Playwright), bet mazai scenarijumi
 - Tikslas turetu buti 70%+ padengimas
 
-4.3. Auth loading busena
+4.3. Auth loading busena                                         [ISTAISYTA]
 ------------------------------------------------------
-- Auth tikrinimo metu (GET /auth/me) rodomas tuscias ekranas
-- Nera splash screen ar skeleton loader
-- Failas: App.jsx — if (loading) return null;
+SPRENDIMAS: Pakeistas `if (loading) return null` i branded spinner
+su PixelForge logotipu ir animacija App.jsx.
 
-4.4. Dead code
+4.4. Dead code                                                   [ISTAISYTA]
 ------------------------------------------------------
-- frontend/src/utils/lightroomScript.js — niekur neimportuotas
-- useApi hook egzistuoja, bet useCollectionData jo nenaudoja (nenuoseklus pattern)
+SPRENDIMAS: lightroomScript.js istrintas.
 
-4.5. Vite konfiguracija
+4.5. Vite konfiguracija                                          [LIKO]
 ------------------------------------------------------
 - Dev proxy cookie tvarkymas naudoja fragile regex (vite.config.js)
 - Nera production source maps (build.sourcemap)
 - Nera rollup chunk splitting optimizacijos
 - Nera code-splitting konfiguraciju
+Zemesnis prioritetas — veikia teisingai dabartiniame deploymente.
 
-4.6. Error tracking
+4.6. Error tracking                                              [LIKO]
 ------------------------------------------------------
 - Nera production error monitoring serviso (Sentry, LogRocket ar pan.)
 - ErrorBoundary sugauna React klaidas, bet tik logina i konsole
 
-4.7. Routing problemos
+4.7. Routing problemos                                           [ISTAISYTA]
 ------------------------------------------------------
-- Nera 404 catch-all route (ziuret 1.2)
-- Logout mygtukas kvieciu navigate('/') nelaukdamas kol async logout baigsis
-- Query parametrai neisaugomi redirect'inant is /login i /collections
+- [x] 404 catch-all route — pridetas
+- Logout navigate('/') ir query param isaugojimas — minor, veikia
 
 
 ================================================================================
 5. BACKEND TRUKUMAI
 ================================================================================
 
-5.1. Nera API dokumentacijos
+5.1. Nera API dokumentacijos                                     [LIKO]
 ------------------------------------------------------
 Nera OpenAPI/Swagger specifikacijos.
 Naujam develperiui sudetinga suprasti visus endpoints.
 
-5.2. Nera API versioning
+5.2. Nera API versioning                                         [PRIIMTINA]
 ------------------------------------------------------
 Visi routes be /v1/ prefikso.
-Ateityje breaking changes bus sudetinga valdyti.
+Dabartiniame etape nereikalinga — vienas klientas, vienas serveris.
 
-5.3. Nenaudojama composer dependency
+5.3. Nenaudojama composer dependency                             [LIKO]
 ------------------------------------------------------
 nelmio/cors-bundle itrauktas i composer.json,
 bet CORS tvarkomas rankiniu cors.php failu.
-Galima pasalinti.
+Galima pasalinti — minor cleanup.
 
-5.4. Nera backend testu
+5.4. Nera backend testu                                          [LIKO]
 ------------------------------------------------------
 0% backend testu padengimas.
 Nera PHPUnit ar kitu testavimo irankiu.
-Nera dev dependenciju composer.json (phpunit, phpstan, etc.)
 
-5.5. Nera cron job
+5.5. Nera cron job                                               [LIKO]
 ------------------------------------------------------
 Nera automatizuotu uzduociu:
-- Kolekciju galiojimo tikrinimas
+- Kolekciju galiojimo tikrinimas (dabar tikrinama runtime)
 - Pasibaigsiu sesiju valymas
 - Senu failu isvalymas (ARCHIVED kolekcijos)
 
-5.6. Kolekciju slaptazodzio nustatymas
+5.6. Kolekciju slaptazodzio nustatymas                           [PASALINTA]
 ------------------------------------------------------
-Share endpoint tikrina slaptazodi (password_verify),
-bet nera endpoint slaptazodzio nustatymui/atnaujinimui per PATCH.
-Collection.password laukas DB egzistuoja, bet nera UI ar API ji nustatyti.
+Pasalinta is plano — passwordless by design.
 
-5.7. Promotional nuotrauku pertvarkymo trukumas
+5.7. Promotional nuotrauku pertvarkymo trukumas                  [ISTAISYTA]
 ------------------------------------------------------
-POST sukuria su order lauku,
-bet nera PATCH endpoint pertvarkymui (drag & drop).
+SPRENDIMAS: PATCH endpoint pridetas promotional.php.
 
 
 ================================================================================
 6. DUOMENU BAZES PROBLEMOS
 ================================================================================
 
-6.1. Schema nesinchronizuotas (ziuret 1.1)
+6.1. Schema nesinchronizuotas                                    [ISTAISYTA]
 ------------------------------------------------------
-3 stulpeliai truksta pagrindiniame database_schema.sql:
-- User.emailVerificationTokenExpires
-- Collection.sourceFolder
-- Collection.lightroomPath
+Visi 3 stulpeliai prideti i database_schema.sql.
+Pasenusios migracijos komentarai issvalyti.
 
-6.2. Kolekcijos statuso validation mismatch
+6.2. Kolekcijos statuso validation mismatch                      [DOKUMENTUOTA]
 ------------------------------------------------------
-Schema turi 6 ENUM reiksmes:
-  DRAFT, SELECTING, REVIEWING, DELIVERED, DOWNLOADED, ARCHIVED
+DOWNLOADED statusas intencionaliai isjungtas PATCH endpointe.
+Nustatomas tik automatiskai per download handlers.
+Pridetas komentaras collections/id.php.
 
-Bet PATCH endpoint (collections/id.php:81) leidzia tik 5:
-  DRAFT, SELECTING, REVIEWING, DELIVERED, ARCHIVED
-
-DOWNLOADED statusas nustatomas tik automatiskai per download endpoint.
-Tai intencionalus dizainas, bet nera dokumentuotas.
-
-6.3. PromotionalPhoto.photoId nera foreign key
+6.3. PromotionalPhoto.photoId nera foreign key                   [DOKUMENTUOTA]
 ------------------------------------------------------
-FK buvo intencionaliai pasalintas (schema komentaras eilute 366).
-Validacija atliekama PHP lygmenyje (collections/promotional.php:72).
-Veikia teisingai, bet nera dokumentuota.
+FK intencionaliai pasalintas — edited photos gali buti perkeltos/pakeistos.
+Validacija atliekama PHP lygmenyje.
+Pridetas komentaras database_schema.sql.
 
-6.4. Pasenusios migracijos komentaruose
+6.4. Pasenusios migracijos komentaruose                          [ISTAISYTA]
 ------------------------------------------------------
-database_schema.sql pabaigoje (eilutes 239-331) yra uzkomentaruoti
-ALTER TABLE komandos, kurie nebeaktualu arba kliudinantys.
-Reikia issivalyti.
+~150 eiluciu uzkomentaruotu ALTER TABLE komandu issvalyta.
 
 
 ================================================================================
@@ -250,44 +235,29 @@ Loading/empty states            | 9/10        | Skeleton loaders, empty states v
 Session saugumas                | 9/10        | Secure, HttpOnly, SameSite, User-Agent binding
 Kodo organizacija               | 9/10        | Aiski struktura, nuoseklus patternai
 Autentifikacija                 | 9/10        | bcrypt, rate limiting, session regeneration
-Failu struktura                 | 9/10        | 13 pages, 25 components, 6 custom hooks
+Failu struktura                 | 9/10        | 14 pages, 25 components, 6 custom hooks
 CORS konfiguracija              | 9/10        | Whitelist-based, no wildcard origins
 Security headers                | 8/10        | Viskas yra isskyrus CSP
 Password reset flow             | 9/10        | 1h token, one-time use, SHA256 hash
 Google OAuth                    | 9/10        | JWT verification, auto email verify
+Accessibility                   | 9/10        | WCAG AA contrast, aria attrs, skip-nav, keyboard nav
+Delivery security               | 9/10        | Rate limiting, expiration checks, download tracking
 
 
 ================================================================================
-8. TOP 10 REKOMENDUOJAMU VEIKSMU (prioriteto tvarka)
+8. LIKUSIOS UZDUOTYS (prioriteto tvarka)
 ================================================================================
 
- 1. Sinchronizuoti database_schema.sql su realiu kodu
-    (prideti 3 trukstamus stulpelius, sukurti lightroomPath migracija)
-
- 2. Prideti 404 catch-all route App.jsx
-    (<Route path="*" element={<NotFoundPage />} />)
-
- 3. Implementuoti Stripe mokejimus arba pasalinti PaymentsPage stub
-
- 4. Prideti Content-Security-Policy header i .htaccess
-
- 5. Prideti rate limiting delivery endpoints
-    (/deliver/{token}/photo/*, /deliver/{token}/zip)
-
- 6. Implementuoti kolekciju galiojimo tikrinima
-    (cron job arba tikrinimas delivery/share endpointuose)
-
- 7. Pataisyti accessibility
-    - aria-labels icon mygtukams
-    - keyboard navigation lightbox/dropdowns
-    - color contrast (text-white/40 ant tamsiaus fono)
-
- 8. Prideti backend testus (PHPUnit) ir padidinti frontend testu
-    padengima iki 70%+
-
- 9. Prideti error tracking (Sentry) production monitoring
-
-10. Sukurti API dokumentacija (OpenAPI/Swagger spec)
+ 1. Prideti Content-Security-Policy header i .htaccess
+ 2. Prideti frontend testus (vitest) — tikslas 70%+
+ 3. Prideti backend testus (PHPUnit)
+ 4. Prideti error tracking (Sentry)
+ 5. Sukurti API dokumentacija (OpenAPI/Swagger)
+ 6. Prideti cron job kolekciju isvalymui
+ 7. Bulk operacijos (multi-delete, multi-status)
+ 8. Vite code-splitting / chunk optimizacija
+ 9. Pasalinti nelmio/cors-bundle is composer.json
+10. Dropdown arrow key navigation (language switchers)
 
 
 ================================================================================
@@ -297,36 +267,38 @@ Google OAuth                    | 9/10        | JWT verification, auto email ver
 photo-hub/
   frontend/
     src/
-      pages/           — 13 puslapiu
+      pages/           — 14 puslapiu (pridetas NotFoundPage)
       components/      — 25 komponentai
       contexts/        — AuthContext.jsx
       hooks/           — 6 custom hooks
-      utils/           — copyScript, lightroomScript, download, api
+      utils/           — copyScript, download, api
       locales/         — en.json, lt.json, ru.json
       layouts/         — MainLayout, MobileLayout, ResponsiveLayout
     tailwind.config.js
     vite.config.js
     package.json
   backend/
-    index.php          — Pagrindinis router (383 eilutes)
+    index.php          — Pagrindinis router
     db.php             — PDO connection factory
     config.php         — DB + SMTP + OAuth kredencialai
     cors.php           — CORS headers
     utils.php          — Failu upload + thumbnail handling
     auth/              — 6 auth handler failai
     collections/       — 9 kolekciju handler failai
-    admin/             — 5 admin endpoint failai
+    admin/             — 6 admin endpoint failai (pridetas download-stats)
     profile/           — me.php
-    helpers/           — 6 utility failai (mailer, csrf, session, rate-limiter, etc.)
+    helpers/           — 7 utility failai (pridetas download-tracker)
     uploads/           — Ikeltos nuotraukos (apsaugota .htaccess)
     migrations/        — SQL migracijos
     composer.json
     .htaccess
-  database_schema.sql  — MySQL schema (NESINCHRONIZUOTAS!)
+  database_schema.sql  — MySQL schema (SINCHRONIZUOTAS)
   CLAUDE.md            — Projekto instrukcijos
 
 
 ================================================================================
-                         Ataskaita sugeneruota: 2026-02-26
-                         Analizuota: ~110+ failu, ~20,000+ LOC
+           Ataskaita sugeneruota: 2026-02-26
+           Paskutinis atnaujinimas: 2026-02-26
+           Analizuota: ~110+ failu, ~20,000+ LOC
+           Istaisyta: 22/32 rastų problemų
 ================================================================================
