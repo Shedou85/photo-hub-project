@@ -13,7 +13,7 @@ Skipped: Payments (Stripe), CSP header, composer changes.
 - [ ] ~~Add CSP header~~ (skipped — separate task)
 - [x] Add rate limiting to delivery endpoints (`photo-download`, `zip-download`)
 - [x] Add collection expiration (`expiresAt`) checking in `deliver-view`, `photo-download`, `zip-download`, `share`
-- [ ] Review session timeout (currently 30 min)
+- [x] Review session timeout (currently 30 min) — documented rationale, 30 min is appropriate
 
 ## Frontend
 
@@ -24,6 +24,9 @@ Skipped: Payments (Stripe), CSP header, composer changes.
 - [x] Lightbox keyboard navigation — already done (ArrowLeft/Right/Escape in useLightbox, DeliveryPage, SharePage)
 - [x] Color contrast audit — bumped `text-white/40` → `/50`, `text-white/30` → `/40` for body text
 - [x] Skip-to-main-content link — added to MainLayout + MobileLayout
+- [x] Form `aria-invalid` + `aria-describedby` — LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage
+- [x] UserDetailModal Escape key handler — added to AdminPage
+- [ ] Dropdown arrow key navigation (language switchers) — low priority, click/tab works
 - [ ] Increase test coverage to 70%+
 
 ## Backend
@@ -31,18 +34,18 @@ Skipped: Payments (Stripe), CSP header, composer changes.
 - [ ] Add API documentation (OpenAPI/Swagger)
 - [ ] Add backend tests (PHPUnit)
 - [ ] Add cron job for collection expiration cleanup
-- [ ] Add promotional photo reorder endpoint (PATCH)
+- [x] Add promotional photo reorder endpoint (PATCH) — `collections/promotional.php`
+- [x] Add download analytics API endpoint — `GET /admin/download-stats`
 
 ## Unfinished Features
 
 - [ ] ~~Stripe payments~~ (skipped — separate milestone)
 - [ ] ~~SharePage password prompt UI~~ (removed — passwordless by design)
-- [ ] Download analytics API endpoint
+- [x] ZIP download button in DeliveryPage UI — already implemented
 - [ ] Bulk operations (multi-delete photos, multi-status change)
-- [ ] ZIP download button in DeliveryPage UI
 
 ## Database
 
-- [ ] Clean up commented-out migration SQL at bottom of `database_schema.sql`
-- [ ] Document DOWNLOADED status intentional restriction (auto-only)
-- [ ] Document PromotionalPhoto FK removal rationale
+- [x] Clean up commented-out migration SQL at bottom of `database_schema.sql`
+- [x] Document DOWNLOADED status intentional restriction (auto-only) — comment in `collections/id.php`
+- [x] Document PromotionalPhoto FK removal rationale — comment in `database_schema.sql`

@@ -334,6 +334,9 @@ switch ($requestUri) {
                 case 'audit-log':
                     require_once __DIR__ . '/admin/audit-log.php';
                     break;
+                case 'download-stats':
+                    require_once __DIR__ . '/admin/download-stats.php';
+                    break;
                 default:
                     http_response_code(404);
                     echo json_encode(['error' => 'Not found']);

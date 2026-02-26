@@ -96,6 +96,38 @@ try {
 
         echo json_encode(["status" => "OK", "photoId" => $photoId]);
 
+    } elseif ($method === 'PATCH') {
+        // Reorder promotional photos: expects { order: [{ photoId, order }, ...] }
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $orderList = $data['order'] ?? [];
+
+        if (!is_array($orderList) || empty($orderList)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Missing or invalid order array."]);
+            exit;
+        }
+
+        $updateStmt = $pdo->prepare("
+            UPDATE PromotionalPhoto SET `order` = ?, updatedAt = ? WHERE collectionId = ? AND photoId = ?
+        ");
+        $now = date('Y-m-d H:i:s.v');
+
+        $pdo->beginTransaction();
+        try {
+            foreach ($orderList as $item) {
+                $photoId = $item['photoId'] ?? '';
+                $order   = (int) ($item['order'] ?? 0);
+                if (empty($photoId) || !isValidId($photoId)) continue;
+                $updateStmt->execute([$order, $now, $collectionId, $photoId]);
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        echo json_encode(["status" => "OK"]);
+
     } elseif ($method === 'DELETE') {
         $photoId = $parts[3] ?? '';
 

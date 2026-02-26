@@ -224,6 +224,11 @@ ALTER TABLE `Selection`
 
 --
 -- Constraints for table `PromotionalPhoto`
+-- NOTE: PromotionalPhoto.photoId intentionally has NO foreign key to EditedPhoto.
+-- Reason: Edited photos may be re-uploaded (deleted and re-inserted) during the
+-- editing workflow. A FK would cascade-delete promotional selections when the
+-- photographer replaces edited photos. Validation is enforced at the PHP level
+-- in backend/collections/promotional.php (verifies photoId belongs to collection).
 --
 ALTER TABLE `PromotionalPhoto`
   ADD CONSTRAINT `PromotionalPhoto_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `Collection` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

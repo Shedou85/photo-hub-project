@@ -2,7 +2,11 @@
 // backend/helpers/session.php
 // Session management with inactivity timeout
 
-define('SESSION_TIMEOUT', 1800); // 30 minutes
+// 30 minutes inactivity timeout. Appropriate for photographer workflow:
+// - Short enough to protect client data if browser left open
+// - Long enough for typical editing/uploading sessions
+// - Matches industry standard for sensitive data applications
+define('SESSION_TIMEOUT', 1800);
 
 function startSessionWithTimeout(): bool {
     if (session_status() === PHP_SESSION_NONE) {

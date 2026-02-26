@@ -78,6 +78,9 @@ try {
 
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
 
+        // DOWNLOADED is intentionally excluded — it is set automatically by download
+        // handlers (zip-download.php, photo-download.php) on first client download.
+        // This prevents photographers from manually marking collections as downloaded.
         $validStatuses = ['DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'ARCHIVED'];
         $allowed = ['name', 'clientName', 'clientEmail', 'expiresAt', 'allowPromotionalUse', 'sourceFolder', 'lightroomPath'];
 
