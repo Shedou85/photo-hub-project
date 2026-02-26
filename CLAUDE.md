@@ -153,6 +153,11 @@ cd backend && composer install
 - **CSRF-exempt routes** (these are the ONLY places where raw `fetch()` is acceptable): `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/resend-verification`, `/auth/google`, `/share/*`, `/deliver/*`
 - Backend CSRF logic: `backend/helpers/csrf.php` — token stored in `$_SESSION['csrf_token']`, validated via `hash_equals()`
 
+### Utilities (`frontend/src/utils/`)
+
+- **`copyScript.js`** — `generateCopyScript(sourceFolder, selectedPhotos, collectionName)` generates a platform-specific script (.bat on Windows, .command on macOS/Linux) that copies client-selected photos into a `_Selected` subfolder and opens it in the file explorer. Used in the REVIEWING banner of `CollectionDetailsPage`. No backend calls — purely client-side blob download.
+- **`lightroomScript.js`** — `generateLightroomScript(...)` similar pattern but also attempts to open Lightroom Classic. Currently unused in the UI.
+
 ## Key Patterns
 
 - **Adding a new API endpoint**: Add a `case` to the switch in `backend/index.php`, create a handler file in the appropriate subdirectory
