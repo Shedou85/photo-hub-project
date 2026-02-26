@@ -230,11 +230,18 @@ function CollectionDetailsPage() {
         phaseLabel: t('collection.reviewPhaseInProgress'),
       };
     }
-    if (status === 'DELIVERED' || status === 'DOWNLOADED') {
+    if (status === 'DELIVERED') {
       return {
         steps: [t('collection.stepClientSelection'), t('collection.stepUploadFinals'), t('collection.stepDelivered')],
         activeStep: 2,
         phaseLabel: t('collection.deliveredPhaseComplete'),
+      };
+    }
+    if (status === 'DOWNLOADED') {
+      return {
+        steps: [t('collection.stepClientSelection'), t('collection.stepUploadFinals'), t('collection.stepDelivered')],
+        activeStep: 2,
+        phaseLabel: t('collection.downloadedPhaseComplete'),
       };
     }
     return { steps: [], activeStep: 0, phaseLabel: '' };
@@ -414,7 +421,7 @@ function CollectionDetailsPage() {
               </div>
             )}
 
-            {(collection.status === 'DELIVERED' || collection.status === 'DOWNLOADED') && (
+            {collection.status === 'DELIVERED' && (
               <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#10b981,#059669)] mb-2">
                 <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -422,6 +429,24 @@ function CollectionDetailsPage() {
                 <div>
                   <p className="text-white font-bold text-lg m-0">{t('collection.readyToDeliverTitle')}</p>
                   <p className="text-white/75 text-sm m-0 mt-1">{t('collection.readyToDeliverDesc')}</p>
+                </div>
+                <Button variant="secondary" onClick={handleCopyDeliveryLink}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  {t('collection.copyDeliveryLink')}
+                </Button>
+              </div>
+            )}
+
+            {collection.status === 'DOWNLOADED' && (
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] mb-2">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-white font-bold text-lg m-0">{t('collection.downloadedTitle')}</p>
+                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.downloadedDesc')}</p>
                 </div>
                 <Button variant="secondary" onClick={handleCopyDeliveryLink}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
