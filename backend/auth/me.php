@@ -15,7 +15,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, collectionsCreatedCount
+        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, collectionsCreatedCount, emailVerified
         FROM `User`
         WHERE id = ?
         LIMIT 1

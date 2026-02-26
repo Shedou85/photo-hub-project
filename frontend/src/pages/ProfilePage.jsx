@@ -54,6 +54,8 @@ function ProfilePage() {
   const [name, setName] = useState(user?.name || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -77,6 +79,23 @@ function ProfilePage() {
       success: t('profile.updateSuccess'),
       error: (err) => `${t('profile.updateFailed')} ${err.message}`,
     });
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/resend-verification`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      setResendSent(true);
+    } catch {
+      toast.error(t('emailVerification.emailSendFailed'));
+    } finally {
+      setResending(false);
+    }
   };
 
   // --- Unauthenticated guard ---
@@ -154,6 +173,31 @@ function ProfilePage() {
           </div>
         </form>
       </Accordion>
+
+      {/* ── Email Verification Banner (only when unverified) ── */}
+      {!user.emailVerified && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-6 py-4 mb-5 flex items-start gap-3">
+          <svg className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            {resendSent ? (
+              <p className="text-sm text-amber-300">{t('emailVerification.resendSuccess')}</p>
+            ) : (
+              <>
+                <p className="text-sm text-amber-300 mb-2">{t('emailVerification.notVerified')}</p>
+                <button
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="text-sm font-semibold text-amber-400 hover:text-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {resending ? t('emailVerification.resending') : t('emailVerification.resendLink')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Profile Information Card (read-only) ── */}
       <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-5">
