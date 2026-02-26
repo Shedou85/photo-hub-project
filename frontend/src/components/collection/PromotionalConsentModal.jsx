@@ -93,21 +93,21 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
     >
-      <div className="bg-white rounded-[10px] shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col overflow-hidden">
+      <div className="bg-surface-dark border border-white/10 rounded-[10px] shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col overflow-hidden">
 
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900 m-0 leading-snug">
+        <div className="px-6 py-5 border-b border-white/[0.08]">
+          <h2 className="text-lg font-bold text-white m-0 leading-snug">
             {t('promotional.modalTitle')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600 leading-relaxed m-0">
+          <p className="mt-2 text-sm text-white/60 leading-relaxed m-0">
             {t('promotional.modalDesc')}
           </p>
         </div>
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          <p className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400 mb-3">
+          <p className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40 mb-3">
             {t('promotional.selectHint')}
           </p>
 
@@ -159,22 +159,22 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
               })}
             </div>
           ) : (
-            <p className="text-sm text-gray-400 text-center py-8">
+            <p className="text-sm text-white/40 text-center py-8">
               {t('collection.noPhotos')}
             </p>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-5 border-t border-gray-200 flex items-center justify-between gap-4">
-          <span className="text-sm text-gray-500 shrink-0">
+        <div className="px-6 py-5 border-t border-white/[0.08] flex items-center justify-between gap-4">
+          <span className="text-sm text-white/50 shrink-0">
             {t('promotional.selectedCount', { count: selectedIds.length })}
           </span>
           <div className="flex items-center gap-3">
             <button
               onClick={handleSkip}
               disabled={loading}
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm text-white/50 hover:text-white/70 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('promotional.skipBtn')}
             </button>

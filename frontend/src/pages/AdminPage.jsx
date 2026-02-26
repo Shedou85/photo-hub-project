@@ -13,18 +13,18 @@ const ShieldIcon = (
 
 // ---------- Constants ----------
 const STATUS_COLORS = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  SUSPENDED: 'bg-red-100 text-red-700',
-  DRAFT: 'bg-gray-100 text-gray-600',
-  SELECTING: 'bg-blue-100 text-blue-700',
-  REVIEWING: 'bg-yellow-100 text-yellow-700',
-  DELIVERED: 'bg-indigo-100 text-indigo-700',
-  DOWNLOADED: 'bg-purple-100 text-purple-700',
-  ARCHIVED: 'bg-gray-100 text-gray-500',
+  ACTIVE: 'bg-green-400/15 text-green-400',
+  SUSPENDED: 'bg-red-400/15 text-red-400',
+  DRAFT: 'bg-white/[0.08] text-white/50',
+  SELECTING: 'bg-blue-400/15 text-blue-400',
+  REVIEWING: 'bg-yellow-400/15 text-yellow-400',
+  DELIVERED: 'bg-indigo-400/15 text-indigo-400',
+  DOWNLOADED: 'bg-purple-400/15 text-purple-400',
+  ARCHIVED: 'bg-white/[0.08] text-white/40',
 };
 
 const StatusBadge = ({ status }) => (
-  <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide ${STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-600'}`}>
+  <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide ${STATUS_COLORS[status] ?? 'bg-white/[0.08] text-white/50'}`}>
     {status}
   </span>
 );
@@ -89,16 +89,16 @@ const UserDetailModal = ({ user, onClose, t }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-[10px] border border-gray-200 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-xl mx-4">
+      <div className="bg-surface-dark rounded-[10px] border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-xl mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] sticky top-0 bg-surface-dark z-10">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">{user.name || '—'}</h3>
-            <p className="text-xs text-gray-400">{user.email}</p>
+            <h3 className="text-base font-semibold text-white">{user.name || '—'}</h3>
+            <p className="text-xs text-white/40">{user.email}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none px-2"
+            className="text-white/40 hover:text-white/60 transition-colors text-xl leading-none px-2"
             aria-label={t('admin.userDetail.close')}
           >
             &times;
@@ -106,63 +106,63 @@ const UserDetailModal = ({ user, onClose, t }) => {
         </div>
 
         {/* User info grid */}
-        <div className="px-6 py-4 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 border-b border-gray-100">
+        <div className="px-6 py-4 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 border-b border-white/[0.08]">
           <div>
-            <p className="text-[11px] text-gray-400 uppercase font-semibold tracking-wide">{t('admin.users.columns.plan')}</p>
-            <p className="text-sm text-gray-800 mt-0.5 font-medium">{user.plan}</p>
+            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.users.columns.plan')}</p>
+            <p className="text-sm text-white/90 mt-0.5 font-medium">{user.plan}</p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-400 uppercase font-semibold tracking-wide">{t('admin.users.columns.status')}</p>
+            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.users.columns.status')}</p>
             <div className="mt-0.5">
               <StatusBadge status={user.status} />
             </div>
           </div>
           <div>
-            <p className="text-[11px] text-gray-400 uppercase font-semibold tracking-wide">{t('admin.userDetail.emailVerified')}</p>
-            <p className={`text-sm mt-0.5 font-medium ${isVerified ? 'text-green-600' : 'text-red-500'}`}>
+            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.userDetail.emailVerified')}</p>
+            <p className={`text-sm mt-0.5 font-medium ${isVerified ? 'text-green-400' : 'text-red-400'}`}>
               {isVerified ? t('admin.userDetail.verified') : t('admin.userDetail.notVerified')}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-400 uppercase font-semibold tracking-wide">{t('admin.users.columns.joined')}</p>
-            <p className="text-sm text-gray-800 mt-0.5">
+            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.users.columns.joined')}</p>
+            <p className="text-sm text-white/90 mt-0.5">
               {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-400 uppercase font-semibold tracking-wide">{t('admin.userDetail.totalPhotos')}</p>
-            <p className="text-sm text-gray-800 mt-0.5 font-medium">{user.totalPhotos ?? 0}</p>
+            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.userDetail.totalPhotos')}</p>
+            <p className="text-sm text-white/90 mt-0.5 font-medium">{user.totalPhotos ?? 0}</p>
           </div>
         </div>
 
         {/* Collections section */}
         <div className="px-6 py-4">
-          <p className="text-sm font-semibold text-gray-700 mb-3">{t('admin.userDetail.collections')}</p>
+          <p className="text-sm font-semibold text-white/70 mb-3">{t('admin.userDetail.collections')}</p>
           {loading ? (
-            <p className="text-sm text-gray-400">{t('admin.userDetail.loadingCollections')}</p>
+            <p className="text-sm text-white/40">{t('admin.userDetail.loadingCollections')}</p>
           ) : collections.length === 0 ? (
-            <p className="text-sm text-gray-400">{t('admin.userDetail.noCollections')}</p>
+            <p className="text-sm text-white/40">{t('admin.userDetail.noCollections')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{t('admin.collections.columns.name')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{t('admin.collections.columns.status')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{t('admin.collections.columns.photos')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{t('admin.collections.columns.created')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
+                  <tr className="border-b border-white/[0.08] bg-white/[0.03]">
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.name')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.status')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.photos')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.created')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-white/[0.06]">
                   {collections.map((c) => (
-                    <tr key={c.id} className="hover:bg-gray-50 transition-colors duration-100">
-                      <td className="px-3 py-2 font-medium text-gray-900 max-w-[150px] truncate">{c.name}</td>
+                    <tr key={c.id} className="hover:bg-white/[0.04] transition-colors duration-100">
+                      <td className="px-3 py-2 font-medium text-white max-w-[150px] truncate">{c.name}</td>
                       <td className="px-3 py-2">
                         <select
                           value={c.status}
                           onChange={(e) => handleStatusChange(c.id, e.target.value)}
-                          className="text-xs text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                          className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
                           aria-label={t('admin.userDetail.changeStatus')}
                         >
                           {COLLECTION_STATUSES.map((s) => (
@@ -170,15 +170,15 @@ const UserDetailModal = ({ user, onClose, t }) => {
                           ))}
                         </select>
                       </td>
-                      <td className="px-3 py-2 text-gray-700">{c.photoCount ?? 0}</td>
-                      <td className="px-3 py-2 text-gray-500 text-xs whitespace-nowrap">
+                      <td className="px-3 py-2 text-white/70">{c.photoCount ?? 0}</td>
+                      <td className="px-3 py-2 text-white/50 text-xs whitespace-nowrap">
                         {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}
                       </td>
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => window.open(`/collection/${c.id}`, '_blank')}
-                            className="text-indigo-600 hover:text-indigo-800 text-[12px] font-medium transition-colors whitespace-nowrap"
+                            className="text-indigo-400 hover:text-indigo-300 text-[12px] font-medium transition-colors whitespace-nowrap"
                           >
                             {t('admin.userDetail.openCollection')}
                           </button>
@@ -193,7 +193,7 @@ const UserDetailModal = ({ user, onClose, t }) => {
                               </button>
                               <button
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="text-gray-400 hover:text-gray-600 text-[11px] transition-colors"
+                                className="text-white/40 hover:text-white/60 text-[11px] transition-colors"
                               >
                                 {t('common.cancel')}
                               </button>
@@ -202,7 +202,7 @@ const UserDetailModal = ({ user, onClose, t }) => {
                             <button
                               onClick={() => setDeleteConfirmId(c.id)}
                               disabled={deletingId === c.id}
-                              className="text-red-500 hover:text-red-700 text-[12px] font-medium transition-colors disabled:opacity-50"
+                              className="text-red-400 hover:text-red-300 text-[12px] font-medium transition-colors disabled:opacity-50"
                             >
                               {t('admin.userDetail.deleteCollection')}
                             </button>
@@ -218,10 +218,10 @@ const UserDetailModal = ({ user, onClose, t }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+        <div className="px-6 py-4 border-t border-white/[0.08] flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] transition-colors"
           >
             {t('admin.userDetail.close')}
           </button>
@@ -490,15 +490,15 @@ const AdminPage = () => {
       />
 
       {/* ===== Tab Navigation ===== */}
-      <div className="flex items-center gap-1 bg-gray-100 rounded-[10px] p-1 w-fit">
+      <div className="flex items-center gap-1 bg-white/[0.06] rounded-[10px] p-1 w-fit">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 rounded-[8px] text-sm font-medium transition-all duration-150 whitespace-nowrap ${
               activeTab === tab.key
-                ? 'bg-white text-indigo-700 shadow-sm border border-gray-200'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white/[0.1] text-indigo-400 shadow-sm border border-white/[0.12]'
+                : 'text-white/50 hover:text-white/70'
             }`}
           >
             {tab.label}
@@ -509,56 +509,56 @@ const AdminPage = () => {
       {/* ===== Stats Tab ===== */}
       {activeTab === 'stats' && (
         <section>
-          <h2 className="text-base font-semibold text-gray-800 mb-4">{t('admin.stats.title')}</h2>
+          <h2 className="text-base font-semibold text-white mb-4">{t('admin.stats.title')}</h2>
           {statsLoading ? (
-            <p className="text-sm text-gray-500">{t('admin.loading')}</p>
+            <p className="text-sm text-white/50">{t('admin.loading')}</p>
           ) : !stats ? (
-            <p className="text-sm text-gray-500">{t('admin.noData')}</p>
+            <p className="text-sm text-white/50">{t('admin.noData')}</p>
           ) : (
             <div className="space-y-4">
               {/* 4 main stat cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="border border-gray-200 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('admin.stats.totalUsers')}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalUsers ?? 0}</p>
+                <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
+                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.totalUsers')}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stats.totalUsers ?? 0}</p>
                 </div>
-                <div className="border border-gray-200 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('admin.stats.activeUsers')}</p>
-                  <p className="text-3xl font-bold text-green-600 mt-1">{stats.activeUsers ?? 0}</p>
+                <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
+                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.activeUsers')}</p>
+                  <p className="text-3xl font-bold text-green-400 mt-1">{stats.activeUsers ?? 0}</p>
                 </div>
-                <div className="border border-gray-200 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('admin.stats.suspendedUsers')}</p>
-                  <p className="text-3xl font-bold text-red-500 mt-1">{stats.suspendedUsers ?? 0}</p>
+                <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
+                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.suspendedUsers')}</p>
+                  <p className="text-3xl font-bold text-red-400 mt-1">{stats.suspendedUsers ?? 0}</p>
                 </div>
-                <div className="border border-gray-200 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('admin.stats.totalDownloads')}</p>
-                  <p className="text-3xl font-bold text-indigo-600 mt-1">{stats.totalDownloads ?? 0}</p>
+                <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
+                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.totalDownloads')}</p>
+                  <p className="text-3xl font-bold text-indigo-400 mt-1">{stats.totalDownloads ?? 0}</p>
                 </div>
               </div>
 
               {/* 2 breakdown cards */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Plan Distribution */}
-                <div className="border border-gray-200 rounded-[10px] px-6 py-5">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">{t('admin.stats.planBreakdown')}</p>
+                <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
+                  <p className="text-sm font-semibold text-white/70 mb-3">{t('admin.stats.planBreakdown')}</p>
                   <div className="space-y-2">
                     {['FREE_TRIAL', 'STANDARD', 'PRO'].map((plan) => (
                       <div key={plan} className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">{plan.replace('_', ' ')}</span>
-                        <span className="text-sm font-semibold text-gray-800">{stats.planBreakdown?.[plan] ?? 0}</span>
+                        <span className="text-xs text-white/50">{plan.replace('_', ' ')}</span>
+                        <span className="text-sm font-semibold text-white/90">{stats.planBreakdown?.[plan] ?? 0}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Collections by Status */}
-                <div className="border border-gray-200 rounded-[10px] px-6 py-5">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">{t('admin.stats.collectionsByStatus')}</p>
+                <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
+                  <p className="text-sm font-semibold text-white/70 mb-3">{t('admin.stats.collectionsByStatus')}</p>
                   <div className="space-y-2">
                     {COLLECTION_STATUSES.map((status) => (
                       <div key={status} className="flex items-center justify-between">
                         <StatusBadge status={status} />
-                        <span className="text-sm font-semibold text-gray-800">{stats.collectionsByStatus?.[status] ?? 0}</span>
+                        <span className="text-sm font-semibold text-white/90">{stats.collectionsByStatus?.[status] ?? 0}</span>
                       </div>
                     ))}
                   </div>
@@ -572,24 +572,24 @@ const AdminPage = () => {
       {/* ===== Users Tab ===== */}
       {activeTab === 'users' && (
         <section>
-          <div className="border border-gray-200 rounded-[10px] overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-              <h2 className="text-base font-semibold text-gray-800">{t('admin.users.title')}</h2>
+          <div className="bg-white/[0.04] border border-white/10 rounded-[10px] overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.08] bg-white/[0.03]">
+              <h2 className="text-base font-semibold text-white">{t('admin.users.title')}</h2>
             </div>
 
             {/* Toolbar */}
-            <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap gap-3 items-center">
+            <div className="px-6 py-4 border-b border-white/[0.08] flex flex-wrap gap-3 items-center">
               <input
                 type="text"
                 placeholder={t('admin.users.searchPlaceholder')}
                 value={searchInput}
                 onChange={handleSearchChange}
-                className="flex-1 min-w-[200px] text-sm text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-shadow"
+                className="flex-1 min-w-[200px] text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 transition-shadow placeholder:text-white/20"
               />
               <select
                 value={usersFilters.role}
                 onChange={(e) => setUsersFilters((f) => ({ ...f, role: e.target.value, page: 1 }))}
-                className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 min-w-[110px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[110px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
               >
                 <option value="">{t('admin.users.allRoles')}</option>
                 <option value="USER">USER</option>
@@ -598,7 +598,7 @@ const AdminPage = () => {
               <select
                 value={usersFilters.status}
                 onChange={(e) => setUsersFilters((f) => ({ ...f, status: e.target.value, page: 1 }))}
-                className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 min-w-[120px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[120px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
               >
                 <option value="">{t('admin.users.allStatuses')}</option>
                 <option value="ACTIVE">ACTIVE</option>
@@ -607,7 +607,7 @@ const AdminPage = () => {
               <select
                 value={usersFilters.plan}
                 onChange={(e) => setUsersFilters((f) => ({ ...f, plan: e.target.value, page: 1 }))}
-                className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 min-w-[120px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[120px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
               >
                 <option value="">{t('admin.users.allPlans')}</option>
                 <option value="FREE_TRIAL">FREE_TRIAL</option>
@@ -615,11 +615,11 @@ const AdminPage = () => {
                 <option value="PRO">PRO</option>
               </select>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 whitespace-nowrap">{t('admin.pagination.perPage')}:</span>
+                <span className="text-xs text-white/40 whitespace-nowrap">{t('admin.pagination.perPage')}:</span>
                 <select
                   value={usersFilters.limit}
                   onChange={(e) => setUsersFilters((f) => ({ ...f, limit: Number(e.target.value), page: 1 }))}
-                  className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                  className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
@@ -639,8 +639,8 @@ const AdminPage = () => {
 
             {/* Bulk action bar — shows when 2+ selected */}
             {selectedIds.size >= 2 && (
-              <div className="px-6 py-3 bg-indigo-50 border-b border-indigo-100 flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium text-indigo-700">
+              <div className="px-6 py-3 bg-indigo-500/10 border-b border-indigo-500/20 flex flex-wrap items-center gap-3">
+                <span className="text-sm font-medium text-indigo-400">
                   {t('admin.users.selectedCount', { count: selectedIds.size })}
                 </span>
                 <button
@@ -662,13 +662,13 @@ const AdminPage = () => {
                   <button
                     onClick={() => setShowBulkPlanMenu((v) => !v)}
                     disabled={bulkLoading}
-                    className="text-sm px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center gap-1"
+                    className="text-sm px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.12] text-white/70 font-medium hover:bg-white/[0.1] transition-colors disabled:opacity-50 flex items-center gap-1"
                   >
                     {t('admin.users.bulkChangePlan')}
-                    <span className="text-gray-400">&#9660;</span>
+                    <span className="text-white/40">&#9660;</span>
                   </button>
                   {showBulkPlanMenu && (
-                    <div className="absolute left-0 top-full mt-1 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[130px]">
+                    <div className="absolute left-0 top-full mt-1 z-20 bg-surface-dark border border-white/[0.12] rounded-lg shadow-xl py-1 min-w-[130px]">
                       {['FREE_TRIAL', 'STANDARD', 'PRO'].map((plan) => (
                         <button
                           key={plan}
@@ -676,7 +676,7 @@ const AdminPage = () => {
                             setShowBulkPlanMenu(false);
                             handleBulkAction('plan', plan);
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                          className="w-full text-left px-4 py-2 text-sm text-white/70 hover:bg-white/[0.08] hover:text-indigo-400 transition-colors"
                         >
                           {plan.replace('_', ' ')}
                         </button>
@@ -690,33 +690,33 @@ const AdminPage = () => {
             {/* Table */}
             <div className="overflow-x-auto">
               {usersLoading ? (
-                <p className="text-sm text-gray-500 px-6 py-8">{t('admin.loading')}</p>
+                <p className="text-sm text-white/50 px-6 py-8">{t('admin.loading')}</p>
               ) : users.length === 0 ? (
-                <p className="text-sm text-gray-500 px-6 py-8">{t('admin.noData')}</p>
+                <p className="text-sm text-white/50 px-6 py-8">{t('admin.noData')}</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50">
+                    <tr className="border-b border-white/[0.08] bg-white/[0.03]">
                       <th className="px-4 py-3 w-8">
                         <input
                           type="checkbox"
                           checked={allCurrentSelected}
                           onChange={handleSelectAll}
                           aria-label={t('admin.users.selectAll')}
-                          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300 cursor-pointer"
+                          className="rounded border-white/20 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer bg-white/[0.06]"
                         />
                       </th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.name')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.role')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.plan')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.status')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.emailVerified')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.collections')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.joined')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.name')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.role')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.plan')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.status')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.emailVerified')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.collections')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.joined')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-white/[0.06]">
                     {users.map((u) => {
                       const isUpdating = updatingUserId === u.id;
                       const isSelected = selectedIds.has(u.id);
@@ -724,14 +724,14 @@ const AdminPage = () => {
                       return (
                         <tr
                           key={u.id}
-                          className={`hover:bg-gray-50 transition-colors duration-100 ${isSelected ? 'bg-indigo-50/50' : ''}`}
+                          className={`hover:bg-white/[0.04] transition-colors duration-100 ${isSelected ? 'bg-indigo-500/10' : ''}`}
                         >
                           <td className="px-4 py-3 w-8">
                             <input
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => handleToggleSelect(u.id)}
-                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300 cursor-pointer"
+                              className="rounded border-white/20 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer bg-white/[0.06]"
                             />
                           </td>
                           <td className="px-4 py-3">
@@ -739,10 +739,10 @@ const AdminPage = () => {
                               onClick={() => setUserDetailModal(u)}
                               className="text-left group"
                             >
-                              <p className="font-medium text-indigo-600 group-hover:text-indigo-800 group-hover:underline cursor-pointer transition-colors">
+                              <p className="font-medium text-indigo-400 group-hover:text-indigo-300 group-hover:underline cursor-pointer transition-colors">
                                 {u.name || '—'}
                               </p>
-                              <p className="text-xs text-gray-400">{u.email}</p>
+                              <p className="text-xs text-white/40">{u.email}</p>
                             </button>
                           </td>
                           <td className="px-4 py-3">
@@ -750,7 +750,7 @@ const AdminPage = () => {
                               value={u.role}
                               disabled={isUpdating}
                               onChange={(e) => handleUserFieldChange(u.id, 'role', e.target.value)}
-                              className="text-xs text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1 min-w-[72px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 min-w-[72px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <option value="USER">USER</option>
                               <option value="ADMIN">ADMIN</option>
@@ -761,7 +761,7 @@ const AdminPage = () => {
                               value={u.plan}
                               disabled={isUpdating}
                               onChange={(e) => handleUserFieldChange(u.id, 'plan', e.target.value)}
-                              className="text-xs text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1 min-w-[90px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 min-w-[90px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <option value="FREE_TRIAL">FREE_TRIAL</option>
                               <option value="STANDARD">STANDARD</option>
@@ -773,7 +773,7 @@ const AdminPage = () => {
                               value={u.status}
                               disabled={isUpdating}
                               onChange={(e) => handleUserFieldChange(u.id, 'status', e.target.value)}
-                              className="text-xs text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1 min-w-[90px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 min-w-[90px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <option value="ACTIVE">ACTIVE</option>
                               <option value="SUSPENDED">SUSPENDED</option>
@@ -781,17 +781,17 @@ const AdminPage = () => {
                           </td>
                           <td className="px-4 py-3">
                             {isVerified ? (
-                              <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[11px] font-semibold">
+                              <span className="inline-flex items-center gap-1 bg-green-400/15 text-green-400 px-2 py-0.5 rounded-full text-[11px] font-semibold">
                                 &#10003; {t('admin.users.columns.emailVerified')}
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[11px] font-semibold">
+                              <span className="inline-flex items-center gap-1 bg-red-400/15 text-red-400 px-2 py-0.5 rounded-full text-[11px] font-semibold">
                                 &#10007; {t('admin.users.columns.emailVerified')}
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-gray-700">{u.collectionsCreatedCount ?? 0}</td>
-                          <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                          <td className="px-4 py-3 text-white/70">{u.collectionsCreatedCount ?? 0}</td>
+                          <td className="px-4 py-3 text-white/50 text-xs whitespace-nowrap">
                             {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}
                           </td>
                           <td className="px-4 py-3">
@@ -814,21 +814,21 @@ const AdminPage = () => {
 
             {/* Users Pagination */}
             {usersMeta && usersMeta.totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+              <div className="px-6 py-4 border-t border-white/[0.08] flex items-center justify-between">
                 <button
                   disabled={usersMeta.page <= 1}
                   onClick={() => setUsersFilters((f) => ({ ...f, page: f.page - 1 }))}
-                  className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="text-sm px-4 py-2 rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {t('admin.pagination.prev')}
                 </button>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-white/40">
                   {t('admin.pagination.page')} {usersMeta.page} / {usersMeta.totalPages} &middot; {usersMeta.total} {t('admin.pagination.total')}
                 </span>
                 <button
                   disabled={usersMeta.page >= usersMeta.totalPages}
                   onClick={() => setUsersFilters((f) => ({ ...f, page: f.page + 1 }))}
-                  className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="text-sm px-4 py-2 rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {t('admin.pagination.next')}
                 </button>
@@ -841,41 +841,41 @@ const AdminPage = () => {
       {/* ===== Audit Log Tab ===== */}
       {activeTab === 'audit-log' && (
         <section>
-          <div className="border border-gray-200 rounded-[10px] overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-              <h2 className="text-base font-semibold text-gray-800">{t('admin.auditLog.title')}</h2>
+          <div className="bg-white/[0.04] border border-white/10 rounded-[10px] overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.08] bg-white/[0.03]">
+              <h2 className="text-base font-semibold text-white">{t('admin.auditLog.title')}</h2>
             </div>
 
             {/* Filters */}
-            <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap gap-3 items-center">
+            <div className="px-6 py-4 border-b border-white/[0.08] flex flex-wrap gap-3 items-center">
               <input
                 type="text"
                 placeholder={t('admin.auditLog.allActions')}
                 value={auditFilters.action}
                 onChange={(e) => setAuditFilters((f) => ({ ...f, action: e.target.value, page: 1 }))}
-                className="text-sm text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-2 min-w-[160px] outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-shadow"
+                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[160px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 transition-shadow placeholder:text-white/20"
               />
               <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-400 whitespace-nowrap">{t('admin.auditLog.fromDate')}</label>
+                <label className="text-xs text-white/40 whitespace-nowrap">{t('admin.auditLog.fromDate')}</label>
                 <input
                   type="date"
                   value={auditFilters.from}
                   onChange={(e) => setAuditFilters((f) => ({ ...f, from: e.target.value, page: 1 }))}
-                  className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                  className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-400 whitespace-nowrap">{t('admin.auditLog.toDate')}</label>
+                <label className="text-xs text-white/40 whitespace-nowrap">{t('admin.auditLog.toDate')}</label>
                 <input
                   type="date"
                   value={auditFilters.to}
                   onChange={(e) => setAuditFilters((f) => ({ ...f, to: e.target.value, page: 1 }))}
-                  className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer"
+                  className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
                 />
               </div>
               <button
                 onClick={() => setAuditFilters({ action: '', from: '', to: '', page: 1, limit: 20 })}
-                className="text-sm px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                className="text-sm px-3 py-2 rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] transition-colors"
               >
                 {t('admin.auditLog.clearFilters')}
               </button>
@@ -884,48 +884,48 @@ const AdminPage = () => {
             {/* Table */}
             <div className="overflow-x-auto">
               {auditLogsLoading ? (
-                <p className="text-sm text-gray-500 px-6 py-8">{t('admin.loading')}</p>
+                <p className="text-sm text-white/50 px-6 py-8">{t('admin.loading')}</p>
               ) : auditLogs.length === 0 ? (
-                <p className="text-sm text-gray-500 px-6 py-8">{t('admin.auditLog.noLogs')}</p>
+                <p className="text-sm text-white/50 px-6 py-8">{t('admin.auditLog.noLogs')}</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50">
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.auditLog.columns.date')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.auditLog.columns.admin')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.auditLog.columns.action')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.auditLog.columns.target')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('admin.auditLog.columns.changes')}</th>
+                    <tr className="border-b border-white/[0.08] bg-white/[0.03]">
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.date')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.admin')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.action')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.target')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.changes')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-white/[0.06]">
                     {auditLogs.map((log, idx) => {
                       const changesStr = log.changes ? JSON.stringify(log.changes, null, 2) : '';
                       const truncated = changesStr.length > 120 ? changesStr.slice(0, 120) + '...' : changesStr;
                       return (
-                        <tr key={log.id ?? idx} className="hover:bg-gray-50 transition-colors duration-100">
-                          <td className="px-6 py-3 text-gray-500 text-xs whitespace-nowrap">
+                        <tr key={log.id ?? idx} className="hover:bg-white/[0.04] transition-colors duration-100">
+                          <td className="px-6 py-3 text-white/50 text-xs whitespace-nowrap">
                             {log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-gray-800 text-xs">{log.adminName || log.adminEmail || '—'}</p>
+                            <p className="text-white/90 text-xs">{log.adminName || log.adminEmail || '—'}</p>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="inline-block bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                            <span className="inline-block bg-indigo-500/15 text-indigo-400 text-[11px] font-semibold px-2 py-0.5 rounded-md">
                               {log.action}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-gray-600 text-xs">{log.targetEntityId || '—'}</td>
+                          <td className="px-4 py-3 text-white/60 text-xs">{log.targetEntityId || '—'}</td>
                           <td className="px-4 py-3 max-w-[260px]">
                             {changesStr ? (
                               <code
-                                className="text-xs bg-gray-50 px-2 py-1 rounded whitespace-pre-wrap break-all block"
+                                className="text-xs bg-white/[0.06] text-white/70 px-2 py-1 rounded whitespace-pre-wrap break-all block"
                                 title={changesStr}
                               >
                                 {truncated}
                               </code>
                             ) : (
-                              <span className="text-gray-400 text-xs">—</span>
+                              <span className="text-white/30 text-xs">—</span>
                             )}
                           </td>
                         </tr>
@@ -938,21 +938,21 @@ const AdminPage = () => {
 
             {/* Audit Log Pagination */}
             {auditLogsMeta && auditLogsMeta.totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+              <div className="px-6 py-4 border-t border-white/[0.08] flex items-center justify-between">
                 <button
                   disabled={auditLogsMeta.page <= 1}
                   onClick={() => setAuditFilters((f) => ({ ...f, page: f.page - 1 }))}
-                  className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="text-sm px-4 py-2 rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {t('admin.pagination.prev')}
                 </button>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-white/40">
                   {t('admin.pagination.page')} {auditLogsMeta.page} / {auditLogsMeta.totalPages} &middot; {auditLogsMeta.total} {t('admin.pagination.total')}
                 </span>
                 <button
                   disabled={auditLogsMeta.page >= auditLogsMeta.totalPages}
                   onClick={() => setAuditFilters((f) => ({ ...f, page: f.page + 1 }))}
-                  className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="text-sm px-4 py-2 rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {t('admin.pagination.next')}
                 </button>
@@ -974,18 +974,18 @@ const AdminPage = () => {
       {/* ===== Delete User Confirmation Modal ===== */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-[10px] border border-gray-200 px-8 py-7 w-full max-w-sm shadow-xl">
-            <h3 className="text-base font-semibold text-gray-900 mb-2">
+          <div className="bg-surface-dark rounded-[10px] border border-white/10 px-8 py-7 w-full max-w-sm shadow-xl">
+            <h3 className="text-base font-semibold text-white mb-2">
               {t('admin.actions.deleteConfirmTitle')}
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-white/60 mb-6">
               {t('admin.actions.deleteConfirmMessage', { name: deleteConfirm.name || deleteConfirm.email })}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteConfirm(null)}
                 disabled={deletingUserId === deleteConfirm.id}
-                className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] transition-colors disabled:opacity-50"
               >
                 {t('common.cancel')}
               </button>

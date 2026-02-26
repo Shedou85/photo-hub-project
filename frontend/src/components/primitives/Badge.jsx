@@ -21,19 +21,19 @@ function Badge({ status, children, className, showDot = false }) {
   const baseClasses = 'inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full';
 
   const statusClasses = {
-    DRAFT: 'bg-gray-100 text-gray-600',
-    SELECTING: 'bg-blue-100 text-blue-700',
-    REVIEWING: 'bg-green-100 text-green-700',
-    DELIVERED: 'bg-purple-100 text-purple-700',
-    DOWNLOADED: 'bg-purple-200 text-purple-800'
+    DRAFT: 'bg-white/[0.08] text-white/50',
+    SELECTING: 'bg-blue-400/15 text-blue-400',
+    REVIEWING: 'bg-green-400/15 text-green-400',
+    DELIVERED: 'bg-purple-400/15 text-purple-400',
+    DOWNLOADED: 'bg-purple-400/20 text-purple-300'
   };
 
   const dotColors = {
-    DRAFT: 'bg-gray-600',
-    SELECTING: 'bg-blue-700',
-    REVIEWING: 'bg-green-700',
-    DELIVERED: 'bg-purple-700',
-    DOWNLOADED: 'bg-purple-800'
+    DRAFT: 'bg-white/50',
+    SELECTING: 'bg-blue-400',
+    REVIEWING: 'bg-green-400',
+    DELIVERED: 'bg-purple-400',
+    DOWNLOADED: 'bg-purple-300'
   };
 
   return (

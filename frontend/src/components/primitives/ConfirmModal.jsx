@@ -32,14 +32,14 @@ function ConfirmModal({
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
     >
-      <div className="bg-white rounded-[10px] shadow-xl w-full max-w-sm mx-4 px-6 py-5">
-        <h3 id="confirm-modal-title" className="text-base font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 mb-6">{message}</p>
+      <div className="bg-surface-dark border border-white/10 rounded-[10px] shadow-xl w-full max-w-sm mx-4 px-6 py-5">
+        <h3 id="confirm-modal-title" className="text-base font-semibold text-white mb-2">{title}</h3>
+        <p className="text-sm text-white/60 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
             disabled={loading}
-            className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] transition-colors disabled:opacity-50"
           >
             {cancelLabel}
           </button>

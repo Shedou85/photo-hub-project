@@ -52,16 +52,16 @@ const MobileLayout = () => {
   const currentLang = languages.find((l) => l.code === i18n.language) ?? languages[0];
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface-light">
+    <div className="flex flex-col min-h-screen bg-surface-darker">
       {/* Top header */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-40">
-        <span className="font-extrabold text-lg tracking-[0.5px]">PixelForge</span>
+      <header className="flex items-center justify-between px-4 py-3 bg-surface-dark border-b border-white/[0.08] sticky top-0 z-40">
+        <span className="font-extrabold text-lg tracking-[0.5px] text-white">PixelForge</span>
 
         <div className="flex items-center gap-2">
           {/* Logout button */}
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center w-8 h-8 rounded-md text-red-500 hover:bg-red-50 transition-colors duration-150"
+            className="flex items-center justify-center w-8 h-8 rounded-md text-red-400 hover:bg-red-500/10 transition-colors duration-150"
             aria-label={t('nav.logout')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
@@ -75,13 +75,13 @@ const MobileLayout = () => {
           <div className="relative" ref={langDropdownRef}>
           <button
             onClick={() => setLangOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white text-xs font-bold text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors duration-150 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/[0.12] bg-white/[0.06] text-xs font-bold text-white/70 cursor-pointer hover:bg-white/[0.1] transition-colors duration-150 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           >
             {currentLang.label}
             <span>▾</span>
           </button>
           {langOpen && (
-            <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-md overflow-hidden z-50 min-w-[60px]">
+            <div className="absolute top-full right-0 mt-1 bg-surface-dark border border-white/[0.12] rounded-md shadow-md overflow-hidden z-50 min-w-[60px]">
               {languages
                 .filter((l) => l.code !== i18n.language)
                 .map(({ code, label }) => (
@@ -91,7 +91,7 @@ const MobileLayout = () => {
                       i18n.changeLanguage(code);
                       setLangOpen(false);
                     }}
-                    className="block w-full px-3 py-2 text-xs font-bold text-left text-gray-700 cursor-pointer border-none bg-white hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
+                    className="block w-full px-3 py-2 text-xs font-bold text-left text-white/70 cursor-pointer border-none bg-transparent hover:bg-indigo-500/15 hover:text-indigo-400 transition-colors duration-150"
                   >
                     {label}
                   </button>

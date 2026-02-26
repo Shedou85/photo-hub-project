@@ -10,7 +10,7 @@ const CheckIcon = () => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="8" cy="8" r="8" className="fill-blue-50" />
+    <circle cx="8" cy="8" r="8" className="fill-blue-500/20" />
     <path
       d="M5 8l2 2 4-4"
       stroke="currentColor"
@@ -27,13 +27,13 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
   if (isCurrent) {
     return (
       <div className="relative rounded-[12px] p-[2px] bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-lg">
-        <div className="bg-white rounded-[10px] px-6 py-5 flex flex-col gap-5 h-full">
+        <div className="bg-surface-dark rounded-[10px] px-6 py-5 flex flex-col gap-5 h-full">
           {/* Top accent strip */}
           <div className="absolute top-[2px] left-[2px] right-[2px] h-1 rounded-t-[10px] bg-[linear-gradient(90deg,#3b82f6_0%,#6366f1_100%)]" />
 
           {/* Badge */}
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+            <span className="text-xs font-semibold uppercase tracking-widest text-blue-400">
               {name}
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]">
@@ -44,21 +44,21 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
 
           {/* Price */}
           <div>
-            <p className="text-4xl font-bold text-gray-900 leading-none">
+            <p className="text-4xl font-bold text-white leading-none">
               {price}
             </p>
             {perMonth && (
-              <p className="text-sm text-gray-400 mt-1">{perMonth}</p>
+              <p className="text-sm text-white/40 mt-1">{perMonth}</p>
             )}
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-white/[0.06]" />
 
           {/* Features */}
           <ul className="flex flex-col gap-3 flex-1">
             {features.map((f) => (
-              <li key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
+              <li key={f} className="flex items-center gap-2.5 text-sm text-white/60">
                 <CheckIcon />
                 {f}
               </li>
@@ -68,7 +68,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
           {/* CTA */}
           <button
             disabled
-            className="w-full py-2.5 rounded-[8px] text-sm font-semibold bg-blue-50 text-blue-400 cursor-not-allowed"
+            className="w-full py-2.5 rounded-[8px] text-sm font-semibold bg-blue-500/10 text-blue-400 cursor-not-allowed"
           >
             {t('payments.currentPlan')}
           </button>
@@ -80,8 +80,8 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
   return (
     <div
       className={[
-        'relative bg-white border rounded-[12px] px-6 py-5 flex flex-col gap-5 transition-shadow hover:shadow-md',
-        highlighted ? 'border-indigo-200 shadow-sm' : 'border-gray-200',
+        'relative bg-white/[0.04] border rounded-[12px] px-6 py-5 flex flex-col gap-5 transition-shadow hover:shadow-md',
+        highlighted ? 'border-indigo-500/30 shadow-sm' : 'border-white/10',
       ].join(' ')}
     >
       {/* Highlighted top accent */}
@@ -93,12 +93,12 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
       <div className="flex items-center justify-between pt-1">
         <span className={[
           'text-xs font-semibold uppercase tracking-widest',
-          highlighted ? 'text-indigo-500' : 'text-gray-400',
+          highlighted ? 'text-indigo-400' : 'text-white/40',
         ].join(' ')}>
           {name}
         </span>
         {badge && (
-          <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-indigo-700 bg-indigo-50">
+          <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-indigo-400 bg-indigo-500/15">
             {badge}
           </span>
         )}
@@ -106,21 +106,21 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
 
       {/* Price */}
       <div>
-        <p className="text-4xl font-bold text-gray-900 leading-none">
+        <p className="text-4xl font-bold text-white leading-none">
           {price}
         </p>
         {perMonth && (
-          <p className="text-sm text-gray-400 mt-1">{perMonth}</p>
+          <p className="text-sm text-white/40 mt-1">{perMonth}</p>
         )}
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-gray-100" />
+      <div className="h-px bg-white/[0.06]" />
 
       {/* Features */}
       <ul className="flex flex-col gap-3 flex-1">
         {features.map((f, i) => (
-          <li key={i} className="flex items-center gap-2.5 text-sm text-gray-600">
+          <li key={i} className="flex items-center gap-2.5 text-sm text-white/60">
             <CheckIcon />
             {f}
           </li>
@@ -130,7 +130,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
       {/* CTA */}
       <button
         disabled
-        className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-gray-200 text-gray-400 cursor-not-allowed"
+        className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/40 cursor-not-allowed"
       >
         {t('payments.comingSoon')}
       </button>
@@ -203,10 +203,10 @@ const PaymentsPage = () => {
 
       {/* ── Plans Section ── */}
       <div className="mb-6">
-        <h2 className="mt-0 mb-1 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+        <h2 className="mt-0 mb-1 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
           {t('payments.plansTitle')}
         </h2>
-        <p className="mt-0 mb-4 text-sm text-gray-500">{t('payments.plansSubtitle')}</p>
+        <p className="mt-0 mb-4 text-sm text-white/50">{t('payments.plansSubtitle')}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {plans.map((plan) => (
             <PlanCard
@@ -224,11 +224,11 @@ const PaymentsPage = () => {
       </div>
 
       {/* ── Payment History Card ── */}
-      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+      <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
           {t('payments.historyTitle')}
         </h2>
-        <p className="m-0 text-sm text-gray-500 text-center py-6">
+        <p className="m-0 text-sm text-white/50 text-center py-6">
           {t('payments.noPayments')}
         </p>
       </div>

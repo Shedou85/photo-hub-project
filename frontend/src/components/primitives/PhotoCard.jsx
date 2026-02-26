@@ -47,7 +47,7 @@ const PhotoCard = memo(function PhotoCard({
   className
 }) {
   return (
-    <div className={clsx('relative group aspect-square overflow-hidden bg-gray-100 rounded-sm', className)}>
+    <div className={clsx('relative group aspect-square overflow-hidden bg-white/[0.06] rounded-sm', className)}>
       {/* Clickable photo area */}
       <button
         onClick={onClick}
@@ -117,7 +117,7 @@ PhotoCard.Action = function PhotoCardAction({ onClick, label, children }) {
       onClick={handleClick}
       title={label}
       aria-label={label}
-      className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors pointer-events-auto"
+      className="w-7 h-7 rounded-full bg-black/60 hover:bg-red-500/30 text-white/70 hover:text-red-400 flex items-center justify-center text-sm font-bold transition-colors pointer-events-auto"
     >
       {children}
     </button>

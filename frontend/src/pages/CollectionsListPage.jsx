@@ -133,25 +133,25 @@ function CollectionsListPage() {
   if (loading) {
     return (
       <div className="font-sans max-w-6xl mx-auto">
-        <div className="flex items-center justify-between pb-6 mb-6 border-b border-gray-200">
+        <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/[0.08]">
           <div className="flex items-center gap-4">
-            <div className="w-[52px] h-[52px] rounded-full bg-gray-200 animate-pulse" />
+            <div className="w-[52px] h-[52px] rounded-full bg-white/[0.08] animate-pulse" />
             <div className="flex flex-col gap-2">
-              <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
-              <div className="h-3 w-56 bg-gray-100 rounded animate-pulse" />
+              <div className="h-6 w-40 bg-white/[0.08] rounded animate-pulse" />
+              <div className="h-3 w-56 bg-white/[0.04] rounded animate-pulse" />
             </div>
           </div>
-          <div className="h-10 w-36 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-10 w-36 bg-white/[0.08] rounded-lg animate-pulse" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="rounded-[10px] overflow-hidden border border-gray-200"
+              className="rounded-[10px] overflow-hidden border border-white/10"
             >
               <div
-                className="aspect-[3/2] bg-gray-200 animate-pulse"
+                className="aspect-[3/2] bg-white/[0.08] animate-pulse"
                 style={{ animationDelay: `${i * 100}ms` }}
               />
             </div>
@@ -164,8 +164,8 @@ function CollectionsListPage() {
   // ── Error state ──
   if (error) {
     return (
-      <div className="py-10 px-5 text-center font-sans text-gray-500">
-        <div className="inline-block px-3.5 py-3 bg-red-50 border border-red-200 rounded-[10px] text-sm text-red-800">
+      <div className="py-10 px-5 text-center font-sans text-white/50">
+        <div className="inline-block px-3.5 py-3 bg-red-500/10 border border-red-500/20 rounded-[10px] text-sm text-red-400">
           {t('collections.error')} {error}
         </div>
       </div>
@@ -185,8 +185,8 @@ function CollectionsListPage() {
       }, []);
 
     return (
-      <div className="flex items-center justify-between mt-8 pt-4 border-t border-gray-100 flex-wrap gap-3">
-        <span className="text-sm text-gray-500">
+      <div className="flex items-center justify-between mt-8 pt-4 border-t border-white/[0.06] flex-wrap gap-3">
+        <span className="text-sm text-white/40">
           {t('collections.pagination.showing', {
             from: (page - 1) * PAGE_SIZE + 1,
             to: Math.min(page * PAGE_SIZE, pagination.total),
@@ -198,7 +198,7 @@ function CollectionsListPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="px-3 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm font-medium rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t('collections.pagination.prev')}
           </button>
@@ -206,7 +206,7 @@ function CollectionsListPage() {
           {pagination.totalPages > 2 ? (
             pageNumbers.map((item, idx) =>
               item === '...' ? (
-                <span key={`ellipsis-${idx}`} className="px-2 text-gray-400">&hellip;</span>
+                <span key={`ellipsis-${idx}`} className="px-2 text-white/30">&hellip;</span>
               ) : (
                 <button
                   key={item}
@@ -214,7 +214,7 @@ function CollectionsListPage() {
                   className={`w-9 h-9 text-sm font-medium rounded-lg transition-colors ${
                     page === item
                       ? 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white'
-                      : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                      : 'border border-white/10 text-white/60 hover:bg-white/[0.06]'
                   }`}
                 >
                   {item}
@@ -222,7 +222,7 @@ function CollectionsListPage() {
               )
             )
           ) : (
-            <span className="px-3 py-2 text-sm text-gray-500">
+            <span className="px-3 py-2 text-sm text-white/40">
               {t('collections.pagination.page', { page, totalPages: pagination.totalPages })}
             </span>
           )}
@@ -230,7 +230,7 @@ function CollectionsListPage() {
           <button
             onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
             disabled={page >= pagination.totalPages}
-            className="px-3 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm font-medium rounded-lg border border-white/10 text-white/60 hover:bg-white/[0.06] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t('collections.pagination.next')}
           </button>
@@ -264,8 +264,8 @@ function CollectionsListPage() {
       {showLimitBanner && (
         <div className={`mb-6 px-4 py-3 rounded-[10px] border text-sm flex items-center justify-between gap-3 ${
           atLimit
-            ? 'bg-red-50 border-red-200 text-red-800'
-            : 'bg-blue-50 border-blue-100 text-blue-700'
+            ? 'bg-red-500/10 border-red-500/20 text-red-400'
+            : 'bg-blue-400/10 border-blue-400/20 text-blue-400'
         }`}>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold">
@@ -286,15 +286,15 @@ function CollectionsListPage() {
       {/* ── Empty State ── */}
       {collections.length === 0 && (
         <div className="py-20 flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center mb-5">
-            <svg className="w-10 h-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-5">
+            <svg className="w-10 h-10 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          <h2 className="text-lg font-semibold text-white mb-2">
             {t('collections.emptyTitle')}
           </h2>
-          <p className="text-sm text-gray-500 max-w-sm mb-6">
+          <p className="text-sm text-white/50 max-w-sm mb-6">
             {t('collections.emptyDescription')}
           </p>
           <Button variant="primary" onClick={() => setShowCreateModal(true)} disabled={atLimit}>
@@ -323,7 +323,7 @@ function CollectionsListPage() {
                   <button
                     onClick={() => handleDeleteCollection(collection.id, collection.name)}
                     disabled={deletingId === collection.id}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

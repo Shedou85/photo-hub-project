@@ -72,7 +72,7 @@ const BottomNavigation = () => {
     <nav
       role="navigation"
       aria-label={t('nav.mainNavigation')}
-      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50"
+      className="fixed bottom-0 left-0 right-0 bg-surface-dark border-t border-white/[0.08] z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-center justify-around">
@@ -85,8 +85,8 @@ const BottomNavigation = () => {
               aria-current={isActive ? 'page' : undefined}
               className={`flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[56px] px-3 py-2 rounded-lg transition-colors duration-150 no-underline${
                 isActive
-                  ? ' text-blue-600 bg-blue-50'
-                  : ' text-gray-500 hover:bg-gray-50'
+                  ? ' text-indigo-400 bg-indigo-500/15'
+                  : ' text-white/50 hover:bg-white/[0.06]'
               }`}
             >
               {icon}

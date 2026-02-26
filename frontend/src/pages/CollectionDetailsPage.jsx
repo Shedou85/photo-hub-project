@@ -182,7 +182,7 @@ function CollectionDetailsPage() {
 
   if (loading) {
     return (
-      <div className="py-10 px-5 text-center font-sans text-gray-500">
+      <div className="py-10 px-5 text-center font-sans text-white/50">
         {t("collection.loading")}
       </div>
     );
@@ -191,7 +191,7 @@ function CollectionDetailsPage() {
   if (error) {
     return (
       <div className="font-sans max-w-6xl mx-auto">
-        <div className="text-red-800 bg-red-50 border border-red-300 rounded-md px-3.5 py-3 text-sm">
+        <div className="text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3.5 py-3 text-sm">
           {t("collection.error")} {error}
         </div>
       </div>
@@ -200,7 +200,7 @@ function CollectionDetailsPage() {
 
   if (!collection) {
     return (
-      <div className="py-10 px-5 text-center font-sans text-gray-500">
+      <div className="py-10 px-5 text-center font-sans text-white/50">
         {t("collection.notFound")}
       </div>
     );
@@ -245,7 +245,7 @@ function CollectionDetailsPage() {
       {/* ── Back link ── */}
       <Link
         to="/collections"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 no-underline mb-5 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-indigo-400 no-underline mb-5 transition-colors"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -254,7 +254,7 @@ function CollectionDetailsPage() {
       </Link>
 
       {/* ── Collection Action Card ── */}
-      <div className="bg-white border border-gray-200 rounded-[10px] shadow-sm mb-5">
+      <div className="bg-white/[0.04] border border-white/10 rounded-[10px] shadow-xl mb-5">
         {/* Header */}
         <button
           onClick={() => setActionCardOpen(o => !o)}
@@ -266,16 +266,16 @@ function CollectionDetailsPage() {
             </svg>
           </div>
           <div className="flex-1 min-w-0">
-            <span className="text-base font-bold text-gray-900">{collection.name}</span>
+            <span className="text-base font-bold text-white">{collection.name}</span>
             {(collection.clientName || collection.clientEmail) && (
-              <span className="ml-2 text-sm text-gray-400 font-normal">
+              <span className="ml-2 text-sm text-white/40 font-normal">
                 {[collection.clientName, collection.clientEmail].filter(Boolean).join(' · ')}
               </span>
             )}
           </div>
           <Badge status={collection.status}>{t(`collection.status.${collection.status}`)}</Badge>
           <svg
-            className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${actionCardOpen ? 'rotate-180' : ''}`}
+            className={`w-5 h-5 text-white/40 transition-transform duration-300 ${actionCardOpen ? 'rotate-180' : ''}`}
             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -290,7 +290,7 @@ function CollectionDetailsPage() {
               const { steps, activeStep, phaseLabel } = getStepperConfig();
               return (
                 <>
-                  <p className="text-sm text-gray-500 mb-4">{phaseLabel}</p>
+                  <p className="text-sm text-white/50 mb-4">{phaseLabel}</p>
 
                   {/* Horizontal stepper */}
                   {steps.length > 0 && (
@@ -300,8 +300,8 @@ function CollectionDetailsPage() {
                           <div className="flex flex-col items-center gap-1 min-w-0">
                             <div className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0
                               ${idx < activeStep ? 'bg-blue-600 text-white' : ''}
-                              ${idx === activeStep ? 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white ring-4 ring-blue-100' : ''}
-                              ${idx > activeStep ? 'bg-gray-100 text-gray-400' : ''}`}
+                              ${idx === activeStep ? 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white ring-4 ring-indigo-500/20' : ''}
+                              ${idx > activeStep ? 'bg-white/[0.08] text-white/40' : ''}`}
                             >
                               {idx < activeStep ? (
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -310,14 +310,14 @@ function CollectionDetailsPage() {
                               ) : idx + 1}
                             </div>
                             <span className={`text-[11px] font-medium text-center leading-tight
-                              ${idx === activeStep ? 'text-blue-600' : 'text-gray-400'}`}
+                              ${idx === activeStep ? 'text-indigo-400' : 'text-white/40'}`}
                               style={{ maxWidth: '70px' }}
                             >
                               {step}
                             </span>
                           </div>
                           {idx < steps.length - 1 && (
-                            <div className={`flex-1 h-px mx-2 mt-3.5 ${idx < activeStep ? 'bg-blue-400' : 'bg-gray-200'}`} />
+                            <div className={`flex-1 h-px mx-2 mt-3.5 ${idx < activeStep ? 'bg-blue-400' : 'bg-white/[0.12]'}`} />
                           )}
                         </div>
                       ))}
@@ -446,10 +446,10 @@ function CollectionDetailsPage() {
           </div>
 
           {/* Footer Action Bar */}
-          <div className="border-t border-gray-100 px-5 py-3 flex items-center gap-5">
+          <div className="border-t border-white/[0.08] px-5 py-3 flex items-center gap-5">
             <button
               onClick={handleEditCollection}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-indigo-400 transition-colors bg-transparent border-none cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -458,7 +458,7 @@ function CollectionDetailsPage() {
             </button>
             <button
               onClick={handleDeleteCollection}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition-colors bg-transparent border-none cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -471,46 +471,46 @@ function CollectionDetailsPage() {
 
       {/* ── Inline Edit Form ── */}
       {showEditForm && (
-        <div className="bg-white border border-gray-200 rounded-[10px] px-6 py-5 mb-5">
-          <h3 className="text-sm font-bold text-gray-700 mb-4">{t('collection.editCollection')}</h3>
+        <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5 mb-5">
+          <h3 className="text-sm font-bold text-white/70 mb-4">{t('collection.editCollection')}</h3>
           <div className="flex flex-col gap-3">
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editName')}</label>
+              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editName')}</label>
               <input
                 type="text"
                 value={editName}
                 onChange={e => setEditName(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white/[0.06] border border-white/[0.12] rounded px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 placeholder:text-white/20"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientName')}</label>
+              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientName')}</label>
               <input
                 type="text"
                 value={editClientName}
                 onChange={e => setEditClientName(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white/[0.06] border border-white/[0.12] rounded px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 placeholder:text-white/20"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientEmail')}</label>
+              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientEmail')}</label>
               <input
                 type="email"
                 value={editClientEmail}
                 onChange={e => setEditClientEmail(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white/[0.06] border border-white/[0.12] rounded px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 placeholder:text-white/20"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.06em] block mb-1">{t('collection.editSourceFolder')}</label>
+              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editSourceFolder')}</label>
               <input
                 type="text"
                 value={editSourceFolder}
                 onChange={e => setEditSourceFolder(e.target.value)}
                 placeholder={t('collection.sourceFolderPlaceholder')}
-                className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white/[0.06] border border-white/[0.12] rounded px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 placeholder:text-white/20"
               />
-              <p className="text-[11px] text-gray-400 mt-1 mb-0">{t('collection.sourceFolderHint')}</p>
+              <p className="text-[11px] text-white/30 mt-1 mb-0">{t('collection.sourceFolderHint')}</p>
             </div>
           </div>
           <div className="flex gap-2 mt-4">
@@ -539,16 +539,16 @@ function CollectionDetailsPage() {
 
       {/* ── Upload Dropzone (only shown when showUploadZone is true and status is DRAFT) ── */}
       {showUploadZone && collection.status === 'DRAFT' && (
-        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
-          <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+        <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-3">
+          <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
             {photos.length === 0 ? t("collection.photos") : t("collection.uploadMore")}
           </h2>
 
           {showPhotoLimit && nearPhotoLimit && (
             <div className={`mb-3 px-3 py-2 rounded-md text-xs flex items-center justify-between gap-2 ${
               atPhotoLimit
-                ? 'bg-red-50 border border-red-200 text-red-700'
-                : 'bg-amber-50 border border-amber-200 text-amber-700'
+                ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
             }`}>
               <span>{t('plans.photosUsed', { used: photoCount, limit: photoLimit })}{atPhotoLimit ? ' — ' + t('plans.limitReachedPhotos') : ''}</span>
               <Link to="/payments" className="font-semibold underline shrink-0 hover:no-underline">{t('plans.upgradeLink')}</Link>
@@ -556,9 +556,9 @@ function CollectionDetailsPage() {
           )}
 
           {atPhotoLimit ? (
-            <div className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
-              <p className="m-0 text-sm font-medium text-gray-500">{t('plans.limitReachedPhotos')}</p>
-              <Link to="/payments" className="text-xs text-blue-600 underline">{t('plans.upgradeLink')}</Link>
+            <div className="border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 border-white/[0.12] bg-white/[0.02] opacity-60 cursor-not-allowed">
+              <p className="m-0 text-sm font-medium text-white/50">{t('plans.limitReachedPhotos')}</p>
+              <Link to="/payments" className="text-xs text-indigo-400 underline">{t('plans.upgradeLink')}</Link>
             </div>
           ) : (
             <div
@@ -572,24 +572,24 @@ function CollectionDetailsPage() {
               onDragLeave={handleDragLeave}
               className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-8 cursor-pointer transition-all duration-300 select-none
                 ${dragOver
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50"
+                  ? "border-indigo-500 bg-indigo-500/10"
+                  : "border-white/[0.15] bg-white/[0.02] hover:border-indigo-500/40 hover:bg-indigo-500/5"
                 }`}
             >
-              <svg className={`w-9 h-9 ${dragOver ? "text-blue-500" : "text-gray-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className={`w-9 h-9 ${dragOver ? "text-indigo-400" : "text-white/40"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
               </svg>
-              <p className="m-0 text-sm font-medium text-gray-600">
+              <p className="m-0 text-sm font-medium text-white/60">
                 {t("collection.uploadZoneLabel")}
               </p>
-              <p className="m-0 text-xs text-gray-400">
+              <p className="m-0 text-xs text-white/40">
                 {t("collection.uploadZoneHint")}
               </p>
             </div>
           )}
           <button
             onClick={() => setShowUploadZone(false)}
-            className="mt-3 text-xs text-gray-500 hover:text-gray-700 bg-transparent border-none cursor-pointer"
+            className="mt-3 text-xs text-white/50 hover:text-white/70 bg-transparent border-none cursor-pointer"
           >
             {t("common.cancel")}
           </button>
@@ -624,11 +624,11 @@ function CollectionDetailsPage() {
 
       {/* ── Edited Finals Upload Zone (REVIEWING only) - Now collapsible ── */}
       {showEditedFinalsZone && collection.status === 'REVIEWING' && (
-        <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-3">
-          <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+        <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-3">
+          <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
             {t('collection.editedFinalsTitle')}
             {editedPhotos.length > 0 && (
-              <span className="ml-2 text-xs font-normal text-gray-400 normal-case tracking-normal">
+              <span className="ml-2 text-xs font-normal text-white/40 normal-case tracking-normal">
                 {t('collection.editedPhotosCount', { count: editedPhotos.length })}
               </span>
             )}
@@ -646,17 +646,17 @@ function CollectionDetailsPage() {
             onDragLeave={handleEditedDragLeave}
             className={`border-2 border-dashed rounded flex flex-col items-center justify-center gap-2 py-10 cursor-pointer transition-colors select-none ${
               dragOverEdited
-                ? 'border-green-500 bg-green-100'
-                : 'border-green-300 bg-green-50 hover:border-green-400'
+                ? 'border-green-500 bg-green-500/10'
+                : 'border-green-500/30 bg-green-500/5 hover:border-green-500/50'
             }`}
           >
-            <svg className="w-9 h-9 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg className="w-9 h-9 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
             </svg>
-            <p className="m-0 text-sm font-medium text-gray-600">
+            <p className="m-0 text-sm font-medium text-white/60">
               {t('collection.editedUploadZoneLabel')}
             </p>
-            <p className="m-0 text-xs text-gray-400">
+            <p className="m-0 text-xs text-white/40">
               {t('collection.editedUploadZoneHint')}
             </p>
             {anyEditedUploading && (
@@ -689,7 +689,7 @@ function CollectionDetailsPage() {
           {editedPhotos.length > 0 && (
             <div className={`mt-4 ${PHOTO_GRID_CLASSES}`}>
               {editedPhotos.map((photo) => (
-                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
+                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-white/[0.06]">
                   <img
                     src={photoUrl(photo.storagePath)}
                     alt={photo.filename}
@@ -704,7 +704,7 @@ function CollectionDetailsPage() {
           {/* Cancel button to collapse zone */}
           <button
             onClick={() => setShowEditedFinalsZone(false)}
-            className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition-colors bg-transparent border-none cursor-pointer"
+            className="mt-3 text-xs text-white/50 hover:text-white/70 transition-colors bg-transparent border-none cursor-pointer"
           >
             {t("common.cancel")}
           </button>
@@ -716,13 +716,13 @@ function CollectionDetailsPage() {
         <Accordion title={t("collection.photos")} defaultOpen={true}>
           {/* Filter tabs */}
           {selections.length > 0 && (
-            <div className="flex gap-2 mb-4 border-b border-gray-200">
+            <div className="flex gap-2 mb-4 border-b border-white/[0.08]">
               <button
                 onClick={() => setFilter('all')}
                 className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:outline-none focus-visible:outline-none ${
                   filter === 'all'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-indigo-400 border-b-2 border-indigo-400'
+                    : 'text-white/50 hover:text-white/70'
                 }`}
               >
                 {t('collection.filterAll')} ({photos.length})
@@ -731,8 +731,8 @@ function CollectionDetailsPage() {
                 onClick={() => setFilter('selected')}
                 className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:outline-none focus-visible:outline-none ${
                   filter === 'selected'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-indigo-400 border-b-2 border-indigo-400'
+                    : 'text-white/50 hover:text-white/70'
                 }`}
               >
                 {t('collection.filterSelected')} ({selectedPhotoIds.size})
@@ -741,8 +741,8 @@ function CollectionDetailsPage() {
                 onClick={() => setFilter('not-selected')}
                 className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:outline-none focus-visible:outline-none ${
                   filter === 'not-selected'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-indigo-400 border-b-2 border-indigo-400'
+                    : 'text-white/50 hover:text-white/70'
                 }`}
               >
                 {t('collection.filterNotSelected')} ({photos.length - selectedPhotoIds.size})
@@ -755,7 +755,7 @@ function CollectionDetailsPage() {
               // Find index in full photos array for lightbox navigation
               const photoIndex = photos.findIndex(p => p.id === photo.id);
               return (
-                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
+                <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-white/[0.06]">
                   {/* Thumbnail — click opens lightbox */}
                   <button
                     onClick={() => lightbox.open(photoIndex)}
@@ -790,7 +790,7 @@ function CollectionDetailsPage() {
                       onClick={(e) => { e.stopPropagation(); handleDeletePhoto(photo.id); }}
                       title={t("collection.deletePhoto")}
                       aria-label={t("collection.deletePhoto")}
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors pointer-events-auto"
+                      className="w-7 h-7 rounded-full bg-black/60 hover:bg-red-500/30 text-white/80 hover:text-red-400 flex items-center justify-center text-sm font-bold transition-colors pointer-events-auto"
                     >
                       ×
                     </button>
@@ -800,7 +800,7 @@ function CollectionDetailsPage() {
                         onClick={(e) => { e.stopPropagation(); handleSetCover(photo.id); }}
                         title={t("collection.setCover")}
                         aria-label={t("collection.setCover")}
-                        className="w-7 h-7 rounded-full bg-white/90 hover:bg-blue-100 text-gray-500 hover:text-blue-600 flex items-center justify-center text-sm transition-colors pointer-events-auto"
+                        className="w-7 h-7 rounded-full bg-black/60 hover:bg-indigo-500/30 text-white/80 hover:text-indigo-400 flex items-center justify-center text-sm transition-colors pointer-events-auto"
                       >
                         ★
                       </button>
@@ -818,7 +818,7 @@ function CollectionDetailsPage() {
         <Accordion title={t("collection.editedPhotos")} defaultOpen={true}>
           <div className={PHOTO_GRID_CLASSES}>
             {editedPhotos.map((photo, index) => (
-              <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-gray-100">
+              <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-white/[0.06]">
                 <button
                   onClick={() => editedLightbox.open(index)}
                   className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"

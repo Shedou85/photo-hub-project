@@ -33,10 +33,10 @@ function Button({
   const baseClasses = 'inline-flex items-center justify-center gap-2 font-semibold transition-opacity duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-sans rounded-lg';
 
   const variantClasses = {
-    primary: 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white hover:opacity-90 border-none',
-    secondary: 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100',
-    danger: 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-50 border-none'
+    primary: 'bg-[linear-gradient(135deg,#3b82f6,#6366f1)] text-white hover:opacity-90 border-none shadow-[0_4px_16px_rgba(99,102,241,0.35)]',
+    secondary: 'bg-white/[0.06] text-white/70 border border-white/10 hover:bg-white/[0.1]',
+    danger: 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20',
+    ghost: 'bg-transparent text-white/60 hover:bg-white/[0.06] border-none'
   };
 
   const sizeClasses = {

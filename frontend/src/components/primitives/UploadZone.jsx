@@ -64,14 +64,14 @@ function UploadZone({
   // Theme classes object
   const themeClasses = {
     blue: {
-      border: dragOver ? 'border-blue-500' : 'border-gray-300 hover:border-blue-400',
-      bg: dragOver ? 'bg-blue-50' : 'bg-gray-50 hover:bg-blue-50/50',
-      icon: dragOver ? 'text-blue-500' : 'text-gray-400',
+      border: dragOver ? 'border-indigo-500' : 'border-white/[0.15] hover:border-indigo-500/50',
+      bg: dragOver ? 'bg-indigo-500/10' : 'bg-white/[0.02] hover:bg-white/[0.04]',
+      icon: dragOver ? 'text-indigo-400' : 'text-white/40',
     },
     green: {
-      border: 'border-green-300 hover:border-green-400',
-      bg: 'bg-green-50',
-      icon: 'text-green-500',
+      border: 'border-green-500/30 hover:border-green-500/50',
+      bg: 'bg-green-500/5',
+      icon: 'text-green-400',
     }
   };
 
@@ -99,7 +99,7 @@ function UploadZone({
       <>
         <button
           onClick={handleClick}
-          className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors cursor-pointer font-sans"
+          className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-sm hover:bg-indigo-500/20 transition-colors cursor-pointer font-sans"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -139,8 +139,8 @@ function UploadZone({
         <svg className={clsx('w-9 h-9', themeClasses[theme].icon)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
         </svg>
-        <p className="m-0 text-sm font-medium text-gray-600">{label}</p>
-        {hint && <p className="m-0 text-xs text-gray-400">{hint}</p>}
+        <p className="m-0 text-sm font-medium text-white/60">{label}</p>
+        {hint && <p className="m-0 text-xs text-white/40">{hint}</p>}
       </div>
       <input
         ref={fileInputRef}

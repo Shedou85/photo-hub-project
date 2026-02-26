@@ -4,7 +4,7 @@ function Accordion({ title, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-[10px] mb-5 transition-all duration-700">
+    <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl mb-5 transition-all duration-700">
       {/* Accordion Header */}
       <div
         className="flex items-center justify-between px-6 py-4 cursor-pointer select-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
@@ -14,11 +14,11 @@ function Accordion({ title, children, defaultOpen = false }) {
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && setIsOpen(!isOpen)}
       >
-        <h2 className="mt-0 mb-0 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+        <h2 className="mt-0 mb-0 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
           {title}
         </h2>
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform duration-700 ${
+          className={`w-5 h-5 text-white/40 transition-transform duration-700 ${
             isOpen ? "rotate-180" : ""
           }`}
           fill="none"

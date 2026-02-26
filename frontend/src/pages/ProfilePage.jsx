@@ -18,10 +18,10 @@ function getInitials(name) {
 function InfoRow({ label, value }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
+      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40">
         {label}
       </span>
-      <span className="text-sm text-gray-800 font-medium">
+      <span className="text-sm text-white/90 font-medium">
         {value}
       </span>
     </div>
@@ -31,9 +31,9 @@ function InfoRow({ label, value }) {
 // --- Sub-component: inline badge for plan / role ---
 function Badge({ children, variant }) {
   const variantClasses = {
-    plan: "bg-blue-50 text-blue-700 border border-blue-200",
-    role: "bg-green-50 text-green-700 border border-green-200",
-    admin: "bg-amber-50 text-amber-800 border border-amber-200",
+    plan: "bg-blue-400/10 text-blue-400 border border-blue-400/20",
+    role: "bg-green-400/10 text-green-400 border border-green-400/20",
+    admin: "bg-amber-400/10 text-amber-400 border border-amber-400/20",
   };
   const classes = variantClasses[variant] || variantClasses.plan;
 
@@ -82,7 +82,7 @@ function ProfilePage() {
   // --- Unauthenticated guard ---
   if (!user) {
     return (
-      <div className="py-10 px-5 text-center font-sans text-gray-500">
+      <div className="py-10 px-5 text-center font-sans text-white/50">
         {t('profile.loginRequired')}
       </div>
     );
@@ -102,7 +102,7 @@ function ProfilePage() {
         <form onSubmit={handleSubmit}>
           {/* Name field */}
           <div className="mb-4">
-            <label htmlFor="name" className="block mb-1 text-sm font-semibold text-gray-700">
+            <label htmlFor="name" className="block mb-1 text-sm font-semibold text-white/60">
               {t('profile.displayName')}
             </label>
             <input
@@ -111,15 +111,15 @@ function ProfilePage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('profile.namePlaceholder')}
-              className="w-full py-2.5 px-5 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-sm outline-none box-border transition-colors duration-150 font-sans"
+              className="w-full py-2.5 px-5 text-sm text-white bg-white/[0.06] border-[1.5px] border-white/[0.12] focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm outline-none box-border transition-colors duration-150 font-sans placeholder:text-white/20"
             />
           </div>
 
           {/* Bio field */}
           <div className="mb-6">
-            <label htmlFor="bio" className="block mb-1 text-sm font-semibold text-gray-700">
+            <label htmlFor="bio" className="block mb-1 text-sm font-semibold text-white/60">
               {t('profile.bio')}
-              <span className="font-normal text-gray-400 ml-[6px]">
+              <span className="font-normal text-white/30 ml-[6px]">
                 ({t('profile.optional')})
               </span>
             </label>
@@ -129,14 +129,14 @@ function ProfilePage() {
               onChange={(e) => setBio(e.target.value)}
               placeholder={t('profile.bioPlaceholder')}
               rows={4}
-              className="w-full py-2.5 px-5 text-sm text-gray-800 bg-white border-[1.5px] border-gray-300 focus:border-blue-500 rounded-sm outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5]"
+              className="w-full py-2.5 px-5 text-sm text-white bg-white/[0.06] border-[1.5px] border-white/[0.12] focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm outline-none box-border transition-colors duration-150 font-sans resize-y leading-[1.5] placeholder:text-white/20"
             />
           </div>
 
           {/* ── Save Button Area ── */}
           <div className="flex items-center justify-end gap-3 pt-1">
             {loading && (
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-white/40">
                 {t('profile.saving')}
               </span>
             )}
@@ -145,8 +145,8 @@ function ProfilePage() {
               disabled={loading}
               className={`py-2.5 px-5 text-sm font-semibold rounded-sm border-none font-sans transition-opacity duration-150 ${
                 loading
-                  ? "text-zinc-400 bg-zinc-200 cursor-not-allowed"
-                  : "text-white cursor-pointer hover:opacity-90 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]"
+                  ? "text-white/30 bg-white/[0.08] cursor-not-allowed"
+                  : "text-white cursor-pointer hover:opacity-90 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
               }`}
             >
               {loading ? t('profile.saving') : t('profile.saveChanges')}
@@ -156,8 +156,8 @@ function ProfilePage() {
       </Accordion>
 
       {/* ── Profile Information Card (read-only) ── */}
-      <div className="bg-white border border-gray-200 rounded px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-sm font-bold text-gray-700 uppercase tracking-[0.05em]">
+      <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
           {t('profile.accountInfo')}
         </h2>
 
@@ -172,14 +172,14 @@ function ProfilePage() {
             })}
           />
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
+            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40">
               {t('profile.plan')}
             </span>
             <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
           {user.role === 'ADMIN' && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-gray-400">
+              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40">
                 {t('profile.role')}
               </span>
               <Badge variant="admin">

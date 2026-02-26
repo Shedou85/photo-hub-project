@@ -69,7 +69,7 @@ const MainLayout = () => {
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface-light">
+    <div className="flex flex-col min-h-screen bg-surface-darker">
 
       {/* Row: sidebar + content */}
       <div className="flex flex-1 relative">
@@ -155,17 +155,17 @@ const MainLayout = () => {
         <div className="flex-1 min-w-0 flex flex-col">
 
           {/* Top bar with language switcher */}
-          <div className="flex items-center justify-end px-6 py-3 bg-white border-b border-gray-200">
+          <div className="flex items-center justify-end px-6 py-3 bg-surface-dark border-b border-white/[0.08]">
             <div className="relative" ref={langDropdownRef}>
               <button
                 onClick={() => setLangOpen((prev) => !prev)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white text-xs font-bold text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors duration-150 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/[0.12] bg-white/[0.06] text-xs font-bold text-white/70 cursor-pointer hover:bg-white/[0.1] transition-colors duration-150 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none"
               >
                 {currentLang.label}
                 <span>▾</span>
               </button>
               {langOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-md overflow-hidden z-50 min-w-[60px]">
+                <div className="absolute top-full right-0 mt-1 bg-surface-dark border border-white/[0.12] rounded-md shadow-xl overflow-hidden z-50 min-w-[60px]">
                   {languages
                     .filter((l) => l.code !== i18n.language)
                     .map(({ code, label }) => (
@@ -175,7 +175,7 @@ const MainLayout = () => {
                           i18n.changeLanguage(code);
                           setLangOpen(false);
                         }}
-                        className="block w-full px-3 py-2 text-xs font-bold text-left text-gray-700 cursor-pointer border-none bg-white hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
+                        className="block w-full px-3 py-2 text-xs font-bold text-left text-white/70 cursor-pointer border-none bg-transparent hover:bg-white/[0.08] hover:text-indigo-400 transition-colors duration-150"
                       >
                         {label}
                       </button>
@@ -186,8 +186,14 @@ const MainLayout = () => {
           </div>
 
           {/* Page content */}
-          <main className="py-7 px-8">
-            <Outlet />
+          <main className="py-7 px-8 relative">
+            {/* Subtle grid pattern */}
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
+            {/* Ambient glow */}
+            <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/[0.04] rounded-full blur-[100px]" />
+            <div className="relative">
+              <Outlet />
+            </div>
           </main>
 
         </div>
