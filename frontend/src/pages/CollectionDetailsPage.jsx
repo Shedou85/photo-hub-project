@@ -391,8 +391,8 @@ function CollectionDetailsPage() {
             )}
 
             {collection.status === 'REVIEWING' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-teal-500/[0.06] border border-teal-500/[0.12] mb-2">
-                <svg className="w-10 h-10 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-amber-500/[0.06] border border-amber-500/[0.12] mb-2">
+                <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
                 <div>
@@ -446,12 +446,12 @@ function CollectionDetailsPage() {
             )}
 
             {collection.status === 'DOWNLOADED' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-emerald-500/[0.10] border border-emerald-500/[0.20] mb-2">
-                <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-green-500/[0.10] border border-green-500/[0.20] mb-2">
+                <svg className="w-10 h-10 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p className="text-white font-bold text-lg m-0">{t('collection.downloadedTitle')}</p>
+                  <p className="font-bold text-lg m-0 animate-text-glow">{t('collection.downloadedTitle')}</p>
                   <p className="text-white/50 text-sm m-0 mt-1">{t('collection.downloadedDesc')}</p>
                 </div>
                 <Button variant="secondary" onClick={handleCopyDeliveryLink}>

@@ -61,10 +61,15 @@ export default {
         shimmer: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' }
+        },
+        'text-glow': {
+          '0%, 100%': { color: 'rgba(22,163,74,0.8)' },
+          '50%': { color: 'rgba(74,222,128,1)' }
         }
       },
       animation: {
-        shimmer: 'shimmer 3s ease-in-out infinite'
+        shimmer: 'shimmer 3s ease-in-out infinite',
+        'text-glow': 'text-glow 2.5s ease-in-out infinite'
       }
     },
   },

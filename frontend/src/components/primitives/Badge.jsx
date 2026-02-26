@@ -23,18 +23,18 @@ function Badge({ status, children, className, showDot = false }) {
   const statusClasses = {
     DRAFT: 'bg-white/[0.08] text-white/50',
     SELECTING: 'bg-blue-400/15 text-blue-400',
-    REVIEWING: 'bg-teal-400/15 text-teal-400',
+    REVIEWING: 'bg-amber-400/15 text-amber-400',
     DELIVERED: 'bg-emerald-400/15 text-emerald-400',
-    DOWNLOADED: 'bg-emerald-400/20 text-emerald-300',
+    DOWNLOADED: 'bg-green-400/20 text-green-400',
     ARCHIVED: 'bg-white/[0.06] text-white/30'
   };
 
   const dotColors = {
     DRAFT: 'bg-white/50',
     SELECTING: 'bg-blue-400',
-    REVIEWING: 'bg-teal-400',
+    REVIEWING: 'bg-amber-400',
     DELIVERED: 'bg-emerald-400',
-    DOWNLOADED: 'bg-emerald-300',
+    DOWNLOADED: 'bg-green-400',
     ARCHIVED: 'bg-white/30'
   };
 
