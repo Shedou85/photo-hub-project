@@ -25,24 +25,24 @@ describe('Button', () => {
     it('applies secondary variant classes', () => {
       render(<Button variant="secondary">Secondary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-blue-50');
-      expect(button).toHaveClass('text-blue-600');
-      expect(button).toHaveClass('border-blue-200');
+      expect(button).toHaveClass('bg-white/[0.06]');
+      expect(button).toHaveClass('text-white/70');
+      expect(button).toHaveClass('border-white/10');
     });
 
     it('applies danger variant classes', () => {
       render(<Button variant="danger">Danger</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-red-50');
-      expect(button).toHaveClass('text-red-600');
-      expect(button).toHaveClass('border-red-200');
+      expect(button).toHaveClass('bg-red-500/10');
+      expect(button).toHaveClass('text-red-400');
+      expect(button).toHaveClass('border-red-500/20');
     });
 
     it('applies ghost variant classes', () => {
       render(<Button variant="ghost">Ghost</Button>);
       const button = screen.getByRole('button');
       expect(button).toHaveClass('bg-transparent');
-      expect(button).toHaveClass('text-gray-700');
+      expect(button).toHaveClass('text-white/60');
     });
   });
 

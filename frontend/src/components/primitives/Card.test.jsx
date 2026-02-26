@@ -19,10 +19,11 @@ describe('Card', () => {
     const { container } = render(<Card>Content</Card>);
     const card = container.firstChild;
 
-    expect(card).toHaveClass('bg-white');
+    expect(card).toHaveClass('bg-white/[0.04]');
     expect(card).toHaveClass('border');
-    expect(card).toHaveClass('border-gray-200');
-    expect(card).toHaveClass('rounded');
+    expect(card).toHaveClass('border-white/10');
+    expect(card).toHaveClass('rounded-lg');
+    expect(card).toHaveClass('shadow-xl');
   });
 
   it('applies default padding', () => {
@@ -49,13 +50,13 @@ describe('Card', () => {
   describe('className passthrough', () => {
     it('merges additional classes with defaults', () => {
       const { container } = render(
-        <Card className="custom-class shadow-lg">Content</Card>
+        <Card className="custom-class extra-shadow">Content</Card>
       );
       const card = container.firstChild;
 
       expect(card).toHaveClass('custom-class');
-      expect(card).toHaveClass('shadow-lg');
-      expect(card).toHaveClass('bg-white'); // base class still present
+      expect(card).toHaveClass('extra-shadow');
+      expect(card).toHaveClass('bg-white/[0.04]'); // base class still present
       expect(card).toHaveClass('border'); // base class still present
     });
   });

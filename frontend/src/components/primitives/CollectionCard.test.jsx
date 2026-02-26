@@ -57,13 +57,10 @@ describe('CollectionCard', () => {
     });
 
     it('renders placeholder with first letter when coverImageUrl is not provided', () => {
-      const { container } = render(
-        <CollectionCard {...mockCollection} coverImageUrl={undefined} />
-      );
+      render(<CollectionCard {...mockCollection} coverImageUrl={undefined} />);
 
-      const placeholder = container.querySelector('.bg-\\[linear-gradient\\(135deg\\,\\#3b82f6_0\\%\\,\\#6366f1_100\\%\\)\\]');
-      expect(placeholder).toBeInTheDocument();
-      expect(placeholder).toHaveTextContent('W');
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+      expect(screen.getByText('W')).toBeInTheDocument();
     });
 
     it('applies hover scale to cover image', () => {
@@ -115,7 +112,7 @@ describe('CollectionCard', () => {
     it('applies hover border and transform classes', () => {
       const { container } = render(<CollectionCard {...mockCollection} />);
       const card = container.firstChild;
-      expect(card).toHaveClass('hover:border-blue-300');
+      expect(card).toHaveClass('hover:border-indigo-500/30');
       expect(card).toHaveClass('hover:-translate-y-[2px]');
     });
   });
