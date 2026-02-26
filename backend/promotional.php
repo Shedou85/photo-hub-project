@@ -14,9 +14,9 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT pp.photoId, pp.collectionId, pp.`order`,
-               p.storagePath, p.thumbnailPath
+               ep.storagePath
         FROM PromotionalPhoto pp
-        JOIN Photo p ON p.id = pp.photoId
+        JOIN EditedPhoto ep ON ep.id = pp.photoId
         JOIN `Collection` c ON c.id = pp.collectionId
         WHERE c.allowPromotionalUse = 1
           AND c.status IN ('DELIVERED', 'DOWNLOADED')
