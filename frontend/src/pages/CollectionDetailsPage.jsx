@@ -12,6 +12,7 @@ import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
+import { generateCopyScript } from '../utils/copyScript';
 
 
 const EXPIRED_TRIAL_PHOTO_LIMIT = 30;
@@ -160,6 +161,13 @@ function CollectionDetailsPage() {
     setEditClientEmail(collection.clientEmail || '');
     setEditSourceFolder(collection.sourceFolder || '');
     setShowEditForm(f => !f);
+  };
+
+  const handleCopySelectedPhotos = () => {
+    if (!collection.sourceFolder || selectedPhotoIds.size === 0) return;
+    const selected = photos.filter(p => selectedPhotoIds.has(p.id));
+    generateCopyScript(collection.sourceFolder, selected, collection.name);
+    toast.success(t('collection.copySelectedSuccess', { count: selected.length }));
   };
 
   const handleSaveEdit = async () => {
@@ -406,6 +414,12 @@ function CollectionDetailsPage() {
                     </svg>
                     {t('collection.uploadEditedFinalsButton')}
                   </Button>
+                  <Button variant="secondary" onClick={handleCopySelectedPhotos} disabled={!collection.sourceFolder || selectedPhotoIds.size === 0}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                    </svg>
+                    {t('collection.copySelectedButton')}
+                  </Button>
                   {editedPhotos.length > 0 && (
                     <Button variant="action" onClick={() => setShowPromotionalModal(true)}>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -422,7 +436,7 @@ function CollectionDetailsPage() {
                   <p className="text-white/50 text-xs m-0">{t('collection.markAsDeliveredHint')}</p>
                 )}
                 {selectedPhotoIds.size > 0 && !collection.sourceFolder && (
-                  <p className="text-white/50 text-xs m-0">{t('collection.setSourceFolderHint')}</p>
+                  <p className="text-amber-400/80 text-xs m-0">{t('collection.setSourceFolderHint')}</p>
                 )}
               </div>
             )}
