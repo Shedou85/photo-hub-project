@@ -1,18 +1,26 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 
 function Accordion({ title, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const id = useId();
 
   return (
     <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl mb-5 transition-all duration-700">
       {/* Accordion Header */}
       <div
+        id={id + '-header'}
         className="flex items-center justify-between px-6 py-4 cursor-pointer select-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
         role="button"
         aria-expanded={isOpen}
+        aria-controls={id + '-panel'}
         tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && setIsOpen(!isOpen)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
       >
         <h2 className="mt-0 mb-0 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
           {title}
@@ -32,6 +40,9 @@ function Accordion({ title, children, defaultOpen = false }) {
 
       {/* Accordion Content */}
       <div
+        id={id + '-panel'}
+        role="region"
+        aria-labelledby={id + '-header'}
         className={`transition-all ease-in-out duration-700 overflow-hidden ${
           isOpen ? "max-h-[1000px]" : "max-h-0"
         }`}

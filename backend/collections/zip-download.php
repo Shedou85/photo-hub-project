@@ -10,6 +10,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/download-tracker.php';
+require_once __DIR__ . '/../helpers/rate-limiter.php';
 require_once __DIR__ . '/../utils.php';
 
 use ZipStream\ZipStream;
@@ -34,11 +35,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+// Rate limit: 10 ZIP downloads per 15 minutes per IP
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!checkRateLimit('zip_dl:' . $clientIp, 10, 900)) {
+    http_response_code(429);
+    echo json_encode(['error' => 'Too many download requests. Please try again later.']);
+    exit;
+}
+
 try {
     $pdo = getDbConnection();
 
     // Verify delivery token exists
-    $stmt = $pdo->prepare("SELECT id, name, status FROM Collection WHERE deliveryToken = ?");
+    $stmt = $pdo->prepare("SELECT id, name, status, expiresAt FROM Collection WHERE deliveryToken = ?");
     $stmt->execute([$deliveryToken]);
     $collection = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -52,6 +61,13 @@ try {
     if ($collection['status'] !== 'DELIVERED' && $collection['status'] !== 'DOWNLOADED') {
         http_response_code(403);
         echo json_encode(['error' => 'Collection is not available for download']);
+        exit;
+    }
+
+    // Check collection expiration
+    if (!empty($collection['expiresAt']) && strtotime($collection['expiresAt']) < time()) {
+        http_response_code(410);
+        echo json_encode(['error' => 'This collection has expired.']);
         exit;
     }
 

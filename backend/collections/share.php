@@ -98,7 +98,7 @@ if ($requestMethod === 'PATCH') {
 
         // Query collection by shareId
         $stmt = $pdo->prepare("
-            SELECT id, status, password
+            SELECT id, status, expiresAt, password
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1
@@ -109,6 +109,13 @@ if ($requestMethod === 'PATCH') {
         if (!$collection) {
             http_response_code(404);
             echo json_encode(['error' => 'Collection not found.']);
+            exit;
+        }
+
+        // Check collection expiration
+        if (!empty($collection['expiresAt']) && strtotime($collection['expiresAt']) < time()) {
+            http_response_code(410);
+            echo json_encode(['error' => 'This collection has expired.']);
             exit;
         }
 
@@ -159,7 +166,7 @@ if ($requestMethod === 'PATCH') {
     try {
         // Query collection by shareId — explicitly exclude sensitive fields
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, shareId, coverPhotoId, deliveryToken, createdAt, password
+            SELECT id, name, status, clientName, shareId, coverPhotoId, deliveryToken, expiresAt, createdAt, password
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1
@@ -170,6 +177,13 @@ if ($requestMethod === 'PATCH') {
         if (!$collection) {
             http_response_code(404);
             echo json_encode(['error' => 'Collection not found.']);
+            exit;
+        }
+
+        // Check collection expiration
+        if (!empty($collection['expiresAt']) && strtotime($collection['expiresAt']) < time()) {
+            http_response_code(410);
+            echo json_encode(['error' => 'This collection has expired.']);
             exit;
         }
 
@@ -198,8 +212,9 @@ if ($requestMethod === 'PATCH') {
             exit;
         }
 
-        // Remove sensitive field before sending to client
+        // Remove sensitive fields before sending to client
         unset($collection['password']);
+        unset($collection['expiresAt']);
 
         // Query photos for this collection
         $stmt = $pdo->prepare("

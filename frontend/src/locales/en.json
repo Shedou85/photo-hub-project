@@ -570,6 +570,8 @@
   "errors": {
     "boundary_title": "Something went wrong",
     "boundary_message": "An unexpected error occurred. Please try again.",
-    "try_again": "Try Again"
+    "try_again": "Try Again",
+    "page_not_found": "This page could not be found.",
+    "go_home": "Go to homepage"
   }
 }

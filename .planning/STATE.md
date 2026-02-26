@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** v3.0 Workflow & UX Redesign — COMPLETE
+**Current focus:** Post-audit fixes — IN PROGRESS (see .planning/TODO.md)
 
 ## Current Position
 
@@ -116,7 +116,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Completed Phase 16 (Testing & QA) - Unit tests, E2E, visual regression, accessibility compliance - v3.0 MILESTONE COMPLETE
+Last session: 2026-02-26
+Stopped at: Implementing post-audit fixes (8 tasks from project-review.txt)
 Resume file: None
-Next step: Deploy v3.0 to production or begin next milestone planning
+Next step: Continue remaining TODO items from .planning/TODO.md

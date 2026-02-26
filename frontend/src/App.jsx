@@ -18,6 +18,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
 import AdminPage from './pages/AdminPage';
+import NotFoundPage from './pages/NotFoundPage';
 import CookieConsentBanner from './components/CookieConsentBanner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initGA, trackPageView } from './lib/analytics';
@@ -48,7 +49,16 @@ function App() {
     trackPageView(location.pathname);
   }, [location.pathname]);
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-white/20 border-t-indigo-500 rounded-full animate-spin" />
+          <span className="text-sm text-white/40 tracking-wide">PixelForge</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -76,6 +86,7 @@ function App() {
       <Route path="/admin" element={<AdminRoute><ResponsiveLayout /></AdminRoute>}>
         <Route index element={<AdminPage />} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
     </ErrorBoundary>
     </>

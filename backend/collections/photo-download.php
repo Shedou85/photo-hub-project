@@ -9,6 +9,7 @@
 
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/download-tracker.php';
+require_once __DIR__ . '/../helpers/rate-limiter.php';
 require_once __DIR__ . '/../utils.php';
 
 // Extract deliveryToken and photoId from route: /deliver/{deliveryToken}/photo/{photoId}
@@ -29,11 +30,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+// Rate limit: 60 individual photo downloads per 15 minutes per IP
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!checkRateLimit('photo_dl:' . $clientIp, 60, 900)) {
+    http_response_code(429);
+    echo json_encode(['error' => 'Too many download requests. Please try again later.']);
+    exit;
+}
+
 try {
     $pdo = getDbConnection();
 
     // Verify delivery token and get collection
-    $stmt = $pdo->prepare("SELECT id, status FROM Collection WHERE deliveryToken = ?");
+    $stmt = $pdo->prepare("SELECT id, status, expiresAt FROM Collection WHERE deliveryToken = ?");
     $stmt->execute([$deliveryToken]);
     $collection = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -47,6 +56,13 @@ try {
     if ($collection['status'] !== 'DELIVERED' && $collection['status'] !== 'DOWNLOADED') {
         http_response_code(403);
         echo json_encode(['error' => 'Collection not available for download']);
+        exit;
+    }
+
+    // Check collection expiration
+    if (!empty($collection['expiresAt']) && strtotime($collection['expiresAt']) < time()) {
+        http_response_code(410);
+        echo json_encode(['error' => 'This collection has expired.']);
         exit;
     }
 

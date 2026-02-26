@@ -1,0 +1,332 @@
+================================================================================
+                    PHOTO HUB (pixelforge.pro) — PROJEKTO APZVALGA
+                              2026-02-26
+================================================================================
+
+Bendra ivertinimas: 8/10 — solidus projektas, bet yra zenkliu spragu.
+
+================================================================================
+1. KRITINES PROBLEMOS (turi buti istaisytos)
+================================================================================
+
+1.1. database_schema.sql nesinchronizuotas su kodu
+-----------------------------------------------------
+Truksta 3 stulpeliu, kurie naudojami PHP kode:
+
+- User.emailVerificationTokenExpires
+  Email verifikacija neveiks is svaraus schema.
+  Migracija egzistuoja: backend/migrations/add_email_verification_expires.sql
+  Bet nera pagrindiniame schema faile.
+
+- Collection.sourceFolder
+  Migracija egzistuoja: backend/migrations/add_source_folder.sql
+  Bet nera pagrindiniame schema faile.
+
+- Collection.lightroomPath
+  Nera nei schema, nei migracijos failo.
+  Naudojamas: backend/collections/id.php (eilutes 42, 50, 82)
+
+POVEIKIS: Naujas deployment is database_schema.sql sugriaus aplikacija.
+
+1.2. Nera 404 puslapio
+-----------------------------------------------------
+Neegzistuojantys URL rodo tuscia ekrana.
+App.jsx neturi catch-all route (pvz. <Route path="*" element={<NotFoundPage />} />).
+
+1.3. PaymentsPage — tik stub
+-----------------------------------------------------
+Rodo plano korteles su "Coming soon" mygtukais.
+Jokios mokejimu integracijos (Stripe ar kt.) neimplementuota.
+
+
+================================================================================
+2. SAUGUMO SPRAGOS (vidutinio lygio)
+================================================================================
+
+2.1. Nera CSP (Content-Security-Policy) header
+  .htaccess turi kitus security headers (X-Frame-Options, HSTS, X-Content-Type-Options),
+  bet truksta Content-Security-Policy — apsauga nuo XSS ir data injection ataku.
+
+2.2. Rate limiter failu pagrindu
+  Naudoja /tmp/photohub_ratelimit/ failus.
+  Neveiks su keliais serveriais — reikia Redis ar DB pagrindo limiterio.
+  Failai: backend/helpers/rate-limiter.php
+
+2.3. Delivery endpoints be rate limitingo
+  /deliver/{token}/photo/{photoId} ir /deliver/{token}/zip neturi jokio limitavimo.
+  Galimas piktnaudziavimas atsisiuntimais.
+
+2.4. Kolekciju galiojimas neuztikinamas
+  expiresAt laukas egzistuoja Collection lenteleje,
+  bet niekada netikrinamas — pasibaige share linkai veikia amzinai.
+  Reikia cron job arba tikrinimo delivery/share endpointuose.
+
+2.5. Sesijos timeout 30 min
+  Gali buti per ilgas fotografo kontekste su kliento duomenimis.
+  Failas: backend/helpers/session.php (SESSION_TIMEOUT = 1800)
+
+
+================================================================================
+3. NEBAIGTOS FUNKCIJOS
+================================================================================
+
+3.1. Mokejimai (Stripe)
+  Busena: Neimplementuota — tik UI stub PaymentsPage.
+  Failas: frontend/src/pages/PaymentsPage.jsx
+
+3.2. SharePage slaptazodzio apsauga
+  Backend logika egzistuoja (collections/share.php tikrina password),
+  bet frontend neturi slaptazodzio prompt UI.
+  i18n raktai paruosti: passwordRequired, passwordLabel, passwordPlaceholder, etc.
+
+3.3. Lightroom integracija
+  lightroomScript.js egzistuoja frontend/src/utils/, bet niekur nenaudojamas.
+  Backend priima sourceFolder ir lightroomPath laukus, bet nieko su jais nedaro.
+  Tai dead code.
+
+3.4. Promotional nuotrauku pertvarkymas
+  order laukas DB PromotionalPhoto lenteleje yra,
+  bet nera PATCH endpoint pertvarkymui.
+  Failas: backend/collections/promotional.php
+
+3.5. Download analytics
+  Download lentele egzistuoja ir pildomu duomenu,
+  bet nera API endpoint statistikai gauti/rodyti.
+
+3.6. Bulk operacijos
+  Negalima istrinti keliu nuotrauku vienu requestu.
+  Negalima pakeisti keliu kolekciju statuso vienu metu.
+
+3.7. ZIP atsisiuntimas UI
+  i18n raktas delivery.downloadAllAsZip egzistuoja,
+  bet mygtukas DeliveryPage UI nerodomas arba neimplementuotas.
+
+
+================================================================================
+4. FRONTEND TRUKUMAI
+================================================================================
+
+4.1. Accessibility (WCAG 2.1 AA) — apie 70% atitiktis
+------------------------------------------------------
+- Truksta aria-label ant 9+ icon-only mygtuku (delete, edit, lightbox nav)
+- Lightbox nepalaiko rodykliu klavisu navigacijos
+- text-white/40 ant #0d0f14 fono — gali neislaikyti WCAG AA kontrasto
+- Nera "Skip to main content" nuorodos
+- Kai kurie <div onClick> elementai be role="button" ir tabIndex
+- Truksta aria-invalid ir aria-describedby formu laukuose
+- Dropdown meniu nepalaiko rodykliu klavisu navigacijos
+- ConfirmModal turi Escape key, bet UserDetailModal (admin) — ne
+
+4.2. Testu padengimas — apie 40%
+------------------------------------------------------
+- Tik 6 unit testai primityvams/kontekstams
+- Nera integration testu
+- E2E testai sukonfiguruoti (Playwright), bet mazai scenarijumi
+- Tikslas turetu buti 70%+ padengimas
+
+4.3. Auth loading busena
+------------------------------------------------------
+- Auth tikrinimo metu (GET /auth/me) rodomas tuscias ekranas
+- Nera splash screen ar skeleton loader
+- Failas: App.jsx — if (loading) return null;
+
+4.4. Dead code
+------------------------------------------------------
+- frontend/src/utils/lightroomScript.js — niekur neimportuotas
+- useApi hook egzistuoja, bet useCollectionData jo nenaudoja (nenuoseklus pattern)
+
+4.5. Vite konfiguracija
+------------------------------------------------------
+- Dev proxy cookie tvarkymas naudoja fragile regex (vite.config.js)
+- Nera production source maps (build.sourcemap)
+- Nera rollup chunk splitting optimizacijos
+- Nera code-splitting konfiguraciju
+
+4.6. Error tracking
+------------------------------------------------------
+- Nera production error monitoring serviso (Sentry, LogRocket ar pan.)
+- ErrorBoundary sugauna React klaidas, bet tik logina i konsole
+
+4.7. Routing problemos
+------------------------------------------------------
+- Nera 404 catch-all route (ziuret 1.2)
+- Logout mygtukas kvieciu navigate('/') nelaukdamas kol async logout baigsis
+- Query parametrai neisaugomi redirect'inant is /login i /collections
+
+
+================================================================================
+5. BACKEND TRUKUMAI
+================================================================================
+
+5.1. Nera API dokumentacijos
+------------------------------------------------------
+Nera OpenAPI/Swagger specifikacijos.
+Naujam develperiui sudetinga suprasti visus endpoints.
+
+5.2. Nera API versioning
+------------------------------------------------------
+Visi routes be /v1/ prefikso.
+Ateityje breaking changes bus sudetinga valdyti.
+
+5.3. Nenaudojama composer dependency
+------------------------------------------------------
+nelmio/cors-bundle itrauktas i composer.json,
+bet CORS tvarkomas rankiniu cors.php failu.
+Galima pasalinti.
+
+5.4. Nera backend testu
+------------------------------------------------------
+0% backend testu padengimas.
+Nera PHPUnit ar kitu testavimo irankiu.
+Nera dev dependenciju composer.json (phpunit, phpstan, etc.)
+
+5.5. Nera cron job
+------------------------------------------------------
+Nera automatizuotu uzduociu:
+- Kolekciju galiojimo tikrinimas
+- Pasibaigsiu sesiju valymas
+- Senu failu isvalymas (ARCHIVED kolekcijos)
+
+5.6. Kolekciju slaptazodzio nustatymas
+------------------------------------------------------
+Share endpoint tikrina slaptazodi (password_verify),
+bet nera endpoint slaptazodzio nustatymui/atnaujinimui per PATCH.
+Collection.password laukas DB egzistuoja, bet nera UI ar API ji nustatyti.
+
+5.7. Promotional nuotrauku pertvarkymo trukumas
+------------------------------------------------------
+POST sukuria su order lauku,
+bet nera PATCH endpoint pertvarkymui (drag & drop).
+
+
+================================================================================
+6. DUOMENU BAZES PROBLEMOS
+================================================================================
+
+6.1. Schema nesinchronizuotas (ziuret 1.1)
+------------------------------------------------------
+3 stulpeliai truksta pagrindiniame database_schema.sql:
+- User.emailVerificationTokenExpires
+- Collection.sourceFolder
+- Collection.lightroomPath
+
+6.2. Kolekcijos statuso validation mismatch
+------------------------------------------------------
+Schema turi 6 ENUM reiksmes:
+  DRAFT, SELECTING, REVIEWING, DELIVERED, DOWNLOADED, ARCHIVED
+
+Bet PATCH endpoint (collections/id.php:81) leidzia tik 5:
+  DRAFT, SELECTING, REVIEWING, DELIVERED, ARCHIVED
+
+DOWNLOADED statusas nustatomas tik automatiskai per download endpoint.
+Tai intencionalus dizainas, bet nera dokumentuotas.
+
+6.3. PromotionalPhoto.photoId nera foreign key
+------------------------------------------------------
+FK buvo intencionaliai pasalintas (schema komentaras eilute 366).
+Validacija atliekama PHP lygmenyje (collections/promotional.php:72).
+Veikia teisingai, bet nera dokumentuota.
+
+6.4. Pasenusios migracijos komentaruose
+------------------------------------------------------
+database_schema.sql pabaigoje (eilutes 239-331) yra uzkomentaruoti
+ALTER TABLE komandos, kurie nebeaktualu arba kliudinantys.
+Reikia issivalyti.
+
+
+================================================================================
+7. KAS GERAI PADARYTA
+================================================================================
+
+Sritis                          | Ivertinimas | Pastabos
+--------------------------------|-------------|----------------------------------
+SQL injection apsauga           | 10/10       | 100% prepared statements, EMULATE_PREPARES=false
+Failu upload saugumas           | 10/10       | MIME, dydis, path traversal, execution prevention
+CSRF apsauga                    | 9/10        | timing-safe hash_equals(), tinkamos exemptions
+i18n sinchronizacija            | 10/10       | LT/EN/RU pilnai sinchronizuoti (22 namespaces)
+Responsive dizainas             | 9/10        | Desktop + mobile layouts, safe-area support
+Error handling (frontend)       | 9/10        | Centralizuotas API klientas, toast pranesimai
+Loading/empty states            | 9/10        | Skeleton loaders, empty states visur
+Session saugumas                | 9/10        | Secure, HttpOnly, SameSite, User-Agent binding
+Kodo organizacija               | 9/10        | Aiski struktura, nuoseklus patternai
+Autentifikacija                 | 9/10        | bcrypt, rate limiting, session regeneration
+Failu struktura                 | 9/10        | 13 pages, 25 components, 6 custom hooks
+CORS konfiguracija              | 9/10        | Whitelist-based, no wildcard origins
+Security headers                | 8/10        | Viskas yra isskyrus CSP
+Password reset flow             | 9/10        | 1h token, one-time use, SHA256 hash
+Google OAuth                    | 9/10        | JWT verification, auto email verify
+
+
+================================================================================
+8. TOP 10 REKOMENDUOJAMU VEIKSMU (prioriteto tvarka)
+================================================================================
+
+ 1. Sinchronizuoti database_schema.sql su realiu kodu
+    (prideti 3 trukstamus stulpelius, sukurti lightroomPath migracija)
+
+ 2. Prideti 404 catch-all route App.jsx
+    (<Route path="*" element={<NotFoundPage />} />)
+
+ 3. Implementuoti Stripe mokejimus arba pasalinti PaymentsPage stub
+
+ 4. Prideti Content-Security-Policy header i .htaccess
+
+ 5. Prideti rate limiting delivery endpoints
+    (/deliver/{token}/photo/*, /deliver/{token}/zip)
+
+ 6. Implementuoti kolekciju galiojimo tikrinima
+    (cron job arba tikrinimas delivery/share endpointuose)
+
+ 7. Pataisyti accessibility
+    - aria-labels icon mygtukams
+    - keyboard navigation lightbox/dropdowns
+    - color contrast (text-white/40 ant tamsiaus fono)
+
+ 8. Prideti backend testus (PHPUnit) ir padidinti frontend testu
+    padengima iki 70%+
+
+ 9. Prideti error tracking (Sentry) production monitoring
+
+10. Sukurti API dokumentacija (OpenAPI/Swagger spec)
+
+
+================================================================================
+9. FAILU STRUKTURA (nuoroda)
+================================================================================
+
+photo-hub/
+  frontend/
+    src/
+      pages/           — 13 puslapiu
+      components/      — 25 komponentai
+      contexts/        — AuthContext.jsx
+      hooks/           — 6 custom hooks
+      utils/           — copyScript, lightroomScript, download, api
+      locales/         — en.json, lt.json, ru.json
+      layouts/         — MainLayout, MobileLayout, ResponsiveLayout
+    tailwind.config.js
+    vite.config.js
+    package.json
+  backend/
+    index.php          — Pagrindinis router (383 eilutes)
+    db.php             — PDO connection factory
+    config.php         — DB + SMTP + OAuth kredencialai
+    cors.php           — CORS headers
+    utils.php          — Failu upload + thumbnail handling
+    auth/              — 6 auth handler failai
+    collections/       — 9 kolekciju handler failai
+    admin/             — 5 admin endpoint failai
+    profile/           — me.php
+    helpers/           — 6 utility failai (mailer, csrf, session, rate-limiter, etc.)
+    uploads/           — Ikeltos nuotraukos (apsaugota .htaccess)
+    migrations/        — SQL migracijos
+    composer.json
+    .htaccess
+  database_schema.sql  — MySQL schema (NESINCHRONIZUOTAS!)
+  CLAUDE.md            — Projekto instrukcijos
+
+
+================================================================================
+                         Ataskaita sugeneruota: 2026-02-26
+                         Analizuota: ~110+ failu, ~20,000+ LOC
+================================================================================

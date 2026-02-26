@@ -30,7 +30,7 @@ try {
 
     // Query collection by deliveryToken
     $stmt = $pdo->prepare("
-        SELECT id, name, clientName, status, createdAt
+        SELECT id, name, clientName, status, expiresAt, createdAt
         FROM `Collection`
         WHERE deliveryToken = ?
         LIMIT 1
@@ -51,6 +51,13 @@ try {
             'error' => 'Collection not ready for delivery',
             'status' => $collection['status']
         ]);
+        exit;
+    }
+
+    // Check collection expiration
+    if (!empty($collection['expiresAt']) && strtotime($collection['expiresAt']) < time()) {
+        http_response_code(410);
+        echo json_encode(['error' => 'This collection has expired.']);
         exit;
     }
 
