@@ -20,7 +20,7 @@ const STATUS_COLORS = {
   REVIEWING: 'bg-yellow-400/15 text-yellow-400',
   DELIVERED: 'bg-indigo-400/15 text-indigo-400',
   DOWNLOADED: 'bg-purple-400/15 text-purple-400',
-  ARCHIVED: 'bg-white/[0.08] text-white/40',
+  ARCHIVED: 'bg-white/[0.08] text-white/50',
 };
 
 const StatusBadge = ({ status }) => (
@@ -94,7 +94,7 @@ const UserDetailModal = ({ user, onClose, t }) => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] sticky top-0 bg-surface-dark z-10">
           <div>
             <h3 className="text-base font-semibold text-white">{user.name || '—'}</h3>
-            <p className="text-xs text-white/40">{user.email}</p>
+            <p className="text-xs text-white/50">{user.email}</p>
           </div>
           <button
             onClick={onClose}
@@ -108,29 +108,29 @@ const UserDetailModal = ({ user, onClose, t }) => {
         {/* User info grid */}
         <div className="px-6 py-4 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 border-b border-white/[0.08]">
           <div>
-            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.users.columns.plan')}</p>
+            <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.users.columns.plan')}</p>
             <p className="text-sm text-white/90 mt-0.5 font-medium">{user.plan}</p>
           </div>
           <div>
-            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.users.columns.status')}</p>
+            <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.users.columns.status')}</p>
             <div className="mt-0.5">
               <StatusBadge status={user.status} />
             </div>
           </div>
           <div>
-            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.userDetail.emailVerified')}</p>
+            <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.userDetail.emailVerified')}</p>
             <p className={`text-sm mt-0.5 font-medium ${isVerified ? 'text-green-400' : 'text-red-400'}`}>
               {isVerified ? t('admin.userDetail.verified') : t('admin.userDetail.notVerified')}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.users.columns.joined')}</p>
+            <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.users.columns.joined')}</p>
             <p className="text-sm text-white/90 mt-0.5">
               {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-white/40 uppercase font-semibold tracking-wide">{t('admin.userDetail.totalPhotos')}</p>
+            <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.userDetail.totalPhotos')}</p>
             <p className="text-sm text-white/90 mt-0.5 font-medium">{user.totalPhotos ?? 0}</p>
           </div>
         </div>
@@ -139,19 +139,19 @@ const UserDetailModal = ({ user, onClose, t }) => {
         <div className="px-6 py-4">
           <p className="text-sm font-semibold text-white/70 mb-3">{t('admin.userDetail.collections')}</p>
           {loading ? (
-            <p className="text-sm text-white/40">{t('admin.userDetail.loadingCollections')}</p>
+            <p className="text-sm text-white/50">{t('admin.userDetail.loadingCollections')}</p>
           ) : collections.length === 0 ? (
-            <p className="text-sm text-white/40">{t('admin.userDetail.noCollections')}</p>
+            <p className="text-sm text-white/50">{t('admin.userDetail.noCollections')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/[0.08] bg-white/[0.03]">
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.name')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.status')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.photos')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.collections.columns.created')}</th>
-                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/50 uppercase tracking-wide">{t('admin.collections.columns.name')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/50 uppercase tracking-wide">{t('admin.collections.columns.status')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/50 uppercase tracking-wide">{t('admin.collections.columns.photos')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/50 uppercase tracking-wide">{t('admin.collections.columns.created')}</th>
+                    <th className="text-left px-3 py-2 text-[11px] font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.06]">
@@ -519,19 +519,19 @@ const AdminPage = () => {
               {/* 4 main stat cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.totalUsers')}</p>
+                  <p className="text-xs text-white/50 font-medium uppercase tracking-wide">{t('admin.stats.totalUsers')}</p>
                   <p className="text-3xl font-bold text-white mt-1">{stats.totalUsers ?? 0}</p>
                 </div>
                 <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.activeUsers')}</p>
+                  <p className="text-xs text-white/50 font-medium uppercase tracking-wide">{t('admin.stats.activeUsers')}</p>
                   <p className="text-3xl font-bold text-green-400 mt-1">{stats.activeUsers ?? 0}</p>
                 </div>
                 <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.suspendedUsers')}</p>
+                  <p className="text-xs text-white/50 font-medium uppercase tracking-wide">{t('admin.stats.suspendedUsers')}</p>
                   <p className="text-3xl font-bold text-red-400 mt-1">{stats.suspendedUsers ?? 0}</p>
                 </div>
                 <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5">
-                  <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{t('admin.stats.totalDownloads')}</p>
+                  <p className="text-xs text-white/50 font-medium uppercase tracking-wide">{t('admin.stats.totalDownloads')}</p>
                   <p className="text-3xl font-bold text-indigo-400 mt-1">{stats.totalDownloads ?? 0}</p>
                 </div>
               </div>
@@ -615,7 +615,7 @@ const AdminPage = () => {
                 <option value="PRO">PRO</option>
               </select>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-white/40 whitespace-nowrap">{t('admin.pagination.perPage')}:</span>
+                <span className="text-xs text-white/50 whitespace-nowrap">{t('admin.pagination.perPage')}:</span>
                 <select
                   value={usersFilters.limit}
                   onChange={(e) => setUsersFilters((f) => ({ ...f, limit: Number(e.target.value), page: 1 }))}
@@ -706,14 +706,14 @@ const AdminPage = () => {
                           className="rounded border-white/20 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer bg-white/[0.06]"
                         />
                       </th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.name')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.role')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.plan')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.status')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.emailVerified')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.collections')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.joined')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.name')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.role')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.plan')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.status')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.emailVerified')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.collections')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.joined')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.users.columns.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.06]">
@@ -742,7 +742,7 @@ const AdminPage = () => {
                               <p className="font-medium text-indigo-400 group-hover:text-indigo-300 group-hover:underline cursor-pointer transition-colors">
                                 {u.name || '—'}
                               </p>
-                              <p className="text-xs text-white/40">{u.email}</p>
+                              <p className="text-xs text-white/50">{u.email}</p>
                             </button>
                           </td>
                           <td className="px-4 py-3">
@@ -822,7 +822,7 @@ const AdminPage = () => {
                 >
                   {t('admin.pagination.prev')}
                 </button>
-                <span className="text-xs text-white/40">
+                <span className="text-xs text-white/50">
                   {t('admin.pagination.page')} {usersMeta.page} / {usersMeta.totalPages} &middot; {usersMeta.total} {t('admin.pagination.total')}
                 </span>
                 <button
@@ -856,7 +856,7 @@ const AdminPage = () => {
                 className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[160px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 transition-shadow placeholder:text-white/20"
               />
               <div className="flex items-center gap-2">
-                <label className="text-xs text-white/40 whitespace-nowrap">{t('admin.auditLog.fromDate')}</label>
+                <label className="text-xs text-white/50 whitespace-nowrap">{t('admin.auditLog.fromDate')}</label>
                 <input
                   type="date"
                   value={auditFilters.from}
@@ -865,7 +865,7 @@ const AdminPage = () => {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-white/40 whitespace-nowrap">{t('admin.auditLog.toDate')}</label>
+                <label className="text-xs text-white/50 whitespace-nowrap">{t('admin.auditLog.toDate')}</label>
                 <input
                   type="date"
                   value={auditFilters.to}
@@ -891,11 +891,11 @@ const AdminPage = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/[0.08] bg-white/[0.03]">
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.date')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.admin')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.action')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.target')}</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/40 uppercase tracking-wide">{t('admin.auditLog.columns.changes')}</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.auditLog.columns.date')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.auditLog.columns.admin')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.auditLog.columns.action')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.auditLog.columns.target')}</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wide">{t('admin.auditLog.columns.changes')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.06]">
@@ -946,7 +946,7 @@ const AdminPage = () => {
                 >
                   {t('admin.pagination.prev')}
                 </button>
-                <span className="text-xs text-white/40">
+                <span className="text-xs text-white/50">
                   {t('admin.pagination.page')} {auditLogsMeta.page} / {auditLogsMeta.totalPages} &middot; {auditLogsMeta.total} {t('admin.pagination.total')}
                 </span>
                 <button

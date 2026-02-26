@@ -53,6 +53,12 @@ const MobileLayout = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-darker">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        Skip to main content
+      </a>
       {/* Top header */}
       <header className="flex items-center justify-between px-4 py-3 bg-surface-dark border-b border-white/[0.08] sticky top-0 z-40">
         <span className="font-extrabold text-lg tracking-[0.5px] text-white">PixelForge</span>
@@ -103,7 +109,7 @@ const MobileLayout = () => {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 p-4 pb-24">
+      <main id="main-content" className="flex-1 p-4 pb-24">
         <Outlet />
       </main>
 

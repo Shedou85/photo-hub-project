@@ -51,8 +51,8 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 | Section heading | `text-white/70 uppercase tracking-[0.05em]` |
 | Body text | `text-white/90` |
 | Subtitle / label | `text-white/50` or `text-white/60` |
-| Muted text | `text-white/40` |
-| Dim text | `text-white/30` |
+| Muted text | `text-white/50` |
+| Dim text | `text-white/40` |
 | Dividers | `border-white/[0.08]` |
 | Primary button | `bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.35)]` |
 | Secondary button | `bg-white/[0.06] text-white/70 border-white/10 hover:bg-white/[0.1]` |

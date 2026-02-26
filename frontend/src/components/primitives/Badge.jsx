@@ -26,7 +26,7 @@ function Badge({ status, children, className, showDot = false }) {
     REVIEWING: 'bg-amber-400/15 text-amber-400',
     DELIVERED: 'bg-emerald-400/15 text-emerald-400',
     DOWNLOADED: 'bg-green-400/20 text-green-400',
-    ARCHIVED: 'bg-white/[0.06] text-white/30'
+    ARCHIVED: 'bg-white/[0.06] text-white/50'
   };
 
   const dotColors = {

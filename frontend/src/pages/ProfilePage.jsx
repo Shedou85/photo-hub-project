@@ -18,7 +18,7 @@ function getInitials(name) {
 function InfoRow({ label, value }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40">
+      <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
         {label}
       </span>
       <span className="text-sm text-white/90 font-medium">
@@ -136,7 +136,7 @@ function ProfilePage() {
           {/* ── Save Button Area ── */}
           <div className="flex items-center justify-end gap-3 pt-1">
             {loading && (
-              <span className="text-sm text-white/40">
+              <span className="text-sm text-white/50">
                 {t('profile.saving')}
               </span>
             )}
@@ -145,7 +145,7 @@ function ProfilePage() {
               disabled={loading}
               className={`py-2.5 px-5 text-sm font-semibold rounded-sm border-none font-sans transition-opacity duration-150 ${
                 loading
-                  ? "text-white/30 bg-white/[0.08] cursor-not-allowed"
+                  ? "text-white/40 bg-white/[0.08] cursor-not-allowed"
                   : "text-white cursor-pointer hover:opacity-90 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
               }`}
             >
@@ -172,14 +172,14 @@ function ProfilePage() {
             })}
           />
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40">
+            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
               {t('profile.plan')}
             </span>
             <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
           {user.role === 'ADMIN' && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40">
+              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
                 {t('profile.role')}
               </span>
               <Badge variant="admin">

@@ -283,7 +283,7 @@ function CollectionDetailsPage() {
           <div className="flex-1 min-w-0">
             <span className="text-base font-bold text-white">{collection.name}</span>
             {(collection.clientName || collection.clientEmail) && (
-              <span className="ml-2 text-sm text-white/40 font-normal">
+              <span className="ml-2 text-sm text-white/50 font-normal">
                 {[collection.clientName, collection.clientEmail].filter(Boolean).join(' · ')}
               </span>
             )}
@@ -484,7 +484,7 @@ function CollectionDetailsPage() {
                 </svg>
                 <div>
                   <p className="text-white/60 font-bold text-lg m-0">{t('collection.status.ARCHIVED')}</p>
-                  <p className="text-white/30 text-sm m-0 mt-1">{t('collection.nextStep.ARCHIVED')}</p>
+                  <p className="text-white/40 text-sm m-0 mt-1">{t('collection.nextStep.ARCHIVED')}</p>
                 </div>
               </div>
             )}
@@ -520,7 +520,7 @@ function CollectionDetailsPage() {
           <h3 className="text-sm font-bold text-white/70 mb-4">{t('collection.editCollection')}</h3>
           <div className="flex flex-col gap-3">
             <div>
-              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editName')}</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-[0.06em] block mb-1">{t('collection.editName')}</label>
               <input
                 type="text"
                 value={editName}
@@ -529,7 +529,7 @@ function CollectionDetailsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientName')}</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientName')}</label>
               <input
                 type="text"
                 value={editClientName}
@@ -538,7 +538,7 @@ function CollectionDetailsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientEmail')}</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-[0.06em] block mb-1">{t('collection.editClientEmail')}</label>
               <input
                 type="email"
                 value={editClientEmail}
@@ -547,7 +547,7 @@ function CollectionDetailsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-white/40 uppercase tracking-[0.06em] block mb-1">{t('collection.editSourceFolder')}</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-[0.06em] block mb-1">{t('collection.editSourceFolder')}</label>
               <input
                 type="text"
                 value={editSourceFolder}
@@ -555,7 +555,7 @@ function CollectionDetailsPage() {
                 placeholder={t('collection.sourceFolderPlaceholder')}
                 className="w-full bg-white/[0.06] border border-white/[0.12] rounded px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 placeholder:text-white/20"
               />
-              <p className="text-[11px] text-white/30 mt-1 mb-0">{t('collection.sourceFolderHint')}</p>
+              <p className="text-[11px] text-white/40 mt-1 mb-0">{t('collection.sourceFolderHint')}</p>
             </div>
           </div>
           <div className="flex gap-2 mt-4">
@@ -627,7 +627,7 @@ function CollectionDetailsPage() {
               <p className="m-0 text-sm font-medium text-white/60">
                 {t("collection.uploadZoneLabel")}
               </p>
-              <p className="m-0 text-xs text-white/40">
+              <p className="m-0 text-xs text-white/50">
                 {t("collection.uploadZoneHint")}
               </p>
             </div>
@@ -673,7 +673,7 @@ function CollectionDetailsPage() {
           <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
             {t('collection.editedFinalsTitle')}
             {editedPhotos.length > 0 && (
-              <span className="ml-2 text-xs font-normal text-white/40 normal-case tracking-normal">
+              <span className="ml-2 text-xs font-normal text-white/50 normal-case tracking-normal">
                 {t('collection.editedPhotosCount', { count: editedPhotos.length })}
               </span>
             )}
@@ -701,7 +701,7 @@ function CollectionDetailsPage() {
             <p className="m-0 text-sm font-medium text-white/60">
               {t('collection.editedUploadZoneLabel')}
             </p>
-            <p className="m-0 text-xs text-white/40">
+            <p className="m-0 text-xs text-white/50">
               {t('collection.editedUploadZoneHint')}
             </p>
             {anyEditedUploading && (

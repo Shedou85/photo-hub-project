@@ -48,7 +48,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
               {price}
             </p>
             {perMonth && (
-              <p className="text-sm text-white/40 mt-1">{perMonth}</p>
+              <p className="text-sm text-white/50 mt-1">{perMonth}</p>
             )}
           </div>
 
@@ -110,7 +110,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
           {price}
         </p>
         {perMonth && (
-          <p className="text-sm text-white/40 mt-1">{perMonth}</p>
+          <p className="text-sm text-white/50 mt-1">{perMonth}</p>
         )}
       </div>
 
@@ -130,7 +130,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
       {/* CTA */}
       <button
         disabled
-        className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/40 cursor-not-allowed"
+        className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/50 cursor-not-allowed"
       >
         {t('payments.comingSoon')}
       </button>

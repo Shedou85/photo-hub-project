@@ -484,7 +484,7 @@ function SharePage() {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-white/40 text-sm font-medium tabular-nums">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-white/50 text-sm font-medium tabular-nums">
             {lightboxIndex + 1} / {photos.length}
           </div>
 

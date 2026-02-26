@@ -20,10 +20,10 @@ Skipped: Payments (Stripe), CSP header, composer changes.
 - [x] Fix Accordion accessibility — `aria-label`, `aria-controls`
 - [x] Add auth loading splash screen (replace blank screen during `/auth/me`)
 - [x] Remove dead code — `lightroomScript.js`
-- [ ] Add `aria-label` to icon-only buttons (9+)
-- [ ] Lightbox keyboard navigation (arrow keys)
-- [ ] Color contrast audit (`text-white/40` on dark bg)
-- [ ] Skip-to-main-content link
+- [x] Add `aria-label` to icon-only buttons — already done (18/18 have aria-labels)
+- [x] Lightbox keyboard navigation — already done (ArrowLeft/Right/Escape in useLightbox, DeliveryPage, SharePage)
+- [x] Color contrast audit — bumped `text-white/40` → `/50`, `text-white/30` → `/40` for body text
+- [x] Skip-to-main-content link — added to MainLayout + MobileLayout
 - [ ] Increase test coverage to 70%+
 
 ## Backend
@@ -31,13 +31,12 @@ Skipped: Payments (Stripe), CSP header, composer changes.
 - [ ] Add API documentation (OpenAPI/Swagger)
 - [ ] Add backend tests (PHPUnit)
 - [ ] Add cron job for collection expiration cleanup
-- [ ] Add collection password set/update endpoint
 - [ ] Add promotional photo reorder endpoint (PATCH)
 
 ## Unfinished Features
 
 - [ ] ~~Stripe payments~~ (skipped — separate milestone)
-- [ ] SharePage password prompt UI (backend ready, i18n keys exist)
+- [ ] ~~SharePage password prompt UI~~ (removed — passwordless by design)
 - [ ] Download analytics API endpoint
 - [ ] Bulk operations (multi-delete photos, multi-status change)
 - [ ] ZIP download button in DeliveryPage UI

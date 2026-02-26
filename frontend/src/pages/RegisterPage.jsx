@@ -357,7 +357,7 @@ function RegisterPage() {
           <div id="google-signin-btn" className="flex justify-center" />
 
           {/* Login link */}
-          <p className="text-center text-sm text-white/40 mt-4">
+          <p className="text-center text-sm text-white/50 mt-4">
             {t('register.haveAccount')}{' '}
             <Link
               to="/login"
@@ -369,7 +369,7 @@ function RegisterPage() {
 
           {/* Back to home */}
           <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-white/30 hover:text-white/60 transition-colors duration-150 no-underline inline-flex items-center gap-2">
+            <Link to="/" className="text-sm text-white/40 hover:text-white/60 transition-colors duration-150 no-underline inline-flex items-center gap-2">
               ← {t("register.backHome")}
             </Link>
           </div>

@@ -201,7 +201,7 @@ function ResetPasswordPage() {
               </form>
 
               <div className="mt-6 text-center">
-                <Link to="/login" className="text-sm text-white/30 hover:text-white/60 transition-colors duration-150 no-underline">
+                <Link to="/login" className="text-sm text-white/40 hover:text-white/60 transition-colors duration-150 no-underline">
                   ← {t("passwordReset.backToLogin")}
                 </Link>
               </div>

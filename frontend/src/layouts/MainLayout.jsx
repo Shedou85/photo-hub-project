@@ -70,6 +70,12 @@ const MainLayout = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-darker">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        Skip to main content
+      </a>
 
       {/* Row: sidebar + content */}
       <div className="flex flex-1 relative">
@@ -186,7 +192,7 @@ const MainLayout = () => {
           </div>
 
           {/* Page content */}
-          <main className="py-7 px-8 relative">
+          <main id="main-content" className="py-7 px-8 relative">
             {/* Subtle grid pattern */}
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
             {/* Ambient glow */}

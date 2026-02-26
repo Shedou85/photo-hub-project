@@ -107,7 +107,7 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          <p className="text-xs font-semibold tracking-[0.06em] uppercase text-white/40 mb-3">
+          <p className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50 mb-3">
             {t('promotional.selectHint')}
           </p>
 
@@ -159,7 +159,7 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
               })}
             </div>
           ) : (
-            <p className="text-sm text-white/40 text-center py-8">
+            <p className="text-sm text-white/50 text-center py-8">
               {t('collection.noPhotos')}
             </p>
           )}

@@ -265,7 +265,7 @@ function LoginPage() {
             <div className="mb-4 text-right">
               <Link
                 to="/forgot-password"
-                className="text-xs text-white/40 hover:text-indigo-400 transition-colors duration-150 no-underline"
+                className="text-xs text-white/50 hover:text-indigo-400 transition-colors duration-150 no-underline"
               >
                 {t("login.forgotPassword")}
               </Link>
@@ -313,7 +313,7 @@ function LoginPage() {
           <div id="google-signin-btn" className="flex justify-center" />
 
           {/* Sign up link */}
-          <p className="text-center text-sm text-white/40 mt-4">
+          <p className="text-center text-sm text-white/50 mt-4">
             {t('login.noAccount')}{' '}
             <Link
               to="/register"
@@ -325,7 +325,7 @@ function LoginPage() {
 
           {/* Back to home */}
           <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-white/30 hover:text-white/60 transition-colors duration-150 no-underline">
+            <Link to="/" className="text-sm text-white/40 hover:text-white/60 transition-colors duration-150 no-underline">
               ← {t("login.backHome")}
             </Link>
           </div>
