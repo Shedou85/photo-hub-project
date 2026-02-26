@@ -336,41 +336,50 @@ function CollectionDetailsPage() {
 
             {/* Gradient Action Card */}
             {collection.status === 'DRAFT' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] mb-2">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-white/[0.04] border border-white/[0.08] mb-2">
+                <svg className="w-10 h-10 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
                 <div>
                   <p className="text-white font-bold text-lg m-0">{t('collection.addPhotosTitle')}</p>
-                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.addPhotosDesc')}</p>
+                  <p className="text-white/50 text-sm m-0 mt-1">{t('collection.addPhotosDesc')}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-center">
-                  <Button variant="secondary" onClick={() => setShowUploadZone(!showUploadZone)}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    {photos.length === 0 ? t('collection.addPhotos') : t('collection.addMorePhotos')}
-                  </Button>
-                  {photos.length > 0 && (
-                    <Button variant="secondary" onClick={handleStartSelecting}>
-                      {t('collection.startSelecting')}
+                  {photos.length === 0 ? (
+                    <Button variant="action" onClick={() => setShowUploadZone(!showUploadZone)}>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                      {t('collection.addPhotos')}
                     </Button>
+                  ) : (
+                    <>
+                      <Button variant="secondary" onClick={() => setShowUploadZone(!showUploadZone)}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        {t('collection.addMorePhotos')}
+                      </Button>
+                      <Button variant="action" onClick={handleStartSelecting}>
+                        {t('collection.startSelecting')}
+                      </Button>
+                    </>
                   )}
                 </div>
                 {photos.length > 0 && (
-                  <p className="text-white/60 text-xs m-0">{t('collection.photosCount', { count: photos.length })}</p>
+                  <p className="text-white/50 text-xs m-0">{t('collection.photosCount', { count: photos.length })}</p>
                 )}
               </div>
             )}
 
             {collection.status === 'SELECTING' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] mb-2">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-blue-500/[0.06] border border-blue-500/[0.12] mb-2">
+                <svg className="w-10 h-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
                 <div>
                   <p className="text-white font-bold text-lg m-0">{t('collection.waitingForClientTitle')}</p>
-                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.waitingForClientDesc')}</p>
+                  <p className="text-white/50 text-sm m-0 mt-1">{t('collection.waitingForClientDesc')}</p>
                 </div>
                 <Button variant="secondary" onClick={handleCopyShareLink}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -382,26 +391,23 @@ function CollectionDetailsPage() {
             )}
 
             {collection.status === 'REVIEWING' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#3b82f6,#0d9488)] mb-2">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-teal-500/[0.06] border border-teal-500/[0.12] mb-2">
+                <svg className="w-10 h-10 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
                 <div>
                   <p className="text-white font-bold text-lg m-0">{t('collection.uploadFinalsHeroTitle')}</p>
-                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.uploadFinalsHeroDesc')}</p>
+                  <p className="text-white/50 text-sm m-0 mt-1">{t('collection.uploadFinalsHeroDesc')}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-center">
-                  <button
-                    onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}
-                    className="relative overflow-hidden bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-semibold px-5 py-2.5 rounded-sm inline-flex items-center gap-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(16,185,129,0.4)] before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] before:translate-x-[-100%] before:animate-shimmer motion-reduce:before:animate-none"
-                  >
+                  <Button variant={editedPhotos.length > 0 ? 'secondary' : 'action'} onClick={() => setShowEditedFinalsZone(!showEditedFinalsZone)}>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     {t('collection.uploadEditedFinalsButton')}
-                  </button>
+                  </Button>
                   {editedPhotos.length > 0 && (
-                    <Button variant="primary" onClick={() => setShowPromotionalModal(true)}>
+                    <Button variant="action" onClick={() => setShowPromotionalModal(true)}>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
@@ -410,27 +416,27 @@ function CollectionDetailsPage() {
                   )}
                 </div>
                 {editedPhotos.length > 0 && (
-                  <p className="text-white/60 text-xs m-0">{t('collection.editedPhotosCount', { count: editedPhotos.length })}</p>
+                  <p className="text-white/50 text-xs m-0">{t('collection.editedPhotosCount', { count: editedPhotos.length })}</p>
                 )}
                 {editedPhotos.length === 0 && (
-                  <p className="text-white/60 text-xs m-0">{t('collection.markAsDeliveredHint')}</p>
+                  <p className="text-white/50 text-xs m-0">{t('collection.markAsDeliveredHint')}</p>
                 )}
                 {selectedPhotoIds.size > 0 && !collection.sourceFolder && (
-                  <p className="text-white/60 text-xs m-0">{t('collection.setSourceFolderHint')}</p>
+                  <p className="text-white/50 text-xs m-0">{t('collection.setSourceFolderHint')}</p>
                 )}
               </div>
             )}
 
             {collection.status === 'DELIVERED' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#10b981,#059669)] mb-2">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-emerald-500/[0.08] border border-emerald-500/[0.15] mb-2">
+                <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 <div>
                   <p className="text-white font-bold text-lg m-0">{t('collection.readyToDeliverTitle')}</p>
-                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.readyToDeliverDesc')}</p>
+                  <p className="text-white/50 text-sm m-0 mt-1">{t('collection.readyToDeliverDesc')}</p>
                 </div>
-                <Button variant="secondary" onClick={handleCopyDeliveryLink}>
+                <Button variant="action" onClick={handleCopyDeliveryLink}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
@@ -440,13 +446,13 @@ function CollectionDetailsPage() {
             )}
 
             {collection.status === 'DOWNLOADED' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#3b82f6,#6366f1)] mb-2">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-emerald-500/[0.10] border border-emerald-500/[0.20] mb-2">
+                <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
                   <p className="text-white font-bold text-lg m-0">{t('collection.downloadedTitle')}</p>
-                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.downloadedDesc')}</p>
+                  <p className="text-white/50 text-sm m-0 mt-1">{t('collection.downloadedDesc')}</p>
                 </div>
                 <Button variant="secondary" onClick={handleCopyDeliveryLink}>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -458,13 +464,13 @@ function CollectionDetailsPage() {
             )}
 
             {collection.status === 'ARCHIVED' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-[linear-gradient(135deg,#9ca3af,#6b7280)] mb-2">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-white/[0.03] border border-white/[0.06] mb-2">
+                <svg className="w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
                 <div>
-                  <p className="text-white font-bold text-lg m-0">{t('collection.status.ARCHIVED')}</p>
-                  <p className="text-white/75 text-sm m-0 mt-1">{t('collection.nextStep.ARCHIVED')}</p>
+                  <p className="text-white/60 font-bold text-lg m-0">{t('collection.status.ARCHIVED')}</p>
+                  <p className="text-white/30 text-sm m-0 mt-1">{t('collection.nextStep.ARCHIVED')}</p>
                 </div>
               </div>
             )}
