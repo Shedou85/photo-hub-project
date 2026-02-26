@@ -36,7 +36,37 @@ Photo Hub (pixelforge.pro) is a photo collection management app for professional
 - Use Tailwind `hover:` and `focus:` pseudo-class variants instead of JS state for hover/focus styling
 - Gradients via arbitrary value: `bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]`
 - Arbitrary sizes: `text-[13px]`, `w-[52px]`, `rounded-[10px]`, etc.
-- Design system: white cards with `border border-gray-200 rounded-[10px] px-6 py-5`, blue/indigo gradient accents
+- **Dark theme** across all authenticated pages (MainLayout + MobileLayout). Login/Register/HomePage have their own dark aesthetic.
+
+#### Design tokens (dark theme)
+
+| Element | Tailwind class |
+|---------|---------------|
+| Page background | `bg-surface-darker` (#0d0f14) |
+| Card | `bg-white/[0.04] border border-white/10 rounded-lg shadow-xl` |
+| Card padding | `px-6 py-5` |
+| Input | `bg-white/[0.06] border-white/[0.12] text-white placeholder:text-white/20` |
+| Input focus | `focus:border-indigo-500/70 focus:bg-white/[0.08]` |
+| Heading | `text-white` |
+| Section heading | `text-white/70 uppercase tracking-[0.05em]` |
+| Body text | `text-white/90` |
+| Subtitle / label | `text-white/50` or `text-white/60` |
+| Muted text | `text-white/40` |
+| Dim text | `text-white/30` |
+| Dividers | `border-white/[0.08]` |
+| Primary button | `bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.35)]` |
+| Secondary button | `bg-white/[0.06] text-white/70 border-white/10 hover:bg-white/[0.1]` |
+| Danger button | `bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20` |
+| Ghost button | `bg-transparent text-white/60 hover:bg-white/[0.06]` |
+| Modal | `bg-surface-dark border border-white/10 rounded-[10px] shadow-xl` |
+| Upload zone (idle) | `border-white/[0.15] bg-white/[0.02]` |
+| Upload zone (drag) | `border-indigo-500 bg-indigo-500/10` |
+
+#### Custom Tailwind colors (tailwind.config.js)
+
+- `surface-dark`: #1a1a2e
+- `surface-darker`: #0d0f14
+- `surface-darkest`: #080a0f
 
 ### i18n conventions
 
