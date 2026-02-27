@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
-use GuzzleHttp\Psr7\StreamInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Returns the cached R2 config array (bucket, public_url, etc.).
