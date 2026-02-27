@@ -607,5 +607,13 @@
     "try_again": "Bandyti dar kartą",
     "page_not_found": "Šis puslapis nerastas.",
     "go_home": "Grįžti į pradžią"
+  },
+  "seo": {
+    "homeTitle": "Profesionalus nuotraukų pristatymas fotografams",
+    "homeDescription": "PixelForge suteikia profesionaliems fotografams paprastą būdą organizuoti, dalytis ir pristatyti nuotraukų kolekcijas klientams.",
+    "loginTitle": "Prisijungimas",
+    "loginDescription": "Prisijunkite prie savo PixelForge paskyros ir valdykite nuotraukų kolekcijas bei pristatymus klientams.",
+    "registerTitle": "Sukurti paskyrą",
+    "registerDescription": "Užsiregistruokite PixelForge ir pradėkite pristatyti nuotraukų kolekcijas savo klientams jau šiandien."
   }
 }

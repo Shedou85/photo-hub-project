@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /collections
+Disallow: /collection/
+Disallow: /profile
+Disallow: /payments
+Disallow: /admin
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /forgot-password
+
+Sitemap: https://pixelforge.pro/sitemap.xml

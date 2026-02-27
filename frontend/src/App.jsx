@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Toaster } from 'sonner';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -33,6 +34,12 @@ function ScrollToTop() {
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
+  const { i18n } = useTranslation();
+
+  // Sync <html lang> with i18n language
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
 
   // Fire GA on repeat visits (user already consented)
   useEffect(() => {

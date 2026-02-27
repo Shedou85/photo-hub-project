@@ -597,5 +597,13 @@
     "try_again": "Try Again",
     "page_not_found": "This page could not be found.",
     "go_home": "Go to homepage"
+  },
+  "seo": {
+    "homeTitle": "Professional Photo Delivery for Photographers",
+    "homeDescription": "PixelForge gives professional photographers a seamless way to organize, share, and deliver photo collections to clients.",
+    "loginTitle": "Login",
+    "loginDescription": "Log in to your PixelForge account to manage photo collections and client deliveries.",
+    "registerTitle": "Create Account",
+    "registerDescription": "Sign up for PixelForge and start delivering photo collections to your clients today."
   }
 }

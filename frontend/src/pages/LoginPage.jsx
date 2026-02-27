@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import SEO from "../components/SEO";
 
 const LANGUAGES = [
   { code: "lt", label: "LT" },
@@ -157,6 +158,12 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker font-['Outfit',sans-serif]">
+      <SEO
+        title={t("seo.loginTitle")}
+        description={t("seo.loginDescription")}
+        path="/login"
+        noindex
+      />
 
       {/* ── Fixed Nav ────────────────────────────────────────────── */}
       <header

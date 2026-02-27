@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import SEO from "../components/SEO";
 
 const LANGUAGES = [
   { code: "lt", label: "LT" },
@@ -81,6 +82,7 @@ function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker font-['Outfit',sans-serif]">
+      <SEO title={t("passwordReset.resetTitle")} path="/reset-password" noindex />
       {/* Fixed Nav */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${

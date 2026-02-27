@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet-async';
 import { photoUrl } from '../utils/photoUrl';
+import SEO from '../components/SEO';
 
 const LANGUAGES = [
   { code: 'lt', label: 'LT' },
@@ -151,8 +153,39 @@ function HomePage() {
     },
   ];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: 'PixelForge',
+        url: 'https://pixelforge.pro',
+        logo: 'https://pixelforge.pro/logo.png',
+        description: t('seo.homeDescription'),
+      },
+      {
+        '@type': 'SoftwareApplication',
+        name: 'PixelForge',
+        applicationCategory: 'PhotographyApplication',
+        operatingSystem: 'Web',
+        offers: [
+          { '@type': 'Offer', name: 'Free Trial', price: '0', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Standard', price: '15', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Pro', price: '29', priceCurrency: 'USD' },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-surface-darker font-['Outfit',sans-serif]">
+      <SEO
+        description={t('seo.homeDescription')}
+        path="/"
+      />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
 
       {/* ── Fixed Nav ────────────────────────────────────────────── */}
       <header

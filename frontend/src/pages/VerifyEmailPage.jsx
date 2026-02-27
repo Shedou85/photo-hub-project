@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import SEO from '../components/SEO';
 
 function VerifyEmailPage() {
   const { t } = useTranslation();
@@ -35,6 +36,7 @@ function VerifyEmailPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker font-['Outfit',sans-serif] flex items-center justify-center">
+      <SEO title={t('emailVerification.successTitle')} path="/verify-email" noindex />
       <div className="relative z-10 w-full max-w-[420px] mx-4 bg-white/[0.04] border border-white/10 rounded-lg px-8 py-9 shadow-xl text-center">
         {status === 'loading' && (
           <p className="text-white/60 text-sm">{t('emailVerification.verifying')}</p>
