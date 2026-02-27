@@ -56,6 +56,18 @@
       "proF3": "Priority support",
       "popular": "Most popular"
     },
+    "why": {
+      "title": "Why PixelForge?",
+      "subtitle": "Built specifically for photographers who value their time and client experience.",
+      "w1Title": "Full Workflow Control",
+      "w1Desc": "From upload to final delivery — everything in one place. No juggling separate tools, no chaos.",
+      "w2Title": "Client Picks Without Emails",
+      "w2Desc": "Clients select their favorites directly in the gallery. One click — no miscommunication.",
+      "w3Title": "One-Click ZIP Delivery",
+      "w3Desc": "Your client downloads all final photos in one click as a ZIP archive. Fast and hassle-free.",
+      "w4Title": "No Installation Required",
+      "w4Desc": "Works in the browser. No software to install, no extra steps — just log in and start working."
+    },
     "footer": {
       "tagline": "Professional photo delivery for modern photographers.",
       "rights": "© 2025 PixelForge. All rights reserved."

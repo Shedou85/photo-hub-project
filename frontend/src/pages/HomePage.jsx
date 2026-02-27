@@ -374,6 +374,93 @@ function HomePage() {
         </div>
       </section>
 
+      {/* ── Why PixelForge ───────────────────────────────────────── */}
+      <section className="bg-surface-darker py-24 px-6 relative overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-600/[0.06] blur-[120px] pointer-events-none -translate-y-1/2" />
+        <div className="absolute bottom-0 right-1/4 w-[350px] h-[350px] rounded-full bg-blue-500/[0.05] blur-[100px] pointer-events-none" />
+
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="lp-fade font-serif-display text-[clamp(32px,4vw,48px)] font-bold text-white mb-4 leading-tight">
+              {t('home.why.title')}
+            </h2>
+            <p className="lp-fade lp-fade-d1 text-base text-white/60 max-w-lg mx-auto">
+              {t('home.why.subtitle')}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                    <rect x="9" y="3" width="6" height="4" rx="1" />
+                    <path d="M9 14l2 2 4-4" />
+                  </svg>
+                ),
+                title: t('home.why.w1Title'),
+                desc: t('home.why.w1Desc'),
+                delay: 'lp-fade-d1',
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
+                    <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z" />
+                  </svg>
+                ),
+                title: t('home.why.w2Title'),
+                desc: t('home.why.w2Desc'),
+                delay: 'lp-fade-d2',
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                ),
+                title: t('home.why.w3Title'),
+                desc: t('home.why.w3Desc'),
+                delay: 'lp-fade-d3',
+              },
+              {
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                ),
+                title: t('home.why.w4Title'),
+                desc: t('home.why.w4Desc'),
+                delay: 'lp-fade-d4',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className={`lp-fade ${item.delay} group bg-white/[0.04] border border-white/10 rounded-lg p-6 flex items-start gap-5 hover:bg-white/[0.07] hover:border-white/[0.16] transition-all duration-300`}
+              >
+                <div className="w-11 h-11 rounded-xl bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] flex items-center justify-center text-white shrink-0 shadow-[0_4px_12px_rgba(99,102,241,0.3)]">
+                  {item.icon}
+                </div>
+                <div>
+                  <h3 className="font-serif-display text-lg font-semibold text-white mb-1.5 leading-snug">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-white/50 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Portfolio showcase ───────────────────────────────────── */}
       {promoPhotos.length > 0 && (
         <section className="bg-surface-darker py-24 px-6">

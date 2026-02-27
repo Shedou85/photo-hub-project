@@ -56,6 +56,18 @@
       "proF3": "Prioritetinė pagalba",
       "popular": "Populiariausia"
     },
+    "why": {
+      "title": "Kodėl PixelForge?",
+      "subtitle": "Sukurta specialiai fotografams, kurie vertina savo laiką ir klientų patirtį.",
+      "w1Title": "Pilnas darbo eigos valdymas",
+      "w1Desc": "Nuo įkėlimo iki galutinio pristatymo — viskas vienoje vietoje. Jokių atskirų įrankių, jokio chaoso.",
+      "w2Title": "Klientų atranka be el. laiškų",
+      "w2Desc": "Klientai patys renkasi mėgstamiausias nuotraukas tiesiai galerijoje. Vienu paspaudimu — be nesusipratimų.",
+      "w3Title": "Pristatymas vienu paspaudimu",
+      "w3Desc": "Klientas atsisiunčia visas galutines nuotraukas vienu paspaudimu kaip ZIP archyvą. Greitai ir paprastai.",
+      "w4Title": "Jokių instaliacijų",
+      "w4Desc": "Veikia naršyklėje. Jokių programų diegimo, jokių papildomų žingsnių — tiesiog prisijunkite ir dirbkite."
+    },
     "footer": {
       "tagline": "Profesionalus nuotraukų pristatymas moderniems fotografams.",
       "rights": "© 2025 PixelForge. Visos teisės saugomos."
