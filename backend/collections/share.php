@@ -166,7 +166,7 @@ if ($requestMethod === 'PATCH') {
     try {
         // Query collection by shareId — explicitly exclude sensitive fields
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, shareId, coverPhotoId, deliveryToken, expiresAt, createdAt, password
+            SELECT id, userId, name, status, clientName, shareId, coverPhotoId, deliveryToken, expiresAt, createdAt, password
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1
@@ -213,8 +213,20 @@ if ($requestMethod === 'PATCH') {
         }
 
         // Remove sensitive fields before sending to client
+        $collectionUserId = $collection['userId'];
         unset($collection['password']);
         unset($collection['expiresAt']);
+        unset($collection['userId']);
+
+        // Query the collection owner's plan for watermark feature check
+        $ownerStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+        $ownerStmt->execute([$collectionUserId]);
+        $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
+        $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
+
+        // Determine if watermarks should be applied (PRO plan + SELECTING status)
+        $isWatermarked = ($ownerPlan === 'PRO' && $collection['status'] === 'SELECTING');
+        $collection['watermarked'] = $isWatermarked;
 
         // Query photos for this collection
         $stmt = $pdo->prepare("
@@ -225,6 +237,16 @@ if ($requestMethod === 'PATCH') {
         ");
         $stmt->execute([$collection['id']]);
         $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Attach watermarked thumbnail paths if applicable
+        if ($isWatermarked) {
+            foreach ($photos as &$photo) {
+                if (!empty($photo['thumbnailPath'])) {
+                    $photo['watermarkedThumbnailPath'] = 'collections/' . $collection['id'] . '/watermarked/' . $photo['id'] . '_wm.jpg';
+                }
+            }
+            unset($photo); // Break the reference
+        }
 
         // Attach photos to collection
         $collection['photos'] = $photos;

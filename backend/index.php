@@ -275,6 +275,16 @@ switch ($requestUri) {
                 }
                 break;
             }
+            // Watermark preview route: /share/{shareId}/preview/{photoId}
+            if (preg_match('#^/share/[^/]+/preview/[^/]+$#', $requestUri)) {
+                if ($requestMethod === 'GET') {
+                    require_once __DIR__ . '/collections/preview.php';
+                } else {
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Method Not Allowed']);
+                }
+                break;
+            }
             // Base share route: /share/{shareId}
             if (in_array($requestMethod, ['GET', 'PATCH'])) {
                 require_once __DIR__ . '/collections/share.php';

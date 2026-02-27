@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
 require_once __DIR__ . '/../helpers/session.php';
+require_once __DIR__ . '/../helpers/r2.php';
+require_once __DIR__ . '/../helpers/watermark.php';
 
 header('Content-Type: application/json');
 
@@ -146,6 +148,37 @@ try {
                 $wasAutoCoverSet = true;
             }
 
+            // If collection is SELECTING and owner is PRO, generate watermarked thumbnail immediately
+            if (!empty($result['thumbnailPath'])) {
+                $wmCheckStmt = $pdo->prepare("SELECT c.status, u.plan FROM `Collection` c JOIN `User` u ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+                $wmCheckStmt->execute([$collectionId]);
+                $wmCheckData = $wmCheckStmt->fetch(PDO::FETCH_ASSOC);
+                if ($wmCheckData && $wmCheckData['status'] === 'SELECTING' && $wmCheckData['plan'] === 'PRO') {
+                    $wmImage = null;
+                    $wmTmpPath = null;
+                    try {
+                        $wmStream = r2GetStream($result['thumbnailPath']);
+                        $wmImageData = (string) $wmStream;
+                        $wmImage = @imagecreatefromstring($wmImageData);
+                        if ($wmImage !== false) {
+                            $wmWidth = imagesx($wmImage);
+                            $wmHeight = imagesy($wmImage);
+                            applyWatermark($wmImage, $wmWidth, $wmHeight);
+                            $wmTmpPath = sys_get_temp_dir() . '/wm_' . uniqid('', true) . '.jpg';
+                            if (@imagejpeg($wmImage, $wmTmpPath, 85)) {
+                                $wmKey = 'collections/' . $collectionId . '/watermarked/' . $result['id'] . '_wm.jpg';
+                                r2Upload($wmTmpPath, $wmKey, 'image/jpeg');
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        error_log('[photos.php] Watermark generation failed for photo ' . $result['id'] . ': ' . $e->getMessage());
+                    } finally {
+                        if ($wmImage !== null && $wmImage !== false) imagedestroy($wmImage);
+                        if ($wmTmpPath !== null) @unlink($wmTmpPath);
+                    }
+                }
+            }
+
             $response = [
                 "status" => "OK",
                 "photo" => [
@@ -200,6 +233,10 @@ try {
         if (!empty($photo['thumbnailPath'])) {
             safeDeleteUploadedFile($photo['thumbnailPath']);
         }
+
+        // Delete watermarked versions from R2
+        r2Delete('collections/' . $collectionId . '/watermarked/' . $photoId . '_wm.jpg');
+        r2Delete('collections/' . $collectionId . '/watermarked/' . $photoId . '_wm_full.jpg');
 
         $pdo->prepare("DELETE FROM `Photo` WHERE id = ? AND collectionId = ?")->execute([$photoId, $collectionId]);
 

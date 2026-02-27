@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { photoUrl } from "../utils/photoUrl";
+import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
 
 function SharePage() {
   const { shareId } = useParams();
@@ -373,7 +373,9 @@ function SharePage() {
                   )}
 
                   <img
-                    src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
+                    src={collection.watermarked && photo.watermarkedThumbnailPath
+                      ? photoUrl(photo.watermarkedThumbnailPath)
+                      : photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                     alt={photo.filename}
                     className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 select-none ${
                       isLoaded ? 'opacity-100' : 'opacity-0'
@@ -506,9 +508,12 @@ function SharePage() {
           {/* Image */}
           <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-16">
             <img
-              src={photoUrl(photos[lightboxIndex].storagePath)}
+              src={collection.watermarked
+                ? watermarkedPreviewUrl(shareId, photos[lightboxIndex].id, shareToken)
+                : photoUrl(photos[lightboxIndex].storagePath)}
               alt={photos[lightboxIndex].filename}
               className="max-w-full max-h-full object-contain rounded select-none"
+              crossOrigin={collection.watermarked ? "use-credentials" : undefined}
               onClick={(e) => e.stopPropagation()}
               onContextMenu={(e) => e.preventDefault()}
               draggable={false}

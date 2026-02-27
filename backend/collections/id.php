@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/session.php';
 require_once __DIR__ . '/../helpers/r2.php';
+require_once __DIR__ . '/../helpers/watermark.php';
 
 header('Content-Type: application/json');
 
@@ -160,6 +161,28 @@ try {
         $collection = $stmt->fetch(PDO::FETCH_ASSOC);
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
+
+        // Generate watermarked thumbnails AFTER sending response (non-blocking)
+        if (array_key_exists('status', $data) && $data['status'] === 'SELECTING') {
+            $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+            $userStmt->execute([$userId]);
+            $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+            if ($userData && $userData['plan'] === 'PRO') {
+                // Flush response to client before heavy processing
+                if (function_exists('fastcgi_finish_request')) {
+                    fastcgi_finish_request();
+                } else {
+                    if (!headers_sent()) header('Connection: close');
+                    ob_end_flush();
+                    flush();
+                }
+                try {
+                    generateWatermarkedThumbnails($pdo, $collectionId);
+                } catch (\Throwable $e) {
+                    error_log('[id.php] Watermark generation failed for collection ' . $collectionId . ': ' . $e->getMessage());
+                }
+            }
+        }
         exit;
     }
 
@@ -173,12 +196,14 @@ try {
             exit;
         }
 
-        // Delete all R2 objects (photos, edited photos, thumbnails) before removing DB rows
-        $photoStmt = $pdo->prepare("SELECT storagePath, thumbnailPath FROM Photo WHERE collectionId = ?");
+        // Delete all R2 objects (photos, edited photos, thumbnails, watermarks) before removing DB rows
+        $photoStmt = $pdo->prepare("SELECT id, storagePath, thumbnailPath FROM Photo WHERE collectionId = ?");
         $photoStmt->execute([$collectionId]);
         foreach ($photoStmt->fetchAll(PDO::FETCH_ASSOC) as $photo) {
             if (!empty($photo['storagePath'])) r2Delete($photo['storagePath']);
             if (!empty($photo['thumbnailPath'])) r2Delete($photo['thumbnailPath']);
+            r2Delete('collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm.jpg');
+            r2Delete('collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm_full.jpg');
         }
 
         $editedStmt = $pdo->prepare("SELECT storagePath FROM EditedPhoto WHERE collectionId = ?");
