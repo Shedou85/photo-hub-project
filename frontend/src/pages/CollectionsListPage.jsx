@@ -340,6 +340,7 @@ function CollectionsListPage() {
         <Dropdown
           value={sort}
           onChange={setSort}
+          menuAlign="left"
           options={[
             { value: 'createdAt_desc', label: t('collections.sortNewest') },
             { value: 'createdAt_asc', label: t('collections.sortOldest') },
