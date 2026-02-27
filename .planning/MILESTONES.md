@@ -40,3 +40,23 @@
 
 ---
 
+
+## Cloudflare R2 Storage Migration (Shipped: 2026-02-27)
+
+**Scope:** Infrastructure migration — local filesystem to Cloudflare R2 object storage
+**Timeline:** 1 day (2026-02-27)
+
+**Delivered:** Complete migration of photo/thumbnail storage from Hostinger local disk (`backend/uploads/`) to Cloudflare R2 (S3-compatible, zero egress fees). All existing data migrated in-place.
+
+**Key accomplishments:**
+- R2 helper library (`backend/helpers/r2.php`) with singleton client, cached config, upload/delete/stream/URL/size functions
+- Rewrote upload/delete/thumbnail functions in `backend/utils.php` for R2 cloud storage
+- Streaming downloads (ZIP + individual) from R2 — no local disk needed
+- Collection DELETE cleans up all R2 objects (photos, thumbnails, edited photos)
+- Shared `frontend/src/utils/photoUrl.js` utility with `VITE_MEDIA_BASE_URL` env var
+- One-time migration of 50 photos + thumbnails + 30 edited photos to R2 bucket
+- CORS policy configured on R2 bucket for `pixelforge.pro` origins
+
+**Dependencies added:** `aws/aws-sdk-php ^3.0`
+
+---

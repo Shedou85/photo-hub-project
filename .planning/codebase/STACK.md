@@ -24,7 +24,7 @@
 - npm (Frontend dependencies)
   - Lockfile: `frontend/package-lock.json` (present)
 - Composer (Backend dependencies)
-  - Lockfile: Not present (manually managed)
+  - Lockfile: `backend/composer.lock` (present, synced from server)
 
 ## Frameworks
 
@@ -55,6 +55,7 @@
 - Tailwind CSS 3.4.19 - All visual styling
 
 **Infrastructure:**
+- aws/aws-sdk-php 3.371.2 - Cloudflare R2 (S3-compatible) object storage for photo/thumbnail uploads, streaming downloads, and deletion
 - nelmio/cors-bundle 2.1 - CORS handling for cross-domain PHP/JavaScript communication (defined in `backend/composer.json`, though manual CORS implemented in `backend/cors.php`)
 
 ## Configuration
@@ -99,4 +100,4 @@
 
 ---
 
-*Stack analysis: 2026-02-11*
+*Stack analysis: 2026-02-11 | Updated: 2026-02-27 (R2 migration)*

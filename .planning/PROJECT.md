@@ -34,7 +34,7 @@ The photographer can hand a client a link — the client selects photos for edit
 
 **Codebase:** 3,317 lines JS/JSX frontend + 2,434 lines PHP backend = 5,751 total
 **Tech stack:** React 18 + Vite 5 frontend, vanilla PHP backend with PDO, MySQL database
-**Hosting:** Hostinger server; backend/uploads/ for file storage (S3 migration planned for future milestone)
+**Hosting:** Hostinger server; **Cloudflare R2** for photo/thumbnail storage (migrated 2026-02-27)
 **Collection lifecycle:** DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED
 
 ## Requirements
@@ -91,11 +91,11 @@ The photographer can hand a client a link — the client selects photos for edit
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
 
-- Cloud storage (S3 / Cloudflare R2) — deferred; using backend/uploads/ for now, migration planned for future milestone when storage costs justify migration effort
+- ~~Cloud storage (S3 / Cloudflare R2)~~ — **DONE** (shipped 2026-02-27, Cloudflare R2 with AWS SDK for PHP)
 - Client accounts / authentication — deliberate; client access is link-only by design to maintain zero-friction workflow
 - Email notifications — deferred; photographers share links manually, email integration planned for future milestone
 - Real-time updates (WebSockets) — not needed; manual refresh is sufficient for this workflow
-- ARCHIVED status workflow — deferred; not needed for v2.0 release
+- ~~ARCHIVED status workflow~~ — **DONE** (shipped 2026-02-27, PRO-only archiving with Active/Archived filter)
 
 ## Context
 
@@ -104,16 +104,16 @@ The photographer can hand a client a link — the client selects photos for edit
 - **Codebase:** 3,317 lines JS/JSX frontend + 2,434 lines PHP backend = 5,751 total
 - **Requirements:** 15/15 v1.0 + 21/21 v2.0 requirements validated (100% both milestones)
 - **Tech stack:** React 18 + Vite 5 frontend, vanilla PHP backend with PDO + ZipStream-PHP, MySQL database
-- **Hosting:** Hostinger server; backend/uploads/ for file storage (S3 migration planned for future milestone)
+- **Hosting:** Hostinger server; **Cloudflare R2** for photo/thumbnail storage (zero egress fees, CDN-ready)
 - **Cross-domain:** frontend on pixelforge.pro, API on api.pixelforge.pro/backend/ — session cookies scoped to .pixelforge.pro
 - **DB schema:** Photo, EditedPhoto, Selection, PromotionalPhoto, Download tables; collection status lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED)
 - **Download tracking:** Session-based deduplication with hour-level bucketing, GDPR-compliant (no IP tracking)
-- **Known tech debt:** Orphaned GET /collections/{id}/delivery endpoint (functionality works via alternate route); cloud storage migration pending
+- **Known tech debt:** Orphaned GET /collections/{id}/delivery endpoint (functionality works via alternate route)
 - **Codebase map:** Architecture and conventions documented at .planning/codebase/
 
 ## Constraints
 
-- **Storage**: Files stored in `backend/uploads/` — no external storage service yet
+- **Storage**: Photos and thumbnails stored in **Cloudflare R2** (S3-compatible); object keys in `collections/{id}/` namespace
 - **Auth**: Client-facing pages must be publicly accessible via token URL (no login required)
 - **Download protection**: Photos must not be downloadable during the SELECTING stage; only during DELIVERED
 - **Stack**: PHP backend (no framework), React frontend, MySQL — no new backend frameworks
@@ -123,7 +123,7 @@ The photographer can hand a client a link — the client selects photos for edit
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Local file storage (backend/uploads/) | Simplest path to ship; cloud migration planned but not needed now | ✓ Good — Shipped in v1.0, works well for initial scale, supports v2.0 downloads |
+| Cloudflare R2 object storage | Zero egress fees, S3-compatible, CDN-ready; migrated from local backend/uploads/ | ✓ Good — Migrated 2026-02-27 with AWS SDK for PHP, public URL via r2.dev, streaming ZIP/download preserved |
 | Token-based client access (no accounts) | Friction-free for clients; photographers share one link | ✓ Good — Core feature shipped v1.0, extended to delivery tokens in v2.0 |
 | Server-side ZIP generation (PHP) | Avoids large client-side memory usage for many/large files | ✓ Good — Shipped in v2.0 with streaming architecture (ZipStream-PHP), handles 100+ photos |
 | Status color coding on collection cards | Visual status at a glance without opening each collection | ✓ Good — Blue=SELECTING, green=REVIEWING (v1.0), purple=DELIVERED/DOWNLOADED (v2.0) |
@@ -135,5 +135,7 @@ The photographer can hand a client a link — the client selects photos for edit
 | Session-based download deduplication | Prevents double-counting browser resume requests | ✓ Good — Shipped v2.0 with hour-level bucketing, GDPR-compliant |
 | Progressive disclosure UI patterns | Reduces visual clutter as collection state changes | ✓ Good — Shipped v2.0, dropzone hides after first upload, workflow-phase button grouping |
 
+| Shared photoUrl() utility | Single source of truth for media URL construction across 6+ frontend files | ✓ Good — Shipped 2026-02-27, uses VITE_MEDIA_BASE_URL env var |
+
 ---
-*Last updated: 2026-02-14 after starting v3.0 milestone*
+*Last updated: 2026-02-27 after Cloudflare R2 integration*

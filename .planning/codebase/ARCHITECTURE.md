@@ -85,6 +85,13 @@
 - Depends on: Session auth, DB layer
 - Used by: Profile endpoint
 
+**Backend File Storage (Cloudflare R2):**
+- Purpose: Store photos, thumbnails, and edited photos in cloud object storage
+- Location: R2 bucket `pixelforge-photos`, helper at `backend/helpers/r2.php`
+- Contains: `getR2Client()` singleton, `r2Upload()`, `r2Delete()`, `r2GetStream()`, `r2GetUrl()`, `r2GetSize()`
+- Depends on: `aws/aws-sdk-php`, R2 credentials in `backend/.env`
+- Used by: `utils.php` (upload/delete), `zip-download.php` (streaming ZIP), `photo-download.php` (individual download), `collections/id.php` (cascade delete)
+
 **Database (MySQL):**
 - Purpose: Persistent data store
 - Location: MySQL server, schema in `database_schema.sql`
@@ -257,4 +264,4 @@
 
 ---
 
-*Architecture analysis: 2026-02-11*
+*Architecture analysis: 2026-02-11 | Updated: 2026-02-27 (R2 storage layer)*

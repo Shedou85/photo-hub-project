@@ -24,10 +24,14 @@
   - Database: `u934073279_Photo_hub` (utf8mb4)
 
 **File Storage:**
-- Local filesystem (uploads directory)
-  - Path: `backend/uploads/` (served via API)
-  - Storage paths stored as relative paths in `Photo.storagePath` column
-  - Frontend constructs URLs: `${VITE_API_BASE_URL}/${storagePath}`
+- Cloudflare R2 (S3-compatible object storage)
+  - Bucket: `pixelforge-photos` (EU region)
+  - Public URL: `https://pub-dc582663b11f4828aa8a1fd7e5674c43.r2.dev`
+  - SDK: `aws/aws-sdk-php ^3.0` with `Aws\S3\S3Client`
+  - Helper: `backend/helpers/r2.php` — `r2Upload()`, `r2Delete()`, `r2GetStream()`, `r2GetUrl()`, `r2GetSize()`
+  - Object keys stored in `Photo.storagePath` column (e.g. `collections/{collId}/{photoId}.jpg`)
+  - Frontend constructs URLs: `${VITE_MEDIA_BASE_URL}/${storagePath}` via shared `photoUrl()` utility
+  - CORS: Allowed origins `pixelforge.pro`, `www.pixelforge.pro`; GET method only
 
 **Caching:**
 - None detected (no Redis, Memcached, or in-memory caching)
@@ -75,14 +79,20 @@ Frontend (`frontend/.env`):
 - `VITE_API_BASE_URL` - API endpoint (used in all fetch calls)
   - Dev: http://localhost:5173/api (proxied to api.pixelforge.pro)
   - Prod: https://api.pixelforge.pro
+- `VITE_MEDIA_BASE_URL` - Media CDN base URL for photo/thumbnail display
+  - Dev: `/api` (proxied via Vite)
+  - Prod: `https://pub-dc582663b11f4828aa8a1fd7e5674c43.r2.dev`
 
-Backend (`backend/config.php`):
-- Database host, port, name, user, password (hardcoded - security concern)
+Backend (`backend/.env`):
+- Database: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_CHARSET`
+- SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_FROM_NAME`
+- R2: `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_ENDPOINT`, `R2_PUBLIC_URL`
+- Google: `GOOGLE_CLIENT_ID`
 
 **Secrets location:**
 - Frontend: `.env` and `.env.development` files (Vite env files)
-- Backend: `backend/config.php` (hardcoded - NOT in .gitignore)
-- Database credentials: In config.php only
+- Backend: `backend/.env` (dotenv-loaded via config.php, gitignored)
+- R2 credentials: In backend/.env only
 
 ## Webhooks & Callbacks
 
@@ -134,4 +144,4 @@ Backend (`backend/config.php`):
 
 ---
 
-*Integration audit: 2026-02-11*
+*Integration audit: 2026-02-11 | Updated: 2026-02-27 (R2 migration)*
