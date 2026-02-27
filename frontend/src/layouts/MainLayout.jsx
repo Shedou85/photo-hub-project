@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { flushSync } from 'react-dom';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const SIDEBAR_WIDTH = 256;
 const MS_PER_DAY = 86_400_000;
@@ -18,35 +19,13 @@ const MainLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-
-  const languages = [
-    { code: 'lt', label: 'LT' },
-    { code: 'en', label: 'EN' },
-    { code: 'ru', label: 'RU' },
-  ];
-
-  const [langOpen, setLangOpen] = useState(false);
-
-  const langDropdownRef = useRef(null);
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await api.post('/logout');
     flushSync(() => logout());
     navigate('/');
   };
-
-  useEffect(() => {
-    const handleMouseDown = (e) => {
-      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
-        setLangOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, []);
-
-  const currentLang = languages.find((l) => l.code === i18n.language) ?? languages[0];
 
   const items = NAV_ITEMS();
 
@@ -162,33 +141,7 @@ const MainLayout = () => {
 
           {/* Top bar with language switcher */}
           <div className="flex items-center justify-end px-6 py-3 bg-surface-dark border-b border-white/[0.08]">
-            <div className="relative" ref={langDropdownRef}>
-              <button
-                onClick={() => setLangOpen((prev) => !prev)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/[0.12] bg-white/[0.06] text-xs font-bold text-white/70 cursor-pointer hover:bg-white/[0.1] transition-colors duration-150 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none"
-              >
-                {currentLang.label}
-                <span>▾</span>
-              </button>
-              {langOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-surface-dark border border-white/[0.12] rounded-md shadow-xl overflow-hidden z-50 min-w-[60px]">
-                  {languages
-                    .filter((l) => l.code !== i18n.language)
-                    .map(({ code, label }) => (
-                      <button
-                        key={code}
-                        onClick={() => {
-                          i18n.changeLanguage(code);
-                          setLangOpen(false);
-                        }}
-                        className="block w-full px-3 py-2 text-xs font-bold text-left text-white/70 cursor-pointer border-none bg-transparent hover:bg-white/[0.08] hover:text-indigo-400 transition-colors duration-150"
-                      >
-                        {label}
-                      </button>
-                    ))}
-                </div>
-              )}
-            </div>
+            <LanguageSwitcher />
           </div>
 
           {/* Page content */}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import PageHeader from '../components/PageHeader';
 import { api } from '../lib/api';
+import Dropdown from '../components/primitives/Dropdown';
 
 // ---------- Icons ----------
 const ShieldIcon = (
@@ -167,16 +168,14 @@ const UserDetailModal = ({ user, onClose, t }) => {
                     <tr key={c.id} className="hover:bg-white/[0.04] transition-colors duration-100">
                       <td className="px-3 py-2 font-medium text-white max-w-[150px] truncate">{c.name}</td>
                       <td className="px-3 py-2">
-                        <select
+                        <Dropdown
                           value={c.status}
-                          onChange={(e) => handleStatusChange(c.id, e.target.value)}
-                          className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
-                          aria-label={t('admin.userDetail.changeStatus')}
-                        >
-                          {COLLECTION_STATUSES.map((s) => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
+                          onChange={(v) => handleStatusChange(c.id, v)}
+                          options={COLLECTION_STATUSES.map((s) => ({ value: s, label: s }))}
+                          size="sm"
+                          menuAlign="left"
+                          minWidth="100px"
+                        />
                       </td>
                       <td className="px-3 py-2 text-white/70">{c.photoCount ?? 0}</td>
                       <td className="px-3 py-2 text-white/50 text-xs whitespace-nowrap">
@@ -594,46 +593,53 @@ const AdminPage = () => {
                 onChange={handleSearchChange}
                 className="flex-1 min-w-[200px] text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 transition-shadow placeholder:text-white/20"
               />
-              <select
+              <Dropdown
                 value={usersFilters.role}
-                onChange={(e) => setUsersFilters((f) => ({ ...f, role: e.target.value, page: 1 }))}
-                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[110px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
-              >
-                <option value="">{t('admin.users.allRoles')}</option>
-                <option value="USER">USER</option>
-                <option value="ADMIN">ADMIN</option>
-              </select>
-              <select
+                onChange={(v) => setUsersFilters((f) => ({ ...f, role: v, page: 1 }))}
+                options={[
+                  { value: '', label: t('admin.users.allRoles') },
+                  { value: 'USER', label: 'USER' },
+                  { value: 'ADMIN', label: 'ADMIN' },
+                ]}
+                menuAlign="left"
+                minWidth="110px"
+              />
+              <Dropdown
                 value={usersFilters.status}
-                onChange={(e) => setUsersFilters((f) => ({ ...f, status: e.target.value, page: 1 }))}
-                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[120px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
-              >
-                <option value="">{t('admin.users.allStatuses')}</option>
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="SUSPENDED">SUSPENDED</option>
-              </select>
-              <select
+                onChange={(v) => setUsersFilters((f) => ({ ...f, status: v, page: 1 }))}
+                options={[
+                  { value: '', label: t('admin.users.allStatuses') },
+                  { value: 'ACTIVE', label: 'ACTIVE' },
+                  { value: 'SUSPENDED', label: 'SUSPENDED' },
+                ]}
+                menuAlign="left"
+                minWidth="120px"
+              />
+              <Dropdown
                 value={usersFilters.plan}
-                onChange={(e) => setUsersFilters((f) => ({ ...f, plan: e.target.value, page: 1 }))}
-                className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 min-w-[120px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
-              >
-                <option value="">{t('admin.users.allPlans')}</option>
-                <option value="FREE_TRIAL">FREE_TRIAL</option>
-                <option value="STANDARD">STANDARD</option>
-                <option value="PRO">PRO</option>
-              </select>
+                onChange={(v) => setUsersFilters((f) => ({ ...f, plan: v, page: 1 }))}
+                options={[
+                  { value: '', label: t('admin.users.allPlans') },
+                  { value: 'FREE_TRIAL', label: 'FREE_TRIAL' },
+                  { value: 'STANDARD', label: 'STANDARD' },
+                  { value: 'PRO', label: 'PRO' },
+                ]}
+                menuAlign="left"
+                minWidth="120px"
+              />
               <div className="flex items-center gap-2">
                 <span className="text-xs text-white/50 whitespace-nowrap">{t('admin.pagination.perPage')}:</span>
-                <select
-                  value={usersFilters.limit}
-                  onChange={(e) => setUsersFilters((f) => ({ ...f, limit: Number(e.target.value), page: 1 }))}
-                  className="text-sm text-white bg-white/[0.06] border border-white/[0.12] rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer"
-                >
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
+                <Dropdown
+                  value={String(usersFilters.limit)}
+                  onChange={(v) => setUsersFilters((f) => ({ ...f, limit: Number(v), page: 1 }))}
+                  options={[
+                    { value: '10', label: '10' },
+                    { value: '20', label: '20' },
+                    { value: '50', label: '50' },
+                    { value: '100', label: '100' },
+                  ]}
+                  menuAlign="left"
+                />
               </div>
               {/* CSV Export — always on far right */}
               <button
@@ -754,38 +760,47 @@ const AdminPage = () => {
                             </button>
                           </td>
                           <td className="px-4 py-3">
-                            <select
+                            <Dropdown
                               value={u.role}
                               disabled={isUpdating}
-                              onChange={(e) => handleUserFieldChange(u.id, 'role', e.target.value)}
-                              className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 min-w-[72px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <option value="USER">USER</option>
-                              <option value="ADMIN">ADMIN</option>
-                            </select>
+                              onChange={(v) => handleUserFieldChange(u.id, 'role', v)}
+                              options={[
+                                { value: 'USER', label: 'USER' },
+                                { value: 'ADMIN', label: 'ADMIN' },
+                              ]}
+                              size="sm"
+                              menuAlign="left"
+                              minWidth="72px"
+                            />
                           </td>
                           <td className="px-4 py-3">
-                            <select
+                            <Dropdown
                               value={u.plan}
                               disabled={isUpdating}
-                              onChange={(e) => handleUserFieldChange(u.id, 'plan', e.target.value)}
-                              className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 min-w-[90px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <option value="FREE_TRIAL">FREE_TRIAL</option>
-                              <option value="STANDARD">STANDARD</option>
-                              <option value="PRO">PRO</option>
-                            </select>
+                              onChange={(v) => handleUserFieldChange(u.id, 'plan', v)}
+                              options={[
+                                { value: 'FREE_TRIAL', label: 'FREE_TRIAL' },
+                                { value: 'STANDARD', label: 'STANDARD' },
+                                { value: 'PRO', label: 'PRO' },
+                              ]}
+                              size="sm"
+                              menuAlign="left"
+                              minWidth="90px"
+                            />
                           </td>
                           <td className="px-4 py-3">
-                            <select
+                            <Dropdown
                               value={u.status}
                               disabled={isUpdating}
-                              onChange={(e) => handleUserFieldChange(u.id, 'status', e.target.value)}
-                              className="text-xs text-white bg-white/[0.06] border border-white/[0.12] rounded-md px-2 py-1 min-w-[90px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/70 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <option value="ACTIVE">ACTIVE</option>
-                              <option value="SUSPENDED">SUSPENDED</option>
-                            </select>
+                              onChange={(v) => handleUserFieldChange(u.id, 'status', v)}
+                              options={[
+                                { value: 'ACTIVE', label: 'ACTIVE' },
+                                { value: 'SUSPENDED', label: 'SUSPENDED' },
+                              ]}
+                              size="sm"
+                              menuAlign="left"
+                              minWidth="90px"
+                            />
                           </td>
                           <td className="px-4 py-3">
                             {isVerified ? (

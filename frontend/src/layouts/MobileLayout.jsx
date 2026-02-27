@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { flushSync } from 'react-dom';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import BottomNavigation from '../components/BottomNavigation';
 import { api } from '../lib/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 /**
  * Mobile layout shell with bottom tab navigation.
@@ -23,33 +24,13 @@ import { api } from '../lib/api';
 const MobileLayout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { i18n, t } = useTranslation();
-  const [langOpen, setLangOpen] = useState(false);
-  const langDropdownRef = useRef(null);
-
-  const languages = [
-    { code: 'lt', label: 'LT' },
-    { code: 'en', label: 'EN' },
-    { code: 'ru', label: 'RU' },
-  ];
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await api.post('/logout');
     flushSync(() => logout());
     navigate('/');
   };
-
-  useEffect(() => {
-    const handleMouseDown = (e) => {
-      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
-        setLangOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, []);
-
-  const currentLang = languages.find((l) => l.code === i18n.language) ?? languages[0];
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-darker">
@@ -78,33 +59,7 @@ const MobileLayout = () => {
           </button>
 
           {/* Language switcher */}
-          <div className="relative" ref={langDropdownRef}>
-          <button
-            onClick={() => setLangOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/[0.12] bg-white/[0.06] text-xs font-bold text-white/70 cursor-pointer hover:bg-white/[0.1] transition-colors duration-150 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-          >
-            {currentLang.label}
-            <span>▾</span>
-          </button>
-          {langOpen && (
-            <div className="absolute top-full right-0 mt-1 bg-surface-dark border border-white/[0.12] rounded-md shadow-md overflow-hidden z-50 min-w-[60px]">
-              {languages
-                .filter((l) => l.code !== i18n.language)
-                .map(({ code, label }) => (
-                  <button
-                    key={code}
-                    onClick={() => {
-                      i18n.changeLanguage(code);
-                      setLangOpen(false);
-                    }}
-                    className="block w-full px-3 py-2 text-xs font-bold text-left text-white/70 cursor-pointer border-none bg-transparent hover:bg-indigo-500/15 hover:text-indigo-400 transition-colors duration-150"
-                  >
-                    {label}
-                  </button>
-                ))}
-            </div>
-          )}
-          </div>
+          <LanguageSwitcher />
         </div>
       </header>
 

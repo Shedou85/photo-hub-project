@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/primitives/Button";
 import Input from "../components/primitives/Input";
-import Select from "../components/primitives/Select";
+import Dropdown from "../components/primitives/Dropdown";
 import CollectionCard from "../components/primitives/CollectionCard";
 import CreateCollectionModal from "../components/CreateCollectionModal";
 import ConfirmModal from "../components/primitives/ConfirmModal";
@@ -337,17 +337,17 @@ function CollectionsListPage() {
             className="pl-10"
           />
         </div>
-        <Select
+        <Dropdown
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="text-white/70"
-        >
-          <option value="createdAt_desc">{t('collections.sortNewest')}</option>
-          <option value="createdAt_asc">{t('collections.sortOldest')}</option>
-          <option value="name_asc">{t('collections.sortNameAsc')}</option>
-          <option value="name_desc">{t('collections.sortNameDesc')}</option>
-          <option value="status_asc">{t('collections.sortStatus')}</option>
-        </Select>
+          onChange={setSort}
+          options={[
+            { value: 'createdAt_desc', label: t('collections.sortNewest') },
+            { value: 'createdAt_asc', label: t('collections.sortOldest') },
+            { value: 'name_asc', label: t('collections.sortNameAsc') },
+            { value: 'name_desc', label: t('collections.sortNameDesc') },
+            { value: 'status_asc', label: t('collections.sortStatus') },
+          ]}
+        />
       </div>
 
       {/* ── Empty State (search active, no results) ── */}

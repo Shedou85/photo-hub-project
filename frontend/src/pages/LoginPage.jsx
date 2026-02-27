@@ -3,12 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import SEO from "../components/SEO";
-
-const LANGUAGES = [
-  { code: "lt", label: "LT" },
-  { code: "en", label: "EN" },
-  { code: "ru", label: "RU" },
-];
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,32 +12,18 @@ function LoginPage() {
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [resending, setResending] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const langRef = useRef(null);
   const googleCallbackRef = useRef(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const resetSuccess = searchParams.get("reset") === "success";
-
-  const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[1];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const onMouseDown = (e) => {
-      if (langRef.current && !langRef.current.contains(e.target)) {
-        setLangOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onMouseDown);
-    return () => document.removeEventListener("mousedown", onMouseDown);
   }, []);
 
   const handleGoogleCredential = async (response) => {
@@ -183,28 +164,7 @@ function LoginPage() {
           </Link>
 
           {/* Right: lang switcher only */}
-          <div className="relative" ref={langRef}>
-            <button
-              onClick={() => setLangOpen((p) => !p)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-md border border-white/10 bg-white/[0.06] text-xs font-bold text-white/70 hover:bg-white/[0.12] hover:text-white transition-all duration-150"
-            >
-              {currentLang.label}
-              <span className="text-[10px] opacity-60">▾</span>
-            </button>
-            {langOpen && (
-              <div className="absolute top-full right-0 mt-1.5 bg-surface-dark-alt border border-white/10 rounded-lg shadow-lg overflow-hidden z-50 min-w-[56px]">
-                {LANGUAGES.filter((l) => l.code !== i18n.language).map(({ code, label }) => (
-                  <button
-                    key={code}
-                    onClick={() => { i18n.changeLanguage(code); setLangOpen(false); }}
-                    className="block w-full px-3 py-2 text-xs font-bold text-left text-white/60 hover:text-white hover:bg-indigo-500/20 transition-colors duration-100"
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <LanguageSwitcher />
         </div>
       </header>
 
