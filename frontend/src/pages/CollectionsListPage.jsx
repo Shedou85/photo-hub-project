@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -27,6 +27,23 @@ function CollectionsListPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [archiveFilter, setArchiveFilter] = useState('active');
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sort, setSort] = useState('createdAt_desc');
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(debounceRef.current);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [sort]);
 
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
@@ -54,6 +71,8 @@ function CollectionsListPage() {
     const params = new URLSearchParams();
     params.set('page', page);
     params.set('limit', String(PAGE_SIZE));
+    if (debouncedSearch) params.set('search', debouncedSearch);
+    if (sort !== 'createdAt_desc') params.set('sort', sort);
 
     const { data, error: fetchError } = await api.get(`/collections?${params}`);
 
@@ -67,7 +86,7 @@ function CollectionsListPage() {
     }
 
     setLoading(false);
-  }, [page]);
+  }, [page, debouncedSearch, sort]);
 
   useEffect(() => {
     fetchCollections();
@@ -125,7 +144,7 @@ function CollectionsListPage() {
   };
 
   // ── Loading skeleton ──
-  if (loading) {
+  if (loading && collections.length === 0) {
     return (
       <div className="font-sans max-w-6xl mx-auto">
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/[0.08]">
@@ -302,8 +321,58 @@ function CollectionsListPage() {
         </button>
       </div>
 
+      {/* ── Search & Sort ── */}
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('collections.searchPlaceholder')}
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] transition-colors"
+          />
+        </div>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="px-4 py-2.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-sm text-white/70 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] transition-colors cursor-pointer"
+        >
+          <option value="createdAt_desc">{t('collections.sortNewest')}</option>
+          <option value="createdAt_asc">{t('collections.sortOldest')}</option>
+          <option value="name_asc">{t('collections.sortNameAsc')}</option>
+          <option value="name_desc">{t('collections.sortNameDesc')}</option>
+          <option value="status_asc">{t('collections.sortStatus')}</option>
+        </select>
+      </div>
+
+      {/* ── Empty State (search active, no results) ── */}
+      {collections.length === 0 && debouncedSearch && (
+        <div className="py-20 flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
+            <svg className="w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-semibold text-white mb-2">
+            {t('collections.noSearchResults')}
+          </h2>
+          <p className="text-sm text-white/50 max-w-sm mb-6">
+            &ldquo;{debouncedSearch}&rdquo;
+          </p>
+          <button
+            onClick={() => setSearch('')}
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-white/[0.06] text-white/70 border border-white/10 hover:bg-white/[0.1] transition-colors"
+          >
+            {t('collections.clearSearch')}
+          </button>
+        </div>
+      )}
+
       {/* ── Empty State ── */}
-      {collections.length === 0 && (
+      {collections.length === 0 && !debouncedSearch && (
         <div className="py-20 flex flex-col items-center text-center">
           <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-5">
             <svg className="w-10 h-10 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

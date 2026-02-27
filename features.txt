@@ -1,0 +1,247 @@
+ Photo Hub — Projekto Tobulinimo Kelrodis                                                                                                                               │
+     │                                                                                                                                                                        │
+     │ Kontekstas                                                                                                                                                             │
+     │                                                                                                                                                                        │
+     │ Tyrimas atliktas remiantis:                                                                                                                                            │
+     │ 1. Pilno frontend/backend kodo analize                                                                                                                                 │
+     │ 2. Konkurentų (Pixieset, ShootProof, CloudSpot, Pic-Time, SmugMug, Pass) funkcijų lyginamuoju tyrimu                                                                   │
+     │ 3. Esamų spragų identifikavimu                                                                                                                                         │
+     │                                                                                                                                                                        │
+     │ Dabartinė sistema turi solidų pagrindą (pilnas kolekcijų workflow, klientų atranka, pristatymas, i18n, admin panelė), bet trūksta keleto svarbiausių SaaS funkcijų.    │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 🟢 GREITI LAIMĖJIMAI — maža pastanga, didelė nauda                                                                                                                     │
+     │                                                                                                                                                                        │
+     │ 1. ✅ Slaptažodžio keitimas profilio puslapyje  [ATLIKTA 2026-02-27]                                                                                                                            │
+     │                                                                                                                                                                        │
+     │ Kas? /profile puslapyje pridėti formą keisti slaptažodį (senas + naujas + patvirtinimas).                                                                              │
+     │ Backend: PATCH /profile/me jau egzistuoja — tik pridėti password lauką.                                                                                                │
+     │ Nauda: Pagrindinis vartotojo poreikis — šiuo metu neįmanoma pakeisti slaptažodžio per UI.                                                                              │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 2. ✅ Kolekcijų paieška ir rūšiavimas  [ATLIKTA 2026-02-27]                                                                                                                                     │
+     │                                                                                                                                                                        │
+     │ Kas? Paieškos laukas + rūšiavimo dropdownas (pagal datą, pavadinimą, statusą) virš kolekcijų sąrašo.                                                                   │
+     │ Backend: GET /collections jau palaiko paginaciją — tik pridėti search ir sort parametrus.                                                                              │
+     │ Nauda: Fotografai su 50+ kolekcijų nusivilia neradę ko ieško.                                                                                                          │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 3. Kolekcijų nuorodos slaptažodis — UI                                                                                                                                 │
+     │                                                                                                                                                                        │
+     │ Kas? Slaptažodžio nustatymo forma kolekcijos redagavimo skyriuje.                                                                                                      │
+     │ Dabartinė situacija: Backend (backend/collections/id.php) jau palaiko password lauką, bet UI niekur neparodo šios galimybės.                                           │
+     │ Nauda: Saugumo funkcija jau egzistuoja, bet neprieinama.                                                                                                               │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 4. Kolekcijų galiojimo data — UI                                                                                                                                       │
+     │                                                                                                                                                                        │
+     │ Kas? Galiojimo datos (expiresAt) nustatymas kolekcijos redagavimo formoje su parinktimis (pvz., +30d, +60d, +90d arba custom).                                         │
+     │ Dabartinė situacija: Laukas yra DB ir backend, bet UI neturi galimybės jo nustatyti.                                                                                   │
+     │ Nauda: Fotografai gali "uždaryti" senų sesijų nuorodas automatiškai.                                                                                                   │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 5. Kolekcijų skaičiaus statistika profilio puslapyje                                                                                                                   │
+     │                                                                                                                                                                        │
+     │ Kas? Mažas stats blokas profile: iš viso kolekcijų, aktyvių, archyvuotų, nuotraukų.                                                                                    │
+     │ Backend: collectionsCreatedCount jau saugomas User lentelėje; kiti skaičiai lengvai gaunami.                                                                           │
+     │ Nauda: Vartotojas mato savo veiklą vienoje vietoje.                                                                                                                    │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 🟡 VIDUTINĖS TRUKMĖS FUNKCIJOS — 1-3 savaitės kiekvienai                                                                                                               │
+     │                                                                                                                                                                        │
+     │ 6. El. pašto pranešimai (transakcinis)                                                                                                                                 │
+     │                                                                                                                                                                        │
+     │ Kas? Automatiniai el. laiškai klientams ir fotografams:                                                                                                                │
+     │ - Klientui: "Jūsų nuotraukos paruoštos peržiūrėti" (SELECTING)                                                                                                         │
+     │ - Klientui: "Jūsų redaguotos nuotraukos paruoštos" (DELIVERED)                                                                                                         │
+     │ - Fotografui: "Klientas atliko atranką" (REVIEWING)                                                                                                                    │
+     │ Dabartinė situacija: emailNotifications laukas User lentelėje egzistuoja, PHPMailer sukonfigūruotas, bet transakcinis el. paštas neįgyvendintas.                       │
+     │ Nauda: Pagrindinis konkurentų (ShootProof, Pixieset) pranašumas — automatizuota komunikacija.                                                                          │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 7. Klientų komentarai prie nuotraukų                                                                                                                                   │
+     │                                                                                                                                                                        │
+     │ Kas? Galimybė klientui palikti trumpą komentarą prie konkrečios nuotraukos atrankos metu.                                                                              │
+     │ Backend: Nauja Comment lentelė (id, collectionId, photoId, text, createdAt), naujas endpoint.                                                                          │
+     │ Frontend: Komentaro tekstas mažame overlay ant nuotraukos share puslapyje.                                                                                             │
+     │ Nauda: Pakeičia el. pašto susirašinėjimą; fotografai gauna struktūruotą grįžtamąjį ryšį (Pic-Time, picdrop turi šią funkciją).                                         │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 8. Kolekcijų analitika — paprastas dashboard                                                                                                                           │
+     │                                                                                                                                                                        │
+     │ Kas? Kolekcijos detalių puslapyje papildomas skyrius: kiek kartų atsisiųsta, paskutinis atsisiuntimas, kiek atrankų pakeitimų.                                         │
+     │ Backend: Download lentelė jau renka duomenis — tik reikia /collections/{id}/stats endpoint.                                                                            │
+     │ Nauda: Fotografai supranta klientų įsitraukimą; CloudSpot tai siūlo kaip premium funkciją.                                                                             │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 9. Nuotraukų rūšiavimas kolekcijoje (drag-and-drop arba rankinė tvarka)                                                                                                │
+     │                                                                                                                                                                        │
+     │ Kas? Fotografas gali pakeisti nuotraukų eiliškumą kolekcijoje.                                                                                                         │
+     │ Backend: Pridėti order lauką Photo lentelėje, PATCH /collections/{id}/photos/reorder endpoint.                                                                         │
+     │ Nauda: Svarbu vestuvių/portretų fotografams, kurie nori parodyti istorijos eigą.                                                                                       │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 10. Kolekcijos dubliavimas                                                                                                                                             │
+     │                                                                                                                                                                        │
+     │ Kas? "Duplicate" mygtukas kolekcijų sąraše — sukuria naują kolekcija su ta pačia konfigūracija (metaduomenys, nustatymai), bet be nuotraukų.                           │
+     │ Nauda: Greitesnė setup'o rutina reguliariems klientams ar šablonams.                                                                                                   │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 11. Stripe mokėjimų integracija                                                                                                                                        │
+     │                                                                                                                                                                        │
+     │ Kas? Funkcionalūs "Upgrade" mygtukai su Stripe Checkout; plano keitimas automatiškai.                                                                                  │
+     │ Dabartinė situacija: stripeCustomerId laukas User lentelėje egzistuoja, bet Stripe API niekur nekviečiamas. PaymentsPage rodo "Coming Soon".                           │
+     │ Nauda: Pagrindinė monetizacijos funkcija — be jos projektas negali generuoti pajamų.                                                                                   │
+     │ Pastaba: Aukšto prioriteto, bet reikia Stripe paskyrą ir webhook'ų infrastruktūrą.                                                                                     │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 🔴 DIDESNĖS FUNKCIJOS — kelios savaitės                                                                                                                                │
+     │                                                                                                                                                                        │
+     │ 12. Vandens ženklas (Watermark) ant preview nuotraukų                                                                                                                  │
+     │                                                                                                                                                                        │
+     │ Kas? Share puslapio nuotraukoms (SELECTING fazė) automatiškai uždedamas watermark.                                                                                     │
+     │ Backend: PHP GD/Imagick watermark generavimas prieš siunčiant nuotraukas klientui.                                                                                     │
+     │ Nauda: Apsaugo neapdorotas nuotraukas nuo neautorizuoto naudojimo (CloudSpot, Pic-Time siūlo tai).                                                                     │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 13. Klientų spalviniai žymėjimai (Color Labels)                                                                                                                        │
+     │                                                                                                                                                                        │
+     │ Kas? Vietoj paprastos "pažymėta/nepažymėta" sistemos — klientas gali žymėti nuotraukas spalvomis (★ mėgstamiausios, ✓ pasirinktos, ✗ atmesti).                         │
+     │ Backend: Pakeisti Selection lentelę, pridėti label enum ('FAVORITE', 'SELECTED', 'REJECTED').                                                                          │
+     │ Nauda: Greitesnė klientų sprendimų priėmimo proceso patirtis (picdrop, Pic-Time).                                                                                      │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 14. Kolekcijos galerijos pritaikymas (Custom Branding)                                                                                                                 │
+     │                                                                                                                                                                        │
+     │ Kas? Fotografas gali įkelti logotipą ir pasirinkti akcentų spalvą, kuri rodoma share/delivery puslapiuose.                                                             │
+     │ Backend: Papildomi User lentels laukai (brandingLogoUrl, brandingColor); laukų naudojimas share/delivery renderer.                                                     │
+     │ Nauda: Profesionalus išvaizdos, kuris yra pagrindinis skirtumas nuo nemokamų sprendimų (Pixieset, Zenfolio).                                                           │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 15. Vartotojo paskyros trynimas                                                                                                                                        │
+     │                                                                                                                                                                        │
+     │ Kas? Profilio puslapyje "Delete my account" mygtukas su patvirtinimo modalu.                                                                                           │
+     │ Backend: DELETE /profile/me endpoint (su duomenų kaskadine trynimo logika).                                                                                            │
+     │ Nauda: GDPR reikalavimas; šiuo metu galimas tik per admin panelę.                                                                                                      │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ 📊 Prioritetų suvestinė                                                                                                                                                │
+     │                                                                                                                                                                        │
+     │ ┌─────┬──────────────────────────────┬──────────┬─────────────────┬────────────────────────────┐                                                                       │
+     │ │  #  │           Funkcija           │ Pastanga │  Verslo nauda   │ Rekomenduojamas eiliškumas │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 1   │ ✅ Slaptažodžio keitimas     │ XS       │ Didelė          │ ✅ ATLIKTA                 │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 2   │ Nuorodos slaptažodis UI      │ XS       │ Vidutinė        │ 2                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 3   │ Galiojimo data UI            │ XS       │ Vidutinė        │ 3                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 4   │ ✅ Kolekcijų paieška/rūšiavimas │ S      │ Didelė          │ ✅ ATLIKTA                 │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 5   │ Profilio statistika          │ S        │ Maža            │ 5                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 6   │ El. pašto pranešimai         │ M        │ Labai didelė    │ 6                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 7   │ Stripe integracija           │ M-L      │ Kritinė         │ 7                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 8   │ Klientų komentarai           │ M        │ Didelė          │ 8                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 9   │ Kolekcijų analitika          │ M        │ Didelė          │ 9                          │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 10  │ Nuotraukų rūšiavimas         │ M        │ Vidutinė        │ 10                         │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 11  │ Kolekcijos dubliavimas       │ S        │ Vidutinė        │ 11                         │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 12  │ Vandens ženklas              │ L        │ Didelė          │ 12                         │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 13  │ Spalviniai žymėjimai         │ M        │ Vidutinė        │ 13                         │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 14  │ Custom branding              │ L        │ Didelė          │ 14                         │                                                                       │
+     │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
+     │ │ 15  │ Paskyros trynimas            │ S        │ Vidutinė (GDPR) │ 15                         │                                                                       │
+     │ └─────┴──────────────────────────────┴──────────┴─────────────────┴────────────────────────────┘                                                                       │
+     │                                                                                                                                                                        │
+     │ ---                                                                                                                                                                    │
+     │ Pastabos                                                                                                                                                               │
+     │                                                                                                                                                                        │
+     │ - Backend infrastruktūra jau turi daugelį laukų (slaptažodis, galiojimo data, emailNotifications, stripeCustomerId) — daug "greitus laimėjimų" reikalauja tik UI darbo │
+     │ - El. pašto sistema yra kritinė — ji paleidžia automatizuotą komunikaciją, kuri yra pagrindinis konkurentų pranašumas                                                  │
+     │ - Stripe integracija yra monetizacijos pagrindas — be jos projektas negali generuoti pajamų                                                                            │
+     │ - Šis failas yra orientacinė medžiaga ateities darbams — kiekvienai funkcijai reiks atskiro detalaus plano   
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+ Cloudflare R2 Setup Guide  [ATLIKTA 2026-02-27 — R2 pilnai integruotas ir veikia produkcijoje]                                                                                                                                                                                                   
+  1. Cloudflare paskyra                                                                                                                                                                                                    
+  
+  Jei dar neturi — eik į https://dash.cloudflare.com/sign-up ir susikurk nemokamą paskyrą.
+
+  2. Įjungti R2
+
+  1. Prisijungęs į Cloudflare Dashboard, kairėje šoninėje juostoje rask "R2 Object Storage"
+  2. Paspaudus paprašys pridėti payment method (kredito kortelę) — tai reikalavimas net nemokamai plano, bet nieko nemokamai neapmokestins kol neviršysi free tier
+  3. Patvirtink ir R2 bus aktyvuotas
+
+  3. Sukurti Bucket
+
+  1. R2 puslapyje spausk "Create bucket"
+  2. Bucket name: photohub-photos (arba pixelforge-photos)
+  3. Location: pasirink EU (Europe) — arčiausiai tavo vartotojų
+  4. Storage class: palik default (Standard)
+  5. Spausk "Create bucket"
+
+  4. Sugeneruoti API Keys
+
+  Tai svarbiausia dalis — šie raktai bus naudojami PHP backend'e:
+
+  1. R2 puslapyje spausk "Manage R2 API Tokens" (viršuje dešinėje)
+  2. Spausk "Create API Token"
+  3. Nustatymai:
+    - Token name: photohub-backend
+    - Permissions: Object Read & Write
+    - Specify bucket(s): pasirink tavo sukurtą bucket'ą (photohub-photos)
+    - TTL: palik "Forever" (arba nustatyk pagal poreikį)
+  4. Spausk "Create API Token"
+  5. SVARBU — iškart nusikopijuok šiuos duomenis (rodomi tik vieną kartą):
+
+  Access Key ID:     xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Secret Access Key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+  5. Surinkti visus reikalingus duomenis
+
+  Po setup'o turėsi šiuos duomenis (reikės backend integracijai):
+
+  ┌───────────────────┬─────────────────────────────────────────────────────────────┬─────────────────┐
+  │    Parametras     │                          Kur rasti                          │    Pavyzdys     │
+  ├───────────────────┼─────────────────────────────────────────────────────────────┼─────────────────┤
+  │ Account ID        │ Cloudflare Dashboard → dešinėje šoninėje                    │ a1b2c3d4e5f6... │
+  ├───────────────────┼─────────────────────────────────────────────────────────────┼─────────────────┤
+  │ Access Key ID     │ Iš 4 žingsnio                                               │ xxxxxxxx...     │
+  ├───────────────────┼─────────────────────────────────────────────────────────────┼─────────────────┤
+  │ Secret Access Key │ Iš 4 žingsnio                                               │ xxxxxxxx...     │
+  ├───────────────────┼─────────────────────────────────────────────────────────────┼─────────────────┤
+  │ Bucket Name       │ Ką pavadinai 3 žingsnyje                                    │ photohub-photos │
+  ├───────────────────┼─────────────────────────────────────────────────────────────┼─────────────────┤
+  │ Endpoint URL      │ Automatiškai: https://<ACCOUNT_ID>.r2.cloudflarestorage.com │                 │
+  └───────────────────┴─────────────────────────────────────────────────────────────┴─────────────────┘
+
+  Account ID rasiesi Cloudflare Dashboard — bet kurio domeno puslapyje dešinėje arba R2 bucket'o settings puslapyje.
+
+  6. (Pasirinktinai) Public Access
+
+  Jei norėsi, kad nuotraukos būtų pasiekiamos per URL tiesiogiai (pvz. klientų peržiūrai):
+
+  1. Eik į savo bucket'ą → "Settings"
+  2. "Public access" → "Allow Access"
+  3. Gali priskirti custom domain (pvz. photos.pixelforge.pro) arba naudoti Cloudflare suteiktą *.r2.dev subdomeną
+
+  ---
+  Kai turėsi visus raktus
+
+  ✅ R2 integruotas 2026-02-27:
+  - aws/aws-sdk-php įdiegtas per Composer
+  - Upload/download/delete endpoints pakeisti naudoti R2
+  - Visos esamos nuotraukos perkeltos iš backend/uploads/ į R2
+  - Frontend naudoja VITE_MEDIA_BASE_URL R2 public URL
+  - CORS sukonfigūruotas R2 bucket'e

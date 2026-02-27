@@ -24,12 +24,32 @@ try {
 
         $allowedStatuses = ['DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED'];
 
+        $sortMap = [
+            'createdAt_desc' => 'c.createdAt DESC',
+            'createdAt_asc'  => 'c.createdAt ASC',
+            'name_asc'       => 'c.name ASC',
+            'name_desc'      => 'c.name DESC',
+            'status_asc'     => 'c.status ASC',
+        ];
+        $sort        = $_GET['sort'] ?? 'createdAt_desc';
+        $orderClause = $sortMap[$sort] ?? $sortMap['createdAt_desc'];
+
+        $search = substr(trim($_GET['search'] ?? ''), 0, 100);
+
         $conditions = ['c.userId = ?'];
         $params     = [$userId];
 
         if ($status !== '' && in_array($status, $allowedStatuses, true)) {
             $conditions[] = 'c.status = ?';
             $params[]     = $status;
+        }
+
+        if ($search !== '') {
+            $conditions[] = '(c.name LIKE ? OR c.clientName LIKE ?)';
+            $escapedSearch = str_replace(['%', '_'], ['\\%', '\\_'], $search);
+            $searchParam   = '%' . $escapedSearch . '%';
+            $params[]      = $searchParam;
+            $params[]      = $searchParam;
         }
 
         $whereClause = 'WHERE ' . implode(' AND ', $conditions);
@@ -57,7 +77,7 @@ try {
                 GROUP BY collectionId
             ) pc ON pc.collectionId = c.id
             $whereClause
-            ORDER BY c.createdAt DESC
+            ORDER BY $orderClause
             LIMIT ? OFFSET ?
         ");
 
