@@ -11,6 +11,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/download-tracker.php';
 require_once __DIR__ . '/../helpers/rate-limiter.php';
+require_once __DIR__ . '/../helpers/r2.php';
 require_once __DIR__ . '/../utils.php';
 
 use ZipStream\ZipStream;
@@ -145,26 +146,24 @@ try {
         defaultCompressionMethod: CompressionMethod::STORE // JPEGs are pre-compressed
     );
 
-    // Stream each photo into the ZIP
+    // Stream each photo from R2 into the ZIP
     $filesAdded = 0;
-    $uploadsBase = realpath(__DIR__ . '/../uploads');
     foreach ($photos as $photo) {
-        $filePath = realpath(__DIR__ . '/../' . $photo['storagePath']);
-
-        // Skip files outside uploads directory or missing files
-        if (!$filePath || !$uploadsBase || strpos($filePath, $uploadsBase) !== 0 || !file_exists($filePath)) {
-            error_log("ZIP download: Missing file {$filePath} for photo {$photo['id']}, skipping");
+        $objectKey = $photo['storagePath'];
+        if (empty($objectKey)) {
+            error_log("ZIP download: Empty storagePath for photo {$photo['id']}, skipping");
             continue;
         }
 
         try {
-            $zip->addFileFromPath(
+            $stream = r2GetStream($objectKey);
+            $zip->addFileFromStream(
                 fileName: $photo['filename'],
-                path: $filePath
+                stream: $stream->detach()
             );
             $filesAdded++;
         } catch (\Exception $e) {
-            error_log("ZIP download: Failed to add {$photo['filename']}: " . $e->getMessage());
+            error_log("ZIP download: Failed to add {$photo['filename']} (key: {$objectKey}): " . $e->getMessage());
             // Continue adding remaining files
         }
     }

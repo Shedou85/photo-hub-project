@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { photoUrl } from '../utils/photoUrl';
 
 const LANGUAGES = [
   { code: 'lt', label: 'LT' },
@@ -119,9 +120,7 @@ function HomePage() {
   const heroPhotoSrc = (index) => {
     const photo = promoPhotos[index];
     if (!photo) return null;
-    const base = import.meta.env.VITE_API_BASE_URL;
-    const path = photo.thumbnailPath || photo.storagePath;
-    return `${base}/${path.startsWith('/') ? path.slice(1) : path}`;
+    return photoUrl(photo.thumbnailPath || photo.storagePath);
   };
 
   const plans = [
@@ -393,9 +392,7 @@ function HomePage() {
             </div>
             <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
               {promoPhotos.map((photo) => {
-                const src = photo.thumbnailPath
-                  ? `${import.meta.env.VITE_API_BASE_URL}/${photo.thumbnailPath}`
-                  : `${import.meta.env.VITE_API_BASE_URL}/${photo.storagePath}`;
+                const src = photoUrl(photo.thumbnailPath || photo.storagePath);
                 return (
                   <div
                     key={photo.photoId}

@@ -2,12 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
-
-const photoUrl = (storagePath) => {
-  const base = import.meta.env.VITE_API_BASE_URL;
-  const path = storagePath.startsWith('/') ? storagePath.slice(1) : storagePath;
-  return `${base}/${path}`;
-};
+import { photoUrl } from '../../utils/photoUrl';
 
 function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
   const { t } = useTranslation();

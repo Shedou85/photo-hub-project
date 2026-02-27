@@ -30,34 +30,21 @@ function isValidId($id) {
 }
 
 /**
- * Get the absolute path to the uploads base directory.
+ * Delete a file from R2 storage.
  *
- * @return string The resolved uploads base directory path
- */
-function getUploadsBasePath() {
-    return __DIR__ . '/uploads';
-}
-
-/**
- * Safely delete a file, ensuring the path is within the uploads directory.
- *
- * @param string $storagePath The relative storage path (e.g. "uploads/abc123/file.jpg")
+ * @param string $storagePath The R2 object key (e.g. "collections/abc123/file.jpg")
  * @return bool True if the file was deleted, false otherwise
  */
 function safeDeleteUploadedFile($storagePath) {
-    $uploadsBase = realpath(getUploadsBasePath());
-    if (!$uploadsBase) {
+    if (empty($storagePath)) {
         return false;
     }
-    $filePath = realpath(__DIR__ . '/' . $storagePath);
-    if ($filePath && strpos($filePath, $uploadsBase) === 0 && file_exists($filePath)) {
-        return unlink($filePath);
-    }
-    return false;
+    require_once __DIR__ . '/helpers/r2.php';
+    return r2Delete($storagePath);
 }
 
 /**
- * Generate a JPEG thumbnail at 400px width for an uploaded image.
+ * Generate a JPEG thumbnail at 400px width and save to a temp file.
  *
  * Supports JPEG, PNG, and WebP source images. If WebP is not supported by the
  * installed GD build, the thumbnail is skipped and null is returned. Very large
@@ -65,14 +52,13 @@ function safeDeleteUploadedFile($storagePath) {
  * exhaustion. Failures always degrade gracefully — the original upload is never
  * affected.
  *
- * @param string $sourcePath  Absolute path to the uploaded source file
+ * @param string $sourcePath  Absolute path to the source file (can be a temp upload)
  * @param string $mimeType    Validated MIME type: image/jpeg, image/png, or image/webp
- * @param string $collectionId  Collection ID used to build the thumbs directory path
- * @param string $photoId     Photo ID used as the thumbnail filename stem
- * @return string|null  Relative thumbnail path (e.g. "uploads/{collId}/thumbs/{id}_thumb.jpg"),
- *                      or null if generation was skipped or failed
+ * @return string|null  Absolute path to the generated temp thumbnail file,
+ *                      or null if generation was skipped or failed.
+ *                      Caller is responsible for deleting the temp file after use.
  */
-function generateThumbnail($sourcePath, $mimeType, $collectionId, $photoId) {
+function generateThumbnail($sourcePath, $mimeType) {
     // Require GD extension
     if (!function_exists('imagecreatefromjpeg')) {
         error_log("Thumbnail skipped: GD extension not available");
@@ -159,30 +145,23 @@ function generateThumbnail($sourcePath, $mimeType, $collectionId, $photoId) {
         return null;
     }
 
-    // Ensure thumbs directory exists
-    $thumbsDir = getUploadsBasePath() . '/' . $collectionId . '/thumbs';
-    if (!is_dir($thumbsDir)) {
-        mkdir($thumbsDir, 0755, true);
-    }
-
-    $thumbRelativePath = "uploads/{$collectionId}/thumbs/{$photoId}_thumb.jpg";
-    $thumbAbsPath      = __DIR__ . '/' . $thumbRelativePath;
-
-    // Save as JPEG (quality 85 — good balance of size vs. fidelity)
-    $saved = @imagejpeg($thumbImage, $thumbAbsPath, 85);
+    // Save as JPEG to a temp file (quality 85)
+    $tmpThumbPath = sys_get_temp_dir() . '/thumb_' . uniqid('', true) . '.jpg';
+    $saved = @imagejpeg($thumbImage, $tmpThumbPath, 85);
     imagedestroy($thumbImage);
 
     if (!$saved) {
-        error_log("Thumbnail skipped: imagejpeg() could not write to {$thumbAbsPath}");
+        error_log("Thumbnail skipped: imagejpeg() could not write to temp file");
+        @unlink($tmpThumbPath);
         return null;
     }
 
-    return $thumbRelativePath;
+    return $tmpThumbPath;
 }
 
 /**
- * Handle a file upload: validate MIME type and size, move file to destination,
- * and generate a JPEG thumbnail at 400px width.
+ * Handle a file upload: validate MIME type and size, upload to R2,
+ * and generate + upload a JPEG thumbnail at 400px width.
  *
  * @param array  $file         The $_FILES['file'] entry
  * @param string $collectionId The collection ID
@@ -199,6 +178,8 @@ function generateThumbnail($sourcePath, $mimeType, $collectionId, $photoId) {
  * }
  */
 function handleFileUpload($file, $collectionId, $subdirectory = '') {
+    require_once __DIR__ . '/helpers/r2.php';
+
     if ($file['error'] !== UPLOAD_ERR_OK) {
         return ['ok' => false, 'error' => 'File upload error: ' . $file['error'], 'code' => 400];
     }
@@ -220,38 +201,44 @@ function handleFileUpload($file, $collectionId, $subdirectory = '') {
     $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
     $ext = $extMap[$mimeType];
     $newId = generateCuid();
+    $tmpPath = $file['tmp_name'];
 
+    // Build R2 object key
     $subPath = $subdirectory ? "/{$subdirectory}" : '';
-    $storagePath = "uploads/{$collectionId}{$subPath}/{$newId}.{$ext}";
+    $objectKey = "collections/{$collectionId}{$subPath}/{$newId}.{$ext}";
 
-    $uploadDir = getUploadsBasePath() . '/' . $collectionId . ($subdirectory ? '/' . $subdirectory : '');
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    if (!move_uploaded_file($file['tmp_name'], __DIR__ . '/' . $storagePath)) {
-        return ['ok' => false, 'error' => 'Failed to save file.', 'code' => 500];
+    // Upload original to R2
+    try {
+        r2Upload($tmpPath, $objectKey, $mimeType);
+    } catch (\RuntimeException $e) {
+        return ['ok' => false, 'error' => 'Failed to upload file to storage.', 'code' => 500];
     }
 
     $originalFilename = basename($file['name']);
     $createdAt = date('Y-m-d H:i:s.v');
 
-    // Generate thumbnail (only for main uploads, not edited subdirectory)
-    $thumbnailPath = null;
+    // Generate and upload thumbnail (only for main uploads, not edited subdirectory)
+    $thumbnailKey = null;
     if (empty($subdirectory)) {
-        $thumbnailPath = generateThumbnail(
-            __DIR__ . '/' . $storagePath,
-            $mimeType,
-            $collectionId,
-            $newId
-        );
+        $tmpThumbPath = generateThumbnail($tmpPath, $mimeType);
+        if ($tmpThumbPath !== null) {
+            $thumbObjectKey = "collections/{$collectionId}/thumbs/{$newId}_thumb.jpg";
+            try {
+                r2Upload($tmpThumbPath, $thumbObjectKey, 'image/jpeg');
+                $thumbnailKey = $thumbObjectKey;
+            } catch (\RuntimeException $e) {
+                error_log("Thumbnail upload to R2 failed: " . $e->getMessage());
+            } finally {
+                @unlink($tmpThumbPath);
+            }
+        }
     }
 
     return [
         'ok'            => true,
         'id'            => $newId,
-        'storagePath'   => $storagePath,
-        'thumbnailPath' => $thumbnailPath,
+        'storagePath'   => $objectKey,
+        'thumbnailPath' => $thumbnailKey,
         'filename'      => $originalFilename,
         'createdAt'     => $createdAt,
         'error'         => null,

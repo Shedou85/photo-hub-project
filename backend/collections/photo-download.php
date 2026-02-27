@@ -7,9 +7,11 @@
  * Returns: Single photo file with Content-Disposition attachment header
  */
 
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/download-tracker.php';
 require_once __DIR__ . '/../helpers/rate-limiter.php';
+require_once __DIR__ . '/../helpers/r2.php';
 require_once __DIR__ . '/../utils.php';
 
 // Extract deliveryToken and photoId from route: /deliver/{deliveryToken}/photo/{photoId}
@@ -84,12 +86,19 @@ try {
         exit;
     }
 
-    $uploadsBase = realpath(__DIR__ . '/../uploads');
-    $filePath = realpath(__DIR__ . '/../' . $photo['storagePath']);
-
-    if (!$filePath || !$uploadsBase || strpos($filePath, $uploadsBase) !== 0 || !file_exists($filePath)) {
+    $objectKey = $photo['storagePath'];
+    if (empty($objectKey)) {
         http_response_code(404);
-        echo json_encode(['error' => 'Photo file not found on disk']);
+        echo json_encode(['error' => 'Photo file not found']);
+        exit;
+    }
+
+    // Verify the object exists in R2 and get its size
+    try {
+        $fileSize = r2GetSize($objectKey);
+    } catch (\RuntimeException $e) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Photo file not found in storage']);
         exit;
     }
 
@@ -117,15 +126,14 @@ try {
         ob_end_clean();
     }
 
-    // Send download headers
-    $safeFilename = $photo['filename'];
-    $fileSize = filesize($filePath);
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $filePath) ?: 'application/octet-stream';
-    finfo_close($finfo);
+    // Determine MIME type from the object key extension
+    $ext = strtolower(pathinfo($objectKey, PATHINFO_EXTENSION));
+    $mimeMap = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
+    $mimeType = $mimeMap[$ext] ?? 'application/octet-stream';
 
+    // Send download headers
+    $safeFilename = preg_replace('/[^A-Za-z0-9._\- ]/', '_', $photo['filename']);
     header('Content-Type: ' . $mimeType);
-    $safeFilename = preg_replace('/[^A-Za-z0-9._\- ]/', '_', $safeFilename);
     header('Content-Disposition: attachment; filename="' . $safeFilename . '"');
     header('Content-Length: ' . $fileSize);
     header('Content-Transfer-Encoding: binary');
@@ -134,8 +142,11 @@ try {
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    // Stream file to browser (memory-efficient, 8KB chunks)
-    readfile($filePath);
+    // Stream from R2 to browser
+    $stream = r2GetStream($objectKey);
+    $resource = $stream->detach();
+    fpassthru($resource);
+    fclose($resource);
 
 } catch (\Exception $e) {
     if (!headers_sent()) {

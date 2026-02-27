@@ -10,6 +10,7 @@ import CreateCollectionModal from "../components/CreateCollectionModal";
 import ConfirmModal from "../components/primitives/ConfirmModal";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../lib/api";
+import { photoUrl } from "../utils/photoUrl";
 
 const PAGE_SIZE = 12;
 
@@ -47,13 +48,6 @@ function CollectionsListPage() {
   const limitMax = isExpiredTrial ? FREE_CUMULATIVE_LIMIT : ACTIVE_TRIAL_LIMIT;
 
   const totalCount = pagination?.total ?? collections.length;
-
-  const photoUrl = (storagePath) => {
-    if (!storagePath) return null;
-    const base = import.meta.env.VITE_API_BASE_URL;
-    const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
-    return `${base}/${path}`;
-  };
 
   const fetchCollections = useCallback(async () => {
     setLoading(true);

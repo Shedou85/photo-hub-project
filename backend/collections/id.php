@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/session.php';
+require_once __DIR__ . '/../helpers/r2.php';
 
 header('Content-Type: application/json');
 
@@ -163,14 +164,31 @@ try {
     }
 
     if ($method === 'DELETE') {
-        $stmt = $pdo->prepare("DELETE FROM `Collection` WHERE id = ? AND userId = ?");
-        $stmt->execute([$collectionId, $userId]);
-
-        if ($stmt->rowCount() === 0) {
+        // Verify collection belongs to user before cleanup
+        $checkStmt = $pdo->prepare("SELECT id FROM `Collection` WHERE id = ? AND userId = ?");
+        $checkStmt->execute([$collectionId, $userId]);
+        if (!$checkStmt->fetch()) {
             http_response_code(404);
             echo json_encode(["error" => "Collection not found."]);
             exit;
         }
+
+        // Delete all R2 objects (photos, edited photos, thumbnails) before removing DB rows
+        $photoStmt = $pdo->prepare("SELECT storagePath, thumbnailPath FROM Photo WHERE collectionId = ?");
+        $photoStmt->execute([$collectionId]);
+        foreach ($photoStmt->fetchAll(PDO::FETCH_ASSOC) as $photo) {
+            if (!empty($photo['storagePath'])) r2Delete($photo['storagePath']);
+            if (!empty($photo['thumbnailPath'])) r2Delete($photo['thumbnailPath']);
+        }
+
+        $editedStmt = $pdo->prepare("SELECT storagePath FROM EditedPhoto WHERE collectionId = ?");
+        $editedStmt->execute([$collectionId]);
+        foreach ($editedStmt->fetchAll(PDO::FETCH_ASSOC) as $edited) {
+            if (!empty($edited['storagePath'])) r2Delete($edited['storagePath']);
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM `Collection` WHERE id = ? AND userId = ?");
+        $stmt->execute([$collectionId, $userId]);
 
         echo json_encode(["status" => "OK"]);
         exit;

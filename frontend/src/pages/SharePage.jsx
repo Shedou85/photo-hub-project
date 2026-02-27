@@ -2,12 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
-const photoUrl = (storagePath) => {
-  const base = import.meta.env.VITE_API_BASE_URL;
-  const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
-  return `${base}/${path}`;
-};
+import { photoUrl } from "../utils/photoUrl";
 
 function SharePage() {
   const { shareId } = useParams();

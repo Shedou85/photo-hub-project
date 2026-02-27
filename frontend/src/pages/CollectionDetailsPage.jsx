@@ -13,18 +13,13 @@ import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
 import { generateCopyScript } from '../utils/copyScript';
+import { photoUrl } from '../utils/photoUrl';
 
 
 const EXPIRED_TRIAL_PHOTO_LIMIT = 30;
 const STANDARD_PHOTO_LIMIT = 500;
 const PHOTO_LIMIT_WARNING_BUFFER = 5;
 const DELETE_CONFIRM_DURATION = 8000;
-
-const photoUrl = (storagePath) => {
-  const base = import.meta.env.VITE_API_BASE_URL;
-  const path = storagePath.startsWith("/") ? storagePath.slice(1) : storagePath;
-  return `${base}/${path}`;
-};
 
 function CollectionDetailsPage() {
   const { id } = useParams();
