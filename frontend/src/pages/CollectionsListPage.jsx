@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 import PageHeader from "../components/PageHeader";
 import Button from "../components/primitives/Button";
+import Input from "../components/primitives/Input";
+import Select from "../components/primitives/Select";
 import CollectionCard from "../components/primitives/CollectionCard";
 import CreateCollectionModal from "../components/CreateCollectionModal";
 import ConfirmModal from "../components/primitives/ConfirmModal";
@@ -327,25 +329,25 @@ function CollectionsListPage() {
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input
+          <Input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('collections.searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] transition-colors"
+            className="pl-10"
           />
         </div>
-        <select
+        <Select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="px-4 py-2.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-sm text-white/70 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] transition-colors cursor-pointer"
+          className="text-white/70"
         >
           <option value="createdAt_desc">{t('collections.sortNewest')}</option>
           <option value="createdAt_asc">{t('collections.sortOldest')}</option>
           <option value="name_asc">{t('collections.sortNameAsc')}</option>
           <option value="name_desc">{t('collections.sortNameDesc')}</option>
           <option value="status_asc">{t('collections.sortStatus')}</option>
-        </select>
+        </Select>
       </div>
 
       {/* ── Empty State (search active, no results) ── */}
