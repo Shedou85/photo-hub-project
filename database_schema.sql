@@ -107,10 +107,12 @@ CREATE TABLE `Photo` (
   `filename` VARCHAR(255) NOT NULL,
   `storagePath` VARCHAR(255) NOT NULL,
   `thumbnailPath` VARCHAR(255) NULL DEFAULT NULL,
+  `order` INT NULL DEFAULT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `collectionId` VARCHAR(191) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `Photo_collectionId_idx` (`collectionId`)
+  KEY `Photo_collectionId_idx` (`collectionId`),
+  KEY `Photo_collectionId_order_idx` (`collectionId`, `order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------

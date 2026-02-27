@@ -56,7 +56,7 @@ try {
     }
 
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, createdAt FROM `Photo` WHERE collectionId = ? ORDER BY createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, `order`, createdAt FROM `Photo` WHERE collectionId = ? ORDER BY COALESCE(`order`, 999999) ASC, createdAt ASC");
         $stmt->execute([$collectionId]);
         $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

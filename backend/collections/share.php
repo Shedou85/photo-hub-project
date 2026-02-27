@@ -218,10 +218,10 @@ if ($requestMethod === 'PATCH') {
 
         // Query photos for this collection
         $stmt = $pdo->prepare("
-            SELECT id, filename, storagePath, thumbnailPath, createdAt
+            SELECT id, filename, storagePath, thumbnailPath, `order`, createdAt
             FROM `Photo`
             WHERE collectionId = ?
-            ORDER BY createdAt ASC
+            ORDER BY COALESCE(`order`, 999999) ASC, createdAt ASC
         ");
         $stmt->execute([$collection['id']]);
         $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);

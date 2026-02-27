@@ -28,7 +28,7 @@ The photographer can hand a client a link — the client selects photos for edit
 ## Current State
 
 **Latest milestone:** v3.0 Workflow & UX Redesign (shipped 2026-02-16)
-**Latest work:** Post-v3.0 enhancements (ongoing, latest: SEO implementation 2026-02-27)
+**Latest work:** Post-v3.0 enhancements (ongoing, latest: drag-and-drop photo reordering 2026-02-27)
 
 **Shipped features:**
 - Complete photographer-to-client workflow with photo upload, token-based sharing, client selection, and delivery (v1.0)
@@ -38,6 +38,7 @@ The photographer can hand a client a link — the client selects photos for edit
 - Email verification, password reset, Google OAuth, cookie consent, admin panel (post-v3.0)
 - Collection archiving, search/sort, promotional photos, gallery password protection (post-v3.0)
 - Foundational SEO: meta tags, OG/Twitter cards, sitemap, robots.txt, react-helmet-async, JSON-LD (post-v3.0)
+- Drag-and-drop photo reordering (PRO-only, @dnd-kit with desktop + mobile touch support) (post-v3.0)
 
 **Tech stack:** React 18 + Vite 5 + react-helmet-async frontend, vanilla PHP backend with PDO, MySQL database
 **Hosting:** Hostinger server; **Cloudflare R2** for photo/thumbnail storage (migrated 2026-02-27)
@@ -101,6 +102,7 @@ The photographer can hand a client a link — the client selects photos for edit
 - ✓ Promotional photos system (photographer opt-in, homepage showcase)
 - ✓ Gallery password protection on share page
 - ✓ Foundational SEO: robots.txt, sitemap.xml, OG/Twitter meta tags, react-helmet-async, JSON-LD structured data, dynamic per-page titles, html lang sync with i18n
+- ✓ Drag-and-drop photo reordering in collections (PRO-only, @dnd-kit, desktop + mobile touch support)
 
 ### Active
 
@@ -164,5 +166,7 @@ The photographer can hand a client a link — the client selects photos for edit
 | JSON-LD structured data on homepage | Rich results for Organization + SoftwareApplication with pricing | ✓ Good — Schema.org compliant, 3 pricing offers (Free/$0, Standard/$15, Pro/$29) |
 | noindex on utility pages | Login, forgot-password, verify-email etc. have no SEO value | ✓ Good — Only /, /register indexed; auth/utility pages noindexed |
 
+| @dnd-kit for drag-and-drop reordering | Modern, maintained, first-class touch + keyboard support, ~12KB gzipped | ✓ Good — Shipped 2026-02-27, PRO-only with smooth desktop + mobile long-press support |
+
 ---
-*Last updated: 2026-02-27 after SEO implementation*
+*Last updated: 2026-02-27 after drag-and-drop photo reordering*

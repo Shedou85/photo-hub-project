@@ -74,10 +74,11 @@
      │ Nauda: Fotografai supranta klientų įsitraukimą; CloudSpot tai siūlo kaip premium funkciją.                                                                             │
      │                                                                                                                                                                        │
      │ ---                                                                                                                                                                    │
-     │ 9. Nuotraukų rūšiavimas kolekcijoje (drag-and-drop arba rankinė tvarka)                                                                                                │
+     │ 9. ✅ Nuotraukų rūšiavimas kolekcijoje (drag-and-drop)  [ATLIKTA 2026-02-27]                                                                                               │
      │                                                                                                                                                                        │
-     │ Kas? Fotografas gali pakeisti nuotraukų eiliškumą kolekcijoje.                                                                                                         │
-     │ Backend: Pridėti order lauką Photo lentelėje, PATCH /collections/{id}/photos/reorder endpoint.                                                                         │
+     │ Kas? Fotografas gali pakeisti nuotraukų eiliškumą kolekcijoje drag-and-drop būdu.                                                                                      │
+     │ Backend: order laukas Photo lentelėje, PATCH /collections/{id}/reorder endpoint (PRO only).                                                                            │
+     │ Frontend: @dnd-kit biblioteka, SortablePhotoGrid/SortablePhotoItem komponentai, usePhotoReorder hook.                                                                  │
      │ Nauda: Svarbu vestuvių/portretų fotografams, kurie nori parodyti istorijos eigą.                                                                                       │
      │                                                                                                                                                                        │
      │ ---                                                                                                                                                                    │
@@ -148,7 +149,7 @@
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 9   │ Kolekcijų analitika          │ M        │ Didelė          │ 9                          │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
-     │ │ 10  │ Nuotraukų rūšiavimas         │ M        │ Vidutinė        │ 10                         │                                                                       │
+     │ │ 10  │ ✅ Nuotraukų rūšiavimas       │ M        │ Vidutinė        │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 11  │ Kolekcijos dubliavimas       │ S        │ Vidutinė        │ 11                         │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │

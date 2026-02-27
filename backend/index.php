@@ -381,6 +381,9 @@ switch ($requestUri) {
                 case 'promotional':
                     require_once __DIR__ . '/collections/promotional.php';
                     break;
+                case 'reorder':
+                    require_once __DIR__ . '/collections/reorder.php';
+                    break;
                 default:
                     http_response_code(404);
                     echo json_encode(['error' => 'Endpoint Not Found']);

@@ -8,10 +8,12 @@ import Button from '../components/primitives/Button';
 import Badge from '../components/primitives/Badge';
 import Accordion from '../components/Accordion';
 import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
+import SortablePhotoGrid from '../components/collection/SortablePhotoGrid';
 import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
+import { usePhotoReorder } from '../hooks/usePhotoReorder';
 import { generateCopyScript } from '../utils/copyScript';
 import { photoUrl } from '../utils/photoUrl';
 
@@ -40,7 +42,7 @@ function CollectionDetailsPage() {
   } = useCollectionData(id);
 
   const {
-    photos,
+    photos, setPhotos,
     uploadFiles, uploadEditedFiles,
     handleDeletePhoto, handleSetCover,
     anyUploading, uploadErrors, validationErrors,
@@ -51,6 +53,13 @@ function CollectionDetailsPage() {
   const lightbox = useLightbox(photos.length);
   const editedLightbox = useLightbox(editedPhotos.length);
   const { filter, setFilter, selectedPhotoIds, filteredPhotos } = usePhotoFiltering(photos, selections, id);
+
+  const { user } = useAuth();
+
+  const {
+    isReorderMode, isPro, isSaving: isReorderSaving,
+    enterReorderMode, cancelReorder, handleDragEnd, saveOrder, hasOrderChanged,
+  } = usePhotoReorder(id, photos, setPhotos, user?.plan);
 
   // Local UI state
   const [dragOver, setDragOver] = useState(false);
@@ -65,8 +74,6 @@ function CollectionDetailsPage() {
   const [editClientEmail, setEditClientEmail] = useState('');
   const [editSourceFolder, setEditSourceFolder] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
-
-  const { user } = useAuth();
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
   const photoLimit = isExpiredTrial ? EXPIRED_TRIAL_PHOTO_LIMIT : (isActiveTrial || user?.plan === 'STANDARD') ? STANDARD_PHOTO_LIMIT : null;
@@ -782,9 +789,10 @@ function CollectionDetailsPage() {
         <Accordion title={t("collection.photos")} defaultOpen={true}>
           {/* Filter tabs */}
           {selections.length > 0 && (
-            <div className="flex gap-2 mb-4 border-b border-white/[0.08]">
+            <div className={`flex gap-2 mb-4 border-b border-white/[0.08] ${isReorderMode ? 'opacity-50 pointer-events-none' : ''}`}>
               <button
                 onClick={() => setFilter('all')}
+                disabled={isReorderMode}
                 className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:outline-none focus-visible:outline-none ${
                   filter === 'all'
                     ? 'text-indigo-400 border-b-2 border-indigo-400'
@@ -795,6 +803,7 @@ function CollectionDetailsPage() {
               </button>
               <button
                 onClick={() => setFilter('selected')}
+                disabled={isReorderMode}
                 className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:outline-none focus-visible:outline-none ${
                   filter === 'selected'
                     ? 'text-indigo-400 border-b-2 border-indigo-400'
@@ -805,6 +814,7 @@ function CollectionDetailsPage() {
               </button>
               <button
                 onClick={() => setFilter('not-selected')}
+                disabled={isReorderMode}
                 className={`px-4 py-2 text-sm font-semibold transition-colors bg-transparent border-0 cursor-pointer outline-none focus:outline-none focus-visible:outline-none ${
                   filter === 'not-selected'
                     ? 'text-indigo-400 border-b-2 border-indigo-400'
@@ -816,9 +826,54 @@ function CollectionDetailsPage() {
             </div>
           )}
 
-          <div className={PHOTO_GRID_CLASSES}>
-            {filteredPhotos.map((photo) => {
-              // Find index in full photos array for lightbox navigation
+          {/* Reorder toolbar */}
+          <div className="flex items-center gap-2 mb-4">
+            {!isReorderMode ? (
+              <button
+                onClick={enterReorderMode}
+                disabled={!isPro || filter !== 'all'}
+                title={!isPro ? t('collection.reorderProOnly') : filter !== 'all' ? t('collection.reorderFilterWarning') : undefined}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  isPro && filter === 'all'
+                    ? 'bg-white/[0.06] text-white/70 border-white/10 hover:bg-white/[0.1] cursor-pointer'
+                    : 'bg-white/[0.03] text-white/30 border-white/[0.06] cursor-not-allowed'
+                }`}
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                  <circle cx="5" cy="3" r="1.5" /><circle cx="11" cy="3" r="1.5" />
+                  <circle cx="5" cy="8" r="1.5" /><circle cx="11" cy="8" r="1.5" />
+                  <circle cx="5" cy="13" r="1.5" /><circle cx="11" cy="13" r="1.5" />
+                </svg>
+                {t('collection.reorder')}
+                {!isPro && (
+                  <span className="ml-1 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">PRO</span>
+                )}
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={saveOrder}
+                  disabled={isReorderSaving || !hasOrderChanged()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white shadow-[0_4px_16px_rgba(99,102,241,0.35)] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-opacity"
+                >
+                  {isReorderSaving ? '...' : t('collection.saveOrder')}
+                </button>
+                <button
+                  onClick={cancelReorder}
+                  disabled={isReorderSaving}
+                  className="inline-flex items-center px-3 py-1.5 text-sm rounded-lg bg-transparent text-white/60 hover:bg-white/[0.06] cursor-pointer transition-colors"
+                >
+                  {t('common.cancel')}
+                </button>
+              </>
+            )}
+          </div>
+
+          <SortablePhotoGrid
+            photos={isReorderMode ? photos : filteredPhotos}
+            isReorderMode={isReorderMode}
+            onDragEnd={handleDragEnd}
+            renderPhoto={(photo) => {
               const photoIndex = photos.findIndex(p => p.id === photo.id);
               return (
                 <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-white/[0.06]">
@@ -874,8 +929,8 @@ function CollectionDetailsPage() {
                   </div>
                 </div>
               );
-            })}
-          </div>
+            }}
+          />
         </Accordion>
       )}
 
