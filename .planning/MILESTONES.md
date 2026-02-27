@@ -60,3 +60,27 @@
 **Dependencies added:** `aws/aws-sdk-php ^3.0`
 
 ---
+
+
+## SEO Foundation (Shipped: 2026-02-27)
+
+**Scope:** Foundational SEO so search engines can properly index and display pixelforge.pro
+**Timeline:** 1 session (2026-02-27)
+
+**Delivered:** Complete SEO setup for a React SPA — static meta tags for non-JS crawlers, dynamic per-page titles via react-helmet-async, structured data, and crawler directives.
+
+**Key accomplishments:**
+- `robots.txt` — allows public routes, blocks auth-required pages, points to sitemap
+- `sitemap.xml` — 3 public routes (`/`, `/register`, `/login`) with priority/frequency
+- `og-image.png` — 1200x630px branded OG image (dark background, PF logo, tagline)
+- `index.html` enhanced — meta description, canonical, OG tags, Twitter Card, hreflang (lt/en/ru/x-default), robots meta, theme-color, verification placeholders
+- Reusable `SEO.jsx` component — title, description, canonical, OG, Twitter via react-helmet-async
+- Dynamic per-page titles — HomePage (default), LoginPage (noindex), RegisterPage, NotFoundPage (noindex), ForgotPasswordPage (noindex), ResetPasswordPage (noindex), VerifyEmailPage (noindex)
+- JSON-LD structured data on homepage — Organization + SoftwareApplication schemas with 3 pricing offers
+- `<html lang>` synced with i18n language via useEffect in App.jsx
+- SEO locale keys added to all 3 locale files (en/lt/ru)
+- Lighthouse CI assertion added: `categories:seo` >= 0.9
+
+**Dependencies added:** `react-helmet-async`
+
+---

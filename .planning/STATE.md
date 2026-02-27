@@ -2,10 +2,10 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-14)
+See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** The photographer can hand a client a link — the client selects photos for editing, the photographer delivers finals — without the client ever needing an account.
-**Current focus:** Post-audit fixes — IN PROGRESS (see .planning/TODO.md)
+**Current focus:** Post-v3.0 enhancements — SEO, quality-of-life features, hardening
 
 ## Current Position
 
@@ -116,7 +116,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: Implementing post-audit fixes (8 tasks from project-review.txt)
+Last session: 2026-02-27
+Stopped at: Completed SEO implementation (robots.txt, sitemap, OG tags, react-helmet-async, JSON-LD)
 Resume file: None
-Next step: Continue remaining TODO items from .planning/TODO.md
+Next step: Continue remaining TODO items from .planning/TODO.md or pick next enhancement

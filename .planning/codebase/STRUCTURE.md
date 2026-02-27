@@ -18,7 +18,7 @@ photo-hub/
 │   │   ├── main.jsx            # Entry point
 │   │   ├── i18n.js             # i18n configuration
 │   │   └── index.css           # Global styles (Tailwind imports)
-│   ├── public/                 # Static files served as-is
+│   ├── public/                 # Static files (logo.png, robots.txt, sitemap.xml, og-image.png)
 │   ├── dist/                   # Build output (Vite production build)
 │   ├── package.json            # Dependencies and scripts
 │   └── vite.config.js          # Vite bundler configuration
@@ -43,8 +43,8 @@ photo-hub/
 
 **frontend/src/components:**
 - Purpose: Reusable UI component library
-- Contains: ProtectedRoute (auth wrapper), Accordion (collapsible sections)
-- Key files: `ProtectedRoute.jsx`, `Accordion.jsx`
+- Contains: ProtectedRoute (auth wrapper), AdminRoute, Accordion, Button, Card, Badge, CollectionCard, PhotoCard, UploadZone, SEO, ErrorBoundary, CookieConsentBanner
+- Key files: `ProtectedRoute.jsx`, `AdminRoute.jsx`, `SEO.jsx`, `Button.jsx`, `Card.jsx`, `Badge.jsx`, `CollectionCard.jsx`, `ErrorBoundary.jsx`, `CookieConsentBanner.jsx`
 
 **frontend/src/contexts:**
 - Purpose: Global state providers
@@ -66,12 +66,20 @@ photo-hub/
 - Purpose: Route-level page components
 - Contains: Full-page components rendered by React Router
 - Key files:
-  - `HomePage.jsx` - Public landing page
-  - `LoginPage.jsx` - Auth form
-  - `CollectionsListPage.jsx` - Dashboard with collection grid
-  - `CollectionDetailsPage.jsx` - Single collection view
-  - `ProfilePage.jsx` - User profile editor
+  - `HomePage.jsx` - Public landing page (with JSON-LD structured data)
+  - `LoginPage.jsx` - Auth form (noindex)
+  - `RegisterPage.jsx` - Registration form
+  - `CollectionsListPage.jsx` - Dashboard with collection grid (search/sort)
+  - `CollectionDetailsPage.jsx` - Single collection view (workflow phases)
+  - `ProfilePage.jsx` - User profile editor (password change)
   - `PaymentsPage.jsx` - Subscription management
+  - `AdminPage.jsx` - Admin panel (stats, users, audit log)
+  - `SharePage.jsx` - Public client gallery (password-protected)
+  - `DeliveryPage.jsx` - Public delivery page (ZIP + individual downloads)
+  - `ForgotPasswordPage.jsx` - Password reset request (noindex)
+  - `ResetPasswordPage.jsx` - Password reset form (noindex)
+  - `VerifyEmailPage.jsx` - Email verification (noindex)
+  - `NotFoundPage.jsx` - 404 page (noindex)
 
 **frontend/src/assets:**
 - Purpose: Static assets bundled with app
@@ -114,7 +122,7 @@ photo-hub/
 
 **Entry Points:**
 
-- `frontend/src/main.jsx`: React app mount point; initializes BrowserRouter, AuthProvider, i18n
+- `frontend/src/main.jsx`: React app mount point; initializes HelmetProvider, BrowserRouter, AuthProvider, i18n
 - `frontend/src/App.jsx`: Route definitions; conditional redirects based on auth state
 - `backend/index.php`: HTTP request router; dispatcher to handler files
 
@@ -256,4 +264,4 @@ photo-hub/
 
 ---
 
-*Structure analysis: 2026-02-11*
+*Structure analysis: 2026-02-11, last updated: 2026-02-27*
