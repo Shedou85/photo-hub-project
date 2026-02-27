@@ -158,7 +158,15 @@
     "passwordUpdated": "Slaptažodis sėkmingai atnaujintas!",
     "passwordUpdateFailed": "Slaptažodžio atnaujinimas nepavyko:",
     "passwordMismatch": "Slaptažodžiai nesutampa",
-    "passwordTooShort": "Slaptažodis turi būti bent 8 simbolių"
+    "passwordTooShort": "Slaptažodis turi būti bent 8 simbolių",
+    "activity": {
+      "title": "Jūsų veikla",
+      "subtitle": "Greita jūsų darbo apžvalga",
+      "totalCollections": "Visos kolekcijos",
+      "activeCollections": "Aktyvios kolekcijos",
+      "archivedCollections": "Archyvuotos kolekcijos",
+      "totalPhotos": "Nuotraukos iš viso"
+    }
   },
   "collections": {
     "title": "Mano Kolekcijos",

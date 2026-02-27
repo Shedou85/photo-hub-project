@@ -240,6 +240,15 @@ switch ($requestUri) {
         }
         break;
 
+    case '/profile/stats':
+        if ($requestMethod == 'GET') {
+            require_once __DIR__ . '/profile/stats.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     case '/collections':
         require_once __DIR__ . '/collections/index.php';
         break;

@@ -40,7 +40,7 @@
      │ Nauda: Fotografai gali "uždaryti" senų sesijų nuorodas automatiškai.                                                                                                   │
      │                                                                                                                                                                        │
      │ ---                                                                                                                                                                    │
-     │ 5. Kolekcijų skaičiaus statistika profilio puslapyje                                                                                                                   │
+     │ 5. ✅ Kolekcijų skaičiaus statistika profilio puslapyje  [ATLIKTA 2026-02-27]                                                                                                                   │
      │                                                                                                                                                                        │
      │ Kas? Mažas stats blokas profile: iš viso kolekcijų, aktyvių, archyvuotų, nuotraukų.                                                                                    │
      │ Backend: collectionsCreatedCount jau saugomas User lentelėje; kiti skaičiai lengvai gaunami.                                                                           │
@@ -138,7 +138,7 @@
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 4   │ ✅ Kolekcijų paieška/rūšiavimas │ S      │ Didelė          │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
-     │ │ 5   │ Profilio statistika          │ S        │ Maža            │ 5                          │                                                                       │
+     │ │ 5   │ ✅ Profilio statistika        │ S        │ Maža            │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 6   │ El. pašto pranešimai         │ M        │ Labai didelė    │ 6                          │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │

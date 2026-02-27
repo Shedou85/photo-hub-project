@@ -158,7 +158,15 @@
     "passwordUpdated": "Пароль успешно обновлён!",
     "passwordUpdateFailed": "Ошибка обновления пароля:",
     "passwordMismatch": "Пароли не совпадают",
-    "passwordTooShort": "Пароль должен быть не менее 8 символов"
+    "passwordTooShort": "Пароль должен быть не менее 8 символов",
+    "activity": {
+      "title": "Ваша активность",
+      "subtitle": "Краткий обзор вашей работы",
+      "totalCollections": "Всего коллекций",
+      "activeCollections": "Активные коллекции",
+      "archivedCollections": "Архивные коллекции",
+      "totalPhotos": "Всего фотографий"
+    }
   },
   "collections": {
     "title": "Мои коллекции",

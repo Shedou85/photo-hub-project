@@ -158,7 +158,15 @@
     "passwordUpdated": "Password updated successfully!",
     "passwordUpdateFailed": "Password update failed:",
     "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 8 characters"
+    "passwordTooShort": "Password must be at least 8 characters",
+    "activity": {
+      "title": "Your Activity",
+      "subtitle": "A quick overview of your work",
+      "totalCollections": "Total Collections",
+      "activeCollections": "Active Collections",
+      "archivedCollections": "Archived Collections",
+      "totalPhotos": "Total Photos"
+    }
   },
   "collections": {
     "title": "My Collections",

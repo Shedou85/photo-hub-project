@@ -3,8 +3,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 import { toast } from "sonner";
-import Accordion from "../components/Accordion"; // Import Accordion component
+import Accordion from "../components/Accordion";
 import PageHeader from "../components/PageHeader";
+import ActivityStats from "../components/ActivityStats";
 
 // --- Helper: derive initials from a display name ---
 function getInitials(name) {
@@ -158,6 +159,9 @@ function ProfilePage() {
         title={user.name}
         subtitle={t('profile.subtitle')}
       />
+
+      {/* ── Activity Stats ── */}
+      <ActivityStats />
 
       {/* ── Edit Profile Accordion ── */}
       <Accordion title={t('profile.editProfile')}>
