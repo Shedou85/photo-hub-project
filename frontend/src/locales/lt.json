@@ -146,7 +146,19 @@
     "roleLabel": {
       "USER": "Vartotojas",
       "ADMIN": "Administratorius"
-    }
+    },
+    "changePassword": "Keisti slaptažodį",
+    "setPassword": "Nustatyti slaptažodį",
+    "setPasswordHint": "Jūs prisiregistravote per Google. Nustatykite slaptažodį, kad galėtumėte prisijungti ir el. paštu.",
+    "currentPassword": "Dabartinis slaptažodis",
+    "newPassword": "Naujas slaptažodis",
+    "confirmPassword": "Pakartokite naują slaptažodį",
+    "updatePassword": "Atnaujinti slaptažodį",
+    "updatingPassword": "Atnaujinama...",
+    "passwordUpdated": "Slaptažodis sėkmingai atnaujintas!",
+    "passwordUpdateFailed": "Slaptažodžio atnaujinimas nepavyko:",
+    "passwordMismatch": "Slaptažodžiai nesutampa",
+    "passwordTooShort": "Slaptažodis turi būti bent 8 simbolių"
   },
   "collections": {
     "title": "Mano Kolekcijos",

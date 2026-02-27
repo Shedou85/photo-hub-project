@@ -57,6 +57,11 @@ function ProfilePage() {
   const [resending, setResending] = useState(false);
   const [resendSent, setResendSent] = useState(false);
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
@@ -96,6 +101,44 @@ function ProfilePage() {
     } finally {
       setResending(false);
     }
+  };
+
+  const handlePasswordSubmit = (event) => {
+    event.preventDefault();
+
+    if (newPassword.length < 8) {
+      toast.error(t('profile.passwordTooShort'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error(t('profile.passwordMismatch'));
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    const body = { newPassword };
+    if (user.hasPassword) {
+      body.currentPassword = currentPassword;
+    }
+
+    const savePromise = api.patch('/profile/me', body)
+      .then(({ data, error }) => {
+        if (error) throw new Error(error);
+        if (data?.user) login(data.user);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      })
+      .finally(() => {
+        setPasswordLoading(false);
+      });
+
+    toast.promise(savePromise, {
+      loading: t('profile.updatingPassword'),
+      success: t('profile.passwordUpdated'),
+      error: (err) => `${t('profile.passwordUpdateFailed')} ${err.message}`,
+    });
   };
 
   // --- Unauthenticated guard ---
@@ -169,6 +212,76 @@ function ProfilePage() {
               }`}
             >
               {loading ? t('profile.saving') : t('profile.saveChanges')}
+            </button>
+          </div>
+        </form>
+      </Accordion>
+
+      {/* ── Change Password Accordion ── */}
+      <Accordion title={t(user.hasPassword ? 'profile.changePassword' : 'profile.setPassword')}>
+        {!user.hasPassword && (
+          <p className="text-sm text-white/50 mb-4">
+            {t('profile.setPasswordHint')}
+          </p>
+        )}
+        <form onSubmit={handlePasswordSubmit}>
+          {user.hasPassword && (
+            <div className="mb-4">
+              <label htmlFor="currentPassword" className="block mb-1 text-sm font-semibold text-white/60">
+                {t('profile.currentPassword')}
+              </label>
+              <input
+                type="password"
+                id="currentPassword"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full py-2.5 px-5 text-sm text-white bg-white/[0.06] border-[1.5px] border-white/[0.12] focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm outline-none box-border transition-colors duration-150 font-sans placeholder:text-white/20"
+              />
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label htmlFor="newPassword" className="block mb-1 text-sm font-semibold text-white/60">
+              {t('profile.newPassword')}
+            </label>
+            <input
+              type="password"
+              id="newPassword"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full py-2.5 px-5 text-sm text-white bg-white/[0.06] border-[1.5px] border-white/[0.12] focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm outline-none box-border transition-colors duration-150 font-sans placeholder:text-white/20"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="confirmPassword" className="block mb-1 text-sm font-semibold text-white/60">
+              {t('profile.confirmPassword')}
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full py-2.5 px-5 text-sm text-white bg-white/[0.06] border-[1.5px] border-white/[0.12] focus:border-indigo-500/70 focus:bg-white/[0.08] rounded-sm outline-none box-border transition-colors duration-150 font-sans placeholder:text-white/20"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-1">
+            {passwordLoading && (
+              <span className="text-sm text-white/50">
+                {t('profile.updatingPassword')}
+              </span>
+            )}
+            <button
+              type="submit"
+              disabled={passwordLoading}
+              className={`py-2.5 px-5 text-sm font-semibold rounded-sm border-none font-sans transition-opacity duration-150 ${
+                passwordLoading
+                  ? "text-white/40 bg-white/[0.08] cursor-not-allowed"
+                  : "text-white cursor-pointer hover:opacity-90 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
+              }`}
+            >
+              {passwordLoading ? t('profile.updatingPassword') : t('profile.updatePassword')}
             </button>
           </div>
         </form>

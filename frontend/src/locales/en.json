@@ -146,7 +146,19 @@
     "roleLabel": {
       "USER": "User",
       "ADMIN": "Admin"
-    }
+    },
+    "changePassword": "Change Password",
+    "setPassword": "Set Password",
+    "setPasswordHint": "You signed up with Google. Set a password to also log in with email.",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "updatingPassword": "Updating...",
+    "passwordUpdated": "Password updated successfully!",
+    "passwordUpdateFailed": "Password update failed:",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters"
   },
   "collections": {
     "title": "My Collections",

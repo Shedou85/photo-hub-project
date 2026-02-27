@@ -15,7 +15,8 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, collectionsCreatedCount, emailVerified
+        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, collectionsCreatedCount, emailVerified,
+               (password IS NOT NULL) AS hasPassword
         FROM `User`
         WHERE id = ?
         LIMIT 1
@@ -23,6 +24,10 @@ try {
     $stmt->execute([$_SESSION['user_id']]);
 
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        $user['hasPassword'] = (bool) $user['hasPassword'];
+    }
 
     // Auto-downgrade expired trial users
     if ($user && $user['plan'] === 'FREE_TRIAL' && $user['trialEndsAt'] !== null) {

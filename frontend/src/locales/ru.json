@@ -146,7 +146,19 @@
     "roleLabel": {
       "USER": "Пользователь",
       "ADMIN": "Администратор"
-    }
+    },
+    "changePassword": "Изменить пароль",
+    "setPassword": "Установить пароль",
+    "setPasswordHint": "Вы зарегистрировались через Google. Установите пароль, чтобы также входить по электронной почте.",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите новый пароль",
+    "updatePassword": "Обновить пароль",
+    "updatingPassword": "Обновление...",
+    "passwordUpdated": "Пароль успешно обновлён!",
+    "passwordUpdateFailed": "Ошибка обновления пароля:",
+    "passwordMismatch": "Пароли не совпадают",
+    "passwordTooShort": "Пароль должен быть не менее 8 символов"
   },
   "collections": {
     "title": "Мои коллекции",
