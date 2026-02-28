@@ -46,7 +46,7 @@ try {
     }
 
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT id, photoId, createdAt FROM `Selection` WHERE collectionId = ? ORDER BY createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE collectionId = ? ORDER BY createdAt ASC");
         $stmt->execute([$collectionId]);
         $selections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -57,11 +57,32 @@ try {
     if ($method === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
         $photoIdToSelect = $data['photoId'] ?? null;
+        $label = $data['label'] ?? 'SELECTED';
 
         if (empty($photoIdToSelect)) {
             http_response_code(400);
             echo json_encode(["error" => "photoId is required."]);
             exit;
+        }
+
+        // Validate label
+        $validLabels = ['SELECTED', 'FAVORITE', 'REJECTED'];
+        if (!in_array($label, $validLabels, true)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid label. Must be one of: SELECTED, FAVORITE, REJECTED"]);
+            exit;
+        }
+
+        // PRO gate for non-SELECTED labels
+        if ($label !== 'SELECTED') {
+            $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+            $userStmt->execute([$userId]);
+            $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$userData || $userData['plan'] !== 'PRO') {
+                http_response_code(403);
+                echo json_encode(["error" => "LABEL_PRO_ONLY"]);
+                exit;
+            }
         }
 
         // Verify photo belongs to this collection
@@ -76,16 +97,22 @@ try {
         $selectionId = generateCuid();
         $createdAt = date('Y-m-d H:i:s.v');
 
-        $stmt = $pdo->prepare("INSERT INTO `Selection` (id, collectionId, photoId, createdAt) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$selectionId, $collectionId, $photoIdToSelect, $createdAt]);
+        // INSERT ... ON DUPLICATE KEY UPDATE handles label changes on already-labeled photos
+        $stmt = $pdo->prepare("
+            INSERT INTO `Selection` (id, collectionId, photoId, label, createdAt)
+            VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE label = VALUES(label)
+        ");
+        $stmt->execute([$selectionId, $collectionId, $photoIdToSelect, $label, $createdAt]);
+
+        // Fetch the current selection (may be newly inserted or updated)
+        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE photoId = ? LIMIT 1");
+        $stmt->execute([$photoIdToSelect]);
+        $selection = $stmt->fetch(PDO::FETCH_ASSOC);
 
         echo json_encode([
             "status" => "OK",
-            "selection" => [
-                "id" => $selectionId,
-                "photoId" => $photoIdToSelect,
-                "createdAt" => $createdAt
-            ]
+            "selection" => $selection
         ]);
         exit;
     }

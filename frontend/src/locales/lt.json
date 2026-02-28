@@ -300,6 +300,9 @@
     "filterAll": "Visos",
     "filterSelected": "Pasirinktos",
     "filterNotSelected": "Nepasirinktos",
+    "filterFavorite": "Mėgstamiausios",
+    "filterRejected": "Atmestos",
+    "filterNotLabeled": "Be žymės",
     "editedFinalsTitle": "Galutiniai failai",
     "editedPhotosCount_one": "{{count}} failas",
     "editedPhotosCount_other": "{{count}} failai",
@@ -466,7 +469,11 @@
     "confirmSelection": "Patvirtinti pasirinkimą",
     "editSelection": "Redaguoti pasirinkimą",
     "confirming": "Tvirtinama...",
-    "removeFromSelection": "Pašalinti iš pasirinkimo"
+    "removeFromSelection": "Pašalinti iš pasirinkimo",
+    "labelSelected": "Pasirinkta",
+    "labelFavorite": "Mėgstama",
+    "labelRejected": "Atmesta",
+    "proFeature": "Tai PRO funkcija"
   },
   "plans": {
     "freeTrialBadge": "Nemokama versija",
@@ -681,5 +688,13 @@
     "loginDescription": "Prisijunkite prie savo PixelForge paskyros ir valdykite nuotraukų kolekcijas bei pristatymus klientams.",
     "registerTitle": "Sukurti paskyrą",
     "registerDescription": "Užsiregistruokite PixelForge ir pradėkite pristatyti nuotraukų kolekcijas savo klientams jau šiandien."
+  },
+  "upgrade": {
+    "title": "PRO funkcija",
+    "description": "Spalvų žymės, tokios kaip Mėgstama ir Atmesta, prieinamos su PRO planu. Atnaujinkite, kad atrakintumėte pažangius atrankos įrankius savo klientams.",
+    "cta": "Atnaujinti į PRO",
+    "dismiss": "Supratau",
+    "clientTitle": "PRO funkcija",
+    "clientDescription": "Ši žymė prieinama, kai fotografas turi PRO planą."
   }
 }

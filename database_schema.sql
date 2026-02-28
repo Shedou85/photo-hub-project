@@ -142,6 +142,7 @@ CREATE TABLE `Selection` (
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `collectionId` VARCHAR(191) NOT NULL,
   `photoId` VARCHAR(191) NOT NULL,
+  `label` ENUM('SELECTED','FAVORITE','REJECTED') NOT NULL DEFAULT 'SELECTED',
   PRIMARY KEY (`id`),
   UNIQUE KEY `Selection_photoId_key` (`photoId`),
   KEY `Selection_collectionId_idx` (`collectionId`)

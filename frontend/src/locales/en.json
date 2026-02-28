@@ -296,6 +296,9 @@
     "filterAll": "All",
     "filterSelected": "Selected",
     "filterNotSelected": "Not selected",
+    "filterFavorite": "Favorites",
+    "filterRejected": "Rejected",
+    "filterNotLabeled": "Not labeled",
     "editedFinalsTitle": "Edited Finals",
     "editedPhotosCount_one": "{{count}} file",
     "editedPhotosCount_other": "{{count}} files",
@@ -455,7 +458,11 @@
     "confirmSelection": "Confirm Selection",
     "editSelection": "Edit Selection",
     "confirming": "Confirming...",
-    "removeFromSelection": "Remove from selection"
+    "removeFromSelection": "Remove from selection",
+    "labelSelected": "Selected",
+    "labelFavorite": "Favorite",
+    "labelRejected": "Rejected",
+    "proFeature": "This is a PRO feature"
   },
   "plans": {
     "freeTrialBadge": "Free Trial",
@@ -668,5 +675,13 @@
     "loginDescription": "Log in to your PixelForge account to manage photo collections and client deliveries.",
     "registerTitle": "Create Account",
     "registerDescription": "Sign up for PixelForge and start delivering photo collections to your clients today."
+  },
+  "upgrade": {
+    "title": "PRO Feature",
+    "description": "Color labels like Favorite and Rejected are available with the PRO plan. Upgrade to unlock advanced selection tools for your clients.",
+    "cta": "Upgrade to PRO",
+    "dismiss": "Got it",
+    "clientTitle": "PRO Feature",
+    "clientDescription": "This label is available when the photographer has a PRO plan."
   }
 }

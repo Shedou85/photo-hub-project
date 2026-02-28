@@ -73,6 +73,16 @@ try {
     $stmt->execute([$collectionId]);
     $selectionStats = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Label breakdown
+    $stmt = $pdo->prepare("SELECT label, COUNT(*) AS cnt FROM `Selection` WHERE collectionId = ? GROUP BY label");
+    $stmt->execute([$collectionId]);
+    $labelRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $labelBreakdown = ['selected' => 0, 'favorite' => 0, 'rejected' => 0];
+    foreach ($labelRows as $row) {
+        $key = strtolower($row['label']);
+        $labelBreakdown[$key] = (int) $row['cnt'];
+    }
+
     // Format lastDownloadAt to ISO 8601 if present
     $lastDownloadAt = null;
     if (!empty($downloadStats['lastDownloadAt'])) {
@@ -83,6 +93,7 @@ try {
         "totalDownloads" => (int) ($downloadStats['totalDownloads'] ?? 0),
         "lastDownloadAt" => $lastDownloadAt,
         "selectedPhotos" => (int) ($selectionStats['selectedPhotos'] ?? 0),
+        "labelBreakdown" => $labelBreakdown,
     ]);
 
 } catch (Throwable $e) {

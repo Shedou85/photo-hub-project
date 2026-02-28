@@ -224,6 +224,9 @@ if ($requestMethod === 'PATCH') {
         $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
         $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
 
+        // Expose PRO features flag for label system
+        $collection['proFeatures'] = ($ownerPlan === 'PRO');
+
         // Determine if watermarks should be applied (PRO plan + SELECTING status)
         $isWatermarked = ($ownerPlan === 'PRO' && $collection['status'] === 'SELECTING');
         $collection['watermarked'] = $isWatermarked;
@@ -253,7 +256,7 @@ if ($requestMethod === 'PATCH') {
 
         // Query selections for this collection
         $stmt = $pdo->prepare("
-            SELECT id, photoId, createdAt
+            SELECT id, photoId, label, createdAt
             FROM `Selection`
             WHERE collectionId = ?
             ORDER BY createdAt ASC

@@ -300,6 +300,9 @@
     "filterAll": "Все",
     "filterSelected": "Выбранные",
     "filterNotSelected": "Невыбранные",
+    "filterFavorite": "Избранные",
+    "filterRejected": "Отклонённые",
+    "filterNotLabeled": "Без метки",
     "editedFinalsTitle": "Готовые файлы",
     "editedPhotosCount_one": "{{count}} файл",
     "editedPhotosCount_other": "{{count}} файлов",
@@ -466,7 +469,11 @@
     "confirmSelection": "Подтвердить выбор",
     "editSelection": "Изменить выбор",
     "confirming": "Подтверждение...",
-    "removeFromSelection": "Убрать из выбора"
+    "removeFromSelection": "Убрать из выбора",
+    "labelSelected": "Выбрано",
+    "labelFavorite": "Избранное",
+    "labelRejected": "Отклонено",
+    "proFeature": "Это PRO функция"
   },
   "plans": {
     "freeTrialBadge": "Пробный план",
@@ -681,5 +688,13 @@
     "loginDescription": "Войдите в свой аккаунт PixelForge для управления фотоколлекциями и доставками клиентам.",
     "registerTitle": "Создать аккаунт",
     "registerDescription": "Зарегистрируйтесь в PixelForge и начните доставлять фотоколлекции своим клиентам уже сегодня."
+  },
+  "upgrade": {
+    "title": "PRO функция",
+    "description": "Цветные метки, такие как Избранное и Отклонено, доступны в плане PRO. Обновите план, чтобы разблокировать расширенные инструменты отбора для ваших клиентов.",
+    "cta": "Перейти на PRO",
+    "dismiss": "Понятно",
+    "clientTitle": "PRO функция",
+    "clientDescription": "Эта метка доступна, когда у фотографа план PRO."
   }
 }

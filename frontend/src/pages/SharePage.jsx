@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
-import SelectionBorder from "../components/primitives/SelectionBorder";
+import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/SelectionBorder";
+import UpgradeModal from "../components/primitives/UpgradeModal";
 
 function SharePage() {
   const { shareId } = useParams();
@@ -13,7 +14,9 @@ function SharePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [selectedPhotoIds, setSelectedPhotoIds] = useState(new Set());
+  const [photoLabels, setPhotoLabels] = useState(new Map());
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeShownThisSession, setUpgradeShownThisSession] = useState(false);
   const [requestsInFlight, setRequestsInFlight] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -27,20 +30,43 @@ function SharePage() {
   const [imagesLoaded, setImagesLoaded] = useState(new Set());
 
   const canSelect = collection?.status === 'SELECTING';
+  const hasProFeatures = collection?.proFeatures ?? false;
+  const selectedPhotoIds = useMemo(() => new Set(photoLabels.keys()), [photoLabels]);
+  const labelCounts = useMemo(() => {
+    const counts = { FAVORITE: 0, SELECTED: 0, REJECTED: 0 };
+    for (const label of photoLabels.values()) {
+      if (counts[label] !== undefined) counts[label]++;
+    }
+    return counts;
+  }, [photoLabels]);
 
   const handleImageLoad = useCallback((photoId) => {
     setImagesLoaded(prev => new Set(prev).add(photoId));
   }, []);
 
-  const toggleSelection = async (photoId) => {
+  const setLabel = async (photoId, label) => {
     if (requestsInFlight.has(photoId)) return;
 
-    const wasSelected = selectedPhotoIds.has(photoId);
+    // PRO gate for non-SELECTED labels
+    if (label !== 'SELECTED' && !hasProFeatures) {
+      if (!upgradeShownThisSession) {
+        setShowUpgradeModal(true);
+        setUpgradeShownThisSession(true);
+      }
+      return;
+    }
+
+    const currentLabel = photoLabels.get(photoId);
+    const isRemoval = currentLabel === label;
 
     // Optimistic update
-    setSelectedPhotoIds(prev => {
-      const next = new Set(prev);
-      wasSelected ? next.delete(photoId) : next.add(photoId);
+    setPhotoLabels(prev => {
+      const next = new Map(prev);
+      if (isRemoval) {
+        next.delete(photoId);
+      } else {
+        next.set(photoId, label);
+      }
       return next;
     });
 
@@ -48,11 +74,11 @@ function SharePage() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      // Use share token if available, otherwise fall back to password
       const authHeader = shareToken
         ? { 'X-Share-Token': shareToken }
         : collectionPassword ? { 'X-Collection-Password': collectionPassword } : {};
-      if (wasSelected) {
+
+      if (isRemoval) {
         const res = await fetch(`${baseUrl}/share/${shareId}/selections/${photoId}`, {
           method: 'DELETE',
           headers: authHeader,
@@ -62,14 +88,21 @@ function SharePage() {
         const res = await fetch(`${baseUrl}/share/${shareId}/selections`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeader },
-          body: JSON.stringify({ photoId }),
+          body: JSON.stringify({ photoId, label }),
         });
         if (!res.ok) throw new Error('Select failed');
       }
     } catch {
-      setSelectedPhotoIds(prev => {
-        const rollback = new Set(prev);
-        wasSelected ? rollback.add(photoId) : rollback.delete(photoId);
+      // Rollback
+      setPhotoLabels(prev => {
+        const rollback = new Map(prev);
+        if (isRemoval) {
+          rollback.set(photoId, currentLabel);
+        } else if (currentLabel) {
+          rollback.set(photoId, currentLabel);
+        } else {
+          rollback.delete(photoId);
+        }
         return rollback;
       });
       toast.error(t('share.selectionError'));
@@ -81,6 +114,8 @@ function SharePage() {
       });
     }
   };
+
+  const toggleSelection = (photoId) => setLabel(photoId, 'SELECTED');
 
   const handleOpenReviewModal = useCallback(() => {
     if (selectedPhotoIds.size === 0) return;
@@ -229,10 +264,10 @@ function SharePage() {
           setPasswordRequired(false);
           setPasswordSubmitting(false);
           setCollection(coll);
-          const initialSelections = new Set(
-            (coll.selections || []).map(s => s.photoId)
+          const initialLabels = new Map(
+            (coll.selections || []).map(s => [s.photoId, s.label || 'SELECTED'])
           );
-          setSelectedPhotoIds(initialSelections);
+          setPhotoLabels(initialLabels);
         } else {
           setError("notFound");
         }
@@ -409,12 +444,41 @@ function SharePage() {
           {/* Selection progress pill + bar */}
           {canSelect && selectedCount > 0 && (
             <div className="animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium mb-4">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                {t('share.selectedCount', { count: selectedCount })}
-              </div>
+              {hasProFeatures ? (
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-sm font-medium mb-4">
+                  {labelCounts.FAVORITE > 0 && (
+                    <span className="flex items-center gap-1.5 text-amber-400">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      {labelCounts.FAVORITE}
+                    </span>
+                  )}
+                  {labelCounts.SELECTED > 0 && (
+                    <span className="flex items-center gap-1.5 text-indigo-400">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {labelCounts.SELECTED}
+                    </span>
+                  )}
+                  {labelCounts.REJECTED > 0 && (
+                    <span className="flex items-center gap-1.5 text-red-400">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      {labelCounts.REJECTED}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium mb-4">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  {t('share.selectedCount', { count: selectedCount })}
+                </div>
+              )}
               {/* Progress bar */}
               <div className="flex justify-center">
                 <div className="w-48 h-[3px] bg-white/10 rounded-full overflow-hidden">
@@ -434,14 +498,16 @@ function SharePage() {
         {photos.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {photos.map((photo, index) => {
-              const isSelected = selectedPhotoIds.has(photo.id);
+              const photoLabel = photoLabels.get(photo.id);
+              const isLabeled = !!photoLabel;
+              const glowClass = photoLabel ? (GLOW_CLASSES[photoLabel] || 'selection-glow') : '';
               const isLoaded = imagesLoaded.has(photo.id);
               return (
                 <div
                   key={photo.id}
                   className={`photo-card-enter group relative aspect-[4/5] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                    isSelected
-                      ? 'selection-glow scale-[1.02]'
+                    isLabeled
+                      ? `${glowClass || 'selection-glow'} scale-[1.02]`
                       : 'hover:scale-[1.03]'
                   }`}
                   style={{ animationDelay: `${Math.min(index * 60, 600)}ms` }}
@@ -470,32 +536,67 @@ function SharePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Selected overlay border + animated trace */}
-                  {isSelected && <SelectionBorder />}
+                  {isLabeled && <SelectionBorder label={photoLabel} />}
 
-                  {/* Selection indicator — floating circle */}
+                  {/* Label buttons — vertical stack of 3 */}
                   {canSelect && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleSelection(photo.id);
-                      }}
-                      className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                        isSelected
-                          ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
-                          : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100'
-                      }`}
-                      aria-label={isSelected ? t('share.selected') : t('share.select')}
-                    >
-                      {isSelected ? (
+                    <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                      {/* Favorite button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLabel(photo.id, 'FAVORITE');
+                        }}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
+                          photoLabel === 'FAVORITE'
+                            ? 'bg-amber-500 shadow-lg shadow-amber-500/40'
+                            : hasProFeatures
+                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-amber-500/70'
+                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
+                        }`}
+                        aria-label={t('share.labelFavorite')}
+                      >
+                        <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </button>
+                      {/* Selected button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLabel(photo.id, 'SELECTED');
+                        }}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
+                          photoLabel === 'SELECTED'
+                            ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
+                            : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-indigo-500/70'
+                        }`}
+                        aria-label={t('share.labelSelected')}
+                      >
                         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path className="check-path" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                      ) : (
-                        <svg className="w-4 h-4 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </button>
+                      {/* Rejected button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLabel(photo.id, 'REJECTED');
+                        }}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
+                          photoLabel === 'REJECTED'
+                            ? 'bg-red-500 shadow-lg shadow-red-500/40'
+                            : hasProFeatures
+                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-red-500/70'
+                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
+                        }`}
+                        aria-label={t('share.labelRejected')}
+                      >
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                      )}
-                    </button>
+                      </button>
+                    </div>
                   )}
                 </div>
               );
@@ -578,7 +679,49 @@ function SharePage() {
           </div>
 
           {/* Selection toggle in lightbox */}
-          {canSelect && (
+          {canSelect && hasProFeatures && (
+            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5">
+              {[
+                { label: 'FAVORITE', icon: 'star', bg: 'bg-amber-500', shadow: 'shadow-amber-500/30' },
+                { label: 'SELECTED', icon: 'check', bg: 'bg-indigo-500', shadow: 'shadow-indigo-500/30' },
+                { label: 'REJECTED', icon: 'x', bg: 'bg-red-500', shadow: 'shadow-red-500/30' },
+              ].map(({ label, icon, bg, shadow }) => {
+                const isActive = photoLabels.get(photos[lightboxIndex].id) === label;
+                return (
+                  <button
+                    key={label}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLabel(photos[lightboxIndex].id, label);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? `${bg} text-white shadow-lg ${shadow}`
+                        : 'bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white'
+                    }`}
+                  >
+                    {icon === 'star' && (
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    )}
+                    {icon === 'check' && (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                    {icon === 'x' && (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
+                    {t(`share.label${label.charAt(0) + label.slice(1).toLowerCase()}`)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {canSelect && !hasProFeatures && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -709,7 +852,30 @@ function SharePage() {
                         draggable={false}
                       />
                       {/* Selected indicator border */}
-                      <SelectionBorder />
+                      <SelectionBorder label={photoLabels.get(photo.id)} />
+                      {/* Label badge */}
+                      {photoLabels.get(photo.id) && (
+                        <div className={`absolute top-2 left-2 w-5 h-5 rounded-full flex items-center justify-center pointer-events-none ${
+                          photoLabels.get(photo.id) === 'FAVORITE' ? 'bg-amber-500' :
+                          photoLabels.get(photo.id) === 'REJECTED' ? 'bg-red-500' : 'bg-indigo-500'
+                        }`}>
+                          {photoLabels.get(photo.id) === 'FAVORITE' && (
+                            <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          )}
+                          {photoLabels.get(photo.id) === 'SELECTED' && (
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          {photoLabels.get(photo.id) === 'REJECTED' && (
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
+                        </div>
+                      )}
                       {/* Remove button */}
                       <button
                         onClick={() => toggleSelection(photo.id)}
@@ -750,6 +916,13 @@ function SharePage() {
 
           </div>
         </div>
+      )}
+
+      {showUpgradeModal && (
+        <UpgradeModal
+          onClose={() => setShowUpgradeModal(false)}
+          showCta={false}
+        />
       )}
     </div>
   );

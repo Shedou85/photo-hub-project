@@ -84,6 +84,26 @@ body {
   animation: selectionGlow 2s ease-in-out infinite;
 }
 
+@keyframes selectionGlowAmber {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5), 0 0 16px rgba(245, 158, 11, 0.15); }
+  50% { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.7), 0 0 24px rgba(245, 158, 11, 0.25); }
+}
+
+.selection-glow-amber {
+  opacity: 1;
+  animation: selectionGlowAmber 2s ease-in-out infinite;
+}
+
+@keyframes selectionGlowRed {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5), 0 0 16px rgba(239, 68, 68, 0.15); }
+  50% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.7), 0 0 24px rgba(239, 68, 68, 0.25); }
+}
+
+.selection-glow-red {
+  opacity: 1;
+  animation: selectionGlowRed 2s ease-in-out infinite;
+}
+
 /* Animated green trace line running along the selection border.
    Uses four edge divs (top/right/bottom/left) with a travelling
    gradient highlight that moves clockwise around the frame.

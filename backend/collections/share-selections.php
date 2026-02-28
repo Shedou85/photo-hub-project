@@ -112,7 +112,7 @@ try {
     if ($method === 'GET') {
         // GET — return all selections for the collection (no status gate)
         $stmt = $pdo->prepare("
-            SELECT id, photoId, createdAt
+            SELECT id, photoId, label, createdAt
             FROM `Selection`
             WHERE collectionId = ?
             ORDER BY createdAt ASC
@@ -132,14 +132,33 @@ try {
             exit;
         }
 
-        // Read JSON body for photoId
+        // Read JSON body for photoId and label
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
         $photoIdToSelect = $data['photoId'] ?? null;
+        $label = $data['label'] ?? 'SELECTED';
 
         if (empty($photoIdToSelect)) {
             http_response_code(400);
             echo json_encode(['error' => 'photoId is required.']);
             exit;
+        }
+
+        // Validate label
+        $validLabels = ['SELECTED', 'FAVORITE', 'REJECTED'];
+        if (!in_array($label, $validLabels, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid label. Must be one of: SELECTED, FAVORITE, REJECTED']);
+            exit;
+        }
+
+        // PRO gate for non-SELECTED labels
+        if ($label !== 'SELECTED') {
+            $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
+            if ($ownerPlan !== 'PRO') {
+                http_response_code(403);
+                echo json_encode(['error' => 'LABEL_PRO_ONLY']);
+                exit;
+            }
         }
 
         // Verify photo belongs to this collection
@@ -155,41 +174,23 @@ try {
         $selectionId = generateCuid();
         $createdAt = date('Y-m-d H:i:s.v');
 
-        // Use try/catch for duplicate key (Selection_photoId_key is UNIQUE)
-        // If duplicate, return 200 OK with existing selection (idempotent)
-        try {
-            $stmt = $pdo->prepare("INSERT INTO `Selection` (id, collectionId, photoId, createdAt) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$selectionId, $collectionId, $photoIdToSelect, $createdAt]);
+        // INSERT ... ON DUPLICATE KEY UPDATE handles label changes on already-labeled photos
+        $stmt = $pdo->prepare("
+            INSERT INTO `Selection` (id, collectionId, photoId, label, createdAt)
+            VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE label = VALUES(label)
+        ");
+        $stmt->execute([$selectionId, $collectionId, $photoIdToSelect, $label, $createdAt]);
 
-            echo json_encode([
-                'status' => 'OK',
-                'selection' => [
-                    'id' => $selectionId,
-                    'photoId' => $photoIdToSelect,
-                    'createdAt' => $createdAt
-                ]
-            ]);
-        } catch (PDOException $e) {
-            // Check if it's a duplicate key error (error code 23000)
-            if ($e->getCode() === '23000') {
-                // Fetch existing selection
-                $stmt = $pdo->prepare("SELECT id, photoId, createdAt FROM `Selection` WHERE photoId = ? LIMIT 1");
-                $stmt->execute([$photoIdToSelect]);
-                $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Fetch the current selection (may be newly inserted or updated)
+        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE photoId = ? LIMIT 1");
+        $stmt->execute([$photoIdToSelect]);
+        $selection = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($existing) {
-                    echo json_encode([
-                        'status' => 'OK',
-                        'selection' => $existing
-                    ]);
-                } else {
-                    // Shouldn't happen, but handle gracefully
-                    throw $e;
-                }
-            } else {
-                throw $e;
-            }
-        }
+        echo json_encode([
+            'status' => 'OK',
+            'selection' => $selection
+        ]);
         exit;
     }
 
