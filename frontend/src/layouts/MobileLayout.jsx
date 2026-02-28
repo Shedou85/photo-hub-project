@@ -41,14 +41,14 @@ const MobileLayout = () => {
         Skip to main content
       </a>
       {/* Top header */}
-      <header className="flex items-center justify-between px-4 py-3 bg-surface-dark border-b border-white/[0.08] sticky top-0 z-40">
-        <span className="font-extrabold text-lg tracking-[0.5px] text-white">PixelForge</span>
+      <header className="flex items-center justify-between px-4 py-3 header-glass divider-glow divider-glow-full fixed top-0 left-0 right-0 z-40">
+        <span className="font-extrabold text-lg tracking-[0.5px] text-white drop-shadow-[0_0_8px_rgba(99,102,241,0.15)]">PixelForge</span>
 
         <div className="flex items-center gap-2">
           {/* Logout button */}
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center w-8 h-8 rounded-md text-red-400 hover:bg-red-500/10 transition-colors duration-150"
+            className="flex items-center justify-center w-8 h-8 rounded-md text-white/40 hover:text-red-400/80 hover:bg-white/[0.06] transition-colors duration-200"
             aria-label={t('nav.logout')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
@@ -64,7 +64,7 @@ const MobileLayout = () => {
       </header>
 
       {/* Main content */}
-      <main id="main-content" className="flex-1 p-4 pb-24">
+      <main id="main-content" className="flex-1 p-4 pt-[60px] pb-24">
         <Outlet />
       </main>
 

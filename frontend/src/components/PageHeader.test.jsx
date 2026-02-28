@@ -77,7 +77,7 @@ describe('PageHeader', () => {
         <PageHeader title="Title" subtitle="Subtitle" />
       );
       const wrapper = container.firstChild;
-      expect(wrapper).toHaveClass('border-b');
+      expect(wrapper).toHaveClass('divider-glow');
     });
   });
 });
