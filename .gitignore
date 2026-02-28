@@ -37,6 +37,9 @@ Million dollar dizainas.txt
 KLAIDOS_IR_PATAISYMAI.txt
 FEATURES.txt
 
+# Planning scratch files
+.planning/plan.md
+
 # Research and test files
 .planning/phases/08-client-delivery-interface/08-RESEARCH.md
 .planning/phases/09-photographer-dashboard-integration/09-RESEARCH.md
