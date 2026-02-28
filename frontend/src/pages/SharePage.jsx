@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
+import SelectionBorder from "../components/primitives/SelectionBorder";
 
 function SharePage() {
   const { shareId } = useParams();
@@ -469,15 +470,7 @@ function SharePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Selected overlay border + animated trace */}
-                  {isSelected && (
-                    <>
-                      <div className="absolute inset-0 border-2 border-indigo-500 rounded-lg pointer-events-none" />
-                      <div className="selection-trace-top" />
-                      <div className="selection-trace-right" />
-                      <div className="selection-trace-bottom" />
-                      <div className="selection-trace-left" />
-                    </>
-                  )}
+                  {isSelected && <SelectionBorder />}
 
                   {/* Selection indicator — floating circle */}
                   {canSelect && (
@@ -716,7 +709,7 @@ function SharePage() {
                         draggable={false}
                       />
                       {/* Selected indicator border */}
-                      <div className="absolute inset-0 border-2 border-indigo-500 rounded-lg pointer-events-none" />
+                      <SelectionBorder />
                       {/* Remove button */}
                       <button
                         onClick={() => toggleSelection(photo.id)}
