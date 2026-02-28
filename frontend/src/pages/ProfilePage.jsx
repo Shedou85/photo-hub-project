@@ -3,7 +3,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 import { toast } from "sonner";
-import Accordion from "../components/Accordion";
 import PageHeader from "../components/PageHeader";
 import ActivityStats from "../components/ActivityStats";
 
@@ -45,6 +44,74 @@ function Badge({ children, variant }) {
   );
 }
 
+// --- Sub-component: Settings card with icon, title, subtitle, action button + inline form ---
+function SettingsCard({ icon, title, subtitle, buttonLabel, isOpen, onToggle, children }) {
+  return (
+    <div
+      className={`
+        bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.02)_100%)]
+        border border-white/[0.08] rounded-lg
+        shadow-[0_2px_12px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.04)]
+        mb-6 transition-all duration-200 ease-out
+        hover:-translate-y-[2px] hover:shadow-[0_6px_24px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.06)]
+        hover:border-white/[0.12]
+      `}
+    >
+      {/* Card header */}
+      <div className="px-6 py-6 flex items-center justify-between gap-4 sm:gap-5">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-[linear-gradient(135deg,rgba(59,130,246,0.15)_0%,rgba(99,102,241,0.15)_100%)] border border-indigo-500/[0.12] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06),0_0_8px_rgba(99,102,241,0.08)] flex items-center justify-center shrink-0">
+            {icon}
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-[15px] font-semibold text-white/90 leading-tight">
+              {title}
+            </h2>
+            <p className="text-[13px] text-white/40 mt-1 leading-snug">
+              {subtitle}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`shrink-0 py-2.5 px-5 text-[13px] font-semibold rounded-lg transition-all duration-200 ease-out max-sm:hidden ${
+            isOpen
+              ? "bg-white/[0.06] text-white/50 border border-white/10 hover:bg-white/[0.1] hover:text-white/60"
+              : "text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.3)] hover:shadow-[0_4px_20px_rgba(99,102,241,0.45)] hover:scale-[1.02]"
+          }`}
+        >
+          {buttonLabel}
+        </button>
+      </div>
+
+      {/* Mobile-only full-width button */}
+      <div className="px-6 pb-5 -mt-1 sm:hidden">
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`w-full py-3 text-[13px] font-semibold rounded-lg transition-all duration-200 ease-out ${
+            isOpen
+              ? "bg-white/[0.06] text-white/50 border border-white/10"
+              : "text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.3)]"
+          }`}
+        >
+          {buttonLabel}
+        </button>
+      </div>
+
+      {/* Inline form — clean toggle */}
+      {isOpen && (
+        <div className="px-6 pb-6 pt-0 border-t border-white/[0.06]">
+          <div className="pt-5">
+            {children}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ============================================================
 // ProfilePage
 // ============================================================
@@ -62,6 +129,9 @@ function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [securityOpen, setSecurityOpen] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -223,8 +293,24 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* ── Edit Profile Accordion ── */}
-      <Accordion title={t('profile.editProfile')}>
+      {/* ── Settings Section Label ── */}
+      <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.08em] mt-3 mb-4">
+        {t('profile.settingsSection')}
+      </h3>
+
+      {/* ── Edit Profile Settings Card ── */}
+      <SettingsCard
+        icon={
+          <svg className="w-[18px] h-[18px] text-indigo-300/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+          </svg>
+        }
+        title={t('profile.editProfile')}
+        subtitle={t('profile.editProfileDesc')}
+        buttonLabel={t('profile.editProfile')}
+        isOpen={editProfileOpen}
+        onToggle={() => setEditProfileOpen((prev) => !prev)}
+      >
         <form onSubmit={handleSubmit}>
           {/* Name field */}
           <div className="mb-4">
@@ -279,10 +365,21 @@ function ProfilePage() {
             </button>
           </div>
         </form>
-      </Accordion>
+      </SettingsCard>
 
-      {/* ── Change Password Accordion ── */}
-      <Accordion title={t(user.hasPassword ? 'profile.changePassword' : 'profile.setPassword')}>
+      {/* ── Security Settings Card ── */}
+      <SettingsCard
+        icon={
+          <svg className="w-[18px] h-[18px] text-indigo-300/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+          </svg>
+        }
+        title={t('profile.securityTitle')}
+        subtitle={user.hasPassword ? t('profile.securityDesc') : t('profile.securityDescNoPassword')}
+        buttonLabel={t(user.hasPassword ? 'profile.changePassword' : 'profile.setPassword')}
+        isOpen={securityOpen}
+        onToggle={() => setSecurityOpen((prev) => !prev)}
+      >
         {!user.hasPassword && (
           <p className="text-sm text-white/50 mb-4">
             {t('profile.setPasswordHint')}
@@ -349,10 +446,9 @@ function ProfilePage() {
             </button>
           </div>
         </form>
-      </Accordion>
+      </SettingsCard>
     </div>
   );
 }
 
 export default ProfilePage;
-
