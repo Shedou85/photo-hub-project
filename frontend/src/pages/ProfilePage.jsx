@@ -163,6 +163,66 @@ function ProfilePage() {
       {/* ── Activity Stats ── */}
       <ActivityStats />
 
+      {/* ── Email Verification Banner (only when unverified) ── */}
+      {!user.emailVerified && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-6 py-4 mb-5 flex items-start gap-3">
+          <svg className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            {resendSent ? (
+              <p className="text-sm text-amber-300">{t('emailVerification.resendSuccess')}</p>
+            ) : (
+              <>
+                <p className="text-sm text-amber-300 mb-2">{t('emailVerification.notVerified')}</p>
+                <button
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="text-sm font-semibold text-amber-400 hover:text-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {resending ? t('emailVerification.resending') : t('emailVerification.resendLink')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Account Information Card (read-only) ── */}
+      <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-5">
+        <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
+          {t('profile.accountInfo')}
+        </h2>
+
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
+          <InfoRow label={t('profile.email')} value={user.email} />
+          <InfoRow
+            label={t('profile.memberSince')}
+            value={new Date(user.createdAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          />
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
+              {t('profile.plan')}
+            </span>
+            <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
+          </div>
+          {user.role === 'ADMIN' && (
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
+                {t('profile.role')}
+              </span>
+              <Badge variant="admin">
+                {t('profile.roleLabel.ADMIN')}
+              </Badge>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* ── Edit Profile Accordion ── */}
       <Accordion title={t('profile.editProfile')}>
         <form onSubmit={handleSubmit}>
@@ -290,66 +350,6 @@ function ProfilePage() {
           </div>
         </form>
       </Accordion>
-
-      {/* ── Email Verification Banner (only when unverified) ── */}
-      {!user.emailVerified && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-6 py-4 mb-5 flex items-start gap-3">
-          <svg className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
-          <div className="flex-1 min-w-0">
-            {resendSent ? (
-              <p className="text-sm text-amber-300">{t('emailVerification.resendSuccess')}</p>
-            ) : (
-              <>
-                <p className="text-sm text-amber-300 mb-2">{t('emailVerification.notVerified')}</p>
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="text-sm font-semibold text-amber-400 hover:text-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {resending ? t('emailVerification.resending') : t('emailVerification.resendLink')}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Profile Information Card (read-only) ── */}
-      <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-5 mb-5">
-        <h2 className="mt-0 mb-4 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
-          {t('profile.accountInfo')}
-        </h2>
-
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
-          <InfoRow label={t('profile.email')} value={user.email} />
-          <InfoRow
-            label={t('profile.memberSince')}
-            value={new Date(user.createdAt).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          />
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
-              {t('profile.plan')}
-            </span>
-            <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
-          </div>
-          {user.role === 'ADMIN' && (
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
-                {t('profile.role')}
-              </span>
-              <Badge variant="admin">
-                {t('profile.roleLabel.ADMIN')}
-              </Badge>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
