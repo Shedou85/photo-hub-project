@@ -403,6 +403,29 @@
         "title": "Nuotraukos pristatytos",
         "subtitle": "Jūsų klientas gali atsisiųsti redaguotas nuotraukas naudodamas pristatymo nuorodą"
       }
+    },
+    "analytics": {
+      "title": "Kolekcijos analitika",
+      "subtitle": "Kliento įsitraukimo įžvalgos",
+      "totalDownloads": "Atsisiuntimai",
+      "totalDownloadsDesc": "Kiek kartų atsisiųstos galutinės nuotraukos",
+      "lastDownload": "Paskutinis atsisiuntimas",
+      "lastDownloadDesc": "Naujausia atsisiuntimo veikla",
+      "selectedPhotos": "Pasirinktos nuotraukos",
+      "selectedPhotosDesc": "Kliento pasirinktos nuotraukos",
+      "noDownloads": "Atsisiuntimų dar nėra",
+      "justNow": "Ką tik",
+      "minutesAgo_one": "Prieš {{count}} minutę",
+      "minutesAgo_few": "Prieš {{count}} minutes",
+      "minutesAgo_other": "Prieš {{count}} minučių",
+      "hoursAgo_one": "Prieš {{count}} valandą",
+      "hoursAgo_few": "Prieš {{count}} valandas",
+      "hoursAgo_other": "Prieš {{count}} valandų",
+      "daysAgo_one": "Prieš {{count}} dieną",
+      "daysAgo_few": "Prieš {{count}} dienas",
+      "daysAgo_other": "Prieš {{count}} dienų",
+      "proRequired": "Kolekcijos analitika prieinama su PRO planu.",
+      "upgrade": "Atnaujinti"
     }
   },
   "share": {

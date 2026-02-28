@@ -67,7 +67,7 @@
      │ Nauda: Pakeičia el. pašto susirašinėjimą; fotografai gauna struktūruotą grįžtamąjį ryšį (Pic-Time, picdrop turi šią funkciją).                                         │
      │                                                                                                                                                                        │
      │ ---                                                                                                                                                                    │
-     │ 8. Kolekcijų analitika — paprastas dashboard                                                                                                                           │
+     │ 8. ✅ Kolekcijų analitika — paprastas dashboard  [ATLIKTA 2026-02-28]                                                                                                    │
      │                                                                                                                                                                        │
      │ Kas? Kolekcijos detalių puslapyje papildomas skyrius: kiek kartų atsisiųsta, paskutinis atsisiuntimas, kiek atrankų pakeitimų.                                         │
      │ Backend: Download lentelė jau renka duomenis — tik reikia /collections/{id}/stats endpoint.                                                                            │
@@ -147,7 +147,7 @@
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 8   │ Klientų komentarai           │ M        │ Didelė          │ 8                          │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
-     │ │ 9   │ Kolekcijų analitika          │ M        │ Didelė          │ 9                          │                                                                       │
+     │ │ 9   │ ✅ Kolekcijų analitika        │ M        │ Didelė          │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 10  │ ✅ Nuotraukų rūšiavimas       │ M        │ Vidutinė        │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │

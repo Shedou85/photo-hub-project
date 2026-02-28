@@ -9,6 +9,7 @@ import Badge from '../components/primitives/Badge';
 import Accordion from '../components/Accordion';
 import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
 import SortablePhotoGrid from '../components/collection/SortablePhotoGrid';
+import CollectionAnalytics from '../components/collection/CollectionAnalytics';
 import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
@@ -270,6 +271,9 @@ function CollectionDetailsPage() {
         </svg>
         {t("collection.backToCollections")}
       </Link>
+
+      {/* ── Collection Analytics (PRO) ── */}
+      <CollectionAnalytics collectionId={id} isPro={isPro} />
 
       {/* ── Collection Action Card ── */}
       <div className="bg-white/[0.04] border border-white/10 rounded-[10px] shadow-xl mb-5">

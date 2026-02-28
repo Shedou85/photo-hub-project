@@ -399,6 +399,26 @@
         "title": "Photos delivered",
         "subtitle": "Your client can download the edited photos using the delivery link"
       }
+    },
+    "analytics": {
+      "title": "Collection Analytics",
+      "subtitle": "Client engagement insights",
+      "totalDownloads": "Total Downloads",
+      "totalDownloadsDesc": "Times final photos were downloaded",
+      "lastDownload": "Last Download",
+      "lastDownloadDesc": "Most recent download activity",
+      "selectedPhotos": "Photos Selected",
+      "selectedPhotosDesc": "Photos selected by client",
+      "noDownloads": "No downloads yet",
+      "justNow": "Just now",
+      "minutesAgo_one": "{{count}} minute ago",
+      "minutesAgo_other": "{{count}} minutes ago",
+      "hoursAgo_one": "{{count}} hour ago",
+      "hoursAgo_other": "{{count}} hours ago",
+      "daysAgo_one": "{{count}} day ago",
+      "daysAgo_other": "{{count}} days ago",
+      "proRequired": "Collection Analytics is available in PRO plan.",
+      "upgrade": "Upgrade"
     }
   },
   "share": {

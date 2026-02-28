@@ -403,6 +403,29 @@
         "title": "Фотографии доставлены",
         "subtitle": "Ваш клиент может скачать отредактированные фото по ссылке доставки"
       }
+    },
+    "analytics": {
+      "title": "Аналитика коллекции",
+      "subtitle": "Данные о вовлечённости клиента",
+      "totalDownloads": "Скачивания",
+      "totalDownloadsDesc": "Сколько раз скачаны финальные фото",
+      "lastDownload": "Последнее скачивание",
+      "lastDownloadDesc": "Самая недавняя активность скачиваний",
+      "selectedPhotos": "Выбранные фото",
+      "selectedPhotosDesc": "Фотографии, выбранные клиентом",
+      "noDownloads": "Скачиваний пока нет",
+      "justNow": "Только что",
+      "minutesAgo_one": "{{count}} минуту назад",
+      "minutesAgo_few": "{{count}} минуты назад",
+      "minutesAgo_other": "{{count}} минут назад",
+      "hoursAgo_one": "{{count}} час назад",
+      "hoursAgo_few": "{{count}} часа назад",
+      "hoursAgo_other": "{{count}} часов назад",
+      "daysAgo_one": "{{count}} день назад",
+      "daysAgo_few": "{{count}} дня назад",
+      "daysAgo_other": "{{count}} дней назад",
+      "proRequired": "Аналитика коллекции доступна в плане PRO.",
+      "upgrade": "Обновить"
     }
   },
   "share": {

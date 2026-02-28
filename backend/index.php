@@ -394,6 +394,9 @@ switch ($requestUri) {
                 case 'reorder':
                     require_once __DIR__ . '/collections/reorder.php';
                     break;
+                case 'stats':
+                    require_once __DIR__ . '/collections/stats.php';
+                    break;
                 default:
                     http_response_code(404);
                     echo json_encode(['error' => 'Endpoint Not Found']);
