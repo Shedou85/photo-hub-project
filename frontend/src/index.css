@@ -67,3 +67,72 @@ body {
 .font-serif-display {
   font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
 }
+
+/* Share/Delivery page cinematic utilities */
+.photo-card-enter {
+  opacity: 0;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes selectionGlow {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5), 0 0 16px rgba(99, 102, 241, 0.15); }
+  50% { box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.7), 0 0 24px rgba(99, 102, 241, 0.25); }
+}
+
+.selection-glow {
+  opacity: 1;
+  animation: selectionGlow 2s ease-in-out infinite;
+}
+
+/* Animated green trace line running along the selection border.
+   Uses four edge divs (top/right/bottom/left) with a travelling
+   gradient highlight that moves clockwise around the frame.
+   --perim is 2×(w+h) approximated via the CSS animation offset. */
+
+@keyframes traceTop    { from { background-position: -100% 0; } to { background-position: 200% 0; } }
+@keyframes traceRight  { from { background-position: 0 -100%; } to { background-position: 0 200%; } }
+@keyframes traceBottom { from { background-position: 200% 0; }  to { background-position: -100% 0; } }
+@keyframes traceLeft   { from { background-position: 0 200%; }  to { background-position: 0 -100%; } }
+
+.selection-trace-top,
+.selection-trace-right,
+.selection-trace-bottom,
+.selection-trace-left {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Horizontal edges */
+.selection-trace-top,
+.selection-trace-bottom {
+  left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent 0%, transparent 30%, #4ade80 50%, transparent 70%, transparent 100%);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Vertical edges */
+.selection-trace-right,
+.selection-trace-left {
+  top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(180deg, transparent 0%, transparent 30%, #4ade80 50%, transparent 70%, transparent 100%);
+  background-size: 100% 50%;
+  background-repeat: no-repeat;
+}
+
+.selection-trace-top    { top: 0;    animation: traceTop    1.2s linear infinite; }
+.selection-trace-right  { right: 0;  animation: traceRight  1.2s linear infinite; animation-delay: 0.3s; }
+.selection-trace-bottom { bottom: 0; animation: traceBottom 1.2s linear infinite; animation-delay: 0.6s; }
+.selection-trace-left   { left: 0;   animation: traceLeft   1.2s linear infinite; animation-delay: 0.9s; }
+
+@keyframes checkDraw {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.check-path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: checkDraw 0.35s ease-out 0.1s forwards;
+}

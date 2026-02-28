@@ -430,7 +430,14 @@
     "passwordPlaceholder": "Введите пароль галереи",
     "passwordSubmit": "Открыть галерею",
     "passwordError": "Неверный пароль. Попробуйте ещё раз.",
-    "passwordSubmitting": "Проверка..."
+    "passwordSubmitting": "Проверка...",
+    "heroSubtitle": "Выберите ваши любимые фотографии для редактирования",
+    "reviewTitle": "Проверьте ваш выбор",
+    "reviewSubtitle": "Убедитесь, что вы довольны выбором перед отправкой",
+    "confirmSelection": "Подтвердить выбор",
+    "editSelection": "Изменить выбор",
+    "confirming": "Подтверждение...",
+    "removeFromSelection": "Убрать из выбора"
   },
   "plans": {
     "freeTrialBadge": "Пробный план",
@@ -625,7 +632,11 @@
     "poweredBy": "Работает на PixelForge",
     "lightboxClose": "Закрыть",
     "lightboxPrev": "Предыдущее фото",
-    "lightboxNext": "Следующее фото"
+    "lightboxNext": "Следующее фото",
+    "heroTitle": "Ваши фотографии готовы",
+    "downloadHint": "Все фотографии в одном ZIP-архиве",
+    "individualDownloads": "Скачать по отдельности",
+    "download": "Скачать"
   },
   "errors": {
     "boundary_title": "Что-то пошло не так",

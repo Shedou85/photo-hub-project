@@ -430,7 +430,14 @@
     "passwordPlaceholder": "Įveskite galerijos slaptažodį",
     "passwordSubmit": "Peržiūrėti galeriją",
     "passwordError": "Neteisingas slaptažodis. Bandykite dar kartą.",
-    "passwordSubmitting": "Tikrinama..."
+    "passwordSubmitting": "Tikrinama...",
+    "heroSubtitle": "Pasirinkite mėgstamiausias nuotraukas redagavimui",
+    "reviewTitle": "Peržiūrėkite savo pasirinkimą",
+    "reviewSubtitle": "Įsitikinkite, kad esate patenkinti savo pasirinkimais prieš siunčiant",
+    "confirmSelection": "Patvirtinti pasirinkimą",
+    "editSelection": "Redaguoti pasirinkimą",
+    "confirming": "Tvirtinama...",
+    "removeFromSelection": "Pašalinti iš pasirinkimo"
   },
   "plans": {
     "freeTrialBadge": "Nemokama versija",
@@ -625,7 +632,11 @@
     "poweredBy": "Variklis: PixelForge",
     "lightboxClose": "Uždaryti",
     "lightboxPrev": "Ankstesnė nuotrauka",
-    "lightboxNext": "Kita nuotrauka"
+    "lightboxNext": "Kita nuotrauka",
+    "heroTitle": "Jūsų nuotraukos paruoštos",
+    "downloadHint": "Visos nuotraukos viename ZIP archyve",
+    "individualDownloads": "Atskirai atsisiųsti",
+    "download": "Atsisiųsti"
   },
   "errors": {
     "boundary_title": "Kažkas nutiko",

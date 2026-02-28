@@ -16,6 +16,7 @@ function SharePage() {
   const [requestsInFlight, setRequestsInFlight] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState(false);
@@ -80,6 +81,17 @@ function SharePage() {
     }
   };
 
+  const handleOpenReviewModal = useCallback(() => {
+    if (selectedPhotoIds.size === 0) return;
+    setShowReviewModal(true);
+    document.body.classList.add('overflow-hidden');
+  }, [selectedPhotoIds.size]);
+
+  const handleCloseReviewModal = useCallback(() => {
+    setShowReviewModal(false);
+    document.body.classList.remove('overflow-hidden');
+  }, []);
+
   const submitSelections = async () => {
     if (isSubmitting || selectedPhotoIds.size === 0) return;
 
@@ -102,6 +114,8 @@ function SharePage() {
       const data = await res.json();
       if (data.status === 'OK') {
         setCollection(prev => ({ ...prev, status: 'REVIEWING' }));
+        setShowReviewModal(false);
+        document.body.classList.remove('overflow-hidden');
         setIsSubmitted(true);
         toast.success(t('share.submitSelectionsSuccess'));
       } else {
@@ -135,6 +149,30 @@ function SharePage() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIndex, collection?.photos]);
+
+  // Escape key handler for review modal
+  useEffect(() => {
+    if (!showReviewModal) return;
+    const handler = (e) => {
+      if (e.key === "Escape") handleCloseReviewModal();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [showReviewModal, handleCloseReviewModal]);
+
+  // Auto-close review modal if all photos are removed
+  useEffect(() => {
+    if (showReviewModal && selectedPhotoIds.size === 0) {
+      handleCloseReviewModal();
+    }
+  }, [showReviewModal, selectedPhotoIds.size, handleCloseReviewModal]);
+
+  // Cleanup overflow-hidden on unmount
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, []);
 
   useEffect(() => {
     const fetchCollection = async () => {
@@ -211,17 +249,17 @@ function SharePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 font-sans">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12">
           {/* Header skeleton */}
           <div className="text-center mb-12 animate-pulse">
-            <div className="h-3 w-24 bg-slate-800 rounded mx-auto mb-5" />
-            <div className="h-9 w-64 bg-slate-800 rounded-lg mx-auto mb-3" />
-            <div className="h-4 w-20 bg-slate-800 rounded mx-auto" />
+            <div className="h-3 w-24 bg-white/[0.06] rounded mx-auto mb-5" />
+            <div className="h-10 w-72 bg-white/[0.06] rounded-lg mx-auto mb-3" />
+            <div className="h-4 w-32 bg-white/[0.03] rounded mx-auto" />
           </div>
           {/* Grid skeleton */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-square rounded-lg bg-slate-800/60 animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+              <div key={i} className="aspect-[4/5] rounded-lg bg-white/[0.06] animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
             ))}
           </div>
         </div>
@@ -233,20 +271,20 @@ function SharePage() {
   if (passwordRequired && !collection) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center font-sans px-5">
-        <div className="w-full max-w-[380px]">
+        <div className="w-full max-w-[380px] animate-fade-in-up">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="w-16 h-16 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-7 h-7 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-white mb-2">
+            <h2 className="font-serif-display text-2xl text-white mb-2">
               {t('share.passwordRequired')}
             </h2>
           </div>
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">
+              <label className="block text-sm font-medium text-white/50 mb-1.5">
                 {t('share.passwordLabel')}
               </label>
               <input
@@ -254,8 +292,8 @@ function SharePage() {
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 placeholder={t('share.passwordPlaceholder')}
-                className={`w-full px-4 py-3 bg-slate-900 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors ${
-                  passwordError ? 'border-red-500/50 bg-red-500/5' : 'border-slate-700'
+                className={`w-full px-4 py-3 bg-white/[0.04] border rounded-lg text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] transition-colors ${
+                  passwordError ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'
                 }`}
                 autoFocus
               />
@@ -266,7 +304,7 @@ function SharePage() {
             <button
               type="submit"
               disabled={!passwordInput.trim() || passwordSubmitting}
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 disabled:text-white/50 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="w-full py-3 px-4 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 text-white text-sm font-semibold rounded-lg transition-all shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
             >
               {passwordSubmitting ? t('share.passwordSubmitting') : t('share.passwordSubmit')}
             </button>
@@ -281,12 +319,12 @@ function SharePage() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center font-sans px-5">
         <div className="max-w-[480px] text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-7 h-7 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <div className="w-16 h-16 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           </div>
-          <p className="text-slate-400 text-base m-0">{t("share.notFound")}</p>
+          <p className="text-white/40 text-base m-0">{t("share.notFound")}</p>
         </div>
       </div>
     );
@@ -294,20 +332,25 @@ function SharePage() {
 
   const photos = collection.photos || [];
 
+  // Cover photo for hero background
+  const coverPhoto = collection.coverPhotoId
+    ? photos.find(p => p.id === collection.coverPhotoId) || photos[0]
+    : photos[0];
+
   // ── Success state after submission ──
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center font-sans px-5">
-        <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="text-center max-w-md animate-scale-in">
+          <div className="w-24 h-24 rounded-full border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-8">
+            <svg className="w-12 h-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path className="check-path" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-3">
+          <h2 className="font-serif-display text-3xl text-white mb-4">
             {t('share.selectionsSubmitted')}
           </h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
+          <p className="text-white/40 text-sm leading-relaxed">
             {t('share.selectionsSubmittedMessage')}
           </p>
         </div>
@@ -315,61 +358,97 @@ function SharePage() {
     );
   }
 
+  const selectedCount = selectedPhotoIds.size;
+  const progressPercent = photos.length > 0 ? (selectedCount / photos.length) * 100 : 0;
+
   return (
     <div className="min-h-screen bg-slate-950 font-sans">
-      {/* ── Header ── */}
+      {/* ── Hero Section with Blurred Cover ── */}
       <div className="relative overflow-hidden">
-        {/* Subtle gradient backdrop */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.08),transparent_70%)]" />
+        {/* Blurred cover background */}
+        {coverPhoto && (
+          <div className="absolute inset-0">
+            <img
+              src={collection.watermarked && coverPhoto.watermarkedThumbnailPath
+                ? photoUrl(coverPhoto.watermarkedThumbnailPath)
+                : photoUrl(coverPhoto.thumbnailPath ?? coverPhoto.storagePath)}
+              alt=""
+              className="w-full h-full object-cover blur-[40px] brightness-[0.3] scale-110"
+              aria-hidden="true"
+            />
+          </div>
+        )}
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-8 sm:pb-10 text-center">
-          {/* Photographer branding */}
-          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-4 font-medium">
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/80 to-slate-950" />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-10 sm:pb-14 text-center">
+          {/* Client name eyebrow */}
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-4 font-medium animate-fade-in-up" style={{ animationDelay: '0.05s', opacity: 0 }}>
             {collection.clientName || 'Gallery'}
           </p>
 
           {/* Collection name */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3">
+          <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 animate-fade-in-up" style={{ animationDelay: '0.15s', opacity: 0 }}>
             {collection.name}
           </h1>
 
+          {/* Subtitle for clients */}
+          {canSelect && (
+            <p className="text-sm sm:text-base text-white/40 mb-4 animate-fade-in-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
+              {t('share.heroSubtitle')}
+            </p>
+          )}
+
           {/* Photo count */}
-          <p className="text-sm text-slate-500 mb-6">
+          <p className="text-sm text-white/30 mb-6 animate-fade-in-up" style={{ animationDelay: '0.3s', opacity: 0 }}>
             {t("share.photosCount", { count: photos.length })}
           </p>
 
-          {/* Selection progress pill */}
-          {canSelect && selectedPhotoIds.size > 0 && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              {t('share.selectedCount', { count: selectedPhotoIds.size })}
+          {/* Selection progress pill + bar */}
+          {canSelect && selectedCount > 0 && (
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium mb-4">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                {t('share.selectedCount', { count: selectedCount })}
+              </div>
+              {/* Progress bar */}
+              <div className="flex justify-center">
+                <div className="w-48 h-[3px] bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* ── Photo Grid ── */}
-      <div className={`max-w-5xl mx-auto px-4 sm:px-6 ${canSelect && selectedPhotoIds.size > 0 ? 'pb-28' : 'pb-12'}`}>
+      <div className={`max-w-5xl mx-auto px-4 sm:px-6 ${canSelect && selectedCount > 0 ? 'pb-28' : 'pb-12'}`}>
         {photos.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {photos.map((photo, index) => {
               const isSelected = selectedPhotoIds.has(photo.id);
               const isLoaded = imagesLoaded.has(photo.id);
               return (
                 <div
                   key={photo.id}
-                  className={`group relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
+                  className={`photo-card-enter group relative aspect-[4/5] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
                     isSelected
-                      ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-950'
-                      : ''
+                      ? 'selection-glow scale-[1.02]'
+                      : 'hover:scale-[1.03]'
                   }`}
+                  style={{ animationDelay: `${Math.min(index * 60, 600)}ms` }}
                   onClick={() => setLightboxIndex(index)}
                 >
                   {/* Skeleton placeholder */}
                   {!isLoaded && (
-                    <div className="absolute inset-0 bg-slate-800/60 animate-pulse" />
+                    <div className="absolute inset-0 bg-white/[0.06] animate-pulse" />
                   )}
 
                   <img
@@ -377,7 +456,7 @@ function SharePage() {
                       ? photoUrl(photo.watermarkedThumbnailPath)
                       : photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                     alt={photo.filename}
-                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 select-none ${
+                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.08] select-none ${
                       isLoaded ? 'opacity-100' : 'opacity-0'
                     }`}
                     loading="lazy"
@@ -386,26 +465,41 @@ function SharePage() {
                     draggable={false}
                   />
 
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                  {/* Bottom vignette on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                  {/* Selection checkbox */}
+                  {/* Selected overlay border + animated trace */}
+                  {isSelected && (
+                    <>
+                      <div className="absolute inset-0 border-2 border-indigo-500 rounded-lg pointer-events-none" />
+                      <div className="selection-trace-top" />
+                      <div className="selection-trace-right" />
+                      <div className="selection-trace-bottom" />
+                      <div className="selection-trace-left" />
+                    </>
+                  )}
+
+                  {/* Selection indicator — floating circle */}
                   {canSelect && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleSelection(photo.id);
                       }}
-                      className={`absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-[3px] border-2 flex items-center justify-center transition-colors duration-150 ${
+                      className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
                         isSelected
-                          ? 'bg-indigo-500 border-indigo-500'
-                          : 'bg-transparent border-white/60 group-hover:border-white'
+                          ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
+                          : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100'
                       }`}
                       aria-label={isSelected ? t('share.selected') : t('share.select')}
                     >
-                      {isSelected && (
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      {isSelected ? (
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path className="check-path" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                       )}
                     </button>
@@ -419,27 +513,30 @@ function SharePage() {
         {/* Empty state */}
         {photos.length === 0 && (
           <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="w-16 h-16 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
               </svg>
             </div>
-            <p className="text-slate-500 text-sm">{t("share.photos")} (0)</p>
+            <p className="text-white/30 text-sm">{t("share.photos")} (0)</p>
           </div>
         )}
 
         {/* ── Footer branding ── */}
-        <div className="mt-16 pt-6 border-t border-white/5 text-center">
-          <p className="text-[11px] text-slate-600">
+        <div className="mt-20 pb-8 text-center">
+          <div className="h-px w-16 bg-white/10 mx-auto mb-6" />
+          <p className="text-[11px] text-white/20">
             {t("share.poweredBy")}
           </p>
         </div>
       </div>
 
-      {/* ── Floating selection bar ── */}
-      {canSelect && selectedPhotoIds.size > 0 && !isSubmitted && (
-        <div className="fixed bottom-0 left-0 right-0 z-40">
-          <div className="bg-slate-900/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.4)]">
+      {/* ── Sticky Bottom CTA Bar ── */}
+      {canSelect && selectedCount > 0 && !isSubmitted && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 animate-fade-in-up">
+          {/* Gradient glow line */}
+          <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
+          <div className="bg-slate-900/95 backdrop-blur-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.4)]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center">
@@ -448,15 +545,14 @@ function SharePage() {
                   </svg>
                 </div>
                 <span className="text-sm font-semibold text-white">
-                  {t('share.selectedCount', { count: selectedPhotoIds.size })}
+                  {t('share.selectedCount', { count: selectedCount })}
                 </span>
               </div>
               <button
-                onClick={submitSelections}
-                disabled={isSubmitting}
-                className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 disabled:text-white/50 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 text-sm active:scale-[0.97]"
+                onClick={handleOpenReviewModal}
+                className="bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 text-sm active:scale-[0.97] shadow-[0_4px_20px_rgba(99,102,241,0.3)]"
               >
-                {isSubmitting ? t('share.submitting') : t('share.submitSelections', { count: selectedPhotoIds.size })}
+                {t('share.submitSelections', { count: selectedCount })}
               </button>
             </div>
           </div>
@@ -466,14 +562,17 @@ function SharePage() {
       {/* ── Lightbox ── */}
       {lightboxIndex !== null && photos[lightboxIndex] && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm"
+          className="fixed inset-0 z-50 bg-black"
           onClick={() => setLightboxIndex(null)}
         >
+          {/* Top gradient fade */}
+          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none" />
+
           {/* Close button */}
           <button
             onClick={() => setLightboxIndex(null)}
             aria-label={t("share.lightboxClose")}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all z-10"
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all z-20"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -481,7 +580,7 @@ function SharePage() {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-white/50 text-sm font-medium tabular-nums">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 text-xs text-white/30 font-medium tabular-nums">
             {lightboxIndex + 1} / {photos.length}
           </div>
 
@@ -492,7 +591,7 @@ function SharePage() {
                 e.stopPropagation();
                 toggleSelection(photos[lightboxIndex].id);
               }}
-              className={`absolute top-4 left-4 z-10 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 selectedPhotoIds.has(photos[lightboxIndex].id)
                   ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
                   : 'bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white'
@@ -506,13 +605,13 @@ function SharePage() {
           )}
 
           {/* Image */}
-          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-16">
+          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-20">
             <img
               src={collection.watermarked
                 ? watermarkedPreviewUrl(shareId, photos[lightboxIndex].id, shareToken)
                 : photoUrl(photos[lightboxIndex].storagePath)}
               alt={photos[lightboxIndex].filename}
-              className="max-w-full max-h-full object-contain rounded select-none"
+              className="max-w-full max-h-full object-contain rounded select-none animate-scale-in"
               crossOrigin={collection.watermarked ? "use-credentials" : undefined}
               onClick={(e) => e.stopPropagation()}
               onContextMenu={(e) => e.preventDefault()}
@@ -520,33 +619,143 @@ function SharePage() {
             />
           </div>
 
-          {/* Prev arrow */}
+          {/* Prev — full-height invisible hit area */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
             }}
             aria-label={t("share.lightboxPrev")}
-            className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all z-10"
+            className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 z-10 flex items-center justify-start pl-2 sm:pl-6 group/nav cursor-pointer"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all opacity-0 group-hover/nav:opacity-100">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </div>
           </button>
 
-          {/* Next arrow */}
+          {/* Next — full-height invisible hit area */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
             }}
             aria-label={t("share.lightboxNext")}
-            className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all z-10"
+            className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 z-10 flex items-center justify-end pr-2 sm:pr-6 group/nav cursor-pointer"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all opacity-0 group-hover/nav:opacity-100">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </button>
+        </div>
+      )}
+
+      {/* ── Review Modal ── */}
+      {showReviewModal && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-xl flex flex-col animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('share.reviewTitle')}
+        >
+          {/* Modal content container */}
+          <div className="flex flex-col h-full bg-slate-950 animate-scale-in">
+
+            {/* Header */}
+            <div className="flex-shrink-0 flex items-start justify-between px-5 sm:px-8 pt-6 pb-5 border-b border-white/[0.08]">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-semibold text-white leading-tight">
+                  {t('share.reviewTitle')}
+                </h2>
+                <p className="text-sm text-white/50 mt-1 leading-relaxed max-w-md">
+                  {t('share.reviewSubtitle')}
+                </p>
+              </div>
+              <button
+                onClick={handleCloseReviewModal}
+                aria-label={t('share.editSelection')}
+                className="flex-shrink-0 ml-4 w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-white/50 hover:text-white transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Selected count badge */}
+            <div className="flex-shrink-0 px-5 sm:px-8 pt-4 pb-3">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium">
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                {t('share.selectedCount', { count: selectedPhotoIds.size })}
+              </span>
+            </div>
+
+            {/* Scrollable photo grid */}
+            <div className="flex-1 overflow-y-auto px-5 sm:px-8 pb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {photos
+                  .filter(photo => selectedPhotoIds.has(photo.id))
+                  .map(photo => (
+                    <div
+                      key={photo.id}
+                      className="group/review relative aspect-[4/5] rounded-lg overflow-hidden"
+                    >
+                      <img
+                        src={collection.watermarked && photo.watermarkedThumbnailPath
+                          ? photoUrl(photo.watermarkedThumbnailPath)
+                          : photoUrl(photo.thumbnailPath ?? photo.storagePath)}
+                        alt={photo.filename}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
+                      />
+                      {/* Selected indicator border */}
+                      <div className="absolute inset-0 border-2 border-indigo-500 rounded-lg pointer-events-none" />
+                      {/* Remove button */}
+                      <button
+                        onClick={() => toggleSelection(photo.id)}
+                        disabled={requestsInFlight.has(photo.id)}
+                        aria-label={t('share.removeFromSelection')}
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white/70 hover:bg-red-500 hover:text-white transition-all duration-200 sm:opacity-0 sm:group-hover/review:opacity-100 disabled:opacity-50"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Sticky bottom action bar */}
+            <div className="flex-shrink-0 border-t border-white/[0.08]">
+              {/* Gradient glow line */}
+              <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+              <div className="px-5 sm:px-8 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <button
+                  onClick={handleCloseReviewModal}
+                  disabled={isSubmitting}
+                  className="order-2 sm:order-1 px-5 py-2.5 rounded-lg text-sm font-semibold bg-white/[0.06] text-white/70 border border-white/10 hover:bg-white/[0.1] transition-all disabled:opacity-50"
+                >
+                  {t('share.editSelection')}
+                </button>
+                <button
+                  onClick={submitSelections}
+                  disabled={isSubmitting || selectedPhotoIds.size === 0}
+                  className="order-1 sm:order-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 text-white transition-all shadow-[0_4px_16px_rgba(99,102,241,0.35)] active:scale-[0.97]"
+                >
+                  {isSubmitting ? t('share.confirming') : t('share.confirmSelection')}
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
     </div>

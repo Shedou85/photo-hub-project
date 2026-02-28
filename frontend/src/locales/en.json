@@ -422,7 +422,14 @@
     "passwordPlaceholder": "Enter gallery password",
     "passwordSubmit": "View Gallery",
     "passwordError": "Incorrect password. Please try again.",
-    "passwordSubmitting": "Verifying..."
+    "passwordSubmitting": "Verifying...",
+    "heroSubtitle": "Please select your favorite photos for editing",
+    "reviewTitle": "Review Your Selection",
+    "reviewSubtitle": "Make sure you're happy with your choices before sending",
+    "confirmSelection": "Confirm Selection",
+    "editSelection": "Edit Selection",
+    "confirming": "Confirming...",
+    "removeFromSelection": "Remove from selection"
   },
   "plans": {
     "freeTrialBadge": "Free Trial",
@@ -615,7 +622,11 @@
     "poweredBy": "Powered by PixelForge",
     "lightboxClose": "Close",
     "lightboxPrev": "Previous photo",
-    "lightboxNext": "Next photo"
+    "lightboxNext": "Next photo",
+    "heroTitle": "Your photos are ready",
+    "downloadHint": "All photos in one ZIP archive",
+    "individualDownloads": "Individual downloads",
+    "download": "Download"
   },
   "errors": {
     "boundary_title": "Something went wrong",
