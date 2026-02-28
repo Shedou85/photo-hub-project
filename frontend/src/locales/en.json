@@ -321,6 +321,7 @@
     "setSourceFolderHint": "Set the source folder path in Edit Collection to enable the copy script.",
     "sourceFolderRequired": "Set the source folder path first (Edit collection).",
     "copySelectedButton": "Copy Selected to Folder",
+    "copySelectedProOnly": "Automatic folder export is available in PRO plan",
     "copySelectedSuccess": "Copy script downloaded! Run it to copy {{count}} selected photos.",
     "noSelectedPhotos": "No photos have been selected by the client yet.",
     "draftPhase": "Draft Phase",

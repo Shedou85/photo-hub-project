@@ -325,6 +325,7 @@
     "setSourceFolderHint": "Nustatykite šaltinio aplanko kelią (Redaguoti kolekciją), kad galėtumėte kopijuoti.",
     "sourceFolderRequired": "Pirmiausia nustatykite šaltinio aplanko kelią (Redaguoti kolekciją).",
     "copySelectedButton": "Kopijuoti pasirinktas į aplanką",
+    "copySelectedProOnly": "Automatinis eksportavimas į aplanką galimas su PRO planu",
     "copySelectedSuccess": "Kopijavimo skriptas atsisiųstas! Paleiskite jį, kad nukopijuotumėte {{count}} pasirinktų nuotraukų.",
     "noSelectedPhotos": "Klientas dar nepasirinko nuotraukų.",
     "draftPhase": "Juodraščio Fazė",

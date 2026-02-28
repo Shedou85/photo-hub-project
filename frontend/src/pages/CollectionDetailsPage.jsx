@@ -417,11 +417,19 @@ function CollectionDetailsPage() {
                     </svg>
                     {t('collection.uploadEditedFinalsButton')}
                   </Button>
-                  <Button variant="secondary" onClick={handleCopySelectedPhotos} disabled={!collection.sourceFolder || selectedPhotoIds.size === 0}>
+                  <Button
+                    variant="secondary"
+                    onClick={user?.plan === 'PRO' ? handleCopySelectedPhotos : undefined}
+                    disabled={user?.plan !== 'PRO' || !collection.sourceFolder || selectedPhotoIds.size === 0}
+                    title={user?.plan !== 'PRO' ? t('collection.copySelectedProOnly') : undefined}
+                  >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
                     </svg>
                     {t('collection.copySelectedButton')}
+                    {user?.plan !== 'PRO' && (
+                      <span className="ml-1 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full leading-none">PRO</span>
+                    )}
                   </Button>
                   {editedPhotos.length > 0 && (
                     <Button variant="action" onClick={() => setShowPromotionalModal(true)}>
@@ -902,6 +910,14 @@ function CollectionDetailsPage() {
                       <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
+                    </div>
+                  )}
+                  {/* Filename overlay for selected photos (STANDARD users in REVIEWING) */}
+                  {collection.status === 'REVIEWING' && user?.plan !== 'PRO' && selectedPhotoIds.has(photo.id) && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-6 pb-2 px-2.5 pointer-events-none">
+                      <span className="block text-[11px] font-mono text-white/90 truncate leading-tight">
+                        {photo.filename}
+                      </span>
                     </div>
                   )}
                   {/* Action overlay -- visible on hover (desktop) and focus-within (keyboard/touch) */}
