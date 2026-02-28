@@ -42,7 +42,32 @@ const MobileLayout = () => {
       </a>
       {/* Top header */}
       <header className="flex items-center justify-between px-4 py-3 header-glass divider-glow divider-glow-full fixed top-0 left-0 right-0 z-40">
-        <span className="font-extrabold text-lg tracking-[0.5px] text-white drop-shadow-[0_0_8px_rgba(99,102,241,0.15)]">PixelForge</span>
+        <div className="flex items-baseline" aria-label="PixelForge">
+          {'Pixel'.split('').map((char, i) => (
+            <span
+              key={i}
+              className="brand-letter font-extrabold text-lg tracking-[0.04em] drop-shadow-[0_0_6px_rgba(99,102,241,0.12)] will-change-[color]"
+              style={{
+                color: '#d4d8eb',
+                animation: `brandShimmer 5s ease-in-out ${i * 0.12}s infinite`,
+              }}
+            >
+              {char}
+            </span>
+          ))}
+          {'Forge'.split('').map((char, i) => (
+            <span
+              key={i + 5}
+              className="brand-letter font-bold text-lg tracking-[0.04em] drop-shadow-[0_0_6px_rgba(99,102,241,0.12)] will-change-[color]"
+              style={{
+                color: '#d4d8eb',
+                animation: `brandShimmer 5s ease-in-out ${(i + 5) * 0.12}s infinite`,
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </div>
 
         <div className="flex items-center gap-2">
           {/* Logout button */}

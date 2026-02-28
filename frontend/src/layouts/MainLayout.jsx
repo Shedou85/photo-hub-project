@@ -95,8 +95,33 @@ const MainLayout = () => {
         >
 
           {/* Sidebar header — brand + user card */}
-          <div className="pt-6 px-5 pb-4 relative divider-glow">
-            <span className="font-extrabold text-lg text-white tracking-[0.5px] drop-shadow-[0_0_8px_rgba(99,102,241,0.2)]">PixelForge</span>
+          <div className="pt-7 px-5 pb-5 relative divider-glow">
+            <div className="flex justify-center items-baseline" aria-label="PixelForge">
+              {'Pixel'.split('').map((char, i) => (
+                <span
+                  key={i}
+                  className="brand-letter font-extrabold text-[24px] tracking-[0.04em] drop-shadow-[0_0_6px_rgba(99,102,241,0.12)] will-change-[color]"
+                  style={{
+                    color: '#d4d8eb',
+                    animation: `brandShimmer 5s ease-in-out ${i * 0.12}s infinite`,
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+              {'Forge'.split('').map((char, i) => (
+                <span
+                  key={i + 5}
+                  className="brand-letter font-bold text-[24px] tracking-[0.04em] drop-shadow-[0_0_6px_rgba(99,102,241,0.12)] will-change-[color]"
+                  style={{
+                    color: '#d4d8eb',
+                    animation: `brandShimmer 5s ease-in-out ${(i + 5) * 0.12}s infinite`,
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
             {user && (
               <div className="mt-3.5 p-2.5 rounded-[10px] bg-white/[0.04] border border-white/[0.06] shadow-glass">
                 <div className="flex items-center gap-2.5">

@@ -206,3 +206,24 @@ body {
     1px 0 0 0 rgba(255,255,255,0.04),
     6px 0 20px -4px rgba(0,0,0,0.2);
 }
+
+/* ─── Brand breathing animation ─── */
+
+@keyframes brandShimmer {
+  0%, 100% {
+    color: #c8cde0;
+  }
+  40% {
+    color: #a8b2ff;
+  }
+  60% {
+    color: #8da0ff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-letter {
+    animation: none !important;
+    color: #d4d8eb !important;
+  }
+}
