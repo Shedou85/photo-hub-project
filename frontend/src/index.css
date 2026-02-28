@@ -213,11 +213,20 @@ body {
   0%, 100% {
     color: #c8cde0;
   }
-  40% {
+  20% {
     color: #a8b2ff;
   }
-  60% {
+  35% {
     color: #8da0ff;
+  }
+  50% {
+    color: #fbbf24;
+  }
+  65% {
+    color: #8da0ff;
+  }
+  80% {
+    color: #a8b2ff;
   }
 }
 
