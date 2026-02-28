@@ -1,16 +1,59 @@
-import { useState, useId } from "react";
+import { useState, useId, useRef, useCallback, useLayoutEffect } from "react";
 
 function Accordion({ title, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const contentRef = useRef(null);
   const id = useId();
+
+  // Set initial styles imperatively on mount (avoids React style prop overwriting during animation)
+  useLayoutEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    if (defaultOpen) {
+      el.style.maxHeight = "none";
+      el.style.overflow = "visible";
+    } else {
+      el.style.maxHeight = "0px";
+      el.style.overflow = "hidden";
+    }
+  }, [defaultOpen]);
+
+  const toggle = useCallback(() => {
+    const el = contentRef.current;
+    if (!el) return;
+
+    if (isOpen) {
+      // Closing: snap to current scrollHeight, force reflow, then animate to 0
+      el.style.maxHeight = el.scrollHeight + "px";
+      el.style.overflow = "hidden";
+      void el.offsetHeight;
+      el.style.maxHeight = "0px";
+    } else {
+      // Opening: animate from 0 to scrollHeight
+      el.style.overflow = "hidden";
+      el.style.maxHeight = el.scrollHeight + "px";
+    }
+    setIsOpen(prev => !prev);
+  }, [isOpen]);
+
+  const handleTransitionEnd = useCallback((e) => {
+    if (e.propertyName !== "max-height" || e.target !== contentRef.current) return;
+
+    const el = contentRef.current;
+    if (el.style.maxHeight !== "0px") {
+      // Opening finished — release the height cap
+      el.style.maxHeight = "none";
+      el.style.overflow = "visible";
+    }
+  }, []);
 
   return (
     <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl mb-5 transition-all duration-700">
       {/* Accordion Header */}
       <div
         id={id + '-header'}
-        className="flex items-center justify-between px-6 py-4 cursor-pointer select-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
-        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between px-6 py-4 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 outline-none"
+        onClick={toggle}
         role="button"
         aria-expanded={isOpen}
         aria-controls={id + '-panel'}
@@ -18,7 +61,7 @@ function Accordion({ title, children, defaultOpen = false }) {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setIsOpen(!isOpen);
+            toggle();
           }
         }}
       >
@@ -38,14 +81,14 @@ function Accordion({ title, children, defaultOpen = false }) {
         </svg>
       </div>
 
-      {/* Accordion Content */}
+      {/* Accordion Content — styles managed imperatively via ref, no React style prop */}
       <div
+        ref={contentRef}
         id={id + '-panel'}
         role="region"
         aria-labelledby={id + '-header'}
-        className={`transition-all ease-in-out duration-700 overflow-hidden ${
-          isOpen ? "max-h-[1000px]" : "max-h-0"
-        }`}
+        className="transition-[max-height] ease-in-out duration-700"
+        onTransitionEnd={handleTransitionEnd}
       >
         <div className="px-6 pb-5 pt-1">
           {children}

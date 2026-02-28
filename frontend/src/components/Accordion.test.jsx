@@ -15,12 +15,13 @@ describe('Accordion', () => {
   });
 
   describe('open/closed state', () => {
-    it('is closed by default (max-h-0 on panel)', () => {
+    it('is closed by default (maxHeight 0px on panel)', () => {
       const { container } = render(
         <Accordion title="Title">Content</Accordion>
       );
       const panel = container.querySelector('[role="region"]');
-      expect(panel).toHaveClass('max-h-0');
+      expect(panel.style.maxHeight).toBe('0px');
+      expect(panel.style.overflow).toBe('hidden');
     });
 
     it('opens when defaultOpen is true', () => {
@@ -28,38 +29,37 @@ describe('Accordion', () => {
         <Accordion title="Title" defaultOpen>Content</Accordion>
       );
       const panel = container.querySelector('[role="region"]');
-      expect(panel).toHaveClass('max-h-[1000px]');
+      expect(panel.style.maxHeight).toBe('none');
+      expect(panel.style.overflow).toBe('visible');
     });
 
-    it('toggles open on header click', async () => {
+    it('toggles aria-expanded on header click', async () => {
       const user = userEvent.setup();
-      const { container } = render(
+      render(
         <Accordion title="Toggle Me">Content</Accordion>
       );
       const header = screen.getByRole('button', { name: /Toggle Me/i });
-      const panel = container.querySelector('[role="region"]');
 
-      expect(panel).toHaveClass('max-h-0');
-
-      await user.click(header);
-      expect(panel).toHaveClass('max-h-[1000px]');
+      expect(header).toHaveAttribute('aria-expanded', 'false');
 
       await user.click(header);
-      expect(panel).toHaveClass('max-h-0');
+      expect(header).toHaveAttribute('aria-expanded', 'true');
+
+      await user.click(header);
+      expect(header).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('toggles closed when defaultOpen and header is clicked', async () => {
       const user = userEvent.setup();
-      const { container } = render(
+      render(
         <Accordion title="Open Initially" defaultOpen>Content</Accordion>
       );
       const header = screen.getByRole('button', { name: /Open Initially/i });
-      const panel = container.querySelector('[role="region"]');
 
-      expect(panel).toHaveClass('max-h-[1000px]');
+      expect(header).toHaveAttribute('aria-expanded', 'true');
 
       await user.click(header);
-      expect(panel).toHaveClass('max-h-0');
+      expect(header).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
@@ -106,28 +106,26 @@ describe('Accordion', () => {
   describe('keyboard interaction', () => {
     it('toggles open with Enter key', async () => {
       const user = userEvent.setup();
-      const { container } = render(
+      render(
         <Accordion title="Title">Content</Accordion>
       );
       const header = screen.getByRole('button', { name: /Title/i });
-      const panel = container.querySelector('[role="region"]');
 
       header.focus();
       await user.keyboard('{Enter}');
-      expect(panel).toHaveClass('max-h-[1000px]');
+      expect(header).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('toggles open with Space key', async () => {
       const user = userEvent.setup();
-      const { container } = render(
+      render(
         <Accordion title="Title">Content</Accordion>
       );
       const header = screen.getByRole('button', { name: /Title/i });
-      const panel = container.querySelector('[role="region"]');
 
       header.focus();
       await user.keyboard(' ');
-      expect(panel).toHaveClass('max-h-[1000px]');
+      expect(header).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('header is focusable via tabIndex', () => {
