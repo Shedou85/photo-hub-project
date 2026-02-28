@@ -105,7 +105,7 @@
      │ Nauda: Apsaugo neapdorotas nuotraukas nuo neautorizuoto naudojimo (CloudSpot, Pic-Time siūlo tai). PRO-only funkcija.                                                  │
      │                                                                                                                                                                        │
      │ ---                                                                                                                                                                    │
-     │ 13. Klientų spalviniai žymėjimai (Color Labels)                                                                                                                        │
+     │ 13. ✅ Klientų spalviniai žymėjimai (Color Labels)  [ATLIKTA 2026-02-28]                                                                                                                        │
      │                                                                                                                                                                        │
      │ Kas? Vietoj paprastos "pažymėta/nepažymėta" sistemos — klientas gali žymėti nuotraukas spalvomis (★ mėgstamiausios, ✓ pasirinktos, ✗ atmesti).                         │
      │ Backend: Pakeisti Selection lentelę, pridėti label enum ('FAVORITE', 'SELECTED', 'REJECTED').                                                                          │
@@ -155,7 +155,7 @@
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 12  │ ✅ Vandens ženklas            │ L        │ Didelė          │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
-     │ │ 13  │ Spalviniai žymėjimai         │ M        │ Vidutinė        │ 13                         │                                                                       │
+     │ │ 13  │ ✅ Spalviniai žymėjimai       │ M        │ Vidutinė        │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 14  │ Custom branding              │ L        │ Didelė          │ 14                         │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
