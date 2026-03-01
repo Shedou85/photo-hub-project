@@ -180,7 +180,32 @@ function HomePage() {
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="PixelForge" className="w-10 h-10 rounded-full" />
-            <span className="hidden sm:inline font-semibold text-white text-base tracking-tight">PixelForge</span>
+            <div className="hidden sm:flex items-baseline" aria-label="PixelForge">
+              {'Pixel'.split('').map((char, i) => (
+                <span
+                  key={i}
+                  className="brand-letter font-extrabold text-base tracking-[0.04em] drop-shadow-[0_0_6px_rgba(99,102,241,0.12)] will-change-[color]"
+                  style={{
+                    color: '#d4d8eb',
+                    animation: `brandShimmer 5s ease-in-out ${i * 0.12}s infinite`,
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+              {'Forge'.split('').map((char, i) => (
+                <span
+                  key={i + 5}
+                  className="brand-letter font-bold text-base tracking-[0.04em] drop-shadow-[0_0_6px_rgba(99,102,241,0.12)] will-change-[color]"
+                  style={{
+                    color: '#d4d8eb',
+                    animation: `brandShimmer 5s ease-in-out ${(i + 5) * 0.12}s infinite`,
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Right: lang switcher + login */}
