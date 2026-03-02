@@ -1,14 +1,22 @@
 # Architecture Research: UI/UX Redesign Integration
 
 **Domain:** React + Tailwind CSS Design System Migration
-**Researched:** 2026-02-14
+**Researched:** 2026-02-14 (initial), 2026-03-02 (updated — redesign complete)
 **Confidence:** HIGH
 
 ## Executive Summary
 
-This research addresses how to integrate UI/UX redesign into the existing Photo Hub architecture (React 18 + Tailwind CSS v3 + vanilla PHP backend) without breaking functionality. The recommended approach is **gradual component refactoring** with **design token extraction** using Tailwind's `theme.extend` pattern, followed by selective component rewrites for complex state-based UI (CollectionDetailsPage).
+**STATUS: v3.0 REDESIGN COMPLETE.** All phases shipped. The project successfully migrated from a light theme functional UI to a dark theme premium aesthetic.
 
-**Key finding:** Photo Hub is currently on Tailwind CSS v3 with minimal customization. Migrating to Tailwind v4's CSS-first design tokens would provide runtime CSS variables and better performance, but adds migration risk. The safer path is **staying on v3** and using `theme.extend` with semantic design tokens, then considering v4 migration post-redesign.
+**What was done:**
+- Dark theme across all authenticated pages (surface-darker #0d0f14 background)
+- Custom Tailwind colors: surface-dark, surface-darker, surface-darkest
+- Primitive components extracted: Button, Card, Input, PhotoCard, UploadZone, SelectionBorder
+- Phase components for collection workflow: DraftPhase, SelectingPhase, ReviewingPhase, DeliveredPhase
+- Responsive layout: MainLayout (desktop sidebar 256px) + MobileLayout (bottom tab nav), switches at 768px
+- Backend migrated to Cloudflare R2 storage
+
+**Tailwind v3** remains in use. v4 migration deferred — still valid recommendation.
 
 ## Recommended Architecture for Redesign
 
@@ -44,16 +52,19 @@ This research addresses how to integrate UI/UX redesign into the existing Photo 
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Component Responsibilities
+### Component Responsibilities (Current State)
 
-| Component | Responsibility | Migration Strategy |
-|-----------|----------------|-------------------|
-| **MainLayout** | Sidebar navigation, mobile bottom nav, language switcher | **REFACTOR** — Extract responsive breakpoint logic, add bottom nav for mobile |
-| **CollectionsListPage** | Polaroid card grid, status color coding, create accordion | **REFACTOR** — Update card styles with new design tokens, improve mobile grid |
-| **CollectionDetailsPage** | Upload zone, photo grid, workflow phases (DRAFT→SELECTING→REVIEWING→DELIVERED) | **PARTIAL REWRITE** — Extract workflow phase components, simplify conditional rendering |
-| **SharePage** | Client gallery, selection UI | **REFACTOR** — Update card styles, improve mobile touch targets |
-| **DeliveryPage** | Download interface | **REFACTOR** — Update button styles, improve download feedback |
-| **Primitives (new)** | Button, Card, Badge, Input components | **NEW** — Extract from existing pages, apply design tokens |
+| Component | Responsibility | Status |
+|-----------|----------------|--------|
+| **ResponsiveLayout** | Switches MainLayout/MobileLayout at 768px | DONE |
+| **MainLayout** | Desktop sidebar (256px), glassmorphism, language switcher | DONE |
+| **MobileLayout** | Top header + bottom tab nav (Collections, Profile, Payments) | DONE |
+| **CollectionsListPage** | Dark card grid, status badges, create modal | DONE |
+| **CollectionDetailsPage** | Delegates to phase components based on collection.status | DONE |
+| **DraftPhase/SelectingPhase/ReviewingPhase/DeliveredPhase** | Phase-specific UI in `components/collection/` | DONE |
+| **SharePage** | Client gallery, label selection (SELECTED/FAVORITE/REJECTED), PRO branding | DONE |
+| **DeliveryPage** | Download interface (ZIP + individual), PRO branding | DONE |
+| **Primitives** | Button, Card, Input, PhotoCard, UploadZone, SelectionBorder | DONE |
 
 ## Refactor vs Rewrite Decisions
 
@@ -99,103 +110,38 @@ This research addresses how to integrate UI/UX redesign into the existing Photo 
 - Easier mobile adaptation (phase components own responsive logic)
 - Better testing (phase components are isolated)
 
-## Design Token System (Tailwind v3 theme.extend)
+## Design Token System (Current — Dark Theme)
 
-### Recommended Tailwind Config Changes
+### Tailwind Config
 
 **File:** `frontend/tailwind.config.js`
 
-```javascript
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  theme: {
-    extend: {
-      // Color design tokens
-      colors: {
-        surface: {
-          DEFAULT: '#ffffff',
-          card: '#ffffff',
-          overlay: 'rgba(0, 0, 0, 0.5)',
-        },
-        primary: {
-          DEFAULT: '#3b82f6',
-          hover: '#6366f1',
-          gradient: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
-        },
-        status: {
-          draft: '#6b7280',      // gray
-          selecting: '#3b82f6',  // blue
-          reviewing: '#10b981',  // green
-          delivered: '#a855f7',  // purple
-          downloaded: '#9333ea', // purple-dark
-        },
-      },
-      // Spacing design tokens
-      spacing: {
-        'card-padding': '1.5rem',       // px-6 py-5 → p-card-padding
-        'page-padding': '1.75rem',      // px-6 py-7 → p-page-padding
-        'mobile-padding': '1rem',       // p-4 → p-mobile-padding
-      },
-      // Border radius design tokens
-      borderRadius: {
-        'card': '10px',         // rounded-[10px] → rounded-card
-        'button': '6px',        // rounded-[6px] → rounded-button
-        'badge': '9999px',      // rounded-full → rounded-badge
-      },
-      // Shadow design tokens
-      boxShadow: {
-        'card-default': '0 1px 3px rgba(0, 0, 0, 0.1)',
-        'card-hover': '0 4px 12px rgba(0, 0, 0, 0.15)',
-        'dropdown': '0 4px 12px rgba(0, 0, 0, 0.1)',
-      },
-      // Typography design tokens
-      fontSize: {
-        'heading-lg': ['22px', { lineHeight: '1.2', fontWeight: '700' }],
-        'heading-sm': ['14px', { lineHeight: '1.2', fontWeight: '700' }],
-        'label': ['13px', { lineHeight: '1.2', fontWeight: '600' }],
-        'body': ['14px', { lineHeight: '1.5' }],
-        'caption': ['11px', { lineHeight: '1.3' }],
-      },
-      // Breakpoints (shared constants)
-      screens: {
-        'mobile': '640px',    // sm
-        'tablet': '768px',    // md
-        'desktop': '1024px',  // lg
-      },
-    },
-  },
-  plugins: [],
-}
-```
+Custom colors added to `theme.extend.colors`:
+- `surface-dark`: #1a1a2e
+- `surface-darker`: #0d0f14
+- `surface-darkest`: #080a0f
 
-### Design Token Migration Strategy
+### Active Design Tokens (from CLAUDE.md)
 
-**Phase 1: Extract tokens (Week 1)**
-- Add `theme.extend` to `tailwind.config.js`
-- No component changes yet, just define tokens
-- Validate tokens compile correctly
+| Element | Tailwind class |
+|---------|---------------|
+| Page background | `bg-surface-darker` (#0d0f14) |
+| Card | `bg-white/[0.04] border border-white/10 rounded-lg shadow-xl` |
+| Input | `bg-white/[0.06] border-white/[0.12] text-white placeholder:text-white/20` |
+| Input focus | `focus:border-indigo-500/70 focus:bg-white/[0.08]` |
+| Heading | `text-white` |
+| Body text | `text-white/90` |
+| Subtitle/label | `text-white/50` or `text-white/60` |
+| Dividers | `border-white/[0.08]` |
+| Primary button | `bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]` |
+| Secondary button | `bg-white/[0.06] text-white/70 border-white/10` |
+| Danger button | `bg-red-500/10 text-red-400 border-red-500/20` |
+| Modal | `bg-surface-dark border border-white/10 rounded-[10px]` |
 
-**Phase 2: Migrate components (Weeks 2-4)**
-- Replace arbitrary values with tokens, one component at a time:
-  - `rounded-[10px]` → `rounded-card`
-  - `text-[22px] font-bold` → `text-heading-lg`
-  - `px-6 py-5` → `p-card-padding`
-- Use find-and-replace for common patterns
-- Test visually after each component migration
-
-**Phase 3: New components use tokens only (Week 5+)**
-- All new primitive components (Button, Card, Badge) reference tokens
-- No arbitrary values allowed in new code
-
-**Benefits:**
-- Semantic naming improves readability
-- Single source of truth for design values
-- Easier to update design system globally
-- Prepares for potential Tailwind v4 migration later
+### Notes
+- Arbitrary Tailwind values still used extensively (e.g., `text-[13px]`, `rounded-[10px]`)
+- No formal design token migration to semantic names was done
+- This is fine for current scale — consider semantic tokens if team grows
 
 ## Mobile-First Responsive Strategy
 
@@ -519,111 +465,17 @@ function UploadZone({ onUpload, uploading, variant = 'default' }) {
 - All 3 locale files (LT/EN/RU) must stay in sync
 - i18n keys are added for new UI elements, existing keys unchanged
 
-## Build Order (Dependency-Aware)
+## Build Order — ALL PHASES COMPLETE
 
-### Phase 1: Design System Foundation (Week 1)
-**Goal:** Establish design tokens and shared constants without breaking existing UI.
+All 16 phases of the v3.0 redesign were completed. See `.planning/phases/` for detailed records.
 
-1. **Tailwind config setup**
-   - Add `theme.extend` with design tokens
-   - Test token compilation (`npm run dev`, check Tailwind build)
-   - Validate no regressions (visual QA of existing pages)
-
-2. **Shared constants**
-   - Extract `BREAKPOINTS` to `frontend/src/constants/breakpoints.js`
-   - Update `MainLayout.jsx` to import from constants
-   - Test responsive sidebar behavior
-
-**Success criteria:** Existing UI unchanged, tokens available for use.
-
-### Phase 2: Primitive Components (Week 2)
-**Goal:** Extract reusable primitives, migrate one page to validate.
-
-1. **Create primitives**
-   - `Button.jsx` (variants: primary, secondary, danger)
-   - `Card.jsx` (standard white card)
-   - `Badge.jsx` (status badges)
-
-2. **Migrate one page (PaymentsPage)**
-   - Replace inline buttons with `<Button>` components
-   - Replace card divs with `<Card>` components
-   - Validate visual parity
-
-**Success criteria:** PaymentsPage uses primitives, looks identical to before.
-
-### Phase 3: Layout Refactor (Week 3)
-**Goal:** Add mobile bottom navigation without breaking desktop sidebar.
-
-1. **Bottom navigation component**
-   - `frontend/src/components/navigation/BottomNav.jsx`
-   - 3 tabs: Collections, Profile, Payments
-   - Touch-friendly (48×48px targets)
-
-2. **MainLayout.jsx refactor**
-   - Add conditional bottom nav for mobile
-   - Keep sidebar for desktop
-   - Test breakpoint transitions
-
-**Success criteria:** Mobile shows bottom nav, desktop shows sidebar, no layout breaks.
-
-### Phase 4: Page Refactors (Weeks 4-5)
-**Goal:** Update page styles with design tokens, extract composite components.
-
-1. **CollectionsListPage refactor**
-   - Replace arbitrary values with design tokens
-   - Update Polaroid card styles
-   - Migrate to primitives (`<Button>`, `<Card>`, `<Badge>`)
-   - Test grid responsiveness (mobile 1-col, tablet 2-col, desktop 3-col)
-
-2. **SharePage refactor**
-   - Update card styles with tokens
-   - Improve mobile touch targets (selection checkboxes)
-   - Test selection flow on mobile
-
-3. **DeliveryPage refactor**
-   - Update download button styles
-   - Improve download feedback UI
-
-**Success criteria:** Pages use design tokens, improved mobile UX, no functional regressions.
-
-### Phase 5: CollectionDetailsPage Rewrite (Weeks 6-7)
-**Goal:** Extract workflow phase components, simplify conditional rendering.
-
-1. **Extract workflow phase components**
-   - `DraftPhase.jsx` (upload zone, share link)
-   - `SelectingPhase.jsx` (filter tabs, selection badges)
-   - `ReviewingPhase.jsx` (edited finals upload zone)
-   - `DeliveredPhase.jsx` (delivery link)
-
-2. **Extract composite components**
-   - `PhotoCard.jsx` (photo grid item)
-   - `UploadZone.jsx` (file upload UI)
-
-3. **Refactor CollectionDetailsPage**
-   - Replace workflow sections with `<WorkflowPhaseCard>`
-   - Replace photo grid with `<PhotoCard>` components
-   - Replace upload zones with `<UploadZone>` components
-   - Test all workflow phases (DRAFT, SELECTING, REVIEWING, DELIVERED)
-
-**Success criteria:** CollectionDetailsPage is modular, all workflows function correctly, improved mobile UX.
-
-### Phase 6: Visual QA & Polish (Week 8)
-**Goal:** Cross-browser testing, mobile device testing, polish.
-
-1. **Cross-browser QA**
-   - Chrome, Firefox, Safari (desktop)
-   - Chrome, Safari (mobile)
-
-2. **Mobile device testing**
-   - Test bottom navigation on real devices
-   - Validate touch targets (48×48px minimum)
-   - Test photo selection on mobile (thumb-friendly)
-
-3. **Performance check**
-   - Lighthouse audit (performance, accessibility)
-   - Bundle size check (ensure primitives don't bloat bundle)
-
-**Success criteria:** No visual regressions, mobile UX improved, performance unchanged.
+| Phase | Status | What Was Done |
+|-------|--------|---------------|
+| 1-4 | DONE | Photo upload, sharing/status, client gallery, review/delivery |
+| 5-7 | DONE | Delivery infrastructure, ZIP downloads, individual downloads |
+| 8-10 | DONE | Client delivery UI, photographer dashboard, UI polish |
+| 11-13 | DONE | Design system foundation, primitive components, responsive layout |
+| 14-16 | DONE | Collection cards, workflow enhancement, additional features |
 
 ## Risk Areas
 

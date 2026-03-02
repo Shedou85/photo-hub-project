@@ -1,8 +1,10 @@
 # UI/UX Design System Research — World-Class SaaS Redesign
 
 **Domain:** Premium SaaS design patterns for photographer platform
-**Researched:** 2026-02-14
+**Researched:** 2026-02-14 (initial), 2026-03-02 (status update)
 **Confidence:** HIGH
+
+> **STATUS (2026-03-02):** v3.0 redesign COMPLETE. The project adopted a **DARK THEME** instead of the light theme originally researched here. Active design tokens are documented in `CLAUDE.md` under "Design tokens (dark theme)". This file retains the original research as reference — spacing, typography, and interaction patterns are still relevant, but color/surface tokens below are historical.
 
 ---
 
@@ -10,7 +12,7 @@
 
 Photo Hub redesign from functional to world-class, venture-backed SaaS aesthetic. Target: Linear/Stripe/Notion/Framer level of polish.
 
-**Current Stack (KEEP):**
+**Current Stack:**
 - React 18 + Tailwind CSS v3
 - Token-based sharing (zero-friction for clients)
 - Collection lifecycle: DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED

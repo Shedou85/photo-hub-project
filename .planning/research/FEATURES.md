@@ -1,8 +1,8 @@
 # Feature Research
 
 **Domain:** Photographer client gallery / photo delivery web app
-**Researched:** 2026-02-11 (initial), 2026-02-13 (v2.0 delivery features update)
-**Confidence:** HIGH (initial research), MEDIUM (v2.0 delivery-specific research)
+**Researched:** 2026-02-11 (initial), 2026-02-13 (v2.0 delivery features), 2026-03-02 (status update)
+**Confidence:** HIGH
 
 ## Feature Landscape
 
@@ -23,7 +23,7 @@ Features users assume exist. Missing these = product feels incomplete.
 | Download block during selection stage | Photographer needs to control when finals are available | LOW | Status gate; no download links rendered until DELIVERED |
 | Gallery link sharing (copy link) | Photographer sends link to client — this is the core delivery verb | LOW | Copy-to-clipboard button; share via message |
 | Collection status visibility | Photographer needs to know at a glance where each job stands | LOW | Status label or color on collection card |
-| Password / access protection | Prevent accidental public exposure of client photos | MEDIUM | Optional password on top of token; Pixieset, ShootProof both offer this |
+| Password / access protection | Prevent accidental public exposure of client photos | MEDIUM | Optional password on top of token; Pixieset, ShootProof both offer this. **SHIPPED** — SharePage bcrypt password with rate limiting |
 | Mobile-friendly gallery | Clients browse on phones; desktop-only is unacceptable | MEDIUM | Touch swipe for lightbox; responsive grid |
 | Photo upload by photographer | Photographer must get photos into the system | MEDIUM | Multi-file upload; progress indicator; stored in backend/uploads/ |
 | Separate delivery link | Industry standard - selection and delivery are distinct phases | LOW | Clients expect proofing link (select) ≠ delivery link (download finals). Platforms like picdrop and Pic-Time separate these workflows. **v2.0 FOCUS** |
@@ -61,7 +61,7 @@ Features that seem good but create problems.
 | Automatic cloud storage sync (S3 / R2) | "Photos should be backed up automatically" | Cloud storage integration adds cost, latency, and significant dev complexity | Plan the migration as a future milestone; local storage works for current scale |
 | Print store / e-commerce | "Clients can buy prints" | Payment processing, print fulfillment, and tax handling are entirely separate product domains | Explicitly out of scope; Pixieset and Pic-Time took years to build this well |
 | Lightroom / Capture One plugin | "Export directly from Lightroom" | Desktop plugin development is a separate engineering track entirely | Straightforward multi-file upload from file system is sufficient; photographers can export first |
-| Watermarking previews | "Protect images during selection phase" | Server-side watermarking is CPU-intensive per request; client-side CSS overlays are bypassable | The access token and download block during SELECTING stage is sufficient protection for the target market |
+| Watermarking previews | "Protect images during selection phase" | Server-side watermarking is CPU-intensive per request; client-side CSS overlays are bypassable | **SHIPPED as PRO feature** — GD-based watermark ("PREVIEW" diagonal), R2-cached thumbnails, proxy endpoint for full-res |
 | Social sharing of individual photos | "Let clients share to Instagram" | Creates uncontrolled distribution of photos before the photographer approves | Photographer controls distribution via delivery link only |
 | Unlimited gallery storage | Clients want permanent access "just in case" | Creates indefinite hosting costs and platform dependency. Clients stop downloading their own copies. Gallery becomes backup service. | 3-6 month expiration with clear communication. Encourage clients to download and store locally. Offer paid extension for emergencies. **v2.0 NOTE** |
 | Unlimited ZIP size | Clients want single download for 500+ photos | Server memory/timeout issues. Large ZIPs fail on slow connections. | Split into multiple ZIPs (e.g., 100 photos per archive) like SmugMug. Provide individual download option. **v2.0 NOTE** |
@@ -148,44 +148,61 @@ Minimum viable product — what's needed to validate the concept.
 - [x] Edited finals upload by photographer — the delivery half of the workflow
 - [x] Collection status color coding on cards (SELECTING = blue, REVIEWING = green, DELIVERED = purple) — visual workflow management
 
-### Launch With (v2.0) — CURRENT MILESTONE
+### Launch With (v2.0) — SHIPPED 2026-02-20
 
 Delivery and download features — completes the photographer-to-client workflow.
 
-- [ ] **Separate delivery link** — Table stakes. Industry expects selection and delivery to be separate experiences.
-- [ ] **ZIP download all finals** — Table stakes. Clients expect "download all" button. Server-side PHP ZIP generation.
-- [ ] **Individual photo download** — Table stakes. Flexibility for clients who want specific images only. Download button in lightbox + grid view.
-- [ ] **DOWNLOADED status tracking** — Table stakes. Photographers need confirmation delivery was received. Collection transitions to DOWNLOADED status.
-- [ ] **Share link redirect logic** — Enhances integrated flow. Selection link redirects to delivery page when status = DELIVERED.
-- [ ] **Hide upload dropzone after first photo** — UI polish. Reduces clutter once collection has content. Show "Add more photos" button instead.
-- [ ] **Reorganize collection details buttons** — UI polish. Improve action flow clarity for photographer.
-- [ ] **Reorganize share page layout** — UI polish. Improve client action clarity on delivery page.
+- [x] **Separate delivery link** — deliveryToken (128-bit hex), /deliver/{token} route, auto-generated on DELIVERED transition
+- [x] **ZIP download all finals** — maennchen/zipstream-php streaming via R2, /deliver/{token}/zip endpoint
+- [x] **Individual photo download** — /deliver/{token}/photo/{id} endpoint, R2 stream proxy
+- [x] **DOWNLOADED status tracking** — Download table, download-tracker.php with session-based deduplication
+- [x] **Share link redirect logic** — SharePage handles DELIVERED status, shows delivery info
+- [x] **Hide upload dropzone after first photo** — DraftPhase conditional rendering, compact "Add more" button
+- [x] **Reorganize collection details buttons** — Phase components (DraftPhase, SelectingPhase, ReviewingPhase, DeliveredPhase)
+- [x] **Reorganize share page layout** — Labels (SELECTED/FAVORITE/REJECTED), PRO branding, improved lightbox
 
-### Add After Validation (v2.x)
+### Add After Validation (v2.x) — MOSTLY SHIPPED
 
 Features to add once core delivery workflow is working.
 
-- [ ] **Gallery expiration dates** — Implement 3-6 month expiration windows with email reminders. Standard: 3-6 months for weddings, 3-4 weeks for sessions. Wait for email infrastructure setup before implementing automated reminders.
-- [ ] Selection quota enforcement (photographer sets max selectable count) — add when photographers report scope creep issues
-- [ ] Selection submission confirmation (explicit "submit my selection" button) — add when photographers report receiving incomplete selections
-- [ ] Password protection as second factor on top of token — add if photographers serving high-profile clients request it
-- [ ] **Download analytics** — Track which specific photos clients download. Surface in photographer dashboard. Defer until photographers request it.
-- [ ] **Multiple ZIP size options** — Let clients choose resolution (full/web). Requires EditedPhoto variants. Defer until bandwidth concerns arise.
-- [ ] **Delivery page customization** — Photographer branding (logo, colors) on delivery page. Differentiator but not needed for core workflow.
+- [x] **Gallery expiration dates** — `expiresAt` field exists, checked on share/delivery access. Missing: cron for automated cleanup, email reminders
+- [ ] Selection quota enforcement (photographer sets max selectable count) — not yet implemented
+- [x] Selection submission confirmation (explicit "submit my selection" button) — client submits, status → REVIEWING
+- [x] Password protection on share links — bcrypt-hashed password, rate-limited (10/15min/IP), 2-hour session tokens
+- [x] **Download analytics** — Download table tracks every download (type, photoId, sessionId, userAgent, timestamp). Admin dashboard shows download stats.
+- [ ] **Multiple ZIP size options** — Not implemented. Defer until bandwidth concerns arise.
+- [x] **Delivery page customization** — PRO branding (logo + accent color) on both share and delivery pages
 
-### Future Consideration (v3+)
+### Shipped Since v2.0 (v3.0 UI/UX Redesign + Infrastructure)
 
-Features to defer until product-market fit is established.
+- [x] Cloud storage migration — **Cloudflare R2** via AWS SDK, all photos/thumbnails on R2
+- [x] Email infrastructure — **PHPMailer** for verification emails and password reset
+- [x] Dark theme redesign — Full dark UI across all authenticated pages
+- [x] Responsive layouts — MainLayout (desktop sidebar) + MobileLayout (bottom nav), switches at 768px
+- [x] Phase components — DraftPhase, SelectingPhase, ReviewingPhase, DeliveredPhase
+- [x] Primitive components — Button, Card, Input, PhotoCard, UploadZone, SelectionBorder
+- [x] PRO features — Watermarked previews, custom branding (logo + accent color), drag-and-drop photo reorder
+- [x] Google OAuth — Account table, Google API client
+- [x] Admin subsystem — Stats, user/collection management, audit log, download stats
+- [x] Auto-cleanup originals — 7 days after delivery, originals scheduled for cleanup
+- [x] Session expired modal — Better UX for expired sessions instead of raw errors
+- [x] Rate limiting — Login, register, forgot-password, share password attempts
+- [x] Audit logging — Admin actions tracked via AuditLog table
 
-- [ ] Per-photo client notes / editing instructions — high value but high complexity; defer until base workflow is validated
-- [ ] Email notifications (selection submitted, delivery ready) — requires email infrastructure; out of scope for this milestone
-- [ ] Cloud storage migration (S3 / Cloudflare R2) — planned but not needed until storage limits are hit
-- [ ] Gallery analytics / download tracking (advanced) — nice-to-have; Pixieset offers this but it is not critical for core workflow
-- [ ] **Password-protected delivery links** — Security feature. Defer until client requests or compliance requirements emerge.
-- [ ] **CDN integration for downloads** — Performance optimization. Defer until download volume justifies CDN costs.
-- [ ] **Client download history** — Track all downloads across all collections for a client email. Requires client identity system. Conflicts with "no client accounts" philosophy.
-- [ ] **ZIP resume support** — Handle failed large downloads. Complex implementation, edge case for typical collection sizes.
-- [ ] **Preview before download** — Client previews edited photos before downloading. Useful but adds UI complexity - lightbox already serves this for individual downloads.
+### Future Consideration (Remaining TODOs)
+
+- [ ] **Stripe payment integration** — Schema ready (stripeCustomerId field), plan/subscription fields exist, PaymentsPage UI-only. Need: Stripe SDK, checkout sessions, webhooks, customer portal.
+- [ ] Per-photo client notes / editing instructions — high value but high complexity
+- [ ] **PHPUnit backend tests** — No backend test coverage yet
+- [ ] **Cron job for collection expiration** — expiresAt field checked on access but no automated cleanup
+- [ ] **API documentation (OpenAPI)** — No formal API docs
+- [ ] **CDN integration for downloads** — R2 serves via PHP proxy; direct CDN URLs would improve performance
+- [ ] **Client download history** — Track across collections. Requires client identity system.
+- [ ] **ZIP resume support** — Handle failed large downloads
+- [ ] **Email notifications for workflow events** — selection submitted, delivery ready (PHPMailer ready, just need triggers)
+- [ ] Selection quota enforcement — photographer sets max selectable count
+- [ ] Multiple ZIP size options — resolution variants
+- [ ] Password-protected delivery links — delivery page only uses token, no password option
 
 ## Feature Prioritization Matrix
 
@@ -199,40 +216,44 @@ Features to defer until product-market fit is established.
 | Photographer selection review + filter | HIGH | LOW | P1 (v1.0 SHIPPED) |
 | Edited finals upload | HIGH | MEDIUM | P1 (v1.0 SHIPPED) |
 | Collection status color coding | MEDIUM | LOW | P1 (v1.0 SHIPPED) |
-| **Separate delivery link** | **HIGH** | **LOW** | **P1 (v2.0 TARGET)** |
-| **ZIP download all finals** | **HIGH** | **MEDIUM** | **P1 (v2.0 TARGET)** |
-| **Individual photo download** | **HIGH** | **LOW** | **P1 (v2.0 TARGET)** |
-| **DOWNLOADED status tracking** | **HIGH** | **LOW** | **P1 (v2.0 TARGET)** |
-| **Share link redirect logic** | **MEDIUM** | **LOW** | **P1 (v2.0 TARGET)** |
-| **Hide upload dropzone** | **MEDIUM** | **LOW** | **P1 (v2.0 TARGET)** |
-| **Reorganize buttons (details)** | **MEDIUM** | **LOW** | **P1 (v2.0 TARGET)** |
-| **Reorganize buttons (share)** | **MEDIUM** | **LOW** | **P1 (v2.0 TARGET)** |
-| Gallery expiration dates | HIGH | MEDIUM | P2 (v2.x) |
-| Selection quota enforcement | MEDIUM | LOW | P2 |
-| Selection submission confirmation | MEDIUM | LOW | P2 |
-| Password protection (second factor) | MEDIUM | MEDIUM | P2 |
-| Download analytics | MEDIUM | MEDIUM | P2 (v2.x) |
-| Multiple ZIP resolutions | LOW | HIGH | P3 |
-| Delivery page branding | MEDIUM | MEDIUM | P3 |
-| Per-photo client notes | HIGH | HIGH | P3 |
-| Email notifications | MEDIUM | HIGH | P3 |
-| Password-protected delivery | MEDIUM | MEDIUM | P3 |
-| CDN integration | LOW | HIGH | P3 |
+| Separate delivery link | HIGH | LOW | SHIPPED (v2.0) |
+| ZIP download all finals | HIGH | MEDIUM | SHIPPED (v2.0) |
+| Individual photo download | HIGH | LOW | SHIPPED (v2.0) |
+| DOWNLOADED status tracking | HIGH | LOW | SHIPPED (v2.0) |
+| Share link redirect logic | MEDIUM | LOW | SHIPPED (v2.0) |
+| Hide upload dropzone | MEDIUM | LOW | SHIPPED (v2.0) |
+| Reorganize buttons (details) | MEDIUM | LOW | SHIPPED (v2.0) |
+| Reorganize buttons (share) | MEDIUM | LOW | SHIPPED (v2.0) |
+| Cloud storage (R2) | HIGH | HIGH | SHIPPED (v3.0) |
+| Email infrastructure (PHPMailer) | MEDIUM | MEDIUM | SHIPPED (v3.0) |
+| Dark theme redesign | HIGH | HIGH | SHIPPED (v3.0) |
+| Responsive layouts | HIGH | HIGH | SHIPPED (v3.0) |
+| PRO features (watermark/branding/reorder) | MEDIUM | HIGH | SHIPPED (v3.0) |
+| Password protection (share links) | MEDIUM | MEDIUM | SHIPPED (v2.x) |
+| Download analytics | MEDIUM | MEDIUM | SHIPPED (v2.x) |
+| Selection submission confirmation | MEDIUM | LOW | SHIPPED (v2.x) |
+| Delivery page branding | MEDIUM | MEDIUM | SHIPPED (v3.0) |
+| **Stripe payment integration** | **HIGH** | **HIGH** | **NEXT — Critical for monetization** |
+| Selection quota enforcement | MEDIUM | LOW | TODO |
+| Per-photo client notes | HIGH | HIGH | TODO |
+| Email workflow notifications | MEDIUM | MEDIUM | TODO (PHPMailer ready) |
+| Multiple ZIP resolutions | LOW | HIGH | TODO |
+| Password-protected delivery | MEDIUM | MEDIUM | TODO |
+| CDN integration | LOW | HIGH | TODO |
 
 **Priority key:**
-- P1 (v1.0 SHIPPED): Must have for launch — basic workflow validated
-- P1 (v2.0 TARGET): Must have for v2.0 — completes delivery workflow
-- P2: Should have, add when possible (v2.x+)
-- P3: Nice to have, future consideration (v3+)
+- SHIPPED: Feature is live in production
+- NEXT: Highest priority remaining feature
+- TODO: Planned but not yet started
 
 ## Competitor Feature Analysis
 
 | Feature | Pixieset | ShootProof | Pic-Time / CloudSpot | Our Approach |
 |---------|----------|------------|----------------------|--------------|
-| Client access model | Token link + optional password | Token link + PIN + email-gated | Token link + optional password | Token-only; no client account required |
-| Photo selection / proofing | Favorites + notes + activity tracking | Favorites + album labels | Favorites + comments | Toggle selection; count display; submit confirmation |
+| Client access model | Token link + optional password | Token link + PIN + email-gated | Token link + optional password | Token + optional bcrypt password; no client account required |
+| Photo selection / proofing | Favorites + notes + activity tracking | Favorites + album labels | Favorites + comments | SELECTED/FAVORITE/REJECTED labels; count display; submit confirmation |
 | Download control | Photographer sets download permissions per gallery | Per-contact download permissions (resolution + quantity) | Photographer enables/disables downloads | Status-gated: no downloads during SELECTING, full access at DELIVERED |
-| ZIP delivery | Yes (whole gallery or selection) | Yes (zip emailed or direct) | Yes | Server-side PHP ZipArchive streaming. **v2.0 FOCUS** |
+| ZIP delivery | Yes (whole gallery or selection) | Yes (zip emailed or direct) | Yes | ZipStream-PHP streaming from R2 |
 | Individual download | Yes - download button per photo | Yes - download individual or selected subset | Yes - per-photo download | Yes - download button in lightbox + grid view. **v2.0 FOCUS** |
 | Download tracking | Yes - shows who downloaded, which files, when | Yes - analytics dashboard | Yes - download history per client | Yes - collection transitions to DOWNLOADED status, track download events. **v2.0 FOCUS** |
 | Separate delivery link | Yes - proofing vs delivery galleries separate | Yes - different gallery types | Yes - explicit workflow separation | Yes - selection link redirects to delivery page when DELIVERED. **v2.0 FOCUS** |

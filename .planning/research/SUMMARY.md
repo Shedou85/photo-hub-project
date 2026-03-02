@@ -2,16 +2,32 @@
 
 **Project:** Photo Hub v3.0 UI/UX Redesign
 **Domain:** SaaS Photographer Platform (Functional → Premium Aesthetic)
-**Researched:** 2026-02-14
+**Researched:** 2026-02-14 (initial), 2026-03-02 (status update)
 **Confidence:** HIGH
+
+> **STATUS (2026-03-02):** v3.0 redesign COMPLETE. All 16 phases shipped. Dark theme adopted. Responsive layout (desktop sidebar + mobile bottom nav) live. Phase components extracted. Primitive components built. Cloudflare R2 storage migrated. **Next priority: Stripe payment integration.**
 
 ## Executive Summary
 
-Photo Hub is a professional photographer platform with a solid functional foundation (React 18 + Tailwind CSS v3 + vanilla PHP backend + MySQL) and clear collection workflow (DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED). The v3.0 redesign aims to elevate from functional to world-class SaaS aesthetic (Linear/Stripe/Notion level) while fixing identified workflow UX issues. Research across design systems, workflow patterns, architecture integration, and pitfalls reveals a clear path forward: **mobile-first client experience + desktop-optimized photographer workspace, built via gradual component refactoring with design token extraction**.
+Photo Hub is a professional photographer platform with a solid foundation (React 18 + Tailwind CSS v3 + vanilla PHP backend + MySQL + Cloudflare R2) and a complete collection workflow (DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED). The v3.0 redesign elevated the UI from functional to premium dark-themed SaaS aesthetic.
 
-The recommended approach is **incremental migration, not big-bang rewrite**. Stay on Tailwind v3 (defer v4 migration post-redesign), extract design tokens via `theme.extend`, build primitive component library (Button, Card, Badge), then selectively refactor pages. CollectionDetailsPage requires partial rewrite (1040 lines, complex state-based UI) via workflow phase component extraction; other pages need style-only refactors. Critical risks include over-design masking usability loss (measure task completion times before/after), mobile-first destroying desktop experience (design 3 distinct layouts, not 1 stretched), and breaking existing workflow patterns (preserve muscle memory, add migration tooltips for necessary changes).
+**What was accomplished:**
+- Dark theme across all authenticated pages (surface-darker #0d0f14)
+- Responsive layout: MainLayout (desktop sidebar) + MobileLayout (bottom tab nav) at 768px
+- Phase components: DraftPhase, SelectingPhase, ReviewingPhase, DeliveredPhase
+- Primitive components: Button, Card, Input, PhotoCard, UploadZone, SelectionBorder
+- All workflow UX gaps fixed: upload zone adaptation, conditional buttons, auto-navigation, phase guidance
+- PRO features: watermarked previews, custom branding (logo + accent color), drag-and-drop reorder
+- Cloud storage migration to Cloudflare R2
+- Email infrastructure (PHPMailer) for verification and password reset
+- Admin subsystem with audit logging and download stats
 
-Key insight from competitor analysis: Photo Hub's explicit status lifecycle (color-coded badges for DRAFT/SELECTING/REVIEWING/DELIVERED) is a differentiator versus Pixieset/Pic-Time's implicit states. The redesign should enhance this strength while fixing gaps: upload zone should adapt to collection state (large dropzone when empty, compact button when populated), conditional button display (hide "Start Selection" until photos exist), auto-navigation after actions (create collection → navigate to details), and mobile bottom navigation to complement desktop sidebar. These changes bring Photo Hub to industry standard while maintaining its workflow clarity advantage.
+**What remains:**
+- **Stripe payment integration** — schema ready, PaymentsPage UI-only, no SDK installed
+- PHPUnit backend tests
+- Email notifications for workflow events (selection submitted, delivery ready)
+- Cron job for collection expiration cleanup
+- API documentation (OpenAPI)
 
 ## Key Findings
 
@@ -104,78 +120,42 @@ Key insight from competitor analysis: Photo Hub's explicit status lifecycle (col
 - Rate limiting on photo upload (10 uploads/minute per user) — prevent disk space abuse
 - Maintain SameSite=None, Secure, HttpOnly flags on session cookies — already correct per CLAUDE.md
 
-## Implications for Roadmap
+## Next Roadmap Priority
 
-Based on research, suggested phase structure mirrors architecture build order with integration of workflow improvements and pitfall mitigation:
+All v3.0 redesign phases are complete. The next critical milestone is:
 
-### Phase 1: Design System Foundation (Week 1)
-**Rationale:** Establish design tokens and shared constants before any component changes — prevents inconsistencies, enables parallel work.
-**Delivers:** Tailwind `theme.extend` config with spacing/typography/color/shadow tokens, shared `BREAKPOINTS` constants file, performance budgets documented (Lighthouse >90, LCP <2.5s, CLS <0.1).
-**Addresses:** Design token system (DESIGN-SYSTEM.md), responsive breakpoint architecture (ARCHITECTURE.md)
-**Avoids:** Tailwind class bloat (Pitfall 9), responsive breakpoint bugs (Pitfall 7)
-**Research flag:** No deeper research needed — well-documented Tailwind v3 patterns, template provided in ARCHITECTURE.md
+### Stripe Payment Integration
 
-### Phase 2: Primitive Component Library (Week 2)
-**Rationale:** Extract reusable Button/Card/Badge components enforcing design tokens before refactoring pages — single source of truth.
-**Delivers:** `Button.jsx` (primary/secondary/danger variants), `Card.jsx` (standard white card), `Badge.jsx` (status colors), PaymentsPage migrated to validate primitives.
-**Addresses:** Component extraction priorities (ARCHITECTURE.md), button hierarchy (WORKFLOW-PATTERNS.md)
-**Avoids:** Tailwind class bloat (Pitfall 9), inconsistent styling
-**Research flag:** No deeper research needed — React component patterns well-established
+**Why next:** The plan system (FREE_TRIAL, STANDARD, PRO) is fully defined with collection limits enforced, PRO features gated, and PaymentsPage showing plan cards — but all upgrade buttons are disabled. This is the critical missing piece for monetization.
 
-### Phase 3: Responsive Layout Refactor (Week 3)
-**Rationale:** Add mobile bottom navigation and refine desktop sidebar before page redesigns — layout foundation for all views.
-**Delivers:** `BottomNav.jsx` component (mobile <768px), persistent sidebar (desktop >=768px), responsive breakpoint logic using shared constants, touch-friendly 48x48px targets.
-**Addresses:** Mobile navigation pattern (DESIGN-SYSTEM.md), responsive strategy (ARCHITECTURE.md)
-**Avoids:** Hidden navigation on desktop (Pitfall 3), touch targets too small (Pitfall 5)
-**Research flag:** No deeper research needed — mobile navigation patterns documented in DESIGN-SYSTEM.md
+**What exists:**
+- `User.stripeCustomerId` field in schema (VARCHAR(191), UNIQUE, nullable)
+- `User.plan` enum: FREE_TRIAL, STANDARD, PRO
+- `User.subscriptionStatus` enum: FREE_TRIAL, ACTIVE, CANCELED, INACTIVE
+- `User.trialEndsAt`, `User.subscriptionEndsAt` datetime fields
+- Collection creation limit enforcement (3 for FREE_TRIAL)
+- PRO feature gating (watermarks, branding, reorder, archive)
+- PaymentsPage UI with plan cards and prices ($9/mo STANDARD, $19/mo PRO)
 
-### Phase 4: Collection List & Simple Page Refactors (Weeks 4-5)
-**Rationale:** Apply design tokens to simpler pages (CollectionsListPage, SharePage, DeliveryPage) before tackling complex CollectionDetailsPage — build confidence, validate primitive components.
-**Delivers:** CollectionsListPage with Polaroid cards + design tokens, SharePage with improved mobile touch targets, DeliveryPage with updated button styles, all using primitive components.
-**Addresses:** Card design patterns (DESIGN-SYSTEM.md), workflow patterns for client views (WORKFLOW-PATTERNS.md)
-**Avoids:** Over-design masking usability (Pitfall 1) — verify task completion times before/after
-**Research flag:** No deeper research needed — refactor execution (style changes only)
+**What needs to be built:**
+1. Install `stripe/stripe-php` SDK
+2. POST `/payments/checkout-session` — create Stripe Checkout session for plan upgrade
+3. POST `/webhooks/stripe` — handle payment success, subscription changes, cancellations
+4. POST `/payments/customer-portal` — Stripe customer portal for subscription management
+5. Frontend Stripe.js integration — redirect to Checkout, handle success/cancel URLs
+6. Auto-upgrade user plan on successful webhook
+7. Handle subscription cancellation and downgrade
 
-### Phase 5: Collection Workflow Enhancement (Weeks 6-7)
-**Rationale:** Extract CollectionDetailsPage workflow phase components and implement state-based UI improvements — core photographer experience, highest complexity.
-**Delivers:** Workflow phase components (DraftPhase, SelectingPhase, ReviewingPhase, DeliveredPhase), composite components (PhotoCard, UploadZone), upload zone adaptation (large when empty, compact button when populated), conditional button display (hide "Start Selection" until photos exist), auto-navigation after create, next-step guidance text per status.
-**Addresses:** All P1 workflow patterns (WORKFLOW-PATTERNS.md), state-based conditional rendering (ARCHITECTURE.md), workflow phase visualization
-**Avoids:** Unclear workflow states (Pitfall 6), breaking workflow patterns (Pitfall 4), over-design masking usability (Pitfall 1)
-**Research flag:** **Consider phase-specific research** if workflow testing reveals edge cases — photographer feedback critical here
+### Other Remaining TODOs
 
-### Phase 6: Visual QA, Performance & i18n Validation (Week 8)
-**Rationale:** Cross-browser/device testing, performance audit, multi-locale validation before launch — catch regressions, ensure quality bar.
-**Delivers:** Cross-browser QA (Chrome/Firefox/Safari desktop + mobile), physical device testing (one-handed, touch targets), Lighthouse performance audit (>90 score), i18n visual regression testing (LT/EN/RU overflow checks), CLS monitoring, bundle size verification (<50KB CSS gzipped).
-**Addresses:** Performance budgets, accessibility validation, i18n integrity
-**Avoids:** Image performance degradation (Pitfall 8), i18n broken by redesign (Pitfall 10), mobile-first destroying desktop (Pitfall 2) — test on actual monitors
-**Research flag:** No deeper research needed — QA execution phase
-
-### Phase Ordering Rationale
-
-- **Foundation-first (Phases 1-3):** Design tokens → primitives → layout BEFORE page redesigns prevents rework, ensures consistency
-- **Simple-to-complex (Phases 4-5):** Refactor simple pages first (CollectionsList, Share, Delivery) validates primitives, builds confidence before tackling CollectionDetailsPage complexity
-- **Workflow-critical last (Phase 5):** CollectionDetailsPage is core photographer experience with highest risk; delay until design system proven on simpler pages
-- **QA always final (Phase 6):** Comprehensive testing after all implementations complete catches integration issues, prevents premature optimization
-
-**Dependency chain:**
-```
-[Design Tokens] → [Primitives] → [Layout] → [Simple Pages] → [Workflow Pages] → [QA]
-     Week 1          Week 2        Week 3      Weeks 4-5       Weeks 6-7      Week 8
-```
-
-### Research Flags
-
-**Phases with standard patterns (skip research-phase):**
-- **Phase 1 (Design System):** Tailwind v3 `theme.extend` well-documented, template provided in ARCHITECTURE.md
-- **Phase 2 (Primitives):** React component patterns established, Button/Card/Badge are common patterns
-- **Phase 3 (Layout):** Mobile bottom navigation + desktop sidebar patterns documented in DESIGN-SYSTEM.md
-- **Phase 4 (Simple Refactors):** Style-only changes, no new patterns
-
-**Phase likely needing validation:**
-- **Phase 5 (Workflow Enhancement):** Consider targeted user testing mid-phase if workflow changes (upload zone adaptation, conditional buttons, auto-navigation) show unexpected usage patterns. Photographer feedback critical for workflow UX — they've built muscle memory around current patterns (see Pitfall 4).
-
-**Phase requiring monitoring:**
-- **Phase 6 (QA):** Performance monitoring (Lighthouse, CLS) may reveal optimization needs; i18n testing may surface translation overflow issues requiring design adjustments (see Pitfall 10).
+| Priority | Feature | Effort |
+|----------|---------|--------|
+| HIGH | Stripe payment integration | LARGE |
+| MEDIUM | Email notifications for workflow events | MEDIUM |
+| MEDIUM | PHPUnit backend tests | LARGE |
+| LOW | Cron for collection expiration cleanup | LOW |
+| LOW | API documentation (OpenAPI) | MEDIUM |
+| LOW | Selection quota enforcement | LOW |
 
 ## Confidence Assessment
 

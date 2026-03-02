@@ -1,146 +1,113 @@
-# Stack Research — v2.0 Delivery & Download Features
+# Stack Research — Photo Hub Full Stack
 
-**Domain:** Photo delivery and download management (v2.0 milestone additions)
-**Researched:** 2026-02-13
+**Domain:** Photo Hub complete technology stack
+**Researched:** 2026-02-13 (initial), 2026-03-02 (updated to reflect current state)
 **Confidence:** HIGH
 
 ---
 
 ## Context
 
-This research covers ONLY the NEW stack additions needed for v2.0 milestone:
+This document covers the complete technology stack for Photo Hub as of v3.0.
 
-1. **Delivery link system** — Separate delivery token (distinct from selection shareId)
-2. **ZIP download** — Stream all edited photos as ZIP archive
-3. **Individual photo downloads** — Download single edited photos
-4. **Download tracking** — Record when photos/ZIPs are downloaded
-5. **UI polish** — Hide upload dropzone after first upload, reorganize buttons
-
-**EXISTING stack (v1.0) — NOT researched here:**
-- React 18 + Vite 5 + Tailwind CSS (frontend)
+**Current stack:**
+- React 18 + Vite 5 + Tailwind CSS v3 (frontend)
 - Vanilla PHP + PDO + MySQL (backend)
-- Token-based sharing (`shareId` for selection phase)
-- File storage in `backend/uploads/` (local filesystem)
-- GD-based thumbnail generation (400px JPEG)
-- Collection status lifecycle: DRAFT → SELECTING → REVIEWING → DELIVERED
+- **Cloudflare R2** for photo/thumbnail/watermark storage (via AWS SDK)
+- PHPMailer for transactional emails
+- maennchen/zipstream-php for ZIP streaming from R2
+- Google OAuth via google/apiclient
+- Collection status lifecycle: DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED
 
-**What v2.0 does NOT include:**
-- Cloud storage migration (S3/R2) — deferred to v3.0
-- Email delivery notifications — deferred to v2.1
-- Payment processing enhancements — separate milestone
+**Not yet implemented:**
+- Stripe payment integration — separate milestone, next priority
 - Queue system for ZIP generation — unnecessary at current scale
 
 ---
 
-## Recommended Stack
+## Current Stack (as shipped)
 
-### Backend (PHP) Additions
+### Backend (PHP) — All Installed
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **maennchen/zipstream-php** | ^3.2 | Streaming ZIP generation | Industry standard for PHP ZIP creation without disk writes. Streams directly to client via output buffer, avoiding memory exhaustion and timeout issues. Works with local filesystem and PSR7 streams. Active maintenance (3.2.0 released July 2025). |
-| **random_bytes() + bin2hex()** | Built-in (PHP 7+) | Delivery token generation | PHP's cryptographically secure CSPRNG. Meets NIST/FIPS standards for unpredictability. 32-byte input → 64-char hex token = 256 bits entropy. No external dependencies. |
-| **readfile() with headers** | Built-in (PHP 7+) | Individual photo download proxy | Memory-efficient streaming for files <100MB. Use with `Content-Disposition: attachment` header to force browser download. Built-in, no library needed. |
+| Technology | Version | Purpose | Status |
+|------------|---------|---------|--------|
+| **aws/aws-sdk-php** | ^3.0 | Cloudflare R2 storage (S3-compatible API) | INSTALLED — r2Upload, r2Delete, r2GetStream, r2GetUrl, r2GetSize |
+| **maennchen/zipstream-php** | 3.0 | Streaming ZIP generation from R2 | INSTALLED — streams R2 objects directly to ZIP output |
+| **phpmailer/phpmailer** | ^7.0 | Transactional emails (verification, password reset) | INSTALLED — SMTP via .env config |
+| **google/apiclient** | ^2.16 | Google OAuth login | INSTALLED — Account table stores OAuth data |
+| **vlucas/phpdotenv** | 5.5 | Environment variable loading | INSTALLED — .env config |
+| **random_bytes() + bin2hex()** | Built-in (PHP 8+) | Token generation (shareId, deliveryToken, CSRF) | Built-in — 128-bit hex tokens |
+| **GD library** | Built-in | Thumbnail generation + watermark overlay | Built-in — 400px thumbnails, "PREVIEW" diagonal watermark |
 
-### Frontend (React) Additions
+### Frontend (React) — All Installed
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| **file-saver** | ^2.0.5 | Client-side Blob download | For individual edited photo downloads. Handles cross-browser quirks (Safari, Firefox filename handling). Mature, stable library (last update 2019—feature-complete). |
-| **Native Fetch + Blob** | Built-in | ZIP download handling | For large ZIP downloads, use native Fetch API with `response.blob()`. No library needed. Browser-native, handles CORS with `credentials: 'include'`, supports AbortController for cancellation. |
+| Library | Version | Purpose | Status |
+|---------|---------|---------|--------|
+| **react** | ^18 | UI framework | Core |
+| **react-router-dom** | ^7 | Client-side routing | Core |
+| **react-i18next** | i18next | Internationalization (LT/EN/RU) | Core — 19 namespaces |
+| **tailwindcss** | ^3 | Utility-first CSS | Core — dark theme tokens |
+| **@dnd-kit** | Various | Drag-and-drop photo reorder | PRO feature |
+| **react-helmet-async** | Latest | Per-page SEO meta | Core |
+| **sonner** | Latest | Toast notifications | Core |
+| **Vite** | ^5 | Build tool + dev server | Core |
 
-### Database Schema Additions
+### Database Schema (All Applied)
 
-| Change | SQL Type | Purpose | Implementation |
-|--------|----------|---------|----------------|
-| `Collection.deliveryToken` | VARCHAR(64) UNIQUE | Separate delivery link token | Generated via `bin2hex(random_bytes(32))`. Nullable—only set when status transitions to DELIVERED. Indexed for fast lookup. |
-| `Collection.deliveredAt` | DATETIME(3) | Track delivery timestamp | Set when status changes to DELIVERED. Used for expiry calculations (deliveredAt + 30 days). |
-| `Collection.zipDownloadedAt` | DATETIME(3) | Track ZIP download | Updated when client downloads full ZIP. NULL = not yet downloaded. |
-| `EditedPhoto.downloadedAt` | DATETIME(3) | Track individual downloads | Updated when client downloads individual photo. NULL = not yet downloaded. |
+All schema changes are in `database_schema.sql`. Key tables: User, Account, Collection, Photo, EditedPhoto, Selection, PromotionalPhoto, Download, AuditLog.
 
-### No New Infrastructure Required
+Key Collection fields: `shareId`, `deliveryToken`, `password`, `expiresAt`, `originalsCleanupAt`, `status` enum.
+Key User fields: `plan`, `subscriptionStatus`, `trialEndsAt`, `stripeCustomerId` (unused).
 
-**What NOT to Add:**
+### Infrastructure
 
-| Technology | Why Avoid | Current Approach |
-|------------|-----------|------------------|
-| Cloud storage SDK (AWS SDK, Cloudflare SDK) | Premature—v2.0 uses local filesystem | Keep `backend/uploads/` storage. Defer S3/CloudFlare R2 to v3.0 when scaling needs emerge (>500GB storage). |
-| Queue system (Redis, RabbitMQ, Beanstalkd) | Overkill for current scale | Generate ZIPs on-demand with streaming. Add queuing only if >100 collections/day or analytics show timeout issues. |
-| Separate file server (Nginx static, CDN) | Unnecessary complexity for v2.0 | Serve files from same PHP backend. Nginx reverse proxy for static files is future optimization, not v2.0 blocker. |
-| JWT library (firebase/php-jwt) | Overkill for simple token validation | Plain random token with DB lookup is faster, simpler, and sufficient for delivery links. |
-| Email library (PHPMailer, SwiftMailer) | Not in v2.0 scope | Manual copy/paste of delivery link. Defer email notifications to v2.1. |
-
----
-
-## Installation
-
-### Backend (Composer)
-
-```bash
-cd backend
-composer require maennchen/zipstream-php:^3.2
-```
-
-This adds to `backend/composer.json`:
-```json
-{
-  "require": {
-    "nelmio/cors-bundle": "^2.1",
-    "maennchen/zipstream-php": "^3.2"
-  }
-}
-```
-
-Then add autoloader to `backend/index.php` (if not already present):
-```php
-require_once __DIR__ . '/vendor/autoload.php';
-```
-
-### Frontend (npm)
-
-```bash
-cd frontend
-npm install file-saver@^2.0.5
-```
-
-This adds to `frontend/package.json`:
-```json
-{
-  "dependencies": {
-    "file-saver": "^2.0.5",
-    // ... existing dependencies
-  }
-}
-```
-
-### Database Migration
-
-```sql
--- Add delivery token and tracking columns to Collection table
-ALTER TABLE `Collection`
-  ADD COLUMN `deliveryToken` VARCHAR(64) NULL UNIQUE AFTER `shareId`,
-  ADD COLUMN `deliveredAt` DATETIME(3) NULL AFTER `status`,
-  ADD COLUMN `zipDownloadedAt` DATETIME(3) NULL AFTER `deliveredAt`,
-  ADD INDEX `Collection_deliveryToken_idx` (`deliveryToken`);
-
--- Add download tracking to EditedPhoto table
-ALTER TABLE `EditedPhoto`
-  ADD COLUMN `downloadedAt` DATETIME(3) NULL AFTER `createdAt`;
-```
-
-**Migration notes:**
-- Run on production via phpMyAdmin or `mysql` CLI
-- `deliveryToken` is nullable—existing collections remain NULL until delivered
-- UNIQUE constraint prevents token collisions
-- Index on `deliveryToken` enables fast lookup for public delivery page
+| Component | Current | Notes |
+|-----------|---------|-------|
+| **Photo storage** | Cloudflare R2 (S3-compatible) | Via AWS SDK, keys: `collections/{id}/{photoId}.{ext}` |
+| **Email** | PHPMailer (SMTP) | Verification + password reset only, no workflow notifications yet |
+| **Auth** | PHP sessions + cookies | Cross-domain (.pixelforge.pro), SameSite=Lax, secure, httponly |
+| **Queue system** | None | ZIPs generated on-demand via streaming. Not needed at current scale. |
+| **CDN** | None | R2 served via PHP proxy. Direct R2 URLs possible future optimization. |
+| **Payments** | None | Stripe SDK not yet installed. Schema fields ready. |
 
 ---
 
-## Integration Points
+## Installation (All Done)
 
-### 1. Delivery Token Generation (PHP)
+### Backend (Composer) — Already Installed
 
+```bash
+cd backend && composer install
+```
+
+Current `backend/composer.json` requires:
+- `phpmailer/phpmailer: ^7.0`
+- `aws/aws-sdk-php: ^3.0`
+- `google/apiclient: ^2.16`
+- `maennchen/zipstream-php: 3.0`
+- `vlucas/phpdotenv: 5.5`
+
+Autoloader included in `backend/index.php`: `require_once __DIR__ . '/vendor/autoload.php'`
+
+### Frontend (npm) — Already Installed
+
+```bash
+cd frontend && npm install
+```
+
+### Database — Schema Applied
+
+Full schema in `database_schema.sql` at project root. All tables and fields are live.
+
+---
+
+## Integration Points (All Implemented)
+
+### 1. Delivery Token Generation (PHP) — IMPLEMENTED
+
+**Location:** `backend/_collections/delivery.php`
 **When:** Photographer transitions collection from REVIEWING → DELIVERED
+**Note:** Uses `bin2hex(random_bytes(16))` for 128-bit hex tokens. Also auto-sets `originalsCleanupAt` (+7 days) and clears `coverPhotoId`.
 
 **Pattern:**
 ```php
@@ -199,9 +166,11 @@ echo json_encode([
 - HTTPS required for delivery URLs (already enforced on pixelforge.pro)
 - Token length makes brute-force infeasible (2^256 possible values)
 
-### 2. ZIP Streaming (PHP + ZipStream)
+### 2. ZIP Streaming (PHP + ZipStream) — IMPLEMENTED
 
+**Location:** `backend/_collections/zip-download.php`
 **When:** Client clicks "Download All" on delivery page
+**Note:** Streams directly from Cloudflare R2 via `r2GetStream()` — no local disk writes.
 
 **Pattern:**
 ```php
@@ -296,9 +265,11 @@ exit;
   unlink($zipPath);
   ```
 
-### 3. Individual Photo Download (PHP)
+### 3. Individual Photo Download (PHP) — IMPLEMENTED
 
+**Location:** `backend/_collections/photo-download.php`
 **When:** Client clicks download icon on individual photo in delivery page
+**Note:** Streams from R2 via `r2GetStream()`, tracks download in Download table via `download-tracker.php`.
 
 **Pattern:**
 ```php
@@ -361,9 +332,12 @@ exit;
 - Status check ensures only DELIVERED collections allow downloads
 - Direct file paths never exposed to client
 
-### 4. Frontend Download Handling (React)
+### 4. Frontend Download Handling (React) — IMPLEMENTED
 
-#### Individual Photo Downloads (file-saver)
+**Location:** `frontend/src/pages/DeliveryPage.jsx` + `frontend/src/utils/download.js`
+**Note:** Uses anchor-click download helpers (no file-saver library). ZIP and individual downloads via native fetch.
+
+#### Individual Photo Downloads
 
 **Pattern:**
 ```javascript
@@ -513,153 +487,45 @@ const blob = new Blob(chunks);
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| **JWT library (firebase/php-jwt)** | Overkill for simple token validation. Plain random token with DB lookup is faster, simpler, and sufficient for delivery links. | `random_bytes()` + bin2hex() with DB storage |
-| **axios for downloads** | Adds 13KB dependency for functionality built into Fetch API. No benefit for file downloads. | Native Fetch with Blob |
-| **Pre-generating ZIPs on upload** | Wastes disk space, slows upload, outdated if photos change. ZIP becomes stale if photographer re-uploads edited versions. | On-demand generation with streaming |
-| **uniqid() or mt_rand() for tokens** | NOT cryptographically secure. Predictable under certain conditions. OWASP warns against using for access tokens. | `random_bytes()` (PHP's CSPRNG) |
-| **Storing ZIPs in database as BLOB** | Extremely slow, bloats database, hits MySQL max_allowed_packet limit (~64MB default). | Stream from filesystem via PHP proxy |
-| **chmod 777 on uploads/** | World-writable directories are attack vector on shared hosting. Allows malicious file creation. | `chmod 755` (owner write, group/other read) |
+| **JWT library (firebase/php-jwt)** | Overkill for simple token validation. Plain random token with DB lookup is sufficient. | `random_bytes()` + bin2hex() with DB storage (already using) |
+| **axios for downloads** | Adds 13KB dependency for functionality built into Fetch API. | Native Fetch with anchor-click download (already using) |
+| **Pre-generating ZIPs on upload** | Wastes disk space, stale if photos change. | On-demand ZipStream from R2 (already using) |
+| **uniqid() or mt_rand() for tokens** | NOT cryptographically secure. | `random_bytes()` (already using) |
+| **Local filesystem for photos** | Doesn't scale, ties to single server. | Cloudflare R2 (already migrated) |
+| **Raw fetch() for authenticated API calls** | Misses CSRF tokens, error handling. | Centralized `api.js` client (already using, except CSRF-exempt routes) |
 
 ---
 
-## Stack Patterns by Scenario
+## Current Implementation Patterns
 
-### Small Collections (<10 photos, <50MB)
+### ZIP Downloads — Streaming from R2
 
-**Backend:**
-- Use native `ZipArchive` class (built-in PHP)
-- Pre-generate ZIP on transition to DELIVERED
-- Store path in `Collection.processedZipPath`
-- Serve with `readfile()`
+All collections use ZipStream-PHP streaming from Cloudflare R2. No local disk writes. Handles any collection size.
 
-**Why:**
-- Simpler code (no Composer dependency)
-- Fast generation (<5 seconds)
-- Low memory usage
-- Can re-use ZIP for multiple downloads
-
-**Pattern:**
-```php
-// POST /collections/{id}/deliver
-$zipPath = __DIR__ . '/../uploads/zips/' . $collectionId . '.zip';
-$zip = new ZipArchive();
-$zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-foreach ($editedPhotos as $photo) {
-    $zip->addFile(__DIR__ . '/../uploads/' . $photo['storagePath'], $photo['filename']);
-}
-$zip->close();
-
-// Store path
-$stmt = $pdo->prepare("UPDATE Collection SET processedZipPath = ? WHERE id = ?");
-$stmt->execute(['zips/' . $collectionId . '.zip', $collectionId]);
-```
-
-### Large Collections (10+ photos or >50MB)
-
-**Backend:**
-- Use `maennchen/zipstream-php`
-- Stream directly to client (no disk writes)
-- Track download completion via `zipDownloadedAt`
-
-**Why:**
-- Prevents timeout (no upfront generation wait)
-- Prevents memory exhaustion (streams in chunks)
-- Saves disk space (no stored ZIP file)
-- Scales to hundreds of photos
-
-**Pattern:** See "ZIP Streaming" section above
+**Location:** `backend/_collections/zip-download.php`
+- Validates deliveryToken
+- Fetches EditedPhoto records for the collection
+- Streams each file from R2 directly into ZIP output
+- Tracks download in Download table
 
 ### Delivery Link Expiry
 
-**Implementation:**
-- Check `deliveredAt` timestamp on delivery page load
-- If `deliveredAt + 30 days < NOW()`, show expired message
-- Allow photographer to regenerate link (updates `deliveredAt`, keeps same `deliveryToken`)
+**Current implementation:** `expiresAt` field on Collection table, checked on every share/delivery access.
+- Backend returns 410 GONE if expired
+- Frontend shows expiration message
+- Photographer can update expiration date
 
-**Pattern:**
-```php
-// GET /delivery/{token}
-$stmt = $pdo->prepare("SELECT * FROM Collection WHERE deliveryToken = ?");
-$stmt->execute([$token]);
-$collection = $stmt->fetch(PDO::FETCH_ASSOC);
+**Missing:** No automated cron for cleanup of expired collections.
 
-$expiryDays = 30; // Could vary by user plan (FREE_TRIAL: 7, STANDARD: 30, PRO: 90)
-$expiresAt = strtotime($collection['deliveredAt']) + ($expiryDays * 86400);
+### Phase Components (Collection Details)
 
-if (time() > $expiresAt) {
-    http_response_code(410); // Gone
-    echo json_encode(['error' => 'Delivery link expired']);
-    exit;
-}
-```
+**Current implementation:** Separate React components per workflow phase:
+- `DraftPhase.jsx` — upload zone (adapts: large when empty, compact when has photos)
+- `SelectingPhase.jsx` — share link, selection stats
+- `ReviewingPhase.jsx` — edited finals upload, selection review
+- `DeliveredPhase.jsx` — delivery link, download stats
 
-**Why time-based expiry:**
-- No cron jobs needed
-- Configurable per plan
-- Photographer can extend by updating `deliveredAt`
-
-### UI Polish Patterns
-
-#### Hide Upload Dropzone After First Upload
-
-**Pattern:**
-```jsx
-// In CollectionDetailsPage.jsx
-const [hasPhotos, setHasPhotos] = useState(collection.photos.length > 0);
-
-// After successful upload
-const handleUploadSuccess = (newPhoto) => {
-  setPhotos([...photos, newPhoto]);
-  setHasPhotos(true);
-};
-
-// In JSX
-{!hasPhotos && (
-  <div className="border-2 border-dashed border-gray-300 rounded-[10px] p-8">
-    <Dropzone onUpload={handleUploadSuccess} />
-  </div>
-)}
-
-{hasPhotos && (
-  <button onClick={() => setHasPhotos(false)} className="text-sm text-gray-500">
-    + Add more photos
-  </button>
-)}
-```
-
-#### Button Reorganization
-
-**Before (v1.0):** All actions in single row
-**After (v2.0):** Group by phase
-
-**Pattern:**
-```jsx
-// Collection details page — photographer view
-<div className="flex flex-col gap-4">
-  {/* Phase 1: Upload & Setup */}
-  <div className="flex gap-2">
-    <button onClick={handleUpload}>Upload Photos</button>
-    <button onClick={handleSetCover}>Set Cover Photo</button>
-  </div>
-
-  {/* Phase 2: Sharing */}
-  <div className="flex gap-2">
-    <button onClick={handleShare}>Share for Selection</button>
-    <button onClick={handleCopyShareLink}>Copy Link</button>
-  </div>
-
-  {/* Phase 3: Delivery */}
-  {collection.status === 'REVIEWING' && (
-    <button onClick={handleDeliver} className="bg-green-500">
-      Mark as Delivered
-    </button>
-  )}
-
-  {collection.status === 'DELIVERED' && (
-    <button onClick={handleCopyDeliveryLink}>Copy Delivery Link</button>
-  )}
-</div>
-```
+**Location:** `frontend/src/components/collection/`
 
 ---
 
