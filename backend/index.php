@@ -240,6 +240,17 @@ switch ($requestUri) {
         }
         break;
 
+    case '/profile/branding/logo':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/profile/branding-logo.php';
+        } elseif ($requestMethod == 'DELETE') {
+            require_once __DIR__ . '/profile/branding-logo-delete.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     case '/profile/stats':
         if ($requestMethod == 'GET') {
             require_once __DIR__ . '/profile/stats.php';

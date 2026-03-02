@@ -52,6 +52,19 @@ try {
         $params[] = $bio;
     }
 
+    if (array_key_exists('brandingColor', $data)) {
+        $brandingColor = $data['brandingColor'];
+        if ($brandingColor !== null) {
+            if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/', $brandingColor)) {
+                http_response_code(400);
+                echo json_encode(["error" => "Invalid color format. Use hex format (e.g. #ff5500)"]);
+                exit;
+            }
+        }
+        $setParts[] = "brandingColor = ?";
+        $params[] = $brandingColor;
+    }
+
     if (array_key_exists('newPassword', $data)) {
         $newPassword = $data['newPassword'];
 
@@ -96,6 +109,7 @@ try {
     $stmt = $pdo->prepare("
         SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus,
                trialEndsAt, collectionsCreatedCount, emailVerified,
+               brandingLogoUrl, brandingColor,
                (password IS NOT NULL) AS hasPassword
         FROM `User`
         WHERE id = ?

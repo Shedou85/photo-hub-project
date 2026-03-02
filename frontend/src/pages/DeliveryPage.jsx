@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { downloadPhoto, downloadAllAsZip } from '../utils/download';
 import { photoUrl } from '../utils/photoUrl';
+import { getAccentButtonStyle } from '../utils/brandingUtils';
 
 function DeliveryPage() {
   const { deliveryToken } = useParams();
@@ -152,15 +153,23 @@ function DeliveryPage() {
   }
 
   const photos = collection.photos || [];
+  const branding = collection.branding ?? null;
+  const accentColor = branding?.accentColor || null;
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans">
       {/* ── Celebration Hero ── */}
       <div className="relative overflow-hidden">
         {/* Radial glow backdrop */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(99,102,241,0.12),transparent_60%)]" />
+        <div
+          className={`absolute inset-0 ${!accentColor ? 'bg-[radial-gradient(ellipse_at_top_center,rgba(99,102,241,0.12),transparent_60%)]' : ''}`}
+          style={accentColor ? { background: `radial-gradient(ellipse at top center, ${accentColor}1f, transparent 60%)` } : undefined}
+        />
         {/* Blurred circle accent */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-indigo-500/[0.06] blur-[120px] rounded-full pointer-events-none" />
+        <div
+          className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] blur-[120px] rounded-full pointer-events-none ${!accentColor ? 'bg-indigo-500/[0.06]' : ''}`}
+          style={accentColor ? { backgroundColor: `${accentColor}0f` } : undefined}
+        />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12 sm:pb-16 text-center">
           {/* Language selector */}
@@ -171,14 +180,26 @@ function DeliveryPage() {
                 onClick={() => i18n.changeLanguage(code)}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-all duration-150 ${
                   i18n.language === code
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    ? `${!accentColor ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-white border'}`
                     : 'bg-white/[0.04] text-white/30 border border-transparent hover:text-white/50 hover:bg-white/[0.08]'
                 }`}
+                style={i18n.language === code && accentColor ? { backgroundColor: `${accentColor}33`, borderColor: `${accentColor}4d` } : undefined}
               >
                 {label}
               </button>
             ))}
           </div>
+
+          {/* Photographer branding logo */}
+          {branding?.logoUrl && (
+            <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0.05s', opacity: 0 }}>
+              <img
+                src={branding.logoUrl}
+                alt={branding.photographerName || ''}
+                className="h-10 sm:h-12 mx-auto object-contain opacity-80"
+              />
+            </div>
+          )}
 
           {/* Hero title */}
           <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 animate-fade-in-up" style={{ animationDelay: '0.1s', opacity: 0 }}>
@@ -200,7 +221,10 @@ function DeliveryPage() {
             <div className="animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
               <button
                 onClick={() => downloadAllAsZip(deliveryToken)}
-                className="inline-flex items-center gap-2.5 px-8 py-4 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 text-white text-base font-semibold rounded-xl transition-all duration-200 shadow-[0_8px_32px_rgba(99,102,241,0.35)] active:scale-[0.97]"
+                className={`inline-flex items-center gap-2.5 px-8 py-4 hover:brightness-110 text-white text-base font-semibold rounded-xl transition-all duration-200 active:scale-[0.97] ${
+                  !accentColor ? 'bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_8px_32px_rgba(99,102,241,0.35)]' : ''
+                }`}
+                style={getAccentButtonStyle(accentColor)}
               >
                 <svg
                   className="w-5 h-5"
@@ -316,7 +340,20 @@ function DeliveryPage() {
         {/* ── Footer branding ── */}
         <div className="mt-20 pb-8 text-center">
           <div className="h-px w-16 bg-white/10 mx-auto mb-6" />
-          <p className="text-[11px] text-white/20">{t('delivery.poweredBy')}</p>
+          {branding?.logoUrl ? (
+            <div className="flex flex-col items-center gap-3">
+              <img
+                src={branding.logoUrl}
+                alt={branding.photographerName || ''}
+                className="h-8 object-contain opacity-60"
+              />
+              <p className="text-[10px] text-white/15">
+                {t('delivery.poweredBy')}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[11px] text-white/20">{t('delivery.poweredBy')}</p>
+          )}
         </div>
       </div>
 

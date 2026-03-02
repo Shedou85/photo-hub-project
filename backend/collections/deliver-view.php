@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
+require_once __DIR__ . '/../helpers/r2.php';
 
 // This is a PUBLIC endpoint — no session/auth check required
 // Delivery token IS the credential
@@ -30,7 +31,7 @@ try {
 
     // Query collection by deliveryToken
     $stmt = $pdo->prepare("
-        SELECT id, name, clientName, status, expiresAt, createdAt
+        SELECT id, userId, name, clientName, status, expiresAt, createdAt
         FROM `Collection`
         WHERE deliveryToken = ?
         LIMIT 1
@@ -61,6 +62,18 @@ try {
         exit;
     }
 
+    // Query the collection owner's branding data
+    $ownerStmt = $pdo->prepare("SELECT plan, brandingLogoUrl, brandingColor, name AS ownerName FROM `User` WHERE id = ? LIMIT 1");
+    $ownerStmt->execute([$collection['userId']]);
+    $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
+    $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
+
+    $branding = ($ownerPlan === 'PRO') ? [
+        'logoUrl' => !empty($ownerData['brandingLogoUrl']) ? r2GetUrl($ownerData['brandingLogoUrl']) : null,
+        'accentColor' => $ownerData['brandingColor'] ?? null,
+        'photographerName' => $ownerData['ownerName'] ?? null,
+    ] : null;
+
     // Query EditedPhoto table (NOT Photo table) — only final/edited photos
     $stmt = $pdo->prepare("
         SELECT id, filename, storagePath, createdAt
@@ -81,7 +94,8 @@ try {
             'collectionStatus' => $collection['status'],
             'createdAt' => $collection['createdAt'],
             'photoCount' => count($photos),
-            'photos' => $photos
+            'photos' => $photos,
+            'branding' => $branding
         ]
     ];
 

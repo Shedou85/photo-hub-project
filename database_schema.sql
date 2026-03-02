@@ -33,6 +33,8 @@ CREATE TABLE `User` (
   `emailVerificationTokenExpires` DATETIME(3) NULL,
   `profileImageUrl` VARCHAR(191) NULL,
   `websiteUrl` VARCHAR(191) NULL,
+  `brandingLogoUrl` VARCHAR(191) NULL,
+  `brandingColor` VARCHAR(20) NULL,
   `plan` ENUM('FREE_TRIAL', 'STANDARD', 'PRO') NOT NULL DEFAULT 'FREE_TRIAL',
   `collectionsCreatedCount` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),

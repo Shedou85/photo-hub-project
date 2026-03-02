@@ -16,6 +16,7 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, collectionsCreatedCount, emailVerified,
+               brandingLogoUrl, brandingColor,
                (password IS NOT NULL) AS hasPassword
         FROM `User`
         WHERE id = ?

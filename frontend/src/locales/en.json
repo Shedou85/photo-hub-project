@@ -183,6 +183,32 @@
       "activeCollections": "Active Collections",
       "archivedCollections": "Archived Collections",
       "totalPhotos": "Total Photos"
+    },
+    "branding": {
+      "title": "Custom Branding",
+      "subtitle": "Personalize your client galleries with your own brand.",
+      "logo": "Logo",
+      "logoDesc": "Upload your logo to display on share and delivery pages.",
+      "uploadLogo": "Upload Logo",
+      "dropLogo": "Drop your logo here",
+      "dragOrClick": "Drag & drop or click to upload",
+      "logoFormats": "JPEG, PNG, or WEBP — max 5 MB",
+      "removeLogo": "Remove",
+      "accentColor": "Accent Color",
+      "accentColorDesc": "Choose a color for buttons and highlights on your galleries.",
+      "preview": "Preview",
+      "saveColor": "Save Color",
+      "savingColor": "Saving...",
+      "resetColor": "Reset to Default",
+      "colorSaved": "Accent color saved!",
+      "colorReset": "Accent color reset to default",
+      "colorSaveFailed": "Failed to save accent color",
+      "logoUploaded": "Logo uploaded successfully!",
+      "logoUploadFailed": "Failed to upload logo",
+      "logoDeleted": "Logo removed",
+      "logoDeleteFailed": "Failed to remove logo",
+      "proRequired": "Present galleries under your own brand",
+      "upgrade": "Upgrade to PRO"
     }
   },
   "collections": {

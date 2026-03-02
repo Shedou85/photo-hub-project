@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
 import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/SelectionBorder";
 import UpgradeModal from "../components/primitives/UpgradeModal";
+import { getAccentButtonStyle } from "../utils/brandingUtils";
 
 function SharePage() {
   const { shareId } = useParams();
@@ -31,6 +32,8 @@ function SharePage() {
 
   const canSelect = collection?.status === 'SELECTING';
   const hasProFeatures = collection?.proFeatures ?? false;
+  const branding = collection?.branding ?? null;
+  const accentColor = branding?.accentColor || null;
   const selectedPhotoIds = useMemo(() => new Set(photoLabels.keys()), [photoLabels]);
   const labelCounts = useMemo(() => {
     const counts = { FAVORITE: 0, SELECTED: 0, REJECTED: 0 };
@@ -419,6 +422,17 @@ function SharePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/80 to-slate-950" />
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-10 sm:pb-14 text-center">
+          {/* Photographer branding logo */}
+          {branding?.logoUrl && (
+            <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0s', opacity: 0 }}>
+              <img
+                src={branding.logoUrl}
+                alt={branding.photographerName || ''}
+                className="h-10 sm:h-12 mx-auto object-contain opacity-80"
+              />
+            </div>
+          )}
+
           {/* Client name eyebrow */}
           <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-4 font-medium animate-fade-in-up" style={{ animationDelay: '0.05s', opacity: 0 }}>
             {collection.clientName || 'Gallery'}
@@ -483,8 +497,8 @@ function SharePage() {
               <div className="flex justify-center">
                 <div className="w-48 h-[3px] bg-white/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercent}%` }}
+                    className={`h-full rounded-full transition-all duration-500 ${!accentColor ? 'bg-gradient-to-r from-indigo-500 to-indigo-400' : ''}`}
+                    style={{ width: `${progressPercent}%`, ...(accentColor ? { background: accentColor } : {}) }}
                   />
                 </div>
               </div>
@@ -568,9 +582,12 @@ function SharePage() {
                         }}
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
                           photoLabel === 'SELECTED'
-                            ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
-                            : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-indigo-500/70'
+                            ? `${!accentColor ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40' : 'shadow-lg'}`
+                            : `bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 ${!accentColor ? 'hover:bg-indigo-500/70' : ''}`
                         }`}
+                        style={photoLabel === 'SELECTED' && accentColor
+                          ? { backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}66` }
+                          : (photoLabel !== 'SELECTED' && accentColor ? { '--hover-bg': `${accentColor}b3` } : {})}
                         aria-label={t('share.labelSelected')}
                       >
                         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -619,9 +636,22 @@ function SharePage() {
         {/* ── Footer branding ── */}
         <div className="mt-20 pb-8 text-center">
           <div className="h-px w-16 bg-white/10 mx-auto mb-6" />
-          <p className="text-[11px] text-white/20">
-            {t("share.poweredBy")}
-          </p>
+          {branding?.logoUrl ? (
+            <div className="flex flex-col items-center gap-3">
+              <img
+                src={branding.logoUrl}
+                alt={branding.photographerName || ''}
+                className="h-8 object-contain opacity-60"
+              />
+              <p className="text-[10px] text-white/15">
+                {t("share.poweredBy")}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[11px] text-white/20">
+              {t("share.poweredBy")}
+            </p>
+          )}
         </div>
       </div>
 
@@ -629,13 +659,19 @@ function SharePage() {
       {canSelect && selectedCount > 0 && !isSubmitted && (
         <div className="fixed bottom-0 left-0 right-0 z-40 animate-fade-in-up">
           {/* Gradient glow line */}
-          <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
+          <div
+            className={`h-px ${!accentColor ? 'bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent' : ''}`}
+            style={accentColor ? { background: `linear-gradient(to right, transparent, ${accentColor}66, transparent)` } : undefined}
+          />
           <div className="bg-slate-900/95 backdrop-blur-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.4)]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${!accentColor ? 'bg-indigo-500/10' : ''}`}
+                  style={accentColor ? { backgroundColor: `${accentColor}1a` } : undefined}
+                >
+                  <svg className="w-4 h-4" style={accentColor ? { color: accentColor } : undefined} fill="none" viewBox="0 0 24 24" stroke={accentColor || undefined} strokeWidth={2}>
+                    <path className={!accentColor ? 'text-indigo-400 stroke-current' : ''} strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span className="text-sm font-semibold text-white">
@@ -644,7 +680,10 @@ function SharePage() {
               </div>
               <button
                 onClick={handleOpenReviewModal}
-                className="bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 text-sm active:scale-[0.97] shadow-[0_4px_20px_rgba(99,102,241,0.3)]"
+                className={`hover:brightness-110 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 text-sm active:scale-[0.97] ${
+                  !accentColor ? 'bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_20px_rgba(99,102,241,0.3)]' : ''
+                }`}
+                style={getAccentButtonStyle(accentColor)}
               >
                 {t('share.submitSelections', { count: selectedCount })}
               </button>
@@ -895,7 +934,10 @@ function SharePage() {
             {/* Sticky bottom action bar */}
             <div className="flex-shrink-0 border-t border-white/[0.08]">
               {/* Gradient glow line */}
-              <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+              <div
+                className={`h-px ${!accentColor ? 'bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent' : ''}`}
+                style={accentColor ? { background: `linear-gradient(to right, transparent, ${accentColor}4d, transparent)` } : undefined}
+              />
               <div className="px-5 sm:px-8 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                 <button
                   onClick={handleCloseReviewModal}
@@ -907,7 +949,10 @@ function SharePage() {
                 <button
                   onClick={submitSelections}
                   disabled={isSubmitting || selectedPhotoIds.size === 0}
-                  className="order-1 sm:order-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 text-white transition-all shadow-[0_4px_16px_rgba(99,102,241,0.35)] active:scale-[0.97]"
+                  className={`order-1 sm:order-2 px-6 py-2.5 rounded-lg text-sm font-semibold hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 text-white transition-all active:scale-[0.97] ${
+                    !accentColor ? 'bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] shadow-[0_4px_16px_rgba(99,102,241,0.35)]' : ''
+                  }`}
+                  style={getAccentButtonStyle(accentColor)}
                 >
                   {isSubmitting ? t('share.confirming') : t('share.confirmSelection')}
                 </button>

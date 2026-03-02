@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
 require_once __DIR__ . '/../helpers/rate-limiter.php';
+require_once __DIR__ . '/../helpers/r2.php';
 
 // This is a PUBLIC endpoint — no session/auth check required
 // Authentication is handled via password (first request) or session token (subsequent requests)
@@ -218,8 +219,8 @@ if ($requestMethod === 'PATCH') {
         unset($collection['expiresAt']);
         unset($collection['userId']);
 
-        // Query the collection owner's plan for watermark feature check
-        $ownerStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+        // Query the collection owner's plan and branding data
+        $ownerStmt = $pdo->prepare("SELECT plan, brandingLogoUrl, brandingColor, name AS ownerName FROM `User` WHERE id = ? LIMIT 1");
         $ownerStmt->execute([$collectionUserId]);
         $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
         $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
@@ -230,6 +231,13 @@ if ($requestMethod === 'PATCH') {
         // Determine if watermarks should be applied (PRO plan + SELECTING status)
         $isWatermarked = ($ownerPlan === 'PRO' && $collection['status'] === 'SELECTING');
         $collection['watermarked'] = $isWatermarked;
+
+        // Add branding data for PRO users
+        $collection['branding'] = ($ownerPlan === 'PRO') ? [
+            'logoUrl' => !empty($ownerData['brandingLogoUrl']) ? r2GetUrl($ownerData['brandingLogoUrl']) : null,
+            'accentColor' => $ownerData['brandingColor'] ?? null,
+            'photographerName' => $ownerData['ownerName'] ?? null,
+        ] : null;
 
         // Query photos for this collection
         $stmt = $pdo->prepare("

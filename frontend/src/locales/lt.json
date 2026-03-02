@@ -183,6 +183,32 @@
       "activeCollections": "Aktyvios kolekcijos",
       "archivedCollections": "Archyvuotos kolekcijos",
       "totalPhotos": "Nuotraukos iš viso"
+    },
+    "branding": {
+      "title": "Individualus prekės ženklas",
+      "subtitle": "Personalizuokite klientų galerijas savo prekės ženklu.",
+      "logo": "Logotipas",
+      "logoDesc": "Įkelkite savo logotipą, kuris bus rodomas bendrinimo ir pristatymo puslapiuose.",
+      "uploadLogo": "Įkelti logotipą",
+      "dropLogo": "Nutempkite logotipą čia",
+      "dragOrClick": "Tempkite ir numeskite arba spustelėkite įkelti",
+      "logoFormats": "JPEG, PNG arba WEBP — maks. 5 MB",
+      "removeLogo": "Pašalinti",
+      "accentColor": "Akcento spalva",
+      "accentColorDesc": "Pasirinkite spalvą mygtukams ir akcentams galerijose.",
+      "preview": "Peržiūra",
+      "saveColor": "Išsaugoti spalvą",
+      "savingColor": "Saugoma...",
+      "resetColor": "Atstatyti numatytąją",
+      "colorSaved": "Akcento spalva išsaugota!",
+      "colorReset": "Akcento spalva atstatyta",
+      "colorSaveFailed": "Nepavyko išsaugoti akcento spalvos",
+      "logoUploaded": "Logotipas sėkmingai įkeltas!",
+      "logoUploadFailed": "Nepavyko įkelti logotipo",
+      "logoDeleted": "Logotipas pašalintas",
+      "logoDeleteFailed": "Nepavyko pašalinti logotipo",
+      "proRequired": "Pateikite galerijas su savo prekės ženklu",
+      "upgrade": "Atnaujinti į PRO"
     }
   },
   "collections": {
