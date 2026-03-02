@@ -112,7 +112,7 @@
      │ Nauda: Greitesnė klientų sprendimų priėmimo proceso patirtis (picdrop, Pic-Time).                                                                                      │
      │                                                                                                                                                                        │
      │ ---                                                                                                                                                                    │
-     │ 14. Kolekcijos galerijos pritaikymas (Custom Branding)                                                                                                                 │
+     │ 14. ✅ Kolekcijos galerijos pritaikymas (Custom Branding)  [ATLIKTA 2026-03-02]                                                                                            │
      │                                                                                                                                                                        │
      │ Kas? Fotografas gali įkelti logotipą ir pasirinkti akcentų spalvą, kuri rodoma share/delivery puslapiuose.                                                             │
      │ Backend: Papildomi User lentels laukai (brandingLogoUrl, brandingColor); laukų naudojimas share/delivery renderer.                                                     │
@@ -157,7 +157,7 @@
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 13  │ ✅ Spalviniai žymėjimai       │ M        │ Vidutinė        │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
-     │ │ 14  │ Custom branding              │ L        │ Didelė          │ 14                         │                                                                       │
+     │ │ 14  │ ✅ Custom branding            │ L        │ Didelė          │ ✅ ATLIKTA                 │                                                                       │
      │ ├─────┼──────────────────────────────┼──────────┼─────────────────┼────────────────────────────┤                                                                       │
      │ │ 15  │ Paskyros trynimas            │ S        │ Vidutinė (GDPR) │ 15                         │                                                                       │
      │ └─────┴──────────────────────────────┴──────────┴─────────────────┴────────────────────────────┘                                                                       │
