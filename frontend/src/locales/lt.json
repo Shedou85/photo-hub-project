@@ -447,6 +447,7 @@
     "selectionLimitSet": "Limitas: {{limit}} nuotraukų",
     "selectionLimitNone": "Be pasirinkimų limito",
     "addSelectionLimit": "Pridėti pasirinkimų limitą",
+    "setSelectionLimit": "Nustatyti",
     "removeSelectionLimit": "Pašalinti",
     "selectionLimitSaved": "Pasirinkimų limitas išsaugotas",
     "selectionLimitRemoved": "Pasirinkimų limitas pašalintas",

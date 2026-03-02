@@ -447,6 +447,7 @@
     "selectionLimitSet": "Лимит: {{limit}} фото",
     "selectionLimitNone": "Без лимита выбора",
     "addSelectionLimit": "Добавить лимит выбора",
+    "setSelectionLimit": "Установить",
     "removeSelectionLimit": "Удалить",
     "selectionLimitSaved": "Лимит выбора сохранён",
     "selectionLimitRemoved": "Лимит выбора удалён",

@@ -443,6 +443,7 @@
     "selectionLimitSet": "Limit: {{limit}} photos",
     "selectionLimitNone": "No selection limit",
     "addSelectionLimit": "Add selection limit",
+    "setSelectionLimit": "Set",
     "removeSelectionLimit": "Remove",
     "selectionLimitSaved": "Selection limit saved",
     "selectionLimitRemoved": "Selection limit removed",

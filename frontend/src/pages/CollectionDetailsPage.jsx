@@ -564,7 +564,7 @@ function CollectionDetailsPage() {
                         disabled={!selectionLimitInput || parseInt(selectionLimitInput, 10) < 1 || savingLimit}
                         className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
                       >
-                        {t('collection.passwordSet')}
+                        {t('collection.setSelectionLimit')}
                       </button>
                       <button
                         onClick={() => { setShowLimitInput(false); setSelectionLimitInput(''); }}
