@@ -705,7 +705,10 @@
     "boundary_message": "Įvyko netikėta klaida. Bandykite dar kartą.",
     "try_again": "Bandyti dar kartą",
     "page_not_found": "Šis puslapis nerastas.",
-    "go_home": "Grįžti į pradžią"
+    "go_home": "Grįžti į pradžią",
+    "session_expired_title": "Sesija baigėsi",
+    "session_expired_message": "Jūsų sesija baigėsi. Prisijunkite iš naujo, kad galėtumėte tęsti.",
+    "session_expired_cta": "Prisijungti"
   },
   "seo": {
     "homeTitle": "Profesionalus nuotraukų pristatymas fotografams",

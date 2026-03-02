@@ -4,6 +4,14 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.pixelforge.pro/backend';
 
 let csrfToken = null;
+let onUnauthorizedCallback = null;
+
+/**
+ * Register a callback for 401 responses (session expired)
+ */
+export function setOnUnauthorized(cb) {
+  onUnauthorizedCallback = cb;
+}
 
 /**
  * Fetch CSRF token from backend
@@ -70,6 +78,11 @@ export async function apiRequest(endpoint, options = {}) {
 
   try {
     const res = await fetch(`${API_BASE}${endpoint}`, fetchOptions);
+
+    // Handle 401 — session expired
+    if (res.status === 401) {
+      onUnauthorizedCallback?.();
+    }
 
     // Handle 403 with CSRF error — retry once with fresh token
     if (res.status === 403) {

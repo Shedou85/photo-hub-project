@@ -692,7 +692,10 @@
     "boundary_message": "An unexpected error occurred. Please try again.",
     "try_again": "Try Again",
     "page_not_found": "This page could not be found.",
-    "go_home": "Go to homepage"
+    "go_home": "Go to homepage",
+    "session_expired_title": "Session expired",
+    "session_expired_message": "Your session has expired. Please sign in again to continue.",
+    "session_expired_cta": "Sign in"
   },
   "seo": {
     "homeTitle": "Professional Photo Delivery for Photographers",

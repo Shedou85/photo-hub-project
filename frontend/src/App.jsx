@@ -22,6 +22,7 @@ import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CookieConsentBanner from './components/CookieConsentBanner';
 import ErrorBoundary from './components/ErrorBoundary';
+import SessionExpiredModal from './components/SessionExpiredModal';
 import { initGA, trackPageView } from './lib/analytics';
 
 function ScrollToTop() {
@@ -70,6 +71,7 @@ function App() {
   return (
     <>
     <Toaster position="bottom-right" richColors />
+    <SessionExpiredModal />
     <CookieConsentBanner />
     <ErrorBoundary>
     <ScrollToTop />
