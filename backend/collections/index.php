@@ -72,7 +72,11 @@ try {
                        THEN ep_cover.coverPath
                      ELSE COALESCE(p.thumbnailPath, ep_cover.coverPath)
                    END as coverPhotoPath,
-                   COALESCE(pc.photoCount, 0) as photoCount
+                   CASE
+                     WHEN c.status IN ('DELIVERED','DOWNLOADED','ARCHIVED') AND COALESCE(epc.editedCount, 0) > 0
+                       THEN epc.editedCount
+                     ELSE COALESCE(pc.photoCount, 0)
+                   END as photoCount
             FROM `Collection` c
             LEFT JOIN `Photo` p ON c.coverPhotoId = p.id
             LEFT JOIN (
@@ -86,6 +90,11 @@ try {
                 FROM `Photo`
                 GROUP BY collectionId
             ) pc ON pc.collectionId = c.id
+            LEFT JOIN (
+                SELECT collectionId, COUNT(*) as editedCount
+                FROM `EditedPhoto`
+                GROUP BY collectionId
+            ) epc ON epc.collectionId = c.id
             $whereClause
             ORDER BY $orderClause
             LIMIT ? OFFSET ?
