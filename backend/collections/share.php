@@ -167,7 +167,7 @@ if ($requestMethod === 'PATCH') {
     try {
         // Query collection by shareId — explicitly exclude sensitive fields
         $stmt = $pdo->prepare("
-            SELECT id, userId, name, status, clientName, shareId, coverPhotoId, deliveryToken, expiresAt, createdAt, password
+            SELECT id, userId, name, status, clientName, shareId, coverPhotoId, deliveryToken, expiresAt, createdAt, password, selectionLimit
             FROM `Collection`
             WHERE shareId = ?
             LIMIT 1
@@ -218,6 +218,7 @@ if ($requestMethod === 'PATCH') {
         unset($collection['password']);
         unset($collection['expiresAt']);
         unset($collection['userId']);
+        $collection['selectionLimit'] = $collection['selectionLimit'] !== null ? (int) $collection['selectionLimit'] : null;
 
         // Query the collection owner's plan and branding data
         $ownerStmt = $pdo->prepare("SELECT plan, brandingLogoUrl, brandingColor, name AS ownerName FROM `User` WHERE id = ? LIMIT 1");

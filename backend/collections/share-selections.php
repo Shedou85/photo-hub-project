@@ -70,7 +70,7 @@ try {
 
     // Query collection by shareId to get id and status
     $stmt = $pdo->prepare("
-        SELECT id, status, password
+        SELECT id, status, password, selectionLimit
         FROM `Collection`
         WHERE shareId = ?
         LIMIT 1
@@ -168,6 +168,24 @@ try {
             http_response_code(404);
             echo json_encode(['error' => 'Photo not found in this collection.']);
             exit;
+        }
+
+        // Check selection limit
+        if ($collection['selectionLimit'] !== null && $label !== 'REJECTED') {
+            $countStmt = $pdo->prepare("SELECT COUNT(*) FROM `Selection` WHERE collectionId = ? AND label != 'REJECTED'");
+            $countStmt->execute([$collectionId]);
+            $currentCount = (int) $countStmt->fetchColumn();
+
+            $existsStmt = $pdo->prepare("SELECT label FROM `Selection` WHERE collectionId = ? AND photoId = ?");
+            $existsStmt->execute([$collectionId, $photoIdToSelect]);
+            $existing = $existsStmt->fetch(PDO::FETCH_ASSOC);
+            $isNewSelection = !$existing || $existing['label'] === 'REJECTED';
+
+            if ($isNewSelection && $currentCount >= (int) $collection['selectionLimit']) {
+                http_response_code(400);
+                echo json_encode(['error' => 'SELECTION_LIMIT_REACHED']);
+                exit;
+            }
         }
 
         // Generate CUID for selection (generateCuid is available from index.php)

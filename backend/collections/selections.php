@@ -37,9 +37,10 @@ try {
     $pdo = getDbConnection();
 
     // Verify collection ownership
-    $stmt = $pdo->prepare("SELECT id FROM `Collection` WHERE id = ? AND userId = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, selectionLimit FROM `Collection` WHERE id = ? AND userId = ? LIMIT 1");
     $stmt->execute([$collectionId, $userId]);
-    if (!$stmt->fetch()) {
+    $collectionRow = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$collectionRow) {
         http_response_code(404);
         echo json_encode(["error" => "Collection not found."]);
         exit;
@@ -92,6 +93,25 @@ try {
             http_response_code(404);
             echo json_encode(["error" => "Photo not found in this collection."]);
             exit;
+        }
+
+        // Check selection limit
+        $selectionLimit = $collectionRow['selectionLimit'] ?? null;
+        if ($selectionLimit !== null && $label !== 'REJECTED') {
+            $countStmt = $pdo->prepare("SELECT COUNT(*) FROM `Selection` WHERE collectionId = ? AND label != 'REJECTED'");
+            $countStmt->execute([$collectionId]);
+            $currentCount = (int) $countStmt->fetchColumn();
+
+            $existsStmt = $pdo->prepare("SELECT label FROM `Selection` WHERE collectionId = ? AND photoId = ?");
+            $existsStmt->execute([$collectionId, $photoIdToSelect]);
+            $existing = $existsStmt->fetch(PDO::FETCH_ASSOC);
+            $isNewSelection = !$existing || $existing['label'] === 'REJECTED';
+
+            if ($isNewSelection && $currentCount >= (int) $selectionLimit) {
+                http_response_code(400);
+                echo json_encode(["error" => "SELECTION_LIMIT_REACHED"]);
+                exit;
+            }
         }
 
         $selectionId = generateCuid();

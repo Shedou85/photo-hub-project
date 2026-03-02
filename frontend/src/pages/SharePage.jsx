@@ -43,6 +43,10 @@ function SharePage() {
     return counts;
   }, [photoLabels]);
 
+  const selectionLimit = collection?.selectionLimit ?? null;
+  const nonRejectedCount = labelCounts.SELECTED + labelCounts.FAVORITE;
+  const isLimitReached = selectionLimit !== null && nonRejectedCount >= selectionLimit;
+
   const handleImageLoad = useCallback((photoId) => {
     setImagesLoaded(prev => new Set(prev).add(photoId));
   }, []);
@@ -61,6 +65,15 @@ function SharePage() {
 
     const currentLabel = photoLabels.get(photoId);
     const isRemoval = currentLabel === label;
+
+    // Client-side selection limit check
+    if (!isRemoval && label !== 'REJECTED' && selectionLimit !== null) {
+      const isNewSelection = !currentLabel || currentLabel === 'REJECTED';
+      if (isNewSelection && nonRejectedCount >= selectionLimit) {
+        toast.error(t('share.selectionLimitReachedToast', { limit: selectionLimit }));
+        return;
+      }
+    }
 
     // Optimistic update
     setPhotoLabels(prev => {
@@ -93,9 +106,15 @@ function SharePage() {
           headers: { 'Content-Type': 'application/json', ...authHeader },
           body: JSON.stringify({ photoId, label }),
         });
-        if (!res.ok) throw new Error('Select failed');
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          if (body.error === 'SELECTION_LIMIT_REACHED') {
+            throw { limitReached: true };
+          }
+          throw new Error('Select failed');
+        }
       }
-    } catch {
+    } catch (err) {
       // Rollback
       setPhotoLabels(prev => {
         const rollback = new Map(prev);
@@ -108,7 +127,11 @@ function SharePage() {
         }
         return rollback;
       });
-      toast.error(t('share.selectionError'));
+      if (err?.limitReached) {
+        toast.error(t('share.selectionLimitReachedToast', { limit: selectionLimit }));
+      } else {
+        toast.error(t('share.selectionError'));
+      }
     } finally {
       setRequestsInFlight(prev => {
         const next = new Set(prev);
@@ -398,7 +421,8 @@ function SharePage() {
   }
 
   const selectedCount = selectedPhotoIds.size;
-  const progressPercent = photos.length > 0 ? (selectedCount / photos.length) * 100 : 0;
+  const progressTotal = selectionLimit ?? photos.length;
+  const progressPercent = progressTotal > 0 ? Math.min((nonRejectedCount / progressTotal) * 100, 100) : 0;
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans">
@@ -456,9 +480,20 @@ function SharePage() {
           </p>
 
           {/* Selection progress pill + bar */}
-          {canSelect && selectedCount > 0 && (
+          {canSelect && (selectedCount > 0 || selectionLimit !== null) && (
             <div className="animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              {hasProFeatures ? (
+              {selectionLimit !== null ? (
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${
+                  isLimitReached
+                    ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+                    : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
+                }`}>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  {t('share.selectionLimit', { current: nonRejectedCount, limit: selectionLimit })}
+                </div>
+              ) : hasProFeatures ? (
                 <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-sm font-medium mb-4">
                   {labelCounts.FAVORITE > 0 && (
                     <span className="flex items-center gap-1.5 text-amber-400">
@@ -553,7 +588,10 @@ function SharePage() {
                   {isLabeled && <SelectionBorder label={photoLabel} />}
 
                   {/* Label buttons — vertical stack of 3 */}
-                  {canSelect && (
+                  {canSelect && (() => {
+                    const isThisPhotoNonRejected = photoLabel === 'SELECTED' || photoLabel === 'FAVORITE';
+                    const limitBlocksNew = isLimitReached && !isThisPhotoNonRejected;
+                    return (
                     <div className="absolute top-2 right-2 flex flex-col gap-1.5">
                       {/* Favorite button */}
                       <button
@@ -564,10 +602,11 @@ function SharePage() {
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
                           photoLabel === 'FAVORITE'
                             ? 'bg-amber-500 shadow-lg shadow-amber-500/40'
-                            : hasProFeatures
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-amber-500/70'
-                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
+                            : !hasProFeatures || limitBlocksNew
+                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
+                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-amber-500/70'
                         }`}
+                        title={limitBlocksNew ? t('share.selectionLimitReached') : undefined}
                         aria-label={t('share.labelFavorite')}
                       >
                         <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
@@ -583,11 +622,14 @@ function SharePage() {
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
                           photoLabel === 'SELECTED'
                             ? `${!accentColor ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40' : 'shadow-lg'}`
-                            : `bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 ${!accentColor ? 'hover:bg-indigo-500/70' : ''}`
+                            : limitBlocksNew
+                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
+                              : `bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 ${!accentColor ? 'hover:bg-indigo-500/70' : ''}`
                         }`}
                         style={photoLabel === 'SELECTED' && accentColor
                           ? { backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}66` }
                           : (photoLabel !== 'SELECTED' && accentColor ? { '--hover-bg': `${accentColor}b3` } : {})}
+                        title={limitBlocksNew ? t('share.selectionLimitReached') : undefined}
                         aria-label={t('share.labelSelected')}
                       >
                         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -614,7 +656,8 @@ function SharePage() {
                         </svg>
                       </button>
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
               );
             })}
@@ -675,7 +718,9 @@ function SharePage() {
                   </svg>
                 </div>
                 <span className="text-sm font-semibold text-white">
-                  {t('share.selectedCount', { count: selectedCount })}
+                  {selectionLimit !== null
+                    ? t('share.selectionLimit', { current: nonRejectedCount, limit: selectionLimit })
+                    : t('share.selectedCount', { count: selectedCount })}
                 </span>
               </div>
               <button

@@ -84,6 +84,7 @@ CREATE TABLE `Collection` (
   `clientName` VARCHAR(191) NULL,
   `expiresAt` DATETIME(3) NULL,
   `password` VARCHAR(255) NULL,
+  `selectionLimit` INT UNSIGNED NULL DEFAULT NULL,
   `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
   `allowPromotionalUse` BOOLEAN NOT NULL DEFAULT false,
   `coverPhotoId` VARCHAR(191) NULL,

@@ -41,7 +41,7 @@ try {
     if ($method === 'GET') {
         if ($isAdmin) {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ?
                 LIMIT 1
@@ -49,7 +49,7 @@ try {
             $stmt->execute([$collectionId]);
         } else {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ? AND userId = ?
                 LIMIT 1
@@ -66,6 +66,7 @@ try {
 
         $collection['hasPassword'] = !empty($collection['password']);
         unset($collection['password']);
+        $collection['selectionLimit'] = $collection['selectionLimit'] !== null ? (int) $collection['selectionLimit'] : null;
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
         exit;
@@ -148,6 +149,21 @@ try {
             $params[] = $data['password'] !== null ? password_hash($data['password'], PASSWORD_DEFAULT) : null;
         }
 
+        if (array_key_exists('selectionLimit', $data)) {
+            if ($data['selectionLimit'] === null) {
+                $setParts[] = "`selectionLimit` = NULL";
+            } else {
+                $limit = filter_var($data['selectionLimit'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                if ($limit === false) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "selectionLimit must be a positive integer or null."]);
+                    exit;
+                }
+                $setParts[] = "`selectionLimit` = ?";
+                $params[] = $limit;
+            }
+        }
+
         if (empty($setParts)) {
             http_response_code(400);
             echo json_encode(["error" => "No valid fields to update."]);
@@ -163,7 +179,7 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
@@ -173,6 +189,7 @@ try {
 
         $collection['hasPassword'] = !empty($collection['password']);
         unset($collection['password']);
+        $collection['selectionLimit'] = $collection['selectionLimit'] !== null ? (int) $collection['selectionLimit'] : null;
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
 

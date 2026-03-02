@@ -80,6 +80,9 @@ function CollectionDetailsPage() {
   const [passwordInput, setPasswordInput] = useState('');
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [selectionLimitInput, setSelectionLimitInput] = useState('');
+  const [showLimitInput, setShowLimitInput] = useState(false);
+  const [savingLimit, setSavingLimit] = useState(false);
 
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
@@ -228,6 +231,40 @@ function CollectionDetailsPage() {
       }
     } finally {
       setSavingPassword(false);
+    }
+  };
+
+  const handleSaveSelectionLimit = async () => {
+    const value = parseInt(selectionLimitInput, 10);
+    if (!value || value < 1) return;
+    setSavingLimit(true);
+    try {
+      const { data, error: err } = await api.patch(`/collections/${id}`, { selectionLimit: value });
+      if (err) {
+        toast.error(t('collection.selectionLimitSaveError'));
+      } else {
+        setCollection(data.collection);
+        setSelectionLimitInput('');
+        setShowLimitInput(false);
+        toast.success(t('collection.selectionLimitSaved'));
+      }
+    } finally {
+      setSavingLimit(false);
+    }
+  };
+
+  const handleRemoveSelectionLimit = async () => {
+    setSavingLimit(true);
+    try {
+      const { data, error: err } = await api.patch(`/collections/${id}`, { selectionLimit: null });
+      if (err) {
+        toast.error(t('collection.selectionLimitSaveError'));
+      } else {
+        setCollection(data.collection);
+        toast.success(t('collection.selectionLimitRemoved'));
+      }
+    } finally {
+      setSavingLimit(false);
     }
   };
 
@@ -491,6 +528,60 @@ function CollectionDetailsPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                       {t('collection.passwordProtection')}
+                    </button>
+                  )}
+                </div>
+                {/* Selection limit */}
+                <div className="w-full border-t border-white/[0.08] pt-3 mt-1">
+                  {collection.selectionLimit ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-xs text-blue-400 font-medium">{t('collection.selectionLimitSet', { limit: collection.selectionLimit })}</span>
+                      <button
+                        onClick={handleRemoveSelectionLimit}
+                        disabled={savingLimit}
+                        className="text-xs text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-2 disabled:opacity-50"
+                      >
+                        {t('collection.removeSelectionLimit')}
+                      </button>
+                    </div>
+                  ) : showLimitInput ? (
+                    <div className="flex items-center gap-2 max-w-xs mx-auto">
+                      <input
+                        type="number"
+                        min="1"
+                        value={selectionLimitInput}
+                        onChange={(e) => setSelectionLimitInput(e.target.value)}
+                        placeholder={t('collection.selectionLimitPlaceholder')}
+                        className="flex-1 px-3 py-1.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        autoFocus
+                        onKeyDown={(e) => e.key === 'Enter' && handleSaveSelectionLimit()}
+                      />
+                      <button
+                        onClick={handleSaveSelectionLimit}
+                        disabled={!selectionLimitInput || parseInt(selectionLimitInput, 10) < 1 || savingLimit}
+                        className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
+                      >
+                        {t('collection.passwordSet')}
+                      </button>
+                      <button
+                        onClick={() => { setShowLimitInput(false); setSelectionLimitInput(''); }}
+                        className="text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        {t('common.cancel')}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowLimitInput(true)}
+                      className="flex items-center gap-1.5 mx-auto text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      {t('collection.addSelectionLimit')}
                     </button>
                   )}
                 </div>

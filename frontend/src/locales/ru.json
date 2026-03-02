@@ -441,6 +441,16 @@
     "passwordSaved": "Пароль сохранён",
     "passwordRemoved": "Пароль удалён",
     "passwordSaveError": "Не удалось сохранить пароль",
+    "selectionLimit": "Лимит выбора",
+    "selectionLimitPlaceholder": "Без ограничений",
+    "selectionLimitDescription": "Максимальное количество фото, которое клиент может выбрать",
+    "selectionLimitSet": "Лимит: {{limit}} фото",
+    "selectionLimitNone": "Без лимита выбора",
+    "addSelectionLimit": "Добавить лимит выбора",
+    "removeSelectionLimit": "Удалить",
+    "selectionLimitSaved": "Лимит выбора сохранён",
+    "selectionLimitRemoved": "Лимит выбора удалён",
+    "selectionLimitSaveError": "Не удалось сохранить лимит выбора",
     "analytics": {
       "title": "Аналитика коллекции",
       "subtitle": "Данные о вовлечённости клиента",
@@ -507,7 +517,10 @@
     "labelSelected": "Выбрано",
     "labelFavorite": "Избранное",
     "labelRejected": "Отклонено",
-    "proFeature": "Это PRO функция"
+    "proFeature": "Это PRO функция",
+    "selectionLimit": "{{current}} / {{limit}} выбрано",
+    "selectionLimitReached": "Лимит выбора достигнут",
+    "selectionLimitReachedToast": "Вы достигли лимита выбора — {{limit}} фото"
   },
   "plans": {
     "freeTrialBadge": "Пробный план",

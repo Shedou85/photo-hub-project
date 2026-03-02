@@ -437,6 +437,16 @@
     "passwordSaved": "Password saved",
     "passwordRemoved": "Password removed",
     "passwordSaveError": "Failed to save password",
+    "selectionLimit": "Selection limit",
+    "selectionLimitPlaceholder": "Unlimited",
+    "selectionLimitDescription": "Maximum photos the client can select",
+    "selectionLimitSet": "Limit: {{limit}} photos",
+    "selectionLimitNone": "No selection limit",
+    "addSelectionLimit": "Add selection limit",
+    "removeSelectionLimit": "Remove",
+    "selectionLimitSaved": "Selection limit saved",
+    "selectionLimitRemoved": "Selection limit removed",
+    "selectionLimitSaveError": "Failed to save selection limit",
     "analytics": {
       "title": "Collection Analytics",
       "subtitle": "Client engagement insights",
@@ -496,7 +506,10 @@
     "labelSelected": "Selected",
     "labelFavorite": "Favorite",
     "labelRejected": "Rejected",
-    "proFeature": "This is a PRO feature"
+    "proFeature": "This is a PRO feature",
+    "selectionLimit": "{{current}} / {{limit}} selected",
+    "selectionLimitReached": "Selection limit reached",
+    "selectionLimitReachedToast": "You've reached the selection limit of {{limit}} photos"
   },
   "plans": {
     "freeTrialBadge": "Free Trial",

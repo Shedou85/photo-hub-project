@@ -441,6 +441,16 @@
     "passwordSaved": "Slaptažodis išsaugotas",
     "passwordRemoved": "Slaptažodis pašalintas",
     "passwordSaveError": "Nepavyko išsaugoti slaptažodžio",
+    "selectionLimit": "Pasirinkimų limitas",
+    "selectionLimitPlaceholder": "Neribota",
+    "selectionLimitDescription": "Maksimalus nuotraukų skaičius, kurį klientas gali pasirinkti",
+    "selectionLimitSet": "Limitas: {{limit}} nuotraukų",
+    "selectionLimitNone": "Be pasirinkimų limito",
+    "addSelectionLimit": "Pridėti pasirinkimų limitą",
+    "removeSelectionLimit": "Pašalinti",
+    "selectionLimitSaved": "Pasirinkimų limitas išsaugotas",
+    "selectionLimitRemoved": "Pasirinkimų limitas pašalintas",
+    "selectionLimitSaveError": "Nepavyko išsaugoti pasirinkimų limito",
     "analytics": {
       "title": "Kolekcijos analitika",
       "subtitle": "Kliento įsitraukimo įžvalgos",
@@ -507,7 +517,10 @@
     "labelSelected": "Pasirinkta",
     "labelFavorite": "Mėgstama",
     "labelRejected": "Atmesta",
-    "proFeature": "Tai PRO funkcija"
+    "proFeature": "Tai PRO funkcija",
+    "selectionLimit": "{{current}} / {{limit}} pasirinkta",
+    "selectionLimitReached": "Pasirinkimų limitas pasiektas",
+    "selectionLimitReachedToast": "Pasiekėte pasirinkimų limitą — {{limit}} nuotraukų"
   },
   "plans": {
     "freeTrialBadge": "Nemokama versija",
