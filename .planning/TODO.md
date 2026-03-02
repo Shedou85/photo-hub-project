@@ -28,13 +28,15 @@ The plan system is fully defined but payments aren't connected. Schema ready, UI
 - [ ] Test: webhook signature verification
 - [ ] Add i18n keys for payment-related strings (LT/EN/RU)
 
-## P0 — Collection Password (Share Page)
+## ~~P0 — Collection Password Protection~~ DONE
 
-Currently clients can view and download collection photos without any restrictions when they have the share/delivery link. Need to add optional password protection so photographers can control access.
-
-- [ ] SharePage: password prompt UI when collection has password set
-- [ ] DeliveryPage: consider adding optional password protection (currently token-only)
-- [ ] Rate limiting on password attempts (already exists for share, verify for delivery)
+- [x] Backend: `hasPassword` bool in collection GET/PATCH responses
+- [x] Backend: password verification on delivery endpoints (deliver-view, zip-download, photo-download)
+- [x] Backend: session-based auth tokens for delivery (2h TTL, rate limited)
+- [x] Frontend: password toggle UI in CollectionDetailsPage (SELECTING + DELIVERED banners)
+- [x] Frontend: password gate on DeliveryPage (mirrors SharePage pattern)
+- [x] SharePage: password prompt UI (already existed)
+- [x] i18n keys for all 3 locales (EN/LT/RU)
 
 ## P1 — Email Notifications for Workflow Events
 
@@ -130,6 +132,11 @@ No formal API docs.
 - [x] Session expired modal
 - [x] Rate limiting (login, register, forgot-password, share password)
 - [x] Collection status lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED)
+
+### Collection Password Protection (2026-03-02)
+- [x] Backend: hasPassword in collection responses, password verification on all delivery endpoints
+- [x] Frontend: password toggle UI (CollectionDetailsPage), password gate (DeliveryPage)
+- [x] i18n: EN/LT/RU keys for collection and delivery password strings
 
 ### Post-Audit Fixes (2026-02-26)
 - [x] Sync database_schema.sql
