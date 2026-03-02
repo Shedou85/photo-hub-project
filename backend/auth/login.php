@@ -45,7 +45,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, email, emailVerified, password, role, status, name, createdAt, bio, plan, subscriptionStatus, trialEndsAt, collectionsCreatedCount
+        SELECT id, email, emailVerified, password, role, status, name, createdAt, bio, plan, subscriptionStatus, trialEndsAt, collectionsCreatedCount, brandingLogoUrl, brandingColor
         FROM `User`
         WHERE email = ?
         LIMIT 1
@@ -102,7 +102,10 @@ try {
             "plan" => $user['plan'],
             "subscriptionStatus" => $user['subscriptionStatus'],
             "trialEndsAt" => $user['trialEndsAt'],
-            "collectionsCreatedCount" => (int)$user['collectionsCreatedCount']
+            "collectionsCreatedCount" => (int)$user['collectionsCreatedCount'],
+            "emailVerified" => (bool)$user['emailVerified'],
+            "brandingLogoUrl" => $user['brandingLogoUrl'] ?? null,
+            "brandingColor" => $user['brandingColor'] ?? null
         ]
     ]);
 

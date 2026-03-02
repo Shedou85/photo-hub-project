@@ -50,7 +50,7 @@ try {
     if ($account) {
         // Account found — fetch the associated User
         $stmt = $pdo->prepare(
-            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount
+            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
              FROM `User` WHERE id=? LIMIT 1"
         );
         $stmt->execute([$account['userId']]);
@@ -58,7 +58,7 @@ try {
     } else {
         // No Account found — check if a User with this email already exists
         $stmt = $pdo->prepare(
-            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount
+            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
              FROM `User` WHERE email=? LIMIT 1"
         );
         $stmt->execute([$email]);
@@ -93,7 +93,7 @@ try {
 
                 // Fetch the newly created User
                 $stmt = $pdo->prepare(
-                    "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio
+                    "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
                      FROM `User` WHERE id=? LIMIT 1"
                 );
                 $stmt->execute([$userId]);
@@ -131,6 +131,9 @@ try {
             'bio'                     => $user['bio'],
             'trialEndsAt'             => $user['trialEndsAt'],
             'collectionsCreatedCount' => (int)$user['collectionsCreatedCount'],
+            'emailVerified'          => (bool)$user['emailVerified'],
+            'brandingLogoUrl'        => $user['brandingLogoUrl'] ?? null,
+            'brandingColor'          => $user['brandingColor'] ?? null,
         ],
     ]);
 } catch (Throwable $e) {
