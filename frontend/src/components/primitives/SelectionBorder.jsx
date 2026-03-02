@@ -11,9 +11,8 @@ const GLOW_CLASSES = {
 };
 
 /**
- * Animated selection border overlay.
- * Renders a colored border with a green trace line
- * that travels clockwise around the frame.
+ * Selection border overlay.
+ * Renders a colored border around the photo based on label type.
  *
  * @param {{ label?: 'SELECTED' | 'FAVORITE' | 'REJECTED' }} props
  * Place inside a `position: relative` container.
@@ -22,13 +21,7 @@ function SelectionBorder({ label = 'SELECTED' }) {
   const borderColor = BORDER_COLORS[label] || BORDER_COLORS.SELECTED;
 
   return (
-    <>
-      <div className={`absolute inset-0 border-2 ${borderColor} rounded-lg pointer-events-none`} />
-      <div className="selection-trace-top" />
-      <div className="selection-trace-right" />
-      <div className="selection-trace-bottom" />
-      <div className="selection-trace-left" />
-    </>
+    <div className={`absolute inset-0 border-2 ${borderColor} rounded-lg pointer-events-none`} />
   );
 }
 
