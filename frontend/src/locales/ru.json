@@ -433,6 +433,14 @@
         "subtitle": "Ваш клиент может скачать отредактированные фото по ссылке доставки"
       }
     },
+    "passwordProtection": "Защита паролем",
+    "passwordEnabled": "Защищено паролем",
+    "passwordSet": "Установить пароль",
+    "passwordRemove": "Удалить пароль",
+    "passwordPlaceholder": "Введите пароль для клиентов",
+    "passwordSaved": "Пароль сохранён",
+    "passwordRemoved": "Пароль удалён",
+    "passwordSaveError": "Не удалось сохранить пароль",
     "analytics": {
       "title": "Аналитика коллекции",
       "subtitle": "Данные о вовлечённости клиента",
@@ -698,7 +706,13 @@
     "heroTitle": "Ваши фотографии готовы",
     "downloadHint": "Все фотографии в одном ZIP-архиве",
     "individualDownloads": "Скачать по отдельности",
-    "download": "Скачать"
+    "download": "Скачать",
+    "passwordRequired": "Эта галерея защищена паролем.",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Введите пароль галереи",
+    "passwordSubmit": "Открыть галерею",
+    "passwordError": "Неверный пароль. Попробуйте ещё раз.",
+    "passwordSubmitting": "Проверка..."
   },
   "errors": {
     "boundary_title": "Что-то пошло не так",

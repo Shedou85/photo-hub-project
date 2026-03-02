@@ -10,6 +10,7 @@ import Accordion from '../components/Accordion';
 import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
 import SortablePhotoGrid from '../components/collection/SortablePhotoGrid';
 import CollectionAnalytics from '../components/collection/CollectionAnalytics';
+import { api } from '../lib/api';
 import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
@@ -76,6 +77,10 @@ function CollectionDetailsPage() {
   const [editClientEmail, setEditClientEmail] = useState('');
   const [editSourceFolder, setEditSourceFolder] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
   const photoLimit = isExpiredTrial ? EXPIRED_TRIAL_PHOTO_LIMIT : (isActiveTrial || user?.plan === 'STANDARD') ? STANDARD_PHOTO_LIMIT : null;
@@ -192,6 +197,39 @@ function CollectionDetailsPage() {
     }
   };
 
+
+  const handleSavePassword = async () => {
+    if (!passwordInput.trim()) return;
+    setSavingPassword(true);
+    try {
+      const { data, error: err } = await api.patch(`/collections/${id}`, { password: passwordInput });
+      if (err) {
+        toast.error(t('collection.passwordSaveError'));
+      } else {
+        setCollection(data.collection);
+        setPasswordInput('');
+        setShowPasswordInput(false);
+        toast.success(t('collection.passwordSaved'));
+      }
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  const handleRemovePassword = async () => {
+    setSavingPassword(true);
+    try {
+      const { data, error: err } = await api.patch(`/collections/${id}`, { password: null });
+      if (err) {
+        toast.error(t('collection.passwordSaveError'));
+      } else {
+        setCollection(data.collection);
+        toast.success(t('collection.passwordRemoved'));
+      }
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -403,6 +441,59 @@ function CollectionDetailsPage() {
                   </svg>
                   {t('collection.copyShareLink')}
                 </Button>
+                {/* Password protection */}
+                <div className="w-full border-t border-white/[0.08] pt-3 mt-1">
+                  {collection.hasPassword ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span className="text-xs text-blue-400 font-medium">{t('collection.passwordEnabled')}</span>
+                      <button
+                        onClick={handleRemovePassword}
+                        disabled={savingPassword}
+                        className="text-xs text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-2 disabled:opacity-50"
+                      >
+                        {t('collection.passwordRemove')}
+                      </button>
+                    </div>
+                  ) : showPasswordInput ? (
+                    <div className="flex items-center gap-2 max-w-xs mx-auto">
+                      <input
+                        type="text"
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        placeholder={t('collection.passwordPlaceholder')}
+                        className="flex-1 px-3 py-1.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70"
+                        autoFocus
+                        onKeyDown={(e) => e.key === 'Enter' && handleSavePassword()}
+                      />
+                      <button
+                        onClick={handleSavePassword}
+                        disabled={!passwordInput.trim() || savingPassword}
+                        className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
+                      >
+                        {t('collection.passwordSet')}
+                      </button>
+                      <button
+                        onClick={() => { setShowPasswordInput(false); setPasswordInput(''); }}
+                        className="text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        {t('common.cancel')}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowPasswordInput(true)}
+                      className="flex items-center gap-1.5 mx-auto text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      {t('collection.passwordProtection')}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -472,6 +563,59 @@ function CollectionDetailsPage() {
                   </svg>
                   {t('collection.copyDeliveryLink')}
                 </Button>
+                {/* Password protection */}
+                <div className="w-full border-t border-white/[0.08] pt-3 mt-1">
+                  {collection.hasPassword ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span className="text-xs text-emerald-400 font-medium">{t('collection.passwordEnabled')}</span>
+                      <button
+                        onClick={handleRemovePassword}
+                        disabled={savingPassword}
+                        className="text-xs text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-2 disabled:opacity-50"
+                      >
+                        {t('collection.passwordRemove')}
+                      </button>
+                    </div>
+                  ) : showPasswordInput ? (
+                    <div className="flex items-center gap-2 max-w-xs mx-auto">
+                      <input
+                        type="text"
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        placeholder={t('collection.passwordPlaceholder')}
+                        className="flex-1 px-3 py-1.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70"
+                        autoFocus
+                        onKeyDown={(e) => e.key === 'Enter' && handleSavePassword()}
+                      />
+                      <button
+                        onClick={handleSavePassword}
+                        disabled={!passwordInput.trim() || savingPassword}
+                        className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
+                      >
+                        {t('collection.passwordSet')}
+                      </button>
+                      <button
+                        onClick={() => { setShowPasswordInput(false); setPasswordInput(''); }}
+                        className="text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        {t('common.cancel')}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowPasswordInput(true)}
+                      className="flex items-center gap-1.5 mx-auto text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      {t('collection.passwordProtection')}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 

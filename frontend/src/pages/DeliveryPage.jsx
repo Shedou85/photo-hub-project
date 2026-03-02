@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { downloadPhoto, downloadAllAsZip } from '../utils/download';
@@ -14,6 +14,13 @@ function DeliveryPage() {
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState(new Set());
+
+  // Password state
+  const [passwordRequired, setPasswordRequired] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const deliverySessionTokenRef = useRef(null);
 
   const languages = [
     { code: 'lt', label: 'LT' },
@@ -39,37 +46,70 @@ function DeliveryPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [lightboxIndex, collection?.photos]);
 
-  // Fetch delivery data on mount
-  useEffect(() => {
-    const fetchDelivery = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/deliver/${deliveryToken}`
-        );
+  // Fetch delivery data
+  const fetchDelivery = useCallback(async (password) => {
+    try {
+      const headers = {};
+      if (password) {
+        headers['X-Collection-Password'] = password;
+      } else if (deliverySessionTokenRef.current) {
+        headers['X-Delivery-Session-Token'] = deliverySessionTokenRef.current;
+      }
 
-        if (!response.ok) {
-          if (response.status === 404) setError('notFound');
-          else if (response.status === 403) setError('notReady');
-          else setError('error');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/deliver/${deliveryToken}`,
+        { credentials: 'include', headers }
+      );
+
+      if (response.status === 401) {
+        const data = await response.json();
+        if (data.passwordRequired) {
+          setPasswordRequired(true);
+          if (password) setPasswordError(true);
           setLoading(false);
           return;
         }
-
-        const data = await response.json();
-        if (data.status === 'OK' && data.collection) {
-          setCollection(data.collection);
-        } else {
-          setError('notFound');
-        }
-      } catch {
-        setError('error');
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchDelivery();
+      if (!response.ok) {
+        if (response.status === 404) setError('notFound');
+        else if (response.status === 403) setError('notReady');
+        else setError('error');
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.status === 'OK' && data.collection) {
+        if (data.deliverySessionToken) {
+          deliverySessionTokenRef.current = data.deliverySessionToken;
+        }
+        setCollection(data.collection);
+        setPasswordRequired(false);
+        setPasswordError(false);
+      } else {
+        setError('notFound');
+      }
+    } catch {
+      setError('error');
+    } finally {
+      setLoading(false);
+    }
   }, [deliveryToken]);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchDelivery();
+  }, [fetchDelivery]);
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!passwordInput.trim() || passwordSubmitting) return;
+    setPasswordSubmitting(true);
+    setPasswordError(false);
+    await fetchDelivery(passwordInput);
+    setPasswordSubmitting(false);
+  };
 
   // Language selector — shared across all states
   const LanguageSelector = () => (
@@ -112,6 +152,54 @@ function DeliveryPage() {
               />
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Password gate ──
+  if (passwordRequired && !collection) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center font-sans px-5 relative">
+        <LanguageSelector />
+        <div className="w-full max-w-[380px] animate-fade-in-up">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-7 h-7 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="font-serif-display text-2xl text-white mb-2">
+              {t('delivery.passwordRequired')}
+            </h2>
+          </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-white/50 mb-1.5">
+                {t('delivery.passwordLabel')}
+              </label>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder={t('delivery.passwordPlaceholder')}
+                className={`w-full px-4 py-3 bg-white/[0.04] border rounded-lg text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] transition-colors ${
+                  passwordError ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'
+                }`}
+                autoFocus
+              />
+              {passwordError && (
+                <p className="text-red-400 text-xs mt-1.5">{t('delivery.passwordError')}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={!passwordInput.trim() || passwordSubmitting}
+              className="w-full py-3 px-4 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 text-white text-sm font-semibold rounded-lg transition-all shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
+            >
+              {passwordSubmitting ? t('delivery.passwordSubmitting') : t('delivery.passwordSubmit')}
+            </button>
+          </form>
         </div>
       </div>
     );
