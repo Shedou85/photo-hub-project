@@ -41,7 +41,7 @@ try {
     if ($method === 'GET') {
         if ($isAdmin) {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ?
                 LIMIT 1
@@ -49,7 +49,7 @@ try {
             $stmt->execute([$collectionId]);
         } else {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ? AND userId = ?
                 LIMIT 1
@@ -63,6 +63,9 @@ try {
             echo json_encode(["error" => "Collection not found."]);
             exit;
         }
+
+        $collection['hasPassword'] = !empty($collection['password']);
+        unset($collection['password']);
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
         exit;
@@ -160,13 +163,16 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
         ");
         $stmt->execute([$collectionId, $userId]);
         $collection = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $collection['hasPassword'] = !empty($collection['password']);
+        unset($collection['password']);
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
 

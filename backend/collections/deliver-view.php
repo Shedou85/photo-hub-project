@@ -1,12 +1,16 @@
 <?php
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
+require_once __DIR__ . '/../helpers/rate-limiter.php';
 require_once __DIR__ . '/../helpers/r2.php';
 
 // This is a PUBLIC endpoint — no session/auth check required
 // Delivery token IS the credential
+// Password verification uses sessions for token persistence
 
 header('Content-Type: application/json');
+
+session_start();
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
@@ -31,7 +35,7 @@ try {
 
     // Query collection by deliveryToken
     $stmt = $pdo->prepare("
-        SELECT id, userId, name, clientName, status, expiresAt, createdAt
+        SELECT id, userId, name, clientName, status, expiresAt, password, createdAt
         FROM `Collection`
         WHERE deliveryToken = ?
         LIMIT 1
@@ -60,6 +64,59 @@ try {
         http_response_code(410);
         echo json_encode(['error' => 'This collection has expired.']);
         exit;
+    }
+
+    // Password verification (mirrors share.php pattern)
+    $deliverySessionToken = null;
+    if (!empty($collection['password'])) {
+        $sessionKey = 'delivery_token_' . $deliveryToken;
+        $sessionTimeKey = 'delivery_token_' . $deliveryToken . '_time';
+        $authenticated = false;
+
+        // Check for existing delivery session token
+        $providedToken = $_SERVER['HTTP_X_DELIVERY_SESSION_TOKEN'] ?? '';
+        if (!empty($providedToken) && isset($_SESSION[$sessionKey]) && hash_equals($_SESSION[$sessionKey], $providedToken)) {
+            $tokenTime = $_SESSION[$sessionTimeKey] ?? 0;
+            if (time() - $tokenTime < 7200) {
+                $authenticated = true;
+                $deliverySessionToken = $providedToken;
+            } else {
+                unset($_SESSION[$sessionKey]);
+                unset($_SESSION[$sessionTimeKey]);
+            }
+        }
+
+        // Try password from header
+        if (!$authenticated) {
+            $providedPassword = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
+            if (!empty($providedPassword)) {
+                // Rate limit password attempts: 10 per 15 minutes per IP
+                $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                if (!checkRateLimit('delivery_pwd:' . $clientIp . ':' . $deliveryToken, 10, 900)) {
+                    http_response_code(429);
+                    echo json_encode(['error' => 'Too many attempts. Please try again later.']);
+                    exit;
+                }
+
+                if (password_verify($providedPassword, $collection['password'])) {
+                    $authenticated = true;
+                    // Generate session token
+                    $deliverySessionToken = bin2hex(random_bytes(32));
+                    $_SESSION[$sessionKey] = $deliverySessionToken;
+                    $_SESSION[$sessionTimeKey] = time();
+                } else {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Incorrect password.', 'passwordRequired' => true]);
+                    exit;
+                }
+            }
+        }
+
+        if (!$authenticated) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Password required.', 'passwordRequired' => true]);
+            exit;
+        }
     }
 
     // Query the collection owner's branding data
@@ -98,6 +155,10 @@ try {
             'branding' => $branding
         ]
     ];
+
+    if ($deliverySessionToken) {
+        $response['deliverySessionToken'] = $deliverySessionToken;
+    }
 
     echo json_encode($response);
 

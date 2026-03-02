@@ -17,6 +17,8 @@ require_once __DIR__ . '/../utils.php';
 use ZipStream\ZipStream;
 use ZipStream\CompressionMethod;
 
+session_start();
+
 // Extract delivery token from route: /deliver/{deliveryToken}/zip
 $routeParts = parseRouteParts();
 // routeParts: ['deliver', deliveryToken, 'zip']
@@ -48,7 +50,7 @@ try {
     $pdo = getDbConnection();
 
     // Verify delivery token exists
-    $stmt = $pdo->prepare("SELECT id, name, status, expiresAt FROM Collection WHERE deliveryToken = ?");
+    $stmt = $pdo->prepare("SELECT id, name, status, expiresAt, password FROM Collection WHERE deliveryToken = ?");
     $stmt->execute([$deliveryToken]);
     $collection = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -70,6 +72,26 @@ try {
         http_response_code(410);
         echo json_encode(['error' => 'This collection has expired.']);
         exit;
+    }
+
+    // Password verification via session (set by deliver-view.php)
+    if (!empty($collection['password'])) {
+        $sessionKey = 'delivery_token_' . $deliveryToken;
+        $sessionTimeKey = 'delivery_token_' . $deliveryToken . '_time';
+        $authenticated = false;
+
+        if (isset($_SESSION[$sessionKey])) {
+            $tokenTime = $_SESSION[$sessionTimeKey] ?? 0;
+            if (time() - $tokenTime < 7200) {
+                $authenticated = true;
+            }
+        }
+
+        if (!$authenticated) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Password required.', 'passwordRequired' => true]);
+            exit;
+        }
     }
 
     $collectionId = $collection['id'];
