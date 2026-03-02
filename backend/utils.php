@@ -217,20 +217,19 @@ function handleFileUpload($file, $collectionId, $subdirectory = '') {
     $originalFilename = basename($file['name']);
     $createdAt = date('Y-m-d H:i:s.v');
 
-    // Generate and upload thumbnail (only for main uploads, not edited subdirectory)
+    // Generate and upload thumbnail
     $thumbnailKey = null;
-    if (empty($subdirectory)) {
-        $tmpThumbPath = generateThumbnail($tmpPath, $mimeType);
-        if ($tmpThumbPath !== null) {
-            $thumbObjectKey = "collections/{$collectionId}/thumbs/{$newId}_thumb.jpg";
-            try {
-                r2Upload($tmpThumbPath, $thumbObjectKey, 'image/jpeg');
-                $thumbnailKey = $thumbObjectKey;
-            } catch (\RuntimeException $e) {
-                error_log("Thumbnail upload to R2 failed: " . $e->getMessage());
-            } finally {
-                @unlink($tmpThumbPath);
-            }
+    $tmpThumbPath = generateThumbnail($tmpPath, $mimeType);
+    if ($tmpThumbPath !== null) {
+        $thumbSubPath = $subdirectory ? "/{$subdirectory}/thumbs" : '/thumbs';
+        $thumbObjectKey = "collections/{$collectionId}{$thumbSubPath}/{$newId}_thumb.jpg";
+        try {
+            r2Upload($tmpThumbPath, $thumbObjectKey, 'image/jpeg');
+            $thumbnailKey = $thumbObjectKey;
+        } catch (\RuntimeException $e) {
+            error_log("Thumbnail upload to R2 failed: " . $e->getMessage());
+        } finally {
+            @unlink($tmpThumbPath);
         }
     }
 

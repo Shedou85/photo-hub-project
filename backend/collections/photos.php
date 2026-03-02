@@ -62,7 +62,7 @@ try {
         $stmt->execute([$collectionId]);
         $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt = $pdo->prepare("SELECT id, filename, storagePath, createdAt FROM `EditedPhoto` WHERE collectionId = ? ORDER BY createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, createdAt FROM `EditedPhoto` WHERE collectionId = ? ORDER BY createdAt ASC");
         $stmt->execute([$collectionId]);
         $editedPhotos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

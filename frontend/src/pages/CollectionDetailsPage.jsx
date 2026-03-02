@@ -1006,7 +1006,7 @@ function CollectionDetailsPage() {
                   aria-label={photo.filename}
                 >
                   <img
-                    src={photoUrl(photo.storagePath)}
+                    src={photoUrl(photo.thumbnailPath || photo.storagePath)}
                     alt={photo.filename}
                     className="w-full h-full object-cover"
                     loading="lazy"

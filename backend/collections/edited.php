@@ -50,7 +50,7 @@ try {
     }
 
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT id, filename, storagePath, createdAt FROM `EditedPhoto` WHERE collectionId = ? ORDER BY createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, createdAt FROM `EditedPhoto` WHERE collectionId = ? ORDER BY createdAt ASC");
         $stmt->execute([$collectionId]);
         $editedPhotos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -74,8 +74,8 @@ try {
 
         try {
             $createdAt = date('Y-m-d H:i:s.v');
-            $stmt = $pdo->prepare("INSERT INTO `EditedPhoto` (id, filename, storagePath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$result['id'], $result['filename'], $result['storagePath'], $collectionId, $createdAt]);
+            $stmt = $pdo->prepare("INSERT INTO `EditedPhoto` (id, filename, storagePath, thumbnailPath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$result['id'], $result['filename'], $result['storagePath'], $result['thumbnailPath'], $collectionId, $createdAt]);
 
             echo json_encode([
                 "status" => "OK",
@@ -83,13 +83,17 @@ try {
                     "id" => $result['id'],
                     "filename" => $result['filename'],
                     "storagePath" => $result['storagePath'],
+                    "thumbnailPath" => $result['thumbnailPath'],
                     "createdAt" => $createdAt
                 ]
             ]);
             exit;
         } catch (Throwable $e) {
-            // CLEANUP: Remove uploaded file if DB insert failed
+            // CLEANUP: Remove uploaded files if DB insert failed
             safeDeleteUploadedFile($result['storagePath']);
+            if (!empty($result['thumbnailPath'])) {
+                safeDeleteUploadedFile($result['thumbnailPath']);
+            }
             throw $e;
         }
     }
@@ -101,7 +105,7 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("SELECT id, storagePath FROM `EditedPhoto` WHERE id = ? AND collectionId = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, storagePath, thumbnailPath FROM `EditedPhoto` WHERE id = ? AND collectionId = ? LIMIT 1");
         $stmt->execute([$editedPhotoId, $collectionId]);
         $editedPhoto = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -111,8 +115,11 @@ try {
             exit;
         }
 
-        // Delete file from disk (validates path is within uploads directory)
+        // Delete file from R2
         safeDeleteUploadedFile($editedPhoto['storagePath']);
+        if (!empty($editedPhoto['thumbnailPath'])) {
+            safeDeleteUploadedFile($editedPhoto['thumbnailPath']);
+        }
 
         $pdo->prepare("DELETE FROM `EditedPhoto` WHERE id = ? AND collectionId = ?")->execute([$editedPhotoId, $collectionId]);
 

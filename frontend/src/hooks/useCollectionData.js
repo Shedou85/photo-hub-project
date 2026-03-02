@@ -94,9 +94,9 @@ export function useCollectionData(id) {
     fetchSelections();
   }, [fetchCollection, fetchSelections]);
 
-  // Fetch edited photos when REVIEWING or DELIVERED
+  // Fetch edited photos when REVIEWING, DELIVERED, or DOWNLOADED
   useEffect(() => {
-    if (collection && (collection.status === 'REVIEWING' || collection.status === 'DELIVERED')) {
+    if (collection && ['REVIEWING', 'DELIVERED', 'DOWNLOADED'].includes(collection.status)) {
       fetchEditedPhotos();
     }
   }, [collection, fetchEditedPhotos]);

@@ -367,6 +367,9 @@ switch ($requestUri) {
                 case 'download-stats':
                     require_once __DIR__ . '/admin/download-stats.php';
                     break;
+                case 'cleanup-originals':
+                    require_once __DIR__ . '/admin/cleanup.php';
+                    break;
                 default:
                     http_response_code(404);
                     echo json_encode(['error' => 'Not found']);

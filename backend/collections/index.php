@@ -67,10 +67,20 @@ try {
         $dataStmt = $pdo->prepare("
             SELECT c.id, c.name, c.status, c.clientName, c.clientEmail, c.shareId,
                    c.coverPhotoId, c.createdAt, c.updatedAt,
-                   p.thumbnailPath as coverPhotoPath,
+                   CASE
+                     WHEN c.status IN ('DELIVERED','DOWNLOADED','ARCHIVED') AND ep_cover.coverPath IS NOT NULL
+                       THEN ep_cover.coverPath
+                     ELSE COALESCE(p.thumbnailPath, ep_cover.coverPath)
+                   END as coverPhotoPath,
                    COALESCE(pc.photoCount, 0) as photoCount
             FROM `Collection` c
             LEFT JOIN `Photo` p ON c.coverPhotoId = p.id
+            LEFT JOIN (
+                SELECT collectionId,
+                       COALESCE(MIN(thumbnailPath), MIN(storagePath)) as coverPath
+                FROM `EditedPhoto`
+                GROUP BY collectionId
+            ) ep_cover ON c.id = ep_cover.collectionId
             LEFT JOIN (
                 SELECT collectionId, COUNT(*) as photoCount
                 FROM `Photo`

@@ -41,7 +41,7 @@ try {
     if ($method === 'GET') {
         if ($isAdmin) {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ?
                 LIMIT 1
@@ -49,7 +49,7 @@ try {
             $stmt->execute([$collectionId]);
         } else {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ? AND userId = ?
                 LIMIT 1
@@ -114,6 +114,14 @@ try {
                     $setParts[] = "`deliveryToken` = ?";
                     $params[] = $deliveryToken;
                 }
+
+                // Schedule originals cleanup in 7 days
+                $cleanupAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+                $setParts[] = "`originalsCleanupAt` = ?";
+                $params[] = $cleanupAt;
+
+                // Clear cover so collections list falls back to edited photo thumbnail
+                $setParts[] = "`coverPhotoId` = NULL";
             }
 
             // PRO-only: only PRO users can archive collections
@@ -152,7 +160,7 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
@@ -206,10 +214,11 @@ try {
             r2Delete('collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm_full.jpg');
         }
 
-        $editedStmt = $pdo->prepare("SELECT storagePath FROM EditedPhoto WHERE collectionId = ?");
+        $editedStmt = $pdo->prepare("SELECT storagePath, thumbnailPath FROM EditedPhoto WHERE collectionId = ?");
         $editedStmt->execute([$collectionId]);
         foreach ($editedStmt->fetchAll(PDO::FETCH_ASSOC) as $edited) {
             if (!empty($edited['storagePath'])) r2Delete($edited['storagePath']);
+            if (!empty($edited['thumbnailPath'])) r2Delete($edited['thumbnailPath']);
         }
 
         $stmt = $pdo->prepare("DELETE FROM `Collection` WHERE id = ? AND userId = ?");
