@@ -293,6 +293,7 @@
     "uploadZoneLabel": "Vilkite nuotraukas čia arba spustelėkite norėdami pasirinkti",
     "uploadZoneHint": "JPEG, PNG arba WEBP · Maks. 20 MB vienai bylai",
     "uploading": "Įkeliama...",
+    "uploadComplete": "Baigta",
     "uploadError": "Įkėlimas nepavyko",
     "uploadValidationError": "Netinkamas failas (blogas tipas arba per didelis)",
     "uploadSuccess": "Nuotraukos sėkmingai įkeltos!",

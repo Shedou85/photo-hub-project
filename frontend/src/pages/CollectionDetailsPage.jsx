@@ -49,6 +49,7 @@ function CollectionDetailsPage() {
     photos, setPhotos,
     uploadFiles, uploadEditedFiles,
     handleDeletePhoto, handleSetCover,
+    uploadProgress, editedUploadProgress,
     anyUploading, uploadErrors, validationErrors,
     anyEditedUploading, editedUploadErrors, editedValidationErrors,
     fetchPhotos,
@@ -873,6 +874,32 @@ function CollectionDetailsPage() {
               <p className="m-0 text-xs text-white/50">
                 {t("collection.uploadZoneHint")}
               </p>
+              {/* Upload progress bar + counter */}
+              {uploadProgress.total > 0 && (
+                <div className="w-full max-w-[220px] flex flex-col items-center gap-1.5 mt-1">
+                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.round((uploadProgress.completed / uploadProgress.total) * 100)}%` }}
+                    />
+                  </div>
+                  <p className="m-0 text-xs text-indigo-400 font-medium">
+                    {anyUploading && <span className="animate-pulse">{t("collection.uploading")}</span>}
+                    {!anyUploading && uploadProgress.completed === uploadProgress.total && t("collection.uploadComplete")}
+                    {' '}{uploadProgress.completed}/{uploadProgress.total}
+                  </p>
+                </div>
+              )}
+              {uploadErrors > 0 && !anyUploading && (
+                <p className="m-0 text-xs text-red-500 font-medium">
+                  {uploadErrors}x {t("collection.uploadError")}
+                </p>
+              )}
+              {validationErrors > 0 && !anyUploading && (
+                <p className="m-0 text-xs text-amber-600 font-medium">
+                  {validationErrors}x {t("collection.uploadValidationError")}
+                </p>
+              )}
             </div>
           )}
           <button
@@ -881,23 +908,6 @@ function CollectionDetailsPage() {
           >
             {t("common.cancel")}
           </button>
-
-          {/* Upload status indicators (always shown when active) */}
-          {anyUploading && (
-            <p className="mt-3 mb-0 text-xs text-blue-600 font-medium animate-pulse">
-              {t("collection.uploading")}
-            </p>
-          )}
-          {uploadErrors > 0 && !anyUploading && (
-            <p className="mt-3 mb-0 text-xs text-red-500 font-medium">
-              {uploadErrors}x {t("collection.uploadError")}
-            </p>
-          )}
-          {validationErrors > 0 && !anyUploading && (
-            <p className="mt-3 mb-0 text-xs text-amber-600 font-medium">
-              {validationErrors}x {t("collection.uploadValidationError")}
-            </p>
-          )}
 
           <input
             ref={fileInputRef}
@@ -947,10 +957,21 @@ function CollectionDetailsPage() {
             <p className="m-0 text-xs text-white/50">
               {t('collection.editedUploadZoneHint')}
             </p>
-            {anyEditedUploading && (
-              <p className="m-0 text-xs text-green-600 font-medium animate-pulse">
-                {t("collection.uploading")}
-              </p>
+            {/* Edited upload progress bar + counter */}
+            {editedUploadProgress.total > 0 && (
+              <div className="w-full max-w-[220px] flex flex-col items-center gap-1.5 mt-1">
+                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-green-500 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.round((editedUploadProgress.completed / editedUploadProgress.total) * 100)}%` }}
+                  />
+                </div>
+                <p className="m-0 text-xs text-green-400 font-medium">
+                  {anyEditedUploading && <span className="animate-pulse">{t("collection.uploading")}</span>}
+                  {!anyEditedUploading && editedUploadProgress.completed === editedUploadProgress.total && t("collection.uploadComplete")}
+                  {' '}{editedUploadProgress.completed}/{editedUploadProgress.total}
+                </p>
+              </div>
             )}
             {editedUploadErrors > 0 && !anyEditedUploading && (
               <p className="m-0 text-xs text-red-500 font-medium">

@@ -14,6 +14,8 @@ export function usePhotoUpload(id, collection, setCollection) {
   const [photos, setPhotos] = useState([]);
   const [uploadStates, setUploadStates] = useState({});
   const [editedUploadStates, setEditedUploadStates] = useState({});
+  const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0 });
+  const [editedUploadProgress, setEditedUploadProgress] = useState({ completed: 0, total: 0 });
   const uploadBatchCounter = useRef(0);
   const cleanupTimers = useRef([]);
 
@@ -67,6 +69,7 @@ export function usePhotoUpload(id, collection, setCollection) {
         validFiles.forEach(({ key }) => (next[key] = "uploading"));
         return next;
       });
+      setUploadProgress({ completed: 0, total: validFiles.length });
     }
 
     // RACE CONDITION FIX (#11): Use queue pattern instead of shared mutable index
@@ -91,14 +94,17 @@ export function usePhotoUpload(id, collection, setCollection) {
               autoCoverPhotoId = data.photo.id;
             }
             setUploadStates((prev) => ({ ...prev, [key]: "done" }));
+            setUploadProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
           } else {
             if (data?.error === 'PHOTO_LIMIT_REACHED') {
               toast.error(t('plans.limitReachedPhotos') + ' ' + t('plans.upgradeHint'));
             }
             setUploadStates((prev) => ({ ...prev, [key]: "error" }));
+            setUploadProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
           }
         } catch {
           setUploadStates((prev) => ({ ...prev, [key]: "error" }));
+          setUploadProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
         }
       }
     };
@@ -130,6 +136,7 @@ export function usePhotoUpload(id, collection, setCollection) {
         });
         return next;
       });
+      setUploadProgress({ completed: 0, total: 0 });
     }, UPLOAD_STATE_CLEANUP_DELAY);
     cleanupTimers.current.push(timerId);
   }, [id, t, fetchPhotos, setCollection]);
@@ -171,6 +178,7 @@ export function usePhotoUpload(id, collection, setCollection) {
         validFiles.forEach(({ key }) => (next[key] = "uploading"));
         return next;
       });
+      setEditedUploadProgress({ completed: 0, total: validFiles.length });
     }
 
     // RACE CONDITION FIX: Queue pattern
@@ -193,8 +201,10 @@ export function usePhotoUpload(id, collection, setCollection) {
             ...prev,
             [key]: ok ? "done" : "error",
           }));
+          setEditedUploadProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
         } catch {
           setEditedUploadStates((prev) => ({ ...prev, [key]: "error" }));
+          setEditedUploadProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
         }
       }
     };
@@ -221,6 +231,7 @@ export function usePhotoUpload(id, collection, setCollection) {
         });
         return next;
       });
+      setEditedUploadProgress({ completed: 0, total: 0 });
     }, UPLOAD_STATE_CLEANUP_DELAY);
     cleanupTimers.current.push(timerId);
   }, [id, t]);
@@ -327,6 +338,7 @@ export function usePhotoUpload(id, collection, setCollection) {
     uploadFiles, uploadEditedFiles,
     handleDeletePhoto, handleSetCover,
     uploadStates, editedUploadStates,
+    uploadProgress, editedUploadProgress,
     anyUploading, uploadErrors, validationErrors,
     anyEditedUploading, editedUploadErrors, editedValidationErrors,
   };

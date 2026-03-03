@@ -291,6 +291,7 @@
     "uploadZoneLabel": "Drag & drop photos here, or click to browse",
     "uploadZoneHint": "JPEG, PNG or WEBP · Max 20 MB per file",
     "uploading": "Uploading...",
+    "uploadComplete": "Complete",
     "uploadError": "Upload failed",
     "uploadValidationError": "Invalid file (wrong type or too large)",
     "uploadSuccess": "Photos uploaded successfully!",

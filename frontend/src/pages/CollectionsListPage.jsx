@@ -24,6 +24,7 @@ function CollectionsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [fadingId, setFadingId] = useState(null);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -133,21 +134,25 @@ function CollectionsListPage() {
     const { error: deleteError } = await api.delete(`/collections/${id}`);
 
     if (!deleteError) {
-      setCollections((prev) => {
-        const next = prev.filter((c) => c.id !== id);
-        if (next.length === 0 && page > 1) {
-          setPage((p) => p - 1);
-        }
-        return next;
-      });
-      setPagination((prev) => prev ? { ...prev, total: prev.total - 1 } : prev);
-      toast.success(t('collections.deleteCollectionSuccess'));
       setDeleteTarget(null);
+      setDeletingId(null);
+      setFadingId(id);
+      setTimeout(() => {
+        setCollections((prev) => {
+          const next = prev.filter((c) => c.id !== id);
+          if (next.length === 0 && page > 1) {
+            setPage((p) => p - 1);
+          }
+          return next;
+        });
+        setPagination((prev) => prev ? { ...prev, total: prev.total - 1 } : prev);
+        setFadingId(null);
+      }, 300);
+      toast.success(t('collections.deleteCollectionSuccess'));
     } else {
       toast.error(t('collections.deleteCollectionFailed'));
+      setDeletingId(null);
     }
-
-    setDeletingId(null);
   };
 
   // ── Loading skeleton ──
@@ -423,8 +428,11 @@ function CollectionsListPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.filter(c => archiveFilter === 'archived' ? c.status === 'ARCHIVED' : c.status !== 'ARCHIVED').map((collection) => (
-              <CollectionCard
+              <div
                 key={collection.id}
+                className={`transition-all duration-300 ${fadingId === collection.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+              >
+              <CollectionCard
                 id={collection.id}
                 name={collection.name}
                 createdAt={collection.createdAt}
@@ -444,6 +452,7 @@ function CollectionsListPage() {
                   </button>
                 }
               />
+              </div>
             ))}
           </div>
 

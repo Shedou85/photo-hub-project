@@ -293,6 +293,7 @@
     "uploadZoneLabel": "Перетащите фото сюда или нажмите для выбора",
     "uploadZoneHint": "JPEG, PNG или WEBP · Макс. 20 МБ на файл",
     "uploading": "Загрузка...",
+    "uploadComplete": "Завершено",
     "uploadError": "Ошибка загрузки",
     "uploadValidationError": "Неверный файл (неподдерживаемый тип или слишком большой)",
     "uploadSuccess": "Фото успешно загружены!",
