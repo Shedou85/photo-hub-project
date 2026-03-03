@@ -50,7 +50,7 @@ try {
     if ($account) {
         // Account found — fetch the associated User
         $stmt = $pdo->prepare(
-            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
+            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
              FROM `User` WHERE id=? LIMIT 1"
         );
         $stmt->execute([$account['userId']]);
@@ -58,7 +58,7 @@ try {
     } else {
         // No Account found — check if a User with this email already exists
         $stmt = $pdo->prepare(
-            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
+            "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
              FROM `User` WHERE email=? LIMIT 1"
         );
         $stmt->execute([$email]);
@@ -79,8 +79,8 @@ try {
                 $accountId = generateCuid();
 
                 $stmt = $pdo->prepare(
-                    "INSERT INTO `User` (id, email, name, password, profileImageUrl, createdAt, updatedAt)
-                     VALUES (?, ?, ?, NULL, ?, NOW(3), NOW(3))"
+                    "INSERT INTO `User` (id, email, name, password, profileImageUrl, emailVerified, trialEndsAt, createdAt, updatedAt)
+                     VALUES (?, ?, ?, NULL, ?, 1, DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3), NOW(3))"
                 );
                 $stmt->execute([$userId, $email, $name, $picture]);
 
@@ -93,7 +93,7 @@ try {
 
                 // Fetch the newly created User
                 $stmt = $pdo->prepare(
-                    "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
+                    "SELECT id, email, name, role, plan, status, subscriptionStatus, createdAt, bio, trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified, brandingLogoUrl, brandingColor
                      FROM `User` WHERE id=? LIMIT 1"
                 );
                 $stmt->execute([$userId]);
@@ -109,6 +109,27 @@ try {
         http_response_code(403);
         echo json_encode(['error' => 'Account is not active']);
         exit();
+    }
+
+    // Auto-downgrade expired trial users (skip admins)
+    if ($user['plan'] === 'FREE_TRIAL' && $user['role'] !== 'ADMIN') {
+        // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
+        if ($user['trialEndsAt'] === null) {
+            $backfillDate = new DateTime($user['createdAt']);
+            $backfillDate->modify('+30 days');
+            $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
+            $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
+                ->execute([$backfillStr, $user['id']]);
+            $user['trialEndsAt'] = $backfillStr;
+        }
+        $trialEnd = new DateTime($user['trialEndsAt']);
+        if (new DateTime() > $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
+            $downgradedAt = date('Y-m-d H:i:s.v');
+            $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                ->execute([$downgradedAt, $user['id']]);
+            $user['subscriptionStatus'] = 'INACTIVE';
+            $user['planDowngradedAt'] = $downgradedAt;
+        }
     }
 
     session_regenerate_id(true);
@@ -130,6 +151,7 @@ try {
             'createdAt'               => $user['createdAt'],
             'bio'                     => $user['bio'],
             'trialEndsAt'             => $user['trialEndsAt'],
+            'planDowngradedAt'        => $user['planDowngradedAt'] ?? null,
             'collectionsCreatedCount' => (int)$user['collectionsCreatedCount'],
             'emailVerified'          => (bool)$user['emailVerified'],
             'brandingLogoUrl'        => $user['brandingLogoUrl'] ?? null,

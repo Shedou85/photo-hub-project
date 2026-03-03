@@ -98,6 +98,7 @@ try {
         exit;
     }
 
+    $setParts[] = "updatedAt = NOW(3)";
     $params[] = $_SESSION['user_id'];
     $stmt = $pdo->prepare("
         UPDATE `User`

@@ -15,7 +15,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, collectionsCreatedCount, emailVerified,
+        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified,
                brandingLogoUrl, brandingColor,
                (password IS NOT NULL) AS hasPassword
         FROM `User`
@@ -30,14 +30,24 @@ try {
         $user['hasPassword'] = (bool) $user['hasPassword'];
     }
 
-    // Auto-downgrade expired trial users
-    if ($user && $user['plan'] === 'FREE_TRIAL' && $user['trialEndsAt'] !== null) {
+    // Auto-downgrade expired trial users (skip admins)
+    if ($user && $user['plan'] === 'FREE_TRIAL' && $user['role'] !== 'ADMIN') {
+        // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
+        if ($user['trialEndsAt'] === null) {
+            $backfillDate = new DateTime($user['createdAt']);
+            $backfillDate->modify('+30 days');
+            $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
+            $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
+                ->execute([$backfillStr, $_SESSION['user_id']]);
+            $user['trialEndsAt'] = $backfillStr;
+        }
         $trialEnd = new DateTime($user['trialEndsAt']);
-        $now = new DateTime();
-        if ($now > $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
-            $downgradeStmt = $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'");
-            $downgradeStmt->execute([date('Y-m-d H:i:s.v'), $_SESSION['user_id']]);
+        if (new DateTime() > $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
+            $downgradedAt = date('Y-m-d H:i:s.v');
+            $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                ->execute([$downgradedAt, $_SESSION['user_id']]);
             $user['subscriptionStatus'] = 'INACTIVE';
+            $user['planDowngradedAt'] = $downgradedAt;
         }
     }
 

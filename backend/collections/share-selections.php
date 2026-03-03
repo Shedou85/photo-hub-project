@@ -97,15 +97,23 @@ try {
     $status = $collection['status'];
     $method = $_SERVER['REQUEST_METHOD'];
 
-    // Feature gate: selections not available on expired free trial
+    // Feature gate: selections not available on expired free trial (with 7-day grace period)
     if ($method === 'POST' || $method === 'DELETE') {
-        $ownerStmt = $pdo->prepare("SELECT u.plan, u.subscriptionStatus FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+        $ownerStmt = $pdo->prepare("SELECT u.plan, u.subscriptionStatus, u.planDowngradedAt FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
         $ownerStmt->execute([$collectionId]);
         $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
         if ($ownerData && $ownerData['plan'] === 'FREE_TRIAL' && $ownerData['subscriptionStatus'] === 'INACTIVE') {
-            http_response_code(403);
-            echo json_encode(['error' => 'FEATURE_GATED', 'feature' => 'selections']);
-            exit;
+            $withinGrace = false;
+            if (!empty($ownerData['planDowngradedAt'])) {
+                $downgraded = new DateTime($ownerData['planDowngradedAt']);
+                $daysSince = (new DateTime())->diff($downgraded)->days;
+                $withinGrace = $daysSince < 7;
+            }
+            if (!$withinGrace) {
+                http_response_code(403);
+                echo json_encode(['error' => 'FEATURE_GATED', 'feature' => 'selections']);
+                exit;
+            }
         }
     }
 

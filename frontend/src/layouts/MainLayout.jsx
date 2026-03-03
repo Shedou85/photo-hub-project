@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import TrialExpiredModal from '../components/primitives/TrialExpiredModal';
 
 const SIDEBAR_WIDTH = 256;
 const MS_PER_DAY = 86_400_000;
@@ -226,6 +227,10 @@ const MainLayout = () => {
         </div>
 
       </div>
+
+      {isExpiredTrial && user?.role !== 'ADMIN' && (
+        <TrialExpiredModal user={user} />
+      )}
     </div>
   );
 };

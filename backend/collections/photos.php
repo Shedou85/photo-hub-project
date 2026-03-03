@@ -78,19 +78,30 @@ try {
         }
 
         // Plan-based photo limits
-        $planStmt = $pdo->prepare("SELECT u.id as uid, u.plan, u.subscriptionStatus, u.trialEndsAt FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+        $planStmt = $pdo->prepare("SELECT u.id as uid, u.plan, u.subscriptionStatus, u.trialEndsAt, u.createdAt FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
         $planStmt->execute([$collectionId]);
         $planData = $planStmt->fetch(PDO::FETCH_ASSOC);
         $userPlan = $planData['plan'];
         $subStatus = $planData['subscriptionStatus'];
 
-        // Auto-downgrade expired trial if not yet marked
-        if ($userPlan === 'FREE_TRIAL' && !empty($planData['trialEndsAt']) && $subStatus !== 'INACTIVE') {
-            $trialEnd = new DateTime($planData['trialEndsAt']);
-            if (new DateTime() > $trialEnd) {
-                $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
-                    ->execute([date('Y-m-d H:i:s.v'), $planData['uid']]);
-                $subStatus = 'INACTIVE';
+        // Auto-downgrade expired trial if not yet marked (skip admins)
+        if ($userPlan === 'FREE_TRIAL' && ($_SESSION['role'] ?? '') !== 'ADMIN') {
+            // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
+            if ($planData['trialEndsAt'] === null) {
+                $backfillDate = new DateTime($planData['createdAt']);
+                $backfillDate->modify('+30 days');
+                $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
+                $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
+                    ->execute([$backfillStr, $planData['uid']]);
+                $planData['trialEndsAt'] = $backfillStr;
+            }
+            if ($subStatus !== 'INACTIVE') {
+                $trialEnd = new DateTime($planData['trialEndsAt']);
+                if (new DateTime() > $trialEnd) {
+                    $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                        ->execute([date('Y-m-d H:i:s.v'), $planData['uid']]);
+                    $subStatus = 'INACTIVE';
+                }
             }
         }
 

@@ -50,8 +50,13 @@ function CollectionsListPage() {
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
 
+  const MS_PER_DAY = 86_400_000;
   const FREE_CUMULATIVE_LIMIT = 5;
   const ACTIVE_TRIAL_LIMIT = 20;
+
+  const graceDaysLeft = isExpiredTrial && user?.planDowngradedAt
+    ? Math.max(0, 7 - Math.floor((Date.now() - new Date(user.planDowngradedAt).getTime()) / MS_PER_DAY))
+    : 0;
 
   const activeCount = collections.filter(c => c.status !== 'ARCHIVED').length;
   const cumulativeCount = user?.collectionsCreatedCount ?? 0;
@@ -278,24 +283,40 @@ function CollectionsListPage() {
 
       {/* ── Plan Limit Banner ── */}
       {showLimitBanner && (
-        <div className={`mb-6 px-4 py-3 rounded-[10px] border text-sm flex items-center justify-between gap-3 ${
-          atLimit
+        <div className={`mb-6 px-4 py-3 rounded-[10px] border text-sm ${
+          isExpiredTrial
             ? 'bg-red-500/10 border-red-500/20 text-red-400'
-            : 'bg-blue-400/10 border-blue-400/20 text-blue-400'
+            : atLimit
+              ? 'bg-red-500/10 border-red-500/20 text-red-400'
+              : 'bg-blue-400/10 border-blue-400/20 text-blue-400'
         }`}>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold">
-              {isExpiredTrial ? t('plans.freePlanBadge') : t('plans.trialBadge')}
-            </span>
-            <span>{t('plans.collectionsUsed', { used: limitUsed, limit: limitMax })}</span>
-            {atLimit && <span>{isExpiredTrial ? t('plans.limitReachedCumulative') : t('plans.limitReachedCollections')}</span>}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold">
+                {isExpiredTrial ? t('plans.freePlanBadge') : t('plans.trialBadge')}
+              </span>
+              <span>{t('plans.collectionsUsed', { used: limitUsed, limit: limitMax })}</span>
+              {atLimit && !isExpiredTrial && <span>{t('plans.limitReachedCollections')}</span>}
+            </div>
+            <Link
+              to="/payments"
+              className="shrink-0 text-xs font-semibold underline hover:no-underline"
+            >
+              {t('plans.upgradeLink')}
+            </Link>
           </div>
-          <Link
-            to="/payments"
-            className="shrink-0 text-xs font-semibold underline hover:no-underline"
-          >
-            {t('plans.upgradeLink')}
-          </Link>
+          {isExpiredTrial && (
+            <div className="mt-2 pt-2 border-t border-red-500/10 text-xs text-red-400/80 space-y-0.5">
+              <div>{t('plans.trialExpiredModal.collectionsLimit', { limit: 5, oldLimit: 20 })}</div>
+              <div>{t('plans.trialExpiredModal.photosLimit', { limit: 30, oldLimit: 500 })}</div>
+              <div>
+                {graceDaysLeft > 0
+                  ? t('plans.trialExpiredModal.selectionsGrace', { days: graceDaysLeft })
+                  : t('plans.trialExpiredModal.selectionsExpired')
+                }
+              </div>
+            </div>
+          )}
         </div>
       )}
 

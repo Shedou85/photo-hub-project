@@ -545,7 +545,17 @@
     "freeF3": "Tik galerijos peržiūra",
     "freeF4": "Be klientų atrankos ar atsisiuntimo",
     "standardF4": "Klientų atranka ir pristatymas",
-    "proF4": "Prioritetinė pagalba ir visos funkcijos"
+    "proF4": "Prioritetinė pagalba ir visos funkcijos",
+    "trialExpiredModal": {
+      "title": "Bandomasis laikotarpis baigėsi",
+      "subtitle": "Jūsų 30 dienų nemokamas bandomasis laikotarpis baigėsi. Štai kas pasikeitė:",
+      "collectionsLimit": "Kolekcijos: {{limit}} iš viso (buvo {{oldLimit}} aktyvios)",
+      "photosLimit": "Nuotraukos: {{limit}} per kolekciją (buvo {{oldLimit}})",
+      "selectionsGrace": "Klientų atranka: aktyvi dar {{days}} d.",
+      "selectionsExpired": "Klientų atranka: nebepasiekiama",
+      "viewPlans": "Peržiūrėti planus",
+      "continueFree": "Tęsti su nemokamu planu"
+    }
   },
   "payments": {
     "title": "Mokėjimai",

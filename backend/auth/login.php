@@ -45,7 +45,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, email, emailVerified, password, role, status, name, createdAt, bio, plan, subscriptionStatus, trialEndsAt, collectionsCreatedCount, brandingLogoUrl, brandingColor
+        SELECT id, email, emailVerified, password, role, status, name, createdAt, bio, plan, subscriptionStatus, trialEndsAt, planDowngradedAt, collectionsCreatedCount, brandingLogoUrl, brandingColor
         FROM `User`
         WHERE email = ?
         LIMIT 1
@@ -77,6 +77,27 @@ try {
         exit;
     }
 
+    // Auto-downgrade expired trial users (skip admins)
+    if ($user['plan'] === 'FREE_TRIAL' && $user['role'] !== 'ADMIN') {
+        // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
+        if ($user['trialEndsAt'] === null) {
+            $backfillDate = new DateTime($user['createdAt']);
+            $backfillDate->modify('+30 days');
+            $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
+            $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
+                ->execute([$backfillStr, $user['id']]);
+            $user['trialEndsAt'] = $backfillStr;
+        }
+        $trialEnd = new DateTime($user['trialEndsAt']);
+        if (new DateTime() > $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
+            $downgradedAt = date('Y-m-d H:i:s.v');
+            $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                ->execute([$downgradedAt, $user['id']]);
+            $user['subscriptionStatus'] = 'INACTIVE';
+            $user['planDowngradedAt'] = $downgradedAt;
+        }
+    }
+
     // OK → įrašom į session
     session_regenerate_id(true);
     unset($_SESSION['csrf_token']);
@@ -102,6 +123,7 @@ try {
             "plan" => $user['plan'],
             "subscriptionStatus" => $user['subscriptionStatus'],
             "trialEndsAt" => $user['trialEndsAt'],
+            "planDowngradedAt" => $user['planDowngradedAt'] ?? null,
             "collectionsCreatedCount" => (int)$user['collectionsCreatedCount'],
             "emailVerified" => (bool)$user['emailVerified'],
             "brandingLogoUrl" => $user['brandingLogoUrl'] ?? null,

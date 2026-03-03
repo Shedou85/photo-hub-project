@@ -534,7 +534,17 @@
     "freeF3": "Gallery preview only",
     "freeF4": "No client selection or download",
     "standardF4": "Client selection & delivery",
-    "proF4": "Priority support & all features"
+    "proF4": "Priority support & all features",
+    "trialExpiredModal": {
+      "title": "Your trial has ended",
+      "subtitle": "Your 30-day free trial has ended. Here's what changed:",
+      "collectionsLimit": "Collections: {{limit}} total (was {{oldLimit}} active)",
+      "photosLimit": "Photos: {{limit}} per collection (was {{oldLimit}})",
+      "selectionsGrace": "Client selections: active for {{days}} more days",
+      "selectionsExpired": "Client selections: no longer available",
+      "viewPlans": "View plans",
+      "continueFree": "Continue with free plan"
+    }
   },
   "payments": {
     "title": "Payments",
