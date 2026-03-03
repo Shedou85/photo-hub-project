@@ -1,4 +1,5 @@
 # CLAUDE.md
+visada man atrashyk savo atsakymus ar klaisimus lietuvishkai.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -15,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **security-auditor** — Security reviews, vulnerability checks, auth/CSRF audits
 - **code-reviewer** — Run before merge/commit on non-trivial changes
 
-Skip agents for trivial changes (typo fixes, single-line tweaks, small styling adjustments).
+
 
 ## Detailed Documentation
 
