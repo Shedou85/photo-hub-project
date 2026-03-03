@@ -435,7 +435,7 @@
     },
     "passwordProtection": "Защита паролем",
     "passwordEnabled": "Защищено паролем",
-    "passwordSet": "Установить пароль",
+    "passwordSet": "Установить",
     "passwordRemove": "Удалить пароль",
     "passwordPlaceholder": "Введите пароль для клиентов",
     "passwordSaved": "Пароль сохранён",

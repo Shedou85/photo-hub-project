@@ -435,7 +435,7 @@
     },
     "passwordProtection": "Slaptažodžio apsauga",
     "passwordEnabled": "Apsaugota slaptažodžiu",
-    "passwordSet": "Nustatyti slaptažodį",
+    "passwordSet": "Nustatyti",
     "passwordRemove": "Pašalinti slaptažodį",
     "passwordPlaceholder": "Įveskite slaptažodį klientams",
     "passwordSaved": "Slaptažodis išsaugotas",

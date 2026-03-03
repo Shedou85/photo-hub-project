@@ -431,7 +431,7 @@
     },
     "passwordProtection": "Password protection",
     "passwordEnabled": "Password protected",
-    "passwordSet": "Set password",
+    "passwordSet": "Set",
     "passwordRemove": "Remove password",
     "passwordPlaceholder": "Enter password for clients",
     "passwordSaved": "Password saved",

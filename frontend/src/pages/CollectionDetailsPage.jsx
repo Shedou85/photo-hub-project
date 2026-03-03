@@ -179,7 +179,14 @@ function CollectionDetailsPage() {
     setEditClientName(collection.clientName || '');
     setEditClientEmail(collection.clientEmail || '');
     setEditSourceFolder(collection.sourceFolder || '');
-    setShowEditForm(f => !f);
+    const opening = !showEditForm;
+    setShowEditForm(opening);
+    if (opening) {
+      setShowPasswordInput(false);
+      setPasswordInput('');
+      setShowLimitInput(false);
+      setSelectionLimitInput('');
+    }
   };
 
   const handleCopySelectedPhotos = () => {
@@ -484,113 +491,6 @@ function CollectionDetailsPage() {
                   </svg>
                   {t('collection.copyShareLink')}
                 </Button>
-                {/* Password protection */}
-                <div className="w-full border-t border-white/[0.08] pt-3 mt-1">
-                  {collection.hasPassword ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      <span className="text-xs text-blue-400 font-medium">{t('collection.passwordEnabled')}</span>
-                      <button
-                        onClick={handleRemovePassword}
-                        disabled={savingPassword}
-                        className="text-xs text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-2 disabled:opacity-50"
-                      >
-                        {t('collection.passwordRemove')}
-                      </button>
-                    </div>
-                  ) : showPasswordInput ? (
-                    <div className="flex items-center gap-2 max-w-xs mx-auto">
-                      <input
-                        type="text"
-                        value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        placeholder={t('collection.passwordPlaceholder')}
-                        className="flex-1 px-3 py-1.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70"
-                        autoFocus
-                        onKeyDown={(e) => e.key === 'Enter' && handleSavePassword()}
-                      />
-                      <button
-                        onClick={handleSavePassword}
-                        disabled={!passwordInput.trim() || savingPassword}
-                        className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
-                      >
-                        {t('collection.passwordSet')}
-                      </button>
-                      <button
-                        onClick={() => { setShowPasswordInput(false); setPasswordInput(''); }}
-                        className="text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
-                      >
-                        {t('common.cancel')}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowPasswordInput(true)}
-                      className="flex items-center gap-1.5 mx-auto text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      {t('collection.passwordProtection')}
-                    </button>
-                  )}
-                </div>
-                {/* Selection limit */}
-                <div className="w-full border-t border-white/[0.08] pt-3 mt-1">
-                  {collection.selectionLimit ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-xs text-blue-400 font-medium">{t('collection.selectionLimitSet', { limit: collection.selectionLimit })}</span>
-                      <button
-                        onClick={handleRemoveSelectionLimit}
-                        disabled={savingLimit}
-                        className="text-xs text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-2 disabled:opacity-50"
-                      >
-                        {t('collection.removeSelectionLimit')}
-                      </button>
-                    </div>
-                  ) : showLimitInput ? (
-                    <div className="flex items-center gap-2 max-w-xs mx-auto">
-                      <input
-                        type="number"
-                        min="1"
-                        value={selectionLimitInput}
-                        onChange={(e) => setSelectionLimitInput(e.target.value)}
-                        placeholder={t('collection.selectionLimitPlaceholder')}
-                        className="flex-1 px-3 py-1.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        autoFocus
-                        onKeyDown={(e) => e.key === 'Enter' && handleSaveSelectionLimit()}
-                      />
-                      <button
-                        onClick={handleSaveSelectionLimit}
-                        disabled={!selectionLimitInput || parseInt(selectionLimitInput, 10) < 1 || savingLimit}
-                        className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
-                      >
-                        {t('collection.setSelectionLimit')}
-                      </button>
-                      <button
-                        onClick={() => { setShowLimitInput(false); setSelectionLimitInput(''); }}
-                        className="text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
-                      >
-                        {t('common.cancel')}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowLimitInput(true)}
-                      className="flex items-center gap-1.5 mx-auto text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                      {t('collection.addSelectionLimit')}
-                    </button>
-                  )}
-                </div>
               </div>
             )}
 
@@ -660,59 +560,6 @@ function CollectionDetailsPage() {
                   </svg>
                   {t('collection.copyDeliveryLink')}
                 </Button>
-                {/* Password protection */}
-                <div className="w-full border-t border-white/[0.08] pt-3 mt-1">
-                  {collection.hasPassword ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      <span className="text-xs text-emerald-400 font-medium">{t('collection.passwordEnabled')}</span>
-                      <button
-                        onClick={handleRemovePassword}
-                        disabled={savingPassword}
-                        className="text-xs text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-2 disabled:opacity-50"
-                      >
-                        {t('collection.passwordRemove')}
-                      </button>
-                    </div>
-                  ) : showPasswordInput ? (
-                    <div className="flex items-center gap-2 max-w-xs mx-auto">
-                      <input
-                        type="text"
-                        value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        placeholder={t('collection.passwordPlaceholder')}
-                        className="flex-1 px-3 py-1.5 bg-white/[0.06] border border-white/[0.12] rounded-lg text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70"
-                        autoFocus
-                        onKeyDown={(e) => e.key === 'Enter' && handleSavePassword()}
-                      />
-                      <button
-                        onClick={handleSavePassword}
-                        disabled={!passwordInput.trim() || savingPassword}
-                        className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 text-xs font-medium rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border-none cursor-pointer"
-                      >
-                        {t('collection.passwordSet')}
-                      </button>
-                      <button
-                        onClick={() => { setShowPasswordInput(false); setPasswordInput(''); }}
-                        className="text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
-                      >
-                        {t('common.cancel')}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowPasswordInput(true)}
-                      className="flex items-center gap-1.5 mx-auto text-xs text-white/40 hover:text-white/60 transition-colors bg-transparent border-none cursor-pointer"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      {t('collection.passwordProtection')}
-                    </button>
-                  )}
-                </div>
               </div>
             )}
 
@@ -748,7 +595,7 @@ function CollectionDetailsPage() {
           </div>
 
           {/* Footer Action Bar */}
-          <div className="border-t border-white/[0.08] px-5 py-3 flex items-center gap-5">
+          <div className="border-t border-white/[0.08] px-5 py-3 flex flex-wrap items-center gap-x-5 gap-y-2">
             <button
               onClick={handleEditCollection}
               className="flex items-center gap-1.5 text-xs text-white/50 hover:text-indigo-400 transition-colors bg-transparent border-none cursor-pointer"
@@ -758,40 +605,105 @@ function CollectionDetailsPage() {
               </svg>
               {t('collection.editCollection')}
             </button>
-            <button
-              onClick={handleDeleteCollection}
-              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              {t('collection.delete')}
-            </button>
-            {(collection?.status === 'DELIVERED' || collection?.status === 'DOWNLOADED') && (
-              user?.plan === 'PRO' ? (
-                <button
-                  onClick={handleArchive}
-                  className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors bg-transparent border-none cursor-pointer"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            {/* Password Protection (SELECTING / DELIVERED) */}
+            {(collection.status === 'SELECTING' || collection.status === 'DELIVERED') && (
+              collection.hasPassword ? (
+                <span className="flex items-center gap-1.5 text-xs">
+                  <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  {t('collection.archive')}
-                </button>
+                  <span className="text-indigo-400 font-medium">{t('collection.passwordEnabled')}</span>
+                  <button
+                    onClick={handleRemovePassword}
+                    disabled={savingPassword}
+                    className="text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50 ml-0.5"
+                    title={t('collection.passwordRemove')}
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
               ) : (
                 <button
-                  disabled
-                  title={t('collection.archiveProOnly')}
-                  className="flex items-center gap-1.5 text-xs text-white/30 bg-transparent border-none cursor-not-allowed"
+                  onClick={() => { setShowPasswordInput(true); setShowEditForm(false); setShowLimitInput(false); setSelectionLimitInput(''); }}
+                  className="flex items-center gap-1.5 text-xs text-white/50 hover:text-indigo-400 transition-colors bg-transparent border-none cursor-pointer"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  {t('collection.archive')}
-                  <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">PRO</span>
+                  {t('collection.passwordProtection')}
                 </button>
               )
             )}
+            {/* Selection Limit (SELECTING only) */}
+            {collection.status === 'SELECTING' && (
+              collection.selectionLimit ? (
+                <span className="flex items-center gap-1.5 text-xs">
+                  <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-indigo-400 font-medium">{t('collection.selectionLimitSet', { limit: collection.selectionLimit })}</span>
+                  <button
+                    onClick={handleRemoveSelectionLimit}
+                    disabled={savingLimit}
+                    className="text-white/40 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50 ml-0.5"
+                    title={t('collection.removeSelectionLimit')}
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              ) : (
+                <button
+                  onClick={() => { setShowLimitInput(true); setShowEditForm(false); setShowPasswordInput(false); setPasswordInput(''); }}
+                  className="flex items-center gap-1.5 text-xs text-white/50 hover:text-indigo-400 transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  {t('collection.addSelectionLimit')}
+                </button>
+              )
+            )}
+            {/* Spacer to push destructive actions right */}
+            <div className="ml-auto flex items-center gap-5">
+              <button
+                onClick={handleDeleteCollection}
+                className="flex items-center gap-1.5 text-xs text-white/50 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                {t('collection.delete')}
+              </button>
+              {(collection?.status === 'DELIVERED' || collection?.status === 'DOWNLOADED') && (
+                user?.plan === 'PRO' ? (
+                  <button
+                    onClick={handleArchive}
+                    className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors bg-transparent border-none cursor-pointer"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    {t('collection.archive')}
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    title={t('collection.archiveProOnly')}
+                    className="flex items-center gap-1.5 text-xs text-white/30 bg-transparent border-none cursor-not-allowed"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    {t('collection.archive')}
+                    <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">PRO</span>
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -845,6 +757,55 @@ function CollectionDetailsPage() {
               {t('collection.saveChanges')}
             </Button>
             <Button variant="secondary" onClick={() => setShowEditForm(false)}>
+              {t('common.cancel')}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Password Input Card ── */}
+      {showPasswordInput && !collection.hasPassword && (collection.status === 'SELECTING' || collection.status === 'DELIVERED') && (
+        <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5 mb-5">
+          <h3 className="text-sm font-bold text-white/70 mb-3">{t('collection.passwordProtection')}</h3>
+          <div className="flex items-center gap-2 max-w-sm">
+            <input
+              type="text"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              placeholder={t('collection.passwordPlaceholder')}
+              className="flex-1 px-3 py-2 bg-white/[0.06] border border-white/[0.12] rounded-lg text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08]"
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && handleSavePassword()}
+            />
+            <Button variant="primary" onClick={handleSavePassword} disabled={!passwordInput.trim() || savingPassword}>
+              {t('collection.passwordSet')}
+            </Button>
+            <Button variant="secondary" onClick={() => { setShowPasswordInput(false); setPasswordInput(''); }}>
+              {t('common.cancel')}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Selection Limit Input Card ── */}
+      {showLimitInput && !collection.selectionLimit && collection.status === 'SELECTING' && (
+        <div className="bg-white/[0.04] border border-white/10 rounded-[10px] px-6 py-5 mb-5">
+          <h3 className="text-sm font-bold text-white/70 mb-3">{t('collection.addSelectionLimit')}</h3>
+          <div className="flex items-center gap-2 max-w-sm">
+            <input
+              type="number"
+              min="1"
+              value={selectionLimitInput}
+              onChange={(e) => setSelectionLimitInput(e.target.value)}
+              placeholder={t('collection.selectionLimitPlaceholder')}
+              className="flex-1 px-3 py-2 bg-white/[0.06] border border-white/[0.12] rounded-lg text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && handleSaveSelectionLimit()}
+            />
+            <Button variant="primary" onClick={handleSaveSelectionLimit} disabled={!selectionLimitInput || parseInt(selectionLimitInput, 10) < 1 || savingLimit}>
+              {t('collection.setSelectionLimit')}
+            </Button>
+            <Button variant="secondary" onClick={() => { setShowLimitInput(false); setSelectionLimitInput(''); }}>
               {t('common.cancel')}
             </Button>
           </div>
