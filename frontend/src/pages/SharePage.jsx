@@ -97,6 +97,7 @@ function SharePage() {
         const res = await fetch(`${baseUrl}/share/${shareId}/selections/${photoId}`, {
           method: 'DELETE',
           headers: authHeader,
+          credentials: 'include',
         });
         if (!res.ok) throw new Error('Deselect failed');
       } else {
@@ -104,6 +105,7 @@ function SharePage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeader },
           body: JSON.stringify({ photoId, label }),
+          credentials: 'include',
         });
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
@@ -168,6 +170,7 @@ function SharePage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({ status: 'REVIEWING' }),
+        credentials: 'include',
       });
 
       if (!res.ok) throw new Error('Submit failed');
@@ -268,7 +271,7 @@ function SharePage() {
         }
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/share/${shareId}`,
-          { headers }
+          { headers, credentials: 'include' }
         );
 
         if (!response.ok) {
@@ -325,7 +328,7 @@ function SharePage() {
     };
 
     fetchCollection();
-  }, [shareId, collectionPassword, shareToken]);
+  }, [shareId, collectionPassword]);
 
   // ── Loading state (skeleton) ──
   if (loading) {
