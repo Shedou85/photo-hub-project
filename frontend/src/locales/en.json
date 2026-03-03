@@ -139,6 +139,7 @@
     "role": "Role",
     "settingsSection": "Settings",
     "editProfile": "Edit Profile",
+    "editBtn": "Edit",
     "editProfileDesc": "Update your display name and profile information.",
     "securityTitle": "Security",
     "securityDesc": "Change your password and keep your account secure.",
@@ -187,6 +188,7 @@
     "branding": {
       "title": "Custom Branding",
       "subtitle": "Personalize your client galleries with your own brand.",
+      "manageBtn": "Manage",
       "logo": "Logo",
       "logoDesc": "Upload your logo to display on share and delivery pages.",
       "uploadLogo": "Upload Logo",

@@ -139,6 +139,7 @@
     "role": "Rolė",
     "settingsSection": "Nustatymai",
     "editProfile": "Redaguoti profilį",
+    "editBtn": "Redaguoti",
     "editProfileDesc": "Atnaujinkite savo rodomą vardą ir profilio informaciją.",
     "securityTitle": "Saugumas",
     "securityDesc": "Pakeiskite slaptažodį ir apsaugokite savo paskyrą.",
@@ -187,6 +188,7 @@
     "branding": {
       "title": "Individualus prekės ženklas",
       "subtitle": "Personalizuokite klientų galerijas savo prekės ženklu.",
+      "manageBtn": "Valdyti",
       "logo": "Logotipas",
       "logoDesc": "Įkelkite savo logotipą, kuris bus rodomas bendrinimo ir pristatymo puslapiuose.",
       "uploadLogo": "Įkelti logotipą",
