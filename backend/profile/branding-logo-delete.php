@@ -52,6 +52,13 @@ try {
         $updatedUser['hasPassword'] = (bool) $updatedUser['hasPassword'];
     }
 
+    // Format datetime fields as ISO 8601 with timezone for correct frontend parsing
+    foreach (['createdAt', 'trialEndsAt', 'planDowngradedAt'] as $dtField) {
+        if (!empty($updatedUser[$dtField])) {
+            $updatedUser[$dtField] = (new DateTime($updatedUser[$dtField]))->format('c');
+        }
+    }
+
     echo json_encode(["status" => "OK", "user" => $updatedUser]);
 
 } catch (Throwable $e) {

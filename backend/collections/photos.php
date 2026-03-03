@@ -97,7 +97,7 @@ try {
             }
             if ($subStatus !== 'INACTIVE') {
                 $trialEnd = new DateTime($planData['trialEndsAt']);
-                if (new DateTime() > $trialEnd) {
+                if (new DateTime() >= $trialEnd) {
                     $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
                         ->execute([date('Y-m-d H:i:s.v'), $planData['uid']]);
                     $subStatus = 'INACTIVE';

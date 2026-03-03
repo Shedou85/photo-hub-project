@@ -122,6 +122,13 @@ try {
         $user['hasPassword'] = (bool) $user['hasPassword'];
     }
 
+    // Format datetime fields as ISO 8601 with timezone for correct frontend parsing
+    foreach (['createdAt', 'trialEndsAt', 'planDowngradedAt'] as $dtField) {
+        if (!empty($user[$dtField])) {
+            $user[$dtField] = (new DateTime($user[$dtField]))->format('c');
+        }
+    }
+
     echo json_encode([
         "status" => "OK",
         "user" => $user

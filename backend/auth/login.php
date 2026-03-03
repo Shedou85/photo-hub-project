@@ -89,7 +89,7 @@ try {
             $user['trialEndsAt'] = $backfillStr;
         }
         $trialEnd = new DateTime($user['trialEndsAt']);
-        if (new DateTime() > $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
+        if (new DateTime() >= $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
             $downgradedAt = date('Y-m-d H:i:s.v');
             $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
                 ->execute([$downgradedAt, $user['id']]);
@@ -118,12 +118,12 @@ try {
             "email" => $user['email'],
             "role" => $user['role'],
             "name" => $user['name'],
-            "createdAt" => $user['createdAt'],
+            "createdAt" => (new DateTime($user['createdAt']))->format('c'),
             "bio" => $user['bio'],
             "plan" => $user['plan'],
             "subscriptionStatus" => $user['subscriptionStatus'],
-            "trialEndsAt" => $user['trialEndsAt'],
-            "planDowngradedAt" => $user['planDowngradedAt'] ?? null,
+            "trialEndsAt" => !empty($user['trialEndsAt']) ? (new DateTime($user['trialEndsAt']))->format('c') : null,
+            "planDowngradedAt" => !empty($user['planDowngradedAt']) ? (new DateTime($user['planDowngradedAt']))->format('c') : null,
             "collectionsCreatedCount" => (int)$user['collectionsCreatedCount'],
             "emailVerified" => (bool)$user['emailVerified'],
             "brandingLogoUrl" => $user['brandingLogoUrl'] ?? null,

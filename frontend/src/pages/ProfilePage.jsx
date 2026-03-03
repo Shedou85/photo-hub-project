@@ -364,7 +364,7 @@ function ProfilePage() {
             <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
               {t('profile.plan')}
             </span>
-            <Badge variant="plan">{t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
+            <Badge variant="plan">{user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE' ? t('plans.freePlanBadge') : t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
           {user.role === 'ADMIN' && (
             <div className="flex flex-col gap-1">

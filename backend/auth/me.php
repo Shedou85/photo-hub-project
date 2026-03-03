@@ -42,12 +42,19 @@ try {
             $user['trialEndsAt'] = $backfillStr;
         }
         $trialEnd = new DateTime($user['trialEndsAt']);
-        if (new DateTime() > $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
+        if (new DateTime() >= $trialEnd && $user['subscriptionStatus'] !== 'INACTIVE') {
             $downgradedAt = date('Y-m-d H:i:s.v');
             $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
                 ->execute([$downgradedAt, $_SESSION['user_id']]);
             $user['subscriptionStatus'] = 'INACTIVE';
             $user['planDowngradedAt'] = $downgradedAt;
+        }
+    }
+
+    // Format datetime fields as ISO 8601 with timezone for correct frontend parsing
+    foreach (['createdAt', 'trialEndsAt', 'planDowngradedAt'] as $dtField) {
+        if (!empty($user[$dtField])) {
+            $user[$dtField] = (new DateTime($user[$dtField]))->format('c');
         }
     }
 
