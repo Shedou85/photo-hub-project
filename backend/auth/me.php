@@ -26,9 +26,13 @@ try {
 
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user) {
-        $user['hasPassword'] = (bool) $user['hasPassword'];
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["error" => "User not found"]);
+        exit;
     }
+
+    $user['hasPassword'] = (bool) $user['hasPassword'];
 
     // Auto-downgrade expired trial users (skip admins)
     if ($user && $user['plan'] === 'FREE_TRIAL' && $user['role'] !== 'ADMIN') {

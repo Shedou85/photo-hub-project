@@ -57,8 +57,10 @@ try {
         $whereClause
         GROUP BY d.collectionId, c.name, c.clientName, c.status
         ORDER BY lastDownload DESC
-        LIMIT $limit OFFSET $offset
+        LIMIT ? OFFSET ?
     ");
+    $summaryParams[] = $limit;
+    $summaryParams[] = $offset;
     $summaryStmt->execute($summaryParams);
     $collections = $summaryStmt->fetchAll(PDO::FETCH_ASSOC);
 

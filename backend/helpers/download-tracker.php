@@ -33,6 +33,20 @@ function trackDownload($pdo, $collectionId, $downloadType, $photoId = null) {
     $bucketedTime = date('Y-m-d H:00:00', time());
 
     try {
+        // For ZIP downloads (photoId=NULL), MySQL UNIQUE KEY won't deduplicate
+        // because NULL != NULL in SQL. Use explicit check-before-insert instead.
+        if ($photoId === null) {
+            $checkStmt = $pdo->prepare("
+                SELECT id FROM `Download`
+                WHERE collectionId = ? AND downloadType = ? AND sessionId = ? AND downloadedAt = ? AND photoId IS NULL
+                LIMIT 1
+            ");
+            $checkStmt->execute([$collectionId, $downloadType, $sessionId, $bucketedTime]);
+            if ($checkStmt->fetch()) {
+                return false; // Duplicate ZIP download within same hour
+            }
+        }
+
         $stmt = $pdo->prepare("
             INSERT INTO `Download` (id, collectionId, downloadType, photoId, sessionId, downloadedAt, userAgent, createdAt)
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(3))

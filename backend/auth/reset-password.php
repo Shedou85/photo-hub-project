@@ -45,7 +45,7 @@ try {
 
     echo json_encode(['status' => 'OK']);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     error_log('reset-password error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'server_error']);

@@ -37,9 +37,10 @@ try {
         $params     = [];
 
         if ($search !== '') {
+            $escapedSearch = str_replace(['%', '_'], ['\\%', '\\_'], $search);
             $conditions[] = '(u.name LIKE ? OR u.email LIKE ?)';
-            $params[]     = '%' . $search . '%';
-            $params[]     = '%' . $search . '%';
+            $params[]     = '%' . $escapedSearch . '%';
+            $params[]     = '%' . $escapedSearch . '%';
         }
 
         if ($role !== '' && in_array($role, $allowedRoles, true)) {

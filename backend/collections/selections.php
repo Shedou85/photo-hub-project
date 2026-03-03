@@ -126,8 +126,8 @@ try {
         $stmt->execute([$selectionId, $collectionId, $photoIdToSelect, $label, $createdAt]);
 
         // Fetch the current selection (may be newly inserted or updated)
-        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE photoId = ? LIMIT 1");
-        $stmt->execute([$photoIdToSelect]);
+        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE collectionId = ? AND photoId = ? LIMIT 1");
+        $stmt->execute([$collectionId, $photoIdToSelect]);
         $selection = $stmt->fetch(PDO::FETCH_ASSOC);
 
         echo json_encode([

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../utils.php';
-require_once __DIR__ . '/../helpers/rate-limiter.php';
+require_once __DIR__ . '/../helpers/share-auth.php';
 
 // This is a PUBLIC endpoint — no session_start required
 // Authorization is via shareId token in the URL and password/share token headers
@@ -10,49 +10,6 @@ header('Content-Type: application/json');
 
 // Start session to validate share tokens
 session_start();
-
-/**
- * Helper function to verify password or share token
- * Returns true if access is granted, false otherwise
- */
-function verifyShareAccess($shareId, $collectionPasswordHash) {
-    // Check for share token first (more secure, no password sent)
-    $shareToken = $_SERVER['HTTP_X_SHARE_TOKEN'] ?? '';
-    if (!empty($shareToken)) {
-        $sessionKey = 'share_token_' . $shareId;
-        $sessionTimeKey = 'share_token_' . $shareId . '_time';
-
-        if (isset($_SESSION[$sessionKey]) && hash_equals($_SESSION[$sessionKey], $shareToken)) {
-            // Check if token has expired (2 hours)
-            $tokenTime = $_SESSION[$sessionTimeKey] ?? 0;
-            if (time() - $tokenTime < 7200) {
-                return true;
-            } else {
-                // Token expired, clear it
-                unset($_SESSION[$sessionKey]);
-                unset($_SESSION[$sessionTimeKey]);
-            }
-        }
-    }
-
-    // Fall back to password check
-    if (!empty($collectionPasswordHash)) {
-        // Rate limit password attempts: 10 per 15 minutes per IP
-        $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-        if (!checkRateLimit('share_pwd:' . $clientIp . ':' . $shareId, 10, 900)) {
-            http_response_code(429);
-            echo json_encode(['error' => 'Too many attempts. Please try again later.']);
-            exit;
-        }
-
-        $provided = $_SERVER['HTTP_X_COLLECTION_PASSWORD'] ?? '';
-        if (password_verify($provided, $collectionPasswordHash)) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 try {
     // Parse route parts: /share/{shareId}/selections[/{photoId}]
@@ -97,11 +54,13 @@ try {
     $status = $collection['status'];
     $method = $_SERVER['REQUEST_METHOD'];
 
+    // Fetch owner data unconditionally (needed for PRO label gate and trial gate)
+    $ownerStmt = $pdo->prepare("SELECT u.plan, u.subscriptionStatus, u.planDowngradedAt FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+    $ownerStmt->execute([$collectionId]);
+    $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
+
     // Feature gate: selections not available on expired free trial (with 7-day grace period)
     if ($method === 'POST' || $method === 'DELETE') {
-        $ownerStmt = $pdo->prepare("SELECT u.plan, u.subscriptionStatus, u.planDowngradedAt FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
-        $ownerStmt->execute([$collectionId]);
-        $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
         if ($ownerData && $ownerData['plan'] === 'FREE_TRIAL' && $ownerData['subscriptionStatus'] === 'INACTIVE') {
             $withinGrace = false;
             if (!empty($ownerData['planDowngradedAt'])) {
@@ -161,8 +120,7 @@ try {
 
         // PRO gate for non-SELECTED labels
         if ($label !== 'SELECTED') {
-            $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
-            if ($ownerPlan !== 'PRO') {
+            if (!$ownerData || $ownerData['plan'] !== 'PRO') {
                 http_response_code(403);
                 echo json_encode(['error' => 'LABEL_PRO_ONLY']);
                 exit;
@@ -209,8 +167,8 @@ try {
         $stmt->execute([$selectionId, $collectionId, $photoIdToSelect, $label, $createdAt]);
 
         // Fetch the current selection (may be newly inserted or updated)
-        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE photoId = ? LIMIT 1");
-        $stmt->execute([$photoIdToSelect]);
+        $stmt = $pdo->prepare("SELECT id, photoId, label, createdAt FROM `Selection` WHERE collectionId = ? AND photoId = ? LIMIT 1");
+        $stmt->execute([$collectionId, $photoIdToSelect]);
         $selection = $stmt->fetch(PDO::FETCH_ASSOC);
 
         echo json_encode([

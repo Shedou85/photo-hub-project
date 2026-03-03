@@ -1,10 +1,12 @@
 <?php
 
-$allowedOrigins = [
-    'https://pixelforge.pro',
-    'http://localhost:5173',
-    'http://localhost:4173',
-];
+$allowedOrigins = ['https://pixelforge.pro'];
+
+// Only allow localhost origins in development
+if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
+    $allowedOrigins[] = 'http://localhost:5173';
+    $allowedOrigins[] = 'http://localhost:4173';
+}
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 

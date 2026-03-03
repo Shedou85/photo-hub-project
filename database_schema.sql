@@ -13,7 +13,7 @@ CREATE TABLE `User` (
   `id` VARCHAR(191) NOT NULL,
   `email` VARCHAR(191) NOT NULL,
   `emailVerified` BOOLEAN NOT NULL DEFAULT false,
-  `password` VARCHAR(191) NOT NULL,
+  `password` VARCHAR(191) NULL,
   `name` VARCHAR(191) NULL,
   `country` VARCHAR(191) NULL,
   `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',

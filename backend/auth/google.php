@@ -79,8 +79,8 @@ try {
                 $accountId = generateCuid();
 
                 $stmt = $pdo->prepare(
-                    "INSERT INTO `User` (id, email, name, password, profileImageUrl, emailVerified, trialEndsAt, createdAt, updatedAt)
-                     VALUES (?, ?, ?, NULL, ?, 1, DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3), NOW(3))"
+                    "INSERT INTO `User` (id, email, name, profileImageUrl, emailVerified, trialEndsAt, createdAt, updatedAt)
+                     VALUES (?, ?, ?, ?, 1, DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3), NOW(3))"
                 );
                 $stmt->execute([$userId, $email, $name, $picture]);
 

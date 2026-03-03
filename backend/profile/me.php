@@ -109,7 +109,7 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus,
-               trialEndsAt, collectionsCreatedCount, emailVerified,
+               trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified,
                brandingLogoUrl, brandingColor,
                (password IS NOT NULL) AS hasPassword
         FROM `User`

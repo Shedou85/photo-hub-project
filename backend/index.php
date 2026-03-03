@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/utils.php';
 
 // Set session cookie params once for all handlers
 session_set_cookie_params([
@@ -13,13 +14,6 @@ session_set_cookie_params([
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
-
-// Generate cryptographically secure unique IDs (CUID-compatible length)
-function generateCuid() {
-    $timestamp = dechex(intval(microtime(true) * 1000));
-    $random = bin2hex(random_bytes(12));
-    return 'cl' . substr($timestamp . $random, 0, 22);
-}
 
 
 // Simple routing logic

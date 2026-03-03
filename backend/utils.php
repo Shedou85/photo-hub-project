@@ -4,6 +4,15 @@
  */
 
 /**
+ * Generate cryptographically secure unique IDs (CUID-compatible length).
+ */
+function generateCuid() {
+    $timestamp = dechex(intval(microtime(true) * 1000));
+    $random = bin2hex(random_bytes(12));
+    return 'cl' . substr($timestamp . $random, 0, 22);
+}
+
+/**
  * Parse the request URI and extract path parts after the /backend base path.
  *
  * @return array The URI segments (e.g. ['collections', 'abc123', 'photos', 'def456'])

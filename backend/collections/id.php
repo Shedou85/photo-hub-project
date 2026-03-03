@@ -107,6 +107,27 @@ try {
                 exit;
             }
 
+            // Validate lifecycle transition
+            $currentStatusStmt = $pdo->prepare("SELECT status FROM `Collection` WHERE id = ? LIMIT 1");
+            $currentStatusStmt->execute([$collectionId]);
+            $currentStatus = $currentStatusStmt->fetchColumn();
+
+            $allowedTransitions = [
+                'DRAFT'      => ['SELECTING'],
+                'SELECTING'  => ['DRAFT', 'REVIEWING'],
+                'REVIEWING'  => ['SELECTING', 'DELIVERED'],
+                'DELIVERED'  => ['DOWNLOADED', 'ARCHIVED'],
+                'DOWNLOADED' => ['ARCHIVED'],
+                'ARCHIVED'   => ['DOWNLOADED', 'DELIVERED'],
+            ];
+
+            $allowed_next = $allowedTransitions[$currentStatus] ?? [];
+            if (!in_array($data['status'], $allowed_next, true)) {
+                http_response_code(400);
+                echo json_encode(["error" => "Invalid status transition from {$currentStatus} to {$data['status']}."]);
+                exit;
+            }
+
             // Auto-generate delivery token when transitioning to DELIVERED
             if ($data['status'] === 'DELIVERED') {
                 $checkStmt = $pdo->prepare("SELECT deliveryToken FROM `Collection` WHERE id = ? LIMIT 1");
