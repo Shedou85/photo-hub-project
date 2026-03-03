@@ -176,8 +176,8 @@ const { data, error } = await api.post(`/collections/${id}/photos`, formData);
 - Table/column names backtick-quoted
 
 **IDs:**
-- CUID format via `generateCuid()` in `index.php`
-- Format: `'cl' . substr(md5(...), 0, 22)` = 24-char identifier
+- CUID format via `generateCuid()` in `utils.php` (shared across all handlers)
+- Format: `'cl' . substr(hex(timestamp) . hex(random), 0, 22)` = 24-char identifier
 
 **Auth Check Pattern:**
 ```php
@@ -197,4 +197,12 @@ require_once __DIR__ . '/auth-check.php';
 
 ---
 
-*Convention analysis: 2026-02-11 | Updated: 2026-03-03*
+**Collection Status Transitions (enforced server-side in `id.php`):**
+- `DRAFT` → `SELECTING`
+- `SELECTING` → `DRAFT`, `REVIEWING`
+- `REVIEWING` → `SELECTING`, `DELIVERED`
+- `DELIVERED` → `DOWNLOADED`, `ARCHIVED`
+- `DOWNLOADED` → `ARCHIVED`
+- `ARCHIVED` → `DOWNLOADED`, `DELIVERED`
+
+*Convention analysis: 2026-02-11 | Updated: 2026-03-03 (generateCuid moved to utils.php, lifecycle transitions enforced)*

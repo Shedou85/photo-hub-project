@@ -158,7 +158,8 @@ photo-hub/
 │   │   ├── audit-logger.php        # Admin audit logging
 │   │   ├── download-tracker.php    # Download deduplication
 │   │   ├── rate-limiter.php        # Rate limiting
-│   │   └── session.php             # Session helper
+│   │   ├── session.php             # Session helper
+│   │   └── share-auth.php          # Share page auth (password + token)
 │   ├── migrations/                 # SQL migrations
 │   │   ├── add_email_verification_expires.sql
 │   │   ├── add_source_folder.sql
@@ -170,7 +171,7 @@ photo-hub/
 │   ├── cors.php                    # CORS headers
 │   ├── config.php                  # Config loader
 │   ├── config.example.php          # Config template
-│   ├── utils.php                   # Photo upload/thumbnail utilities
+│   ├── utils.php                   # Shared utilities (generateCuid, parseRouteParts, photo upload/thumbnail)
 │   ├── promotional.php             # Public promotional photos endpoint
 │   ├── .htaccess                   # Apache rewrite rules
 │   ├── .env                        # Environment variables (gitignored)
@@ -259,8 +260,8 @@ photo-hub/
 - Contains: Auth guard, platform stats, user management, collections view, audit log, download stats
 
 **backend/helpers/:**
-- Purpose: Shared backend utilities (8 helpers)
-- Contains: CSRF, mailer, R2 storage, watermark, audit logger, download tracker, rate limiter, session
+- Purpose: Shared backend utilities (9 helpers)
+- Contains: CSRF, mailer, R2 storage, watermark, audit logger, download tracker, rate limiter, session, share-auth
 
 **backend/migrations/:**
 - Purpose: Database migration scripts
@@ -271,7 +272,7 @@ photo-hub/
 **Entry Points:**
 - `frontend/src/main.jsx` — React app mount (HelmetProvider, BrowserRouter, AuthProvider, ErrorBoundary, i18n)
 - `frontend/src/App.jsx` — Route definitions, loading guard, Sonner toast, CookieConsentBanner
-- `backend/index.php` — HTTP router, CORS, session, CSRF, CUID generator
+- `backend/index.php` — HTTP router, CORS, session, CSRF
 
 **Configuration:**
 - `frontend/vite.config.js` — Vite config (React plugin, dev proxy, rollup-plugin-visualizer)
@@ -327,4 +328,4 @@ photo-hub/
 
 ---
 
-*Structure analysis: 2026-02-11 | Updated: 2026-03-03 (added TrialExpiredModal)*
+*Structure analysis: 2026-02-11 | Updated: 2026-03-03 (added share-auth.php, moved generateCuid to utils.php)*

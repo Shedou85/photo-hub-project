@@ -24,11 +24,8 @@ The following concerns from the original 2026-02-11 audit have been **resolved**
 
 ## Security Issues
 
-**CORS Allowlist Includes Localhost:**
-- Issue: CORS allows `http://localhost:5173` and `http://localhost:4173` in production
-- Files: `backend/cors.php`
-- Impact: Medium — local services could potentially access production API
-- Fix: Move CORS allowlist to env vars; separate dev/prod configs
+**~~CORS Allowlist Includes Localhost~~** ✅ Resolved (2026-03-03):
+- Fixed: localhost origins now env-gated via `APP_ENV` in `backend/cors.php`
 
 **Error Detail Leakage in Production:**
 - Issue: Some backend handlers still expose exception details in error responses
@@ -47,7 +44,7 @@ The following concerns from the original 2026-02-11 audit have been **resolved**
 
 **Simplified CUID Generation:**
 - Issue: Custom CUID generator uses `md5()` — not production-grade
-- Files: `backend/index.php` (generateCuid function)
+- Files: `backend/utils.php` (generateCuid function — moved from index.php on 2026-03-03)
 - Impact: Low collision risk but non-standard format
 - Fix: Use proper CUID2 library or UUID v4
 
@@ -159,4 +156,4 @@ The following concerns from the original 2026-02-11 audit have been **resolved**
 
 ---
 
-*Concerns audit: 2026-02-11 | Updated: 2026-03-03 (trial expiration UX resolved)*
+*Concerns audit: 2026-02-11 | Updated: 2026-03-03 (15-bug audit fix: CORS env-gated, lifecycle validation, SQL injection fix, share-auth extracted, ZIP dedup, i18n plurals, etc.)*
