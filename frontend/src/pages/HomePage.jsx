@@ -553,6 +553,9 @@ function HomePage() {
             <img src="/logo.png" alt="PixelForge" className="w-8 h-8 rounded-full" />
             <span className="text-sm text-white/60">{t('home.footer.tagline')}</span>
           </div>
+          <a href="mailto:pixelforge@pixelforge.pro" className="text-sm text-white/50 hover:text-white/80 transition-colors">
+            ✉ pixelforge@pixelforge.pro
+          </a>
           <p className="text-xs text-white/50">{t('home.footer.rights')}</p>
         </div>
       </footer>
