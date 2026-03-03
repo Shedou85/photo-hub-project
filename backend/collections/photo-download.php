@@ -138,6 +138,12 @@ try {
         $updateStmt->execute([$collectionId]);
         if ($updateStmt->rowCount() > 0) {
             error_log("Collection {$collectionId} transitioned to DOWNLOADED status via individual download");
+            try {
+                require_once __DIR__ . '/../helpers/mailer.php';
+                sendDownloadNotification($pdo, $collectionId);
+            } catch (\Throwable $e) {
+                error_log('[photo-download] Notification failed: ' . $e->getMessage());
+            }
         }
     }
 

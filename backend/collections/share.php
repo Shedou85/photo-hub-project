@@ -91,6 +91,33 @@ if ($requestMethod === 'PATCH') {
         ");
         $stmt->execute(['REVIEWING', $collection['id']]);
 
+        // Send notification to photographer
+        try {
+            $notifStmt = $pdo->prepare("
+                SELECT c.emailNotifications, c.name AS collectionName,
+                       u.email AS photographerEmail, u.name AS photographerName, u.plan
+                FROM `Collection` c
+                JOIN `User` u ON c.userId = u.id
+                WHERE c.id = ? LIMIT 1
+            ");
+            $notifStmt->execute([$collection['id']]);
+            $notifData = $notifStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($notifData && $notifData['emailNotifications'] && $notifData['plan'] === 'PRO'
+                && !empty($notifData['photographerEmail'])) {
+                require_once __DIR__ . '/../helpers/mailer.php';
+                $collectionUrl = 'https://pixelforge.pro/collection/' . $collection['id'];
+                sendSelectionsSubmittedEmail(
+                    $notifData['photographerEmail'],
+                    $notifData['photographerName'] ?? '',
+                    $notifData['collectionName'],
+                    $collectionUrl
+                );
+            }
+        } catch (\Throwable $e) {
+            error_log('[share.php] Notification email failed: ' . $e->getMessage());
+        }
+
         // Return updated collection
         $stmt = $pdo->prepare("
             SELECT id, name, status, clientName, shareId, coverPhotoId, createdAt

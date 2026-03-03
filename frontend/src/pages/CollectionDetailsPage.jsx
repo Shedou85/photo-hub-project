@@ -90,6 +90,7 @@ function CollectionDetailsPage() {
   const [selectionLimitInput, setSelectionLimitInput] = useState('');
   const [showLimitInput, setShowLimitInput] = useState(false);
   const [savingLimit, setSavingLimit] = useState(false);
+  const [savingNotifications, setSavingNotifications] = useState(false);
 
   const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
   const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL';
@@ -279,6 +280,31 @@ function CollectionDetailsPage() {
       }
     } finally {
       setSavingLimit(false);
+    }
+  };
+
+  const handleToggleEmailNotifications = async () => {
+    setSavingNotifications(true);
+    try {
+      const newValue = !collection.emailNotifications;
+      const { data, error: err } = await api.patch(`/collections/${id}`, { emailNotifications: newValue });
+      if (err) {
+        if (data?.error === 'EMAIL_NOTIFICATIONS_PRO_ONLY') {
+          toast.error(t('collection.emailNotificationsProOnly'));
+        } else {
+          toast.error(t('collection.emailNotificationsSaveError'));
+        }
+      } else {
+        setCollection(data.collection);
+        toast.success(newValue
+          ? t('collection.emailNotificationsEnabled')
+          : t('collection.emailNotificationsDisabled'));
+        if (newValue && !collection.clientEmail) {
+          toast.info(t('collection.emailNotificationsNoEmail'));
+        }
+      }
+    } finally {
+      setSavingNotifications(false);
     }
   };
 
@@ -665,6 +691,39 @@ function CollectionDetailsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                   {t('collection.addSelectionLimit')}
+                </button>
+              )
+            )}
+            {/* Email Notifications toggle (all active phases) */}
+            {collection?.status !== 'ARCHIVED' && (
+              user?.plan === 'PRO' ? (
+                <button
+                  onClick={handleToggleEmailNotifications}
+                  disabled={savingNotifications}
+                  className={`flex items-center gap-1.5 text-xs transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50 ${
+                    collection.emailNotifications
+                      ? 'text-indigo-400'
+                      : 'text-white/50 hover:text-indigo-400'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill={collection.emailNotifications ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                  </svg>
+                  {collection.emailNotifications
+                    ? t('collection.emailNotificationsOn')
+                    : t('collection.emailNotificationsOff')}
+                </button>
+              ) : (
+                <button
+                  disabled
+                  title={t('collection.emailNotificationsProOnly')}
+                  className="flex items-center gap-1.5 text-xs text-white/30 bg-transparent border-none cursor-not-allowed"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                  </svg>
+                  {t('collection.emailNotificationsOff')}
+                  <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">PRO</span>
                 </button>
               )
             )}

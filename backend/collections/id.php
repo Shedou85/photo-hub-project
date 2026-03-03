@@ -41,7 +41,7 @@ try {
     if ($method === 'GET') {
         if ($isAdmin) {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ?
                 LIMIT 1
@@ -49,7 +49,7 @@ try {
             $stmt->execute([$collectionId]);
         } else {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ? AND userId = ?
                 LIMIT 1
@@ -67,6 +67,7 @@ try {
         $collection['hasPassword'] = !empty($collection['password']);
         unset($collection['password']);
         $collection['selectionLimit'] = $collection['selectionLimit'] !== null ? (int) $collection['selectionLimit'] : null;
+        $collection['emailNotifications'] = (bool) $collection['emailNotifications'];
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
         exit;
@@ -185,6 +186,22 @@ try {
             }
         }
 
+        if (array_key_exists('emailNotifications', $data)) {
+            if ($data['emailNotifications']) {
+                // PRO gate: only PRO users can enable
+                $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+                $userStmt->execute([$userId]);
+                $currentUser = $userStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$currentUser || $currentUser['plan'] !== 'PRO') {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'EMAIL_NOTIFICATIONS_PRO_ONLY']);
+                    exit;
+                }
+            }
+            $setParts[] = "`emailNotifications` = ?";
+            $params[] = $data['emailNotifications'] ? 1 : 0;
+        }
+
         if (empty($setParts)) {
             http_response_code(400);
             echo json_encode(["error" => "No valid fields to update."]);
@@ -200,7 +217,7 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1
@@ -211,27 +228,87 @@ try {
         $collection['hasPassword'] = !empty($collection['password']);
         unset($collection['password']);
         $collection['selectionLimit'] = $collection['selectionLimit'] !== null ? (int) $collection['selectionLimit'] : null;
+        $collection['emailNotifications'] = (bool) $collection['emailNotifications'];
 
         echo json_encode(["status" => "OK", "collection" => $collection]);
 
-        // Generate watermarked thumbnails AFTER sending response (non-blocking)
-        if (array_key_exists('status', $data) && $data['status'] === 'SELECTING') {
-            $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
-            $userStmt->execute([$userId]);
-            $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
-            if ($userData && $userData['plan'] === 'PRO') {
-                // Flush response to client before heavy processing
-                if (function_exists('fastcgi_finish_request')) {
-                    fastcgi_finish_request();
-                } else {
-                    if (!headers_sent()) header('Connection: close');
-                    ob_end_flush();
-                    flush();
-                }
+        // Post-response processing for SELECTING and DELIVERED transitions
+        if (array_key_exists('status', $data) && in_array($data['status'], ['SELECTING', 'DELIVERED'])) {
+            // Flush response to client before heavy processing
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            } else {
+                if (!headers_sent()) header('Connection: close');
+                ob_end_flush();
+                flush();
+            }
+
+            if ($data['status'] === 'DELIVERED') {
+                // Send delivery-ready email to client
                 try {
-                    generateWatermarkedThumbnails($pdo, $collectionId);
+                    $notifStmt = $pdo->prepare("
+                        SELECT c.emailNotifications, c.name AS collectionName,
+                               c.clientEmail, c.clientName, c.deliveryToken, u.plan
+                        FROM `Collection` c
+                        JOIN `User` u ON c.userId = u.id
+                        WHERE c.id = ? LIMIT 1
+                    ");
+                    $notifStmt->execute([$collectionId]);
+                    $notifData = $notifStmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($notifData && $notifData['emailNotifications'] && $notifData['plan'] === 'PRO'
+                        && !empty($notifData['clientEmail']) && !empty($notifData['deliveryToken'])) {
+                        require_once __DIR__ . '/../helpers/mailer.php';
+                        $deliveryUrl = 'https://pixelforge.pro/deliver/' . $notifData['deliveryToken'];
+                        sendDeliveryReadyEmail(
+                            $notifData['clientEmail'],
+                            $notifData['clientName'] ?? '',
+                            $notifData['collectionName'],
+                            $deliveryUrl
+                        );
+                    }
                 } catch (\Throwable $e) {
-                    error_log('[id.php] Watermark generation failed for collection ' . $collectionId . ': ' . $e->getMessage());
+                    error_log('[id.php] Delivery notification failed: ' . $e->getMessage());
+                }
+            }
+
+            if ($data['status'] === 'SELECTING') {
+                $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+                $userStmt->execute([$userId]);
+                $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+                if ($userData && $userData['plan'] === 'PRO') {
+                    try {
+                        generateWatermarkedThumbnails($pdo, $collectionId);
+                    } catch (\Throwable $e) {
+                        error_log('[id.php] Watermark generation failed for collection ' . $collectionId . ': ' . $e->getMessage());
+                    }
+                }
+
+                // Send selection-ready email to client
+                try {
+                    $notifStmt = $pdo->prepare("
+                        SELECT c.emailNotifications, c.name AS collectionName,
+                               c.clientEmail, c.clientName, c.shareId, u.plan
+                        FROM `Collection` c
+                        JOIN `User` u ON c.userId = u.id
+                        WHERE c.id = ? LIMIT 1
+                    ");
+                    $notifStmt->execute([$collectionId]);
+                    $notifData = $notifStmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($notifData && $notifData['emailNotifications'] && $notifData['plan'] === 'PRO'
+                        && !empty($notifData['clientEmail']) && !empty($notifData['shareId'])) {
+                        require_once __DIR__ . '/../helpers/mailer.php';
+                        $shareUrl = 'https://pixelforge.pro/share/' . $notifData['shareId'];
+                        sendSelectionReadyEmail(
+                            $notifData['clientEmail'],
+                            $notifData['clientName'] ?? '',
+                            $notifData['collectionName'],
+                            $shareUrl
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    error_log('[id.php] Selection-ready notification failed: ' . $e->getMessage());
                 }
             }
         }

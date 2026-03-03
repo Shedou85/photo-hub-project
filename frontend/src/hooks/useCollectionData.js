@@ -43,6 +43,10 @@ export function useCollectionData(id) {
     if (!fetchError && data?.status === 'OK') {
       setCollection(data.collection);
       toast.success(t('collection.statusUpdated'));
+      const c = data.collection;
+      if (c.emailNotifications && c.clientEmail) {
+        toast.info(t('collection.shareLinkSentByEmail'));
+      }
     } else {
       toast.error(t('collection.statusUpdateError'));
     }
