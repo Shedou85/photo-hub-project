@@ -227,22 +227,32 @@ try {
             exit;
         }
 
-        // Delete all R2 objects (photos, edited photos, thumbnails, watermarks) before removing DB rows
+        // Collect all R2 keys for batch deletion
+        $r2Keys = [];
+
         $photoStmt = $pdo->prepare("SELECT id, storagePath, thumbnailPath FROM Photo WHERE collectionId = ?");
         $photoStmt->execute([$collectionId]);
         foreach ($photoStmt->fetchAll(PDO::FETCH_ASSOC) as $photo) {
-            if (!empty($photo['storagePath'])) r2Delete($photo['storagePath']);
-            if (!empty($photo['thumbnailPath'])) r2Delete($photo['thumbnailPath']);
-            r2Delete('collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm.jpg');
-            r2Delete('collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm_full.jpg');
+            if (!empty($photo['storagePath'])) $r2Keys[] = $photo['storagePath'];
+            if (!empty($photo['thumbnailPath'])) $r2Keys[] = $photo['thumbnailPath'];
+            $r2Keys[] = 'collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm.jpg';
+            $r2Keys[] = 'collections/' . $collectionId . '/watermarked/' . $photo['id'] . '_wm_full.jpg';
         }
 
         $editedStmt = $pdo->prepare("SELECT storagePath, thumbnailPath FROM EditedPhoto WHERE collectionId = ?");
         $editedStmt->execute([$collectionId]);
         foreach ($editedStmt->fetchAll(PDO::FETCH_ASSOC) as $edited) {
-            if (!empty($edited['storagePath'])) r2Delete($edited['storagePath']);
-            if (!empty($edited['thumbnailPath'])) r2Delete($edited['thumbnailPath']);
+            if (!empty($edited['storagePath'])) $r2Keys[] = $edited['storagePath'];
+            if (!empty($edited['thumbnailPath'])) $r2Keys[] = $edited['thumbnailPath'];
         }
+
+        // Batch delete all R2 objects (1 API call per 1000 keys instead of individual calls)
+        if (!empty($r2Keys)) {
+            r2DeleteBatch($r2Keys);
+        }
+
+        // Clear coverPhotoId to avoid circular FK constraint during cascade delete
+        $pdo->prepare("UPDATE `Collection` SET coverPhotoId = NULL WHERE id = ?")->execute([$collectionId]);
 
         $stmt = $pdo->prepare("DELETE FROM `Collection` WHERE id = ? AND userId = ?");
         $stmt->execute([$collectionId, $userId]);

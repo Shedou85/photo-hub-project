@@ -115,6 +115,52 @@ function r2Delete(string $objectKey): bool
 }
 
 /**
+ * Deletes multiple objects from R2 in a single batch request.
+ * S3-compatible APIs support up to 1000 keys per batch.
+ *
+ * @param  string[] $objectKeys  Array of keys to delete.
+ * @return int                   Number of successfully deleted objects.
+ */
+function r2DeleteBatch(array $objectKeys): int
+{
+    if (empty($objectKeys)) {
+        return 0;
+    }
+
+    $bucket = getR2Config()['bucket'];
+    $client = getR2Client();
+    $deleted = 0;
+
+    // S3 batch delete supports max 1000 keys per request
+    foreach (array_chunk($objectKeys, 1000) as $chunk) {
+        $objects = array_map(fn(string $key) => ['Key' => $key], $chunk);
+
+        try {
+            $result = $client->deleteObjects([
+                'Bucket' => $bucket,
+                'Delete' => [
+                    'Objects' => $objects,
+                    'Quiet'   => true,
+                ],
+            ]);
+            $deleted += count($chunk);
+            if (!empty($result['Errors'])) {
+                $deleted -= count($result['Errors']);
+                foreach ($result['Errors'] as $err) {
+                    error_log('[r2DeleteBatch] Failed to delete "' . $err['Key'] . '": ' . ($err['Message'] ?? 'unknown'));
+                }
+            }
+        } catch (AwsException $e) {
+            error_log('[r2DeleteBatch] AwsException: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            error_log('[r2DeleteBatch] Unexpected error: ' . $e->getMessage());
+        }
+    }
+
+    return $deleted;
+}
+
+/**
  * Streams an object from R2 by returning the PSR-7 response body.
  *
  * The caller is responsible for reading/piping the returned stream.
