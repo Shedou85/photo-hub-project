@@ -146,6 +146,16 @@ No formal API docs.
 - [x] Rate limiting (login, register, forgot-password, share password)
 - [x] Collection status lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED)
 
+### Trial Expired UX — Modal, Banner, Grace Period (2026-03-03)
+- [x] Backend: `planDowngradedAt` exposed in auth responses (me.php, login.php, google.php)
+- [x] Backend: auto-downgrade sets `planDowngradedAt` in user object on all auth endpoints
+- [x] Backend: 7-day grace period for client selections after trial expiry (share-selections.php)
+- [x] Frontend: `TrialExpiredModal` component — "what changed" list, grace period countdown, upgrade CTA, one-time display via localStorage
+- [x] Frontend: modal rendered in MainLayout + MobileLayout for expired trial non-admin users
+- [x] Frontend: trial badge (active + expired) added to MobileLayout as fixed banner below header
+- [x] Frontend: enhanced CollectionsListPage banner — shows collections/photos/selections limits for expired trial
+- [x] i18n: `plans.trialExpiredModal.*` keys for EN/LT/RU
+
 ### Photo Loading Performance (2026-03-03)
 - [x] `useImageLoadingSet` hook + `OptimizedImage` component (skeleton, LQIP blur, fade-in, error fallback)
 - [x] Lightbox preloading (±1 adjacent images), priority loading for above-the-fold

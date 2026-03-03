@@ -1,6 +1,6 @@
 # Architecture
 
-**Analysis Date:** 2026-02-11 | **Last Updated:** 2026-02-28
+**Analysis Date:** 2026-02-11 | **Last Updated:** 2026-03-03
 
 ## Pattern Overview
 
@@ -107,10 +107,10 @@
 - Purpose: Validate credentials and manage sessions
 - Location: `backend/auth/`
 - Contains:
-  - `login.php` — email/password login
+  - `login.php` — email/password login (includes auto-downgrade check, exposes `planDowngradedAt`)
   - `logout.php` — session destruction
-  - `me.php` — current user from session
-  - `google.php` — Google OAuth (via `google/apiclient`)
+  - `me.php` — current user from session (includes auto-downgrade check, exposes `planDowngradedAt`)
+  - `google.php` — Google OAuth via `google/apiclient` (includes auto-downgrade check, exposes `planDowngradedAt`)
   - `verify-email.php` — email verification token validation
   - `resend-verification.php` — resend verification email
   - `forgot-password.php` — password reset request (rate-limited)
@@ -142,7 +142,7 @@
   - `selections.php` — photographer-side selections
   - `edited.php` — upload/list edited finals
   - `share.php` — public share gallery (password-protected)
-  - `share-selections.php` — client selections via share link
+  - `share-selections.php` — client selections via share link (7-day grace period after trial expiry)
   - `preview.php` — watermarked preview for PRO users (SELECTING phase)
   - `delivery.php` — generate delivery token, mark as delivered
   - `deliver-view.php` — public delivery gallery (token auth)
@@ -245,6 +245,7 @@
 - **Transient state:** Toast notifications via Sonner (no persistence)
 - **Form state:** Local component state (email, password, name fields)
 - **Cookie consent:** localStorage flag gating GA4 analytics
+- **Trial expired modal:** localStorage flag (`trial_expired_seen_{userId}`) for one-time display
 
 ## Key Abstractions
 
@@ -271,7 +272,7 @@
 **Primitive Components:**
 - Purpose: Reusable, composable UI building blocks
 - Location: `frontend/src/components/primitives/`
-- Contains: Badge, Button, Card, CollectionCard, ConfirmModal, Dropdown, Input, PhotoCard, Select, SelectionBorder, UploadZone
+- Contains: Badge, Button, Card, CollectionCard, ConfirmModal, Dropdown, Input, PhotoCard, Select, SelectionBorder, TrialExpiredModal, UploadZone
 
 **API Client:**
 - Purpose: Centralized HTTP client with CSRF handling
@@ -345,4 +346,4 @@
 
 ---
 
-*Architecture analysis: 2026-02-11 | Updated: 2026-02-28 (full audit)*
+*Architecture analysis: 2026-02-11 | Updated: 2026-03-03 (trial expiration UX, grace period)*

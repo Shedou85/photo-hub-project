@@ -1,6 +1,6 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-02-11 | **Last Updated:** 2026-02-28
+**Analysis Date:** 2026-02-11 | **Last Updated:** 2026-03-03
 
 ## Directory Layout
 
@@ -24,6 +24,7 @@ photo-hub/
 │   │   │   │   ├── CollectionCard.jsx (+test)
 │   │   │   │   ├── ConfirmModal.jsx
 │   │   │   │   ├── Dropdown.jsx
+│   │   │   │   ├── TrialExpiredModal.jsx
 │   │   │   │   ├── Input.jsx (+test)
 │   │   │   │   ├── PhotoCard.jsx
 │   │   │   │   ├── Select.jsx (+test)
@@ -195,7 +196,7 @@ photo-hub/
 
 **frontend/src/components/primitives/:**
 - Purpose: Reusable primitive UI building blocks
-- Contains: Badge, Button, Card, CollectionCard, ConfirmModal, Dropdown, Input, PhotoCard (with compound Actions/Action subcomponents), Select, SelectionBorder, UploadZone
+- Contains: Badge, Button, Card, CollectionCard, ConfirmModal, Dropdown, Input, PhotoCard (with compound Actions/Action subcomponents), Select, SelectionBorder, TrialExpiredModal, UploadZone
 
 **frontend/src/components/ (root):**
 - Purpose: App-level shared components
@@ -326,4 +327,4 @@ photo-hub/
 
 ---
 
-*Structure analysis: 2026-02-11 | Updated: 2026-02-28 (full audit)*
+*Structure analysis: 2026-02-11 | Updated: 2026-03-03 (added TrialExpiredModal)*
