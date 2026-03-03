@@ -86,15 +86,15 @@ Current: 13 Vitest tests. Target: 70%+.
 - [ ] Email reminder to photographer X days before expiration
 - [ ] Email reminder to client X days before expiration (if email available)
 
-## P2 — Selection Quota Enforcement
+## ~~P2 — Selection Quota Enforcement~~ DONE
 
-Photographer can't limit how many photos client selects.
-
-- [ ] Add `selectionLimit` field to Collection table
-- [ ] Backend: enforce limit in POST /share/{shareId}/selections
-- [ ] Frontend: show "X of Y selected" counter on SharePage
-- [ ] Frontend: disable selection buttons when limit reached
-- [ ] Add i18n keys (LT/EN/RU)
+- [x] Add `selectionLimit` field to Collection table (INT UNSIGNED NULL)
+- [x] Backend: accept/validate selectionLimit in PATCH, include in GET responses
+- [x] Backend: enforce limit in POST /share/{shareId}/selections and /collections/{id}/selections
+- [x] Frontend: selection limit config UI in CollectionDetailsPage (SELECTING phase)
+- [x] Frontend: quota counter on SharePage ("X / Y selected"), disable buttons at limit
+- [x] Frontend: client-side limit check + backend SELECTION_LIMIT_REACHED error handling
+- [x] Add i18n keys (LT/EN/RU) for both collection and share namespaces
 
 ## P3 — API Documentation
 
@@ -104,6 +104,19 @@ No formal API docs.
 - [ ] Document request/response schemas
 - [ ] Document authentication requirements per endpoint
 - [ ] Consider auto-generating from PHP route annotations
+
+## ~~P2 — Photo Loading Performance~~ DONE
+
+- [x] Created `useImageLoadingSet` hook for tracking loaded/errored images in grids
+- [x] Created `OptimizedImage` component (skeleton/LQIP blur placeholder, fade-in, error fallback, priority loading)
+- [x] Lightbox preload adjacent images (±1 photo) via `useLightbox` enhancement
+- [x] Updated all photo grids: PhotoCard, CollectionCard, CollectionDetailsPage, SortablePhotoGrid, HomePage, PromotionalConsentModal
+- [x] Refactored SharePage + DeliveryPage to use shared `useImageLoadingSet` + `OptimizedImage`
+- [x] Backend: `generateLqip()` function in utils.php (20px wide, JPEG quality 20, ~300-700 bytes)
+- [x] Backend: LQIP generated on photo upload, stored in DB, included in API responses
+- [x] DB: `lqip` TEXT column added to Photo and EditedPhoto tables
+- [x] Migration script: `backend/migrations/generate-lqip.php` for backfilling existing photos
+- [x] Priority loading (`loading="eager"` + `fetchPriority="high"`) for first 6 visible photos
 
 ## P3 — Minor Improvements
 
@@ -132,6 +145,17 @@ No formal API docs.
 - [x] Session expired modal
 - [x] Rate limiting (login, register, forgot-password, share password)
 - [x] Collection status lifecycle (DRAFT → SELECTING → REVIEWING → DELIVERED → DOWNLOADED → ARCHIVED)
+
+### Photo Loading Performance (2026-03-03)
+- [x] `useImageLoadingSet` hook + `OptimizedImage` component (skeleton, LQIP blur, fade-in, error fallback)
+- [x] Lightbox preloading (±1 adjacent images), priority loading for above-the-fold
+- [x] Backend LQIP generation (GD, 20px, JPEG q20), DB columns, API responses, backfill script
+- [x] All photo grids updated: CollectionDetailsPage, CollectionCard, PhotoCard, SortablePhotoGrid, HomePage, SharePage, DeliveryPage, PromotionalConsentModal
+
+### Selection Quota Enforcement (2026-03-02)
+- [x] Backend: selectionLimit field, validation, enforcement in both share and authenticated selection endpoints
+- [x] Frontend: photographer limit config UI, client-side quota counter + disabled buttons on SharePage
+- [x] i18n: EN/LT/RU keys for collection and share namespaces
 
 ### Collection Password Protection (2026-03-02)
 - [x] Backend: hasPassword in collection responses, password verification on all delivery endpoints

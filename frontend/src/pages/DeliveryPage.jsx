@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { downloadPhoto, downloadAllAsZip } from '../utils/download';
 import { photoUrl } from '../utils/photoUrl';
+import OptimizedImage from '../components/primitives/OptimizedImage';
+import { useImageLoadingSet } from '../hooks/useImageLoading';
 import { getAccentButtonStyle } from '../utils/brandingUtils';
 
 function DeliveryPage() {
@@ -13,7 +15,8 @@ function DeliveryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [imagesLoaded, setImagesLoaded] = useState(new Set());
+  const { handleImageLoad, isImageLoaded } = useImageLoadingSet();
+  const preloadedRef = useRef(new Set());
 
   // Password state
   const [passwordRequired, setPasswordRequired] = useState(false);
@@ -28,10 +31,6 @@ function DeliveryPage() {
     { code: 'ru', label: 'RU' },
   ];
 
-  const handleImageLoad = useCallback((photoId) => {
-    setImagesLoaded((prev) => new Set(prev).add(photoId));
-  }, []);
-
   // Keyboard navigation for lightbox
   useEffect(() => {
     if (lightboxIndex === null || !collection?.photos) return;
@@ -45,6 +44,24 @@ function DeliveryPage() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [lightboxIndex, collection?.photos]);
+
+  // Preload adjacent lightbox images
+  useEffect(() => {
+    if (lightboxIndex === null || !collection?.photos) return;
+    const photos = collection.photos;
+    const indices = [
+      (lightboxIndex - 1 + photos.length) % photos.length,
+      (lightboxIndex + 1) % photos.length,
+    ];
+    for (const idx of indices) {
+      if (preloadedRef.current.has(idx)) continue;
+      const photo = photos[idx];
+      if (!photo) continue;
+      const img = new Image();
+      img.src = photoUrl(photo.storagePath);
+      preloadedRef.current.add(idx);
+    }
+  }, [lightboxIndex, collection]);
 
   // Fetch delivery data
   const fetchDelivery = useCallback(async (password) => {
@@ -350,7 +367,6 @@ function DeliveryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {photos.map((photo, index) => {
-                const isLoaded = imagesLoaded.has(photo.id);
                 return (
                   <div
                     key={photo.id}
@@ -358,19 +374,15 @@ function DeliveryPage() {
                     style={{ animationDelay: `${Math.min(index * 60, 600)}ms` }}
                     onClick={() => setLightboxIndex(index)}
                   >
-                    {/* Per-image skeleton */}
-                    {!isLoaded && (
-                      <div className="absolute inset-0 bg-white/[0.06] animate-pulse" />
-                    )}
-
-                    <img
+                    <OptimizedImage
                       src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                       alt={photo.filename}
-                      className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.05] select-none ${
-                        isLoaded ? 'opacity-100' : 'opacity-0'
-                      }`}
-                      loading="lazy"
+                      lqip={photo.lqip}
+                      isLoaded={isImageLoaded(photo.id)}
                       onLoad={() => handleImageLoad(photo.id)}
+                      priority={index < 6}
+                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.05] select-none"
+                      containerClassName="w-full h-full"
                       onContextMenu={(e) => e.preventDefault()}
                       draggable={false}
                     />

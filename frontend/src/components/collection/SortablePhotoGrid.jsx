@@ -13,6 +13,7 @@ import {
 } from '@dnd-kit/sortable';
 import { PHOTO_GRID_CLASSES } from '../../constants/styles';
 import { photoUrl } from '../../utils/photoUrl';
+import OptimizedImage from '../primitives/OptimizedImage';
 import SortablePhotoItem from './SortablePhotoItem';
 
 export default function SortablePhotoGrid({
@@ -52,11 +53,12 @@ export default function SortablePhotoGrid({
         <div className={PHOTO_GRID_CLASSES}>
           {photos.map((photo) => (
             <SortablePhotoItem key={photo.id} id={photo.id}>
-              <img
+              <OptimizedImage
                 src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                 alt={photo.filename}
+                lqip={photo.lqip}
                 className="w-full h-full object-cover pointer-events-none select-none"
-                loading="lazy"
+                containerClassName="w-full h-full"
                 draggable={false}
               />
             </SortablePhotoItem>

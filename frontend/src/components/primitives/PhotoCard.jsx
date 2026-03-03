@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import clsx from 'clsx';
+import OptimizedImage from './OptimizedImage';
 
 /**
  * PhotoCard component for displaying photo thumbnails in grids with optional selection and cover badges
@@ -12,30 +13,11 @@ import clsx from 'clsx';
  * @param {boolean} [props.isSelected=false] - Show selection checkmark
  * @param {React.ReactNode} [props.actions] - Hover action overlay (use PhotoCard.Actions and PhotoCard.Action)
  * @param {string} [props.className] - Additional CSS classes
- *
- * @example
- * // Basic photo card
- * <PhotoCard
- *   src={photoUrl}
- *   alt="Photo 1"
- *   onClick={() => openLightbox(0)}
- * />
- *
- * @example
- * // Photo card with cover badge, selection, and hover actions
- * <PhotoCard
- *   src={photoUrl}
- *   alt="Photo 1"
- *   onClick={() => openLightbox(0)}
- *   isCover={true}
- *   isSelected={selectedIds.has(photo.id)}
- *   actions={
- *     <PhotoCard.Actions>
- *       <PhotoCard.Action onClick={handleDelete} label="Delete">×</PhotoCard.Action>
- *       <PhotoCard.Action onClick={handleSetCover} label="Set as cover">★</PhotoCard.Action>
- *     </PhotoCard.Actions>
- *   }
- * />
+ * @param {boolean} [props.isLoaded] - External load state (grid mode)
+ * @param {function} [props.onImageLoad] - External load callback (grid mode)
+ * @param {function} [props.onImageError] - External error callback (grid mode)
+ * @param {string} [props.lqip] - Base64 LQIP data URI for blur placeholder
+ * @param {boolean} [props.priority=false] - Eager load + high fetch priority
  */
 const PhotoCard = memo(function PhotoCard({
   src,
@@ -44,7 +26,12 @@ const PhotoCard = memo(function PhotoCard({
   isCover = false,
   isSelected = false,
   actions,
-  className
+  className,
+  isLoaded,
+  onImageLoad,
+  onImageError,
+  lqip,
+  priority = false,
 }) {
   return (
     <div className={clsx('relative group aspect-square overflow-hidden bg-white/[0.06] rounded-sm', className)}>
@@ -54,11 +41,16 @@ const PhotoCard = memo(function PhotoCard({
         className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
         aria-label={alt}
       >
-        <img
+        <OptimizedImage
           src={src}
           alt={alt}
+          lqip={lqip}
+          isLoaded={isLoaded}
+          onLoad={onImageLoad}
+          onError={onImageError}
+          priority={priority}
           className="w-full h-full object-cover"
-          loading="lazy"
+          containerClassName="w-full h-full"
         />
       </button>
 

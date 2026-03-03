@@ -242,7 +242,7 @@ if ($requestMethod === 'PATCH') {
 
         // Query photos for this collection
         $stmt = $pdo->prepare("
-            SELECT id, filename, storagePath, thumbnailPath, `order`, createdAt
+            SELECT id, filename, storagePath, thumbnailPath, lqip, `order`, createdAt
             FROM `Photo`
             WHERE collectionId = ?
             ORDER BY COALESCE(`order`, 999999) ASC, createdAt ASC

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Badge from './Badge';
+import OptimizedImage from './OptimizedImage';
 
 function CollectionCard({
   id,
@@ -28,11 +29,11 @@ function CollectionCard({
       <Link to={`/collection/${id}`} className="block">
         <div className="relative aspect-[3/2] overflow-hidden">
           {coverImageUrl ? (
-            <img
+            <OptimizedImage
               src={coverImageUrl}
               alt={name}
-              loading="lazy"
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              containerClassName="w-full h-full"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white text-5xl font-bold">

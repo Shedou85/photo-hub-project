@@ -58,11 +58,11 @@ try {
     }
 
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, `order`, createdAt FROM `Photo` WHERE collectionId = ? ORDER BY COALESCE(`order`, 999999) ASC, createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, lqip, `order`, createdAt FROM `Photo` WHERE collectionId = ? ORDER BY COALESCE(`order`, 999999) ASC, createdAt ASC");
         $stmt->execute([$collectionId]);
         $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, createdAt FROM `EditedPhoto` WHERE collectionId = ? ORDER BY createdAt ASC");
+        $stmt = $pdo->prepare("SELECT id, filename, storagePath, thumbnailPath, lqip, createdAt FROM `EditedPhoto` WHERE collectionId = ? ORDER BY createdAt ASC");
         $stmt->execute([$collectionId]);
         $editedPhotos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -123,13 +123,14 @@ try {
         try {
             $createdAt = date('Y-m-d H:i:s.v');
             $stmt = $pdo->prepare(
-                "INSERT INTO `Photo` (id, filename, storagePath, thumbnailPath, collectionId, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
+                "INSERT INTO `Photo` (id, filename, storagePath, thumbnailPath, lqip, collectionId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
             $stmt->execute([
                 $result['id'],
                 $result['filename'],
                 $result['storagePath'],
                 $result['thumbnailPath'],
+                $result['lqip'] ?? null,
                 $collectionId,
                 $createdAt,
             ]);
@@ -186,6 +187,7 @@ try {
                     "filename"      => $result['filename'],
                     "storagePath"   => $result['storagePath'],
                     "thumbnailPath" => $result['thumbnailPath'],
+                    "lqip"          => $result['lqip'] ?? null,
                     "createdAt"     => $createdAt,
                 ],
             ];

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -10,12 +10,14 @@ import Accordion from '../components/Accordion';
 import PromotionalConsentModal from '../components/collection/PromotionalConsentModal';
 import SortablePhotoGrid from '../components/collection/SortablePhotoGrid';
 import CollectionAnalytics from '../components/collection/CollectionAnalytics';
+import OptimizedImage from '../components/primitives/OptimizedImage';
 import { api } from '../lib/api';
 import { useCollectionData } from '../hooks/useCollectionData';
 import { usePhotoUpload } from '../hooks/usePhotoUpload';
 import { useLightbox } from '../hooks/useLightbox';
 import { usePhotoFiltering } from '../hooks/usePhotoFiltering';
 import { usePhotoReorder } from '../hooks/usePhotoReorder';
+import { useImageLoadingSet } from '../hooks/useImageLoading';
 import { generateCopyScript } from '../utils/copyScript';
 import { photoUrl } from '../utils/photoUrl';
 
@@ -52,8 +54,12 @@ function CollectionDetailsPage() {
     fetchPhotos,
   } = usePhotoUpload(id, collection, setCollection);
 
-  const lightbox = useLightbox(photos.length);
-  const editedLightbox = useLightbox(editedPhotos.length);
+  const getPhotoUrl = useCallback((idx) => photos[idx] ? photoUrl(photos[idx].storagePath) : null, [photos]);
+  const getEditedPhotoUrl = useCallback((idx) => editedPhotos[idx] ? photoUrl(editedPhotos[idx].storagePath) : null, [editedPhotos]);
+  const lightbox = useLightbox(photos.length, getPhotoUrl);
+  const editedLightbox = useLightbox(editedPhotos.length, getEditedPhotoUrl);
+  const { handleImageLoad, handleImageError, isImageLoaded } = useImageLoadingSet();
+  const { handleImageLoad: handleEditedLoad, isImageLoaded: isEditedLoaded } = useImageLoadingSet();
   const { user } = useAuth();
   const userIsPro = user?.plan === 'PRO';
 
@@ -1011,11 +1017,12 @@ function CollectionDetailsPage() {
             <div className={`mt-4 ${PHOTO_GRID_CLASSES}`}>
               {editedPhotos.map((photo) => (
                 <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-white/[0.06]">
-                  <img
+                  <OptimizedImage
                     src={photoUrl(photo.storagePath)}
                     alt={photo.filename}
+                    lqip={photo.lqip}
                     className="w-full h-full object-cover"
-                    loading="lazy"
+                    containerClassName="w-full h-full"
                   />
                 </div>
               ))}
@@ -1146,7 +1153,7 @@ function CollectionDetailsPage() {
             photos={isReorderMode ? photos : filteredPhotos}
             isReorderMode={isReorderMode}
             onDragEnd={handleDragEnd}
-            renderPhoto={(photo) => {
+            renderPhoto={(photo, index) => {
               const photoIndex = photos.findIndex(p => p.id === photo.id);
               return (
                 <div key={photo.id} className="relative group aspect-square rounded-sm overflow-hidden bg-white/[0.06]">
@@ -1156,11 +1163,16 @@ function CollectionDetailsPage() {
                     className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
                     aria-label={photo.filename}
                   >
-                    <img
+                    <OptimizedImage
                       src={photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                       alt={photo.filename}
+                      lqip={photo.lqip}
+                      isLoaded={isImageLoaded(photo.id)}
+                      onLoad={() => handleImageLoad(photo.id)}
+                      onError={() => handleImageError(photo.id)}
+                      priority={index < 6}
                       className="w-full h-full object-cover"
-                      loading="lazy"
+                      containerClassName="w-full h-full"
                     />
                   </button>
                   {/* Cover badge */}
@@ -1240,11 +1252,15 @@ function CollectionDetailsPage() {
                   className="w-full h-full block border-none p-0 bg-transparent cursor-zoom-in"
                   aria-label={photo.filename}
                 >
-                  <img
+                  <OptimizedImage
                     src={photoUrl(photo.thumbnailPath || photo.storagePath)}
                     alt={photo.filename}
+                    lqip={photo.lqip}
+                    isLoaded={isEditedLoaded(photo.id)}
+                    onLoad={() => handleEditedLoad(photo.id)}
+                    priority={index < 6}
                     className="w-full h-full object-cover"
-                    loading="lazy"
+                    containerClassName="w-full h-full"
                   />
                 </button>
               </div>

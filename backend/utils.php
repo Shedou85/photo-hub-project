@@ -160,6 +160,99 @@ function generateThumbnail($sourcePath, $mimeType) {
 }
 
 /**
+ * Generate a tiny LQIP (Low Quality Image Placeholder) as a base64 data URI.
+ *
+ * Resamples the source image to ~20px wide using GD and outputs as JPEG quality 20.
+ * The result is a small (~300-700 bytes) blurred preview used as a CSS background
+ * while the full image loads.
+ *
+ * @param string $sourcePath  Absolute path to source file (original or thumbnail)
+ * @param string $mimeType    Validated MIME type: image/jpeg, image/png, or image/webp
+ * @return string|null  Base64 data URI ("data:image/jpeg;base64,...") or null on failure
+ */
+function generateLqip($sourcePath, $mimeType) {
+    if (!function_exists('imagecreatefromjpeg')) {
+        return null;
+    }
+
+    $imageSize = @getimagesize($sourcePath);
+    if ($imageSize === false) {
+        return null;
+    }
+
+    $srcWidth  = $imageSize[0];
+    $srcHeight = $imageSize[1];
+
+    // Skip very large images
+    if ($srcWidth * $srcHeight > 25000000) {
+        return null;
+    }
+
+    $srcImage = null;
+    try {
+        switch ($mimeType) {
+            case 'image/jpeg':
+                $srcImage = @imagecreatefromjpeg($sourcePath);
+                break;
+            case 'image/png':
+                $srcImage = @imagecreatefrompng($sourcePath);
+                break;
+            case 'image/webp':
+                if (!function_exists('imagecreatefromwebp')) return null;
+                $srcImage = @imagecreatefromwebp($sourcePath);
+                break;
+            default:
+                return null;
+        }
+    } catch (Throwable $e) {
+        return null;
+    }
+
+    if ($srcImage === false || $srcImage === null) {
+        return null;
+    }
+
+    // Resample to ~20px wide
+    $lqipWidth  = 20;
+    $lqipHeight = max(1, (int) round($srcHeight * ($lqipWidth / $srcWidth)));
+
+    $lqipImage = imagecreatetruecolor($lqipWidth, $lqipHeight);
+    if ($lqipImage === false) {
+        imagedestroy($srcImage);
+        return null;
+    }
+
+    $white = imagecolorallocate($lqipImage, 255, 255, 255);
+    imagefill($lqipImage, 0, 0, $white);
+
+    $ok = imagecopyresampled(
+        $lqipImage, $srcImage,
+        0, 0, 0, 0,
+        $lqipWidth, $lqipHeight,
+        $srcWidth, $srcHeight
+    );
+
+    imagedestroy($srcImage);
+
+    if (!$ok) {
+        imagedestroy($lqipImage);
+        return null;
+    }
+
+    // Output as JPEG quality 20 to buffer
+    ob_start();
+    $saved = @imagejpeg($lqipImage, null, 20);
+    $buffer = ob_get_clean();
+    imagedestroy($lqipImage);
+
+    if (!$saved || empty($buffer)) {
+        return null;
+    }
+
+    return 'data:image/jpeg;base64,' . base64_encode($buffer);
+}
+
+/**
  * Handle a file upload: validate MIME type and size, upload to R2,
  * and generate + upload a JPEG thumbnail at 400px width.
  *
@@ -233,11 +326,15 @@ function handleFileUpload($file, $collectionId, $subdirectory = '') {
         }
     }
 
+    // Generate LQIP from original upload
+    $lqip = generateLqip($tmpPath, $mimeType);
+
     return [
         'ok'            => true,
         'id'            => $newId,
         'storagePath'   => $objectKey,
         'thumbnailPath' => $thumbnailKey,
+        'lqip'          => $lqip,
         'filename'      => $originalFilename,
         'createdAt'     => $createdAt,
         'error'         => null,

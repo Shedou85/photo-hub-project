@@ -133,7 +133,7 @@ try {
 
     // Query EditedPhoto table (NOT Photo table) — only final/edited photos
     $stmt = $pdo->prepare("
-        SELECT id, filename, storagePath, createdAt
+        SELECT id, filename, storagePath, lqip, createdAt
         FROM `EditedPhoto`
         WHERE collectionId = ?
         ORDER BY filename ASC

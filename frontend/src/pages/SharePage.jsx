@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
 import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/SelectionBorder";
 import UpgradeModal from "../components/primitives/UpgradeModal";
+import OptimizedImage from "../components/primitives/OptimizedImage";
+import { useImageLoadingSet } from "../hooks/useImageLoading";
 import { getAccentButtonStyle } from "../utils/brandingUtils";
 
 function SharePage() {
@@ -28,7 +30,8 @@ function SharePage() {
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [collectionPassword, setCollectionPassword] = useState('');
   const [shareToken, setShareToken] = useState(null);
-  const [imagesLoaded, setImagesLoaded] = useState(new Set());
+  const { handleImageLoad, isImageLoaded } = useImageLoadingSet();
+  const preloadedRef = useRef(new Set());
 
   const canSelect = collection?.status === 'SELECTING';
   const hasProFeatures = collection?.proFeatures ?? false;
@@ -46,10 +49,6 @@ function SharePage() {
   const selectionLimit = collection?.selectionLimit ?? null;
   const nonRejectedCount = labelCounts.SELECTED + labelCounts.FAVORITE;
   const isLimitReached = selectionLimit !== null && nonRejectedCount >= selectionLimit;
-
-  const handleImageLoad = useCallback((photoId) => {
-    setImagesLoaded(prev => new Set(prev).add(photoId));
-  }, []);
 
   const setLabel = async (photoId, label) => {
     if (requestsInFlight.has(photoId)) return;
@@ -211,6 +210,27 @@ function SharePage() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIndex, collection?.photos]);
+
+  // Preload adjacent lightbox images
+  useEffect(() => {
+    if (lightboxIndex === null || !collection?.photos) return;
+    const photos = collection.photos;
+    const indices = [
+      (lightboxIndex - 1 + photos.length) % photos.length,
+      (lightboxIndex + 1) % photos.length,
+    ];
+    for (const idx of indices) {
+      if (preloadedRef.current.has(idx)) continue;
+      const photo = photos[idx];
+      if (!photo) continue;
+      const url = collection.watermarked
+        ? watermarkedPreviewUrl(shareId, photo.id, shareToken)
+        : photoUrl(photo.storagePath);
+      const img = new Image();
+      img.src = url;
+      preloadedRef.current.add(idx);
+    }
+  }, [lightboxIndex, collection, shareId, shareToken]);
 
   // Escape key handler for review modal
   useEffect(() => {
@@ -550,7 +570,6 @@ function SharePage() {
               const photoLabel = photoLabels.get(photo.id);
               const isLabeled = !!photoLabel;
               const glowClass = photoLabel ? (GLOW_CLASSES[photoLabel] || 'selection-glow') : '';
-              const isLoaded = imagesLoaded.has(photo.id);
               return (
                 <div
                   key={photo.id}
@@ -562,21 +581,17 @@ function SharePage() {
                   style={{ animationDelay: `${Math.min(index * 60, 600)}ms` }}
                   onClick={() => setLightboxIndex(index)}
                 >
-                  {/* Skeleton placeholder */}
-                  {!isLoaded && (
-                    <div className="absolute inset-0 bg-white/[0.06] animate-pulse" />
-                  )}
-
-                  <img
+                  <OptimizedImage
                     src={collection.watermarked && photo.watermarkedThumbnailPath
                       ? photoUrl(photo.watermarkedThumbnailPath)
                       : photoUrl(photo.thumbnailPath ?? photo.storagePath)}
                     alt={photo.filename}
-                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.08] select-none ${
-                      isLoaded ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    loading="lazy"
+                    lqip={photo.lqip}
+                    isLoaded={isImageLoaded(photo.id)}
                     onLoad={() => handleImageLoad(photo.id)}
+                    priority={index < 6}
+                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.08] select-none"
+                    containerClassName="w-full h-full"
                     onContextMenu={(e) => e.preventDefault()}
                     draggable={false}
                   />

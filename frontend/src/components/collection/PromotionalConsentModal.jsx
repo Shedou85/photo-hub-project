@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { photoUrl } from '../../utils/photoUrl';
+import OptimizedImage from '../primitives/OptimizedImage';
 
 function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
   const { t } = useTranslation();
@@ -124,14 +125,12 @@ function PromotionalConsentModal({ collection, photos, onClose, onDelivered }) {
                     role="button"
                     onKeyDown={(e) => e.key === 'Enter' && togglePhoto(photo.id)}
                   >
-                    <img
+                    <OptimizedImage
                       src={src}
                       alt=""
+                      lqip={photo.lqip}
                       className="w-full h-full object-cover"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.closest('[data-photo-item]')?.classList.add('hidden');
-                      }}
+                      containerClassName="w-full h-full"
                     />
                     {/* Selection ring overlay */}
                     <div

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { photoUrl } from '../utils/photoUrl';
+import OptimizedImage from '../components/primitives/OptimizedImage';
 import SEO from '../components/SEO';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
@@ -496,19 +497,20 @@ function HomePage() {
               </h2>
             </div>
             <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
-              {promoPhotos.map((photo) => {
+              {promoPhotos.map((photo, index) => {
                 const src = photoUrl(photo.thumbnailPath || photo.storagePath);
                 return (
                   <div
                     key={photo.photoId}
+                    data-promo-item
                     className="overflow-hidden rounded-lg break-inside-avoid group"
                   >
-                    <img
+                    <OptimizedImage
                       src={src}
                       alt=""
+                      priority={index < 4}
                       className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => { e.target.closest('.break-inside-avoid')?.classList.add('hidden'); }}
+                      containerClassName="w-full"
                     />
                   </div>
                 );
