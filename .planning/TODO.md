@@ -38,15 +38,14 @@ The plan system is fully defined but payments aren't connected. Schema ready, UI
 - [x] SharePage: password prompt UI (already existed)
 - [x] i18n keys for all 3 locales (EN/LT/RU)
 
-## P1 — Email Notifications for Workflow Events
+## ~~P1 — Email Notifications for Workflow Events~~ DONE
 
-PHPMailer is installed and working (verification + password reset). Add workflow triggers.
-
-- [ ] Email to photographer when client submits selections (SELECTING → REVIEWING)
-- [ ] Email to photographer when client downloads photos (first download)
-- [ ] Consider: email to client when delivery is ready (photographer triggers DELIVERED)
-- [ ] Add email notification preferences to ProfilePage (opt-in/opt-out)
-- [ ] Add i18n email templates (LT/EN/RU)
+- [x] Email to photographer when client submits selections (SELECTING → REVIEWING) — share.php
+- [x] Email to photographer when client downloads photos (first download) — photo-download.php, zip-download.php
+- [x] Email to client when delivery is ready (photographer triggers DELIVERED) — id.php
+- [x] Email to client when selection is ready (photographer triggers SELECTING) — id.php
+- [x] Add emailNotifications per-collection toggle with PRO gate — id.php PATCH + CollectionDetailsPage UI
+- [x] Add i18n keys for all 3 locales (EN/LT/RU)
 
 ## P1 — Backend Tests (PHPUnit)
 
