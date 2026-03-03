@@ -28,7 +28,7 @@ function FeatureCard({ icon, title, desc, delay }) {
   );
 }
 
-function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badge }) {
+function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badge, blurred }) {
   return (
     <div
       className={`relative flex flex-col rounded-lg p-8 ${
@@ -38,35 +38,37 @@ function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badg
       }`}
     >
       {badge && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] rounded-full text-white text-xs font-semibold tracking-wide uppercase whitespace-nowrap">
+        <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] rounded-full text-white text-xs font-semibold tracking-wide uppercase whitespace-nowrap${blurred ? ' blur-[3px]' : ''}`}>
           {badge}
         </div>
       )}
-      <div className="mb-6">
-        <p className="text-sm font-medium text-indigo-400 uppercase tracking-widest mb-2">{name}</p>
-        <div className="flex items-end gap-1.5">
-          <span className="font-serif-display text-[42px] font-bold text-white leading-none">{price}</span>
-          {perMonth && <span className="text-sm text-white/60 mb-1.5">{perMonth}</span>}
+      <div className={blurred ? 'blur-[3px] pointer-events-none select-none' : ''}>
+        <div className="mb-6">
+          <p className="text-sm font-medium text-indigo-400 uppercase tracking-widest mb-2">{name}</p>
+          <div className="flex items-end gap-1.5">
+            <span className="font-serif-display text-[42px] font-bold text-white leading-none">{price}</span>
+            {perMonth && <span className="text-sm text-white/60 mb-1.5">{perMonth}</span>}
+          </div>
         </div>
+        <ul className="flex flex-col gap-3 mb-8 flex-1">
+          {features.map((f) => (
+            <li key={f} className="flex items-start gap-2.5 text-sm text-white/70">
+              {CHECK_ICON}
+              {f}
+            </li>
+          ))}
+        </ul>
+        <Link
+          to="/login"
+          className={`block text-center py-3 px-6 rounded text-sm font-semibold no-underline transition-all duration-150 ${
+            highlighted
+              ? 'bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white hover:opacity-90 shadow-[0_4px_16px_rgba(99,102,241,0.4)]'
+              : 'bg-white/[0.08] text-white/80 border border-white/10 hover:bg-white/[0.14] hover:text-white'
+          }`}
+        >
+          {ctaLabel}
+        </Link>
       </div>
-      <ul className="flex flex-col gap-3 mb-8 flex-1">
-        {features.map((f) => (
-          <li key={f} className="flex items-start gap-2.5 text-sm text-white/70">
-            {CHECK_ICON}
-            {f}
-          </li>
-        ))}
-      </ul>
-      <Link
-        to="/login"
-        className={`block text-center py-3 px-6 rounded text-sm font-semibold no-underline transition-all duration-150 ${
-          highlighted
-            ? 'bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white hover:opacity-90 shadow-[0_4px_16px_rgba(99,102,241,0.4)]'
-            : 'bg-white/[0.08] text-white/80 border border-white/10 hover:bg-white/[0.14] hover:text-white'
-        }`}
-      >
-        {ctaLabel}
-      </Link>
     </div>
   );
 }
@@ -124,6 +126,7 @@ function HomePage() {
       ctaLabel: t('home.plans.standardCta'),
       highlighted: true,
       badge: t('home.plans.popular'),
+      blurred: true,
     },
     {
       name: t('home.plans.pro'),
@@ -132,6 +135,7 @@ function HomePage() {
       features: [t('home.plans.proF1'), t('home.plans.proF2'), t('home.plans.proF3')],
       ctaLabel: t('home.plans.proCta'),
       highlighted: false,
+      blurred: true,
     },
   ];
 

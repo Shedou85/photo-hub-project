@@ -21,7 +21,7 @@ const CheckIcon = () => (
   </svg>
 );
 
-const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, badge }) => {
+const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, badge, blurred }) => {
   const { t } = useTranslation();
 
   if (isCurrent) {
@@ -31,47 +31,49 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
           {/* Top accent strip */}
           <div className="absolute top-[2px] left-[2px] right-[2px] h-1 rounded-t-[10px] bg-[linear-gradient(90deg,#3b82f6_0%,#6366f1_100%)]" />
 
-          {/* Badge */}
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs font-semibold uppercase tracking-widest text-blue-400">
-              {name}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/80 inline-block" />
+          <div className={blurred ? 'blur-[3px] pointer-events-none select-none flex flex-col gap-5 flex-1' : 'flex flex-col gap-5 flex-1'}>
+            {/* Badge */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-blue-400">
+                {name}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-white bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-white/80 inline-block" />
+                {t('payments.currentPlan')}
+              </span>
+            </div>
+
+            {/* Price */}
+            <div>
+              <p className="text-4xl font-bold text-white leading-none">
+                {price}
+              </p>
+              {perMonth && (
+                <p className="text-sm text-white/50 mt-1">{perMonth}</p>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/[0.06]" />
+
+            {/* Features */}
+            <ul className="flex flex-col gap-3 flex-1">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2.5 text-sm text-white/60">
+                  <CheckIcon />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <button
+              disabled
+              className="w-full py-2.5 rounded-[8px] text-sm font-semibold bg-blue-500/10 text-blue-400 cursor-not-allowed"
+            >
               {t('payments.currentPlan')}
-            </span>
+            </button>
           </div>
-
-          {/* Price */}
-          <div>
-            <p className="text-4xl font-bold text-white leading-none">
-              {price}
-            </p>
-            {perMonth && (
-              <p className="text-sm text-white/50 mt-1">{perMonth}</p>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-white/[0.06]" />
-
-          {/* Features */}
-          <ul className="flex flex-col gap-3 flex-1">
-            {features.map((f) => (
-              <li key={f} className="flex items-center gap-2.5 text-sm text-white/60">
-                <CheckIcon />
-                {f}
-              </li>
-            ))}
-          </ul>
-
-          {/* CTA */}
-          <button
-            disabled
-            className="w-full py-2.5 rounded-[8px] text-sm font-semibold bg-blue-500/10 text-blue-400 cursor-not-allowed"
-          >
-            {t('payments.currentPlan')}
-          </button>
         </div>
       </div>
     );
@@ -89,51 +91,53 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
         <div className="absolute top-0 left-6 right-6 h-[2px] rounded-b-full bg-[linear-gradient(90deg,#6366f1_0%,#3b82f6_100%)]" />
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between pt-1">
-        <span className={[
-          'text-xs font-semibold uppercase tracking-widest',
-          highlighted ? 'text-indigo-400' : 'text-white/40',
-        ].join(' ')}>
-          {name}
-        </span>
-        {badge && (
-          <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-indigo-400 bg-indigo-500/15">
-            {badge}
+      <div className={blurred ? 'blur-[3px] pointer-events-none select-none flex flex-col gap-5 flex-1' : 'flex flex-col gap-5 flex-1'}>
+        {/* Header */}
+        <div className="flex items-center justify-between pt-1">
+          <span className={[
+            'text-xs font-semibold uppercase tracking-widest',
+            highlighted ? 'text-indigo-400' : 'text-white/40',
+          ].join(' ')}>
+            {name}
           </span>
-        )}
+          {badge && (
+            <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-indigo-400 bg-indigo-500/15">
+              {badge}
+            </span>
+          )}
+        </div>
+
+        {/* Price */}
+        <div>
+          <p className="text-4xl font-bold text-white leading-none">
+            {price}
+          </p>
+          {perMonth && (
+            <p className="text-sm text-white/50 mt-1">{perMonth}</p>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-white/[0.06]" />
+
+        {/* Features */}
+        <ul className="flex flex-col gap-3 flex-1">
+          {features.map((f, i) => (
+            <li key={i} className="flex items-center gap-2.5 text-sm text-white/60">
+              <CheckIcon />
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        {/* CTA */}
+        <button
+          disabled
+          className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/50 cursor-not-allowed"
+        >
+          {t('payments.comingSoon')}
+        </button>
       </div>
-
-      {/* Price */}
-      <div>
-        <p className="text-4xl font-bold text-white leading-none">
-          {price}
-        </p>
-        {perMonth && (
-          <p className="text-sm text-white/50 mt-1">{perMonth}</p>
-        )}
-      </div>
-
-      {/* Divider */}
-      <div className="h-px bg-white/[0.06]" />
-
-      {/* Features */}
-      <ul className="flex flex-col gap-3 flex-1">
-        {features.map((f, i) => (
-          <li key={i} className="flex items-center gap-2.5 text-sm text-white/60">
-            <CheckIcon />
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      {/* CTA */}
-      <button
-        disabled
-        className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/50 cursor-not-allowed"
-      >
-        {t('payments.comingSoon')}
-      </button>
     </div>
   );
 };
@@ -218,6 +222,7 @@ const PaymentsPage = () => {
               isCurrent={userPlan === plan.key}
               highlighted={plan.highlighted}
               badge={plan.badge}
+              blurred={plan.key !== 'FREE_TRIAL'}
             />
           ))}
         </div>
