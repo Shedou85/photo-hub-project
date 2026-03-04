@@ -14,7 +14,7 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT pp.photoId, pp.collectionId, pp.`order`,
-               ep.storagePath
+               ep.storagePath, ep.thumbnailPath, ep.lqip
         FROM PromotionalPhoto pp
         JOIN EditedPhoto ep ON ep.id = pp.photoId
         JOIN `Collection` c ON c.id = pp.collectionId

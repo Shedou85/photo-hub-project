@@ -75,6 +75,9 @@ function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badg
 
 const MAX_PROMO_PHOTOS = 12;
 
+// Aspect ratio variants for visual variety in the portfolio grid
+const ASPECT_RATIOS = ['3/4', '1/1', '4/5', '3/2', '2/3'];
+
 function HomePage() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
@@ -92,7 +95,10 @@ function HomePage() {
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data?.status === 'OK' && data.photos?.length > 0) {
-          setPromoPhotos(data.photos.slice(0, MAX_PROMO_PHOTOS));
+          setPromoPhotos(data.photos.slice(0, MAX_PROMO_PHOTOS).map((photo) => ({
+            ...photo,
+            aspectRatio: ASPECT_RATIOS[Math.floor(Math.random() * ASPECT_RATIOS.length)],
+          })));
         }
       })
       .catch(() => {});
@@ -508,13 +514,15 @@ function HomePage() {
                     key={photo.photoId}
                     data-promo-item
                     className="overflow-hidden rounded-lg break-inside-avoid group"
+                    style={{ aspectRatio: photo.aspectRatio }}
                   >
                     <OptimizedImage
                       src={src}
                       alt=""
+                      lqip={photo.lqip}
                       priority={index < 4}
-                      className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      containerClassName="w-full"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      containerClassName="w-full h-full"
                     />
                   </div>
                 );
