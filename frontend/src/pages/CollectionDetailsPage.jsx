@@ -1244,8 +1244,8 @@ function CollectionDetailsPage() {
                       </div>
                     );
                   })()}
-                  {/* Filename overlay for selected photos (STANDARD users in REVIEWING) */}
-                  {collection.status === 'REVIEWING' && user?.plan !== 'PRO' && selectedPhotoIds.has(photo.id) && (
+                  {/* Filename overlay for selected photos in REVIEWING */}
+                  {collection.status === 'REVIEWING' && selectedPhotoIds.has(photo.id) && (
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-6 pb-2 px-2.5 pointer-events-none">
                       <span className="block text-[11px] font-mono text-white/90 truncate leading-tight">
                         {photo.filename}
