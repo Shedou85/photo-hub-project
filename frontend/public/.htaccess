@@ -2,6 +2,7 @@
   Header set Access-Control-Allow-Origin "https://pixelforge.pro"
   Header set Access-Control-Allow-Headers "Authorization, Content-Type"
   Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  RequestHeader set X-Prerender-Token "Ceib5qNXYW2Y4LHw7rGC"
 </IfModule>
 
 <IfModule mod_rewrite.c>
@@ -14,11 +15,12 @@
 
   # Prerender.io — prerendrintas HTML paieškos botams
   <IfModule mod_proxy_http.c>
+    # Neleisti Prerender.io botui pakliūti į loop'ą
+    RewriteCond %{HTTP:X-Prerender} !1
     RewriteCond %{HTTP_USER_AGENT} googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora\ link\ preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|redditbot|applebot|Discordbot|TelegramBot [NC,OR]
     RewriteCond %{QUERY_STRING} _escaped_fragment_
     RewriteCond %{REQUEST_URI} !^/api/
     RewriteRule ^(?!.*\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent|ttf|woff|woff2|svg|eot)$)(.*) https://service.prerender.io/https://pixelforge.pro/$2 [P,L]
-    RequestHeader set X-Prerender-Token "Ceib5qNXYW2Y4LHw7rGC"
   </IfModule>
 
   # Jei failas ar direktorija egzistuoja – atiduodam
