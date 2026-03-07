@@ -68,6 +68,7 @@
       "w4Title": "No Installation Required",
       "w4Desc": "Works in the browser. No software to install, no extra steps — just log in and start working."
     },
+    "heroPhotoAlt": "Professional photo delivery example",
     "footer": {
       "tagline": "Professional photo delivery for modern photographers.",
       "rights": "© 2025 PixelForge. All rights reserved."
@@ -574,7 +575,8 @@
     "allowBtn": "Allow & Deliver",
     "skipBtn": "Skip",
     "homeSectionTitle": "As seen in our portfolio",
-    "selectedCount": "{{count}} selected"
+    "selectedCount": "{{count}} selected",
+    "photoAlt": "Photography portfolio sample"
   },
   "admin": {
     "title": "Admin Console",
@@ -747,12 +749,13 @@
     "session_expired_cta": "Sign in"
   },
   "seo": {
-    "homeTitle": "Professional Photo Delivery for Photographers",
-    "homeDescription": "PixelForge gives professional photographers a seamless way to organize, share, and deliver photo collections to clients.",
+    "homeTitle": "Professional Photo Delivery Platform for Photographers",
+    "homeDescription": "PixelForge is a photo delivery platform for professional photographers. Organize photo collections, let clients select favorites, and deliver edited photos — all in one place.",
     "loginTitle": "Login",
     "loginDescription": "Log in to your PixelForge account to manage photo collections and client deliveries.",
     "registerTitle": "Create Account",
-    "registerDescription": "Sign up for PixelForge and start delivering photo collections to your clients today."
+    "registerDescription": "Sign up for PixelForge free and start organizing, sharing, and delivering professional photo collections to your clients today.",
+    "shareDescription": "Photo gallery: {{name}} — Select your favorite photos on PixelForge"
   },
   "upgrade": {
     "title": "PRO Feature",

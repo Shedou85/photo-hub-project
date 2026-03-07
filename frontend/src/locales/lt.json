@@ -68,6 +68,7 @@
       "w4Title": "Jokių instaliacijų",
       "w4Desc": "Veikia naršyklėje. Jokių programų diegimo, jokių papildomų žingsnių — tiesiog prisijunkite ir dirbkite."
     },
+    "heroPhotoAlt": "Profesionalaus nuotraukų pristatymo pavyzdys",
     "footer": {
       "tagline": "Profesionalus nuotraukų pristatymas moderniems fotografams.",
       "rights": "© 2025 PixelForge. Visos teisės saugomos."
@@ -587,7 +588,8 @@
     "allowBtn": "Leisti ir pristatyti",
     "skipBtn": "Praleisti",
     "homeSectionTitle": "Iš mūsų portfelio",
-    "selectedCount": "{{count}} pasirinkta"
+    "selectedCount": "{{count}} pasirinkta",
+    "photoAlt": "Fotografijos portfelio pavyzdys"
   },
   "admin": {
     "title": "Administravimo Pultas",
@@ -762,12 +764,13 @@
     "session_expired_cta": "Prisijungti"
   },
   "seo": {
-    "homeTitle": "Profesionalus nuotraukų pristatymas fotografams",
-    "homeDescription": "PixelForge suteikia profesionaliems fotografams paprastą būdą organizuoti, dalytis ir pristatyti nuotraukų kolekcijas klientams.",
+    "homeTitle": "Profesionali nuotraukų pristatymo platforma fotografams",
+    "homeDescription": "PixelForge — nuotraukų pristatymo platforma profesionaliems fotografams. Organizuokite kolekcijas, leiskite klientams pasirinkti mėgstamiausias ir pristatykite redaguotas nuotraukas — viskas vienoje vietoje.",
     "loginTitle": "Prisijungimas",
     "loginDescription": "Prisijunkite prie savo PixelForge paskyros ir valdykite nuotraukų kolekcijas bei pristatymus klientams.",
     "registerTitle": "Sukurti paskyrą",
-    "registerDescription": "Užsiregistruokite PixelForge ir pradėkite pristatyti nuotraukų kolekcijas savo klientams jau šiandien."
+    "registerDescription": "Užsiregistruokite PixelForge nemokamai ir pradėkite organizuoti, dalytis bei pristatyti profesionalias nuotraukų kolekcijas savo klientams jau šiandien.",
+    "shareDescription": "Nuotraukų galerija: {{name}} — Pasirinkite mėgstamas nuotraukas PixelForge"
   },
   "upgrade": {
     "title": "PRO funkcija",

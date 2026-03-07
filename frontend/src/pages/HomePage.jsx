@@ -156,6 +156,11 @@ function HomePage() {
         description: t('seo.homeDescription'),
       },
       {
+        '@type': 'WebSite',
+        name: 'PixelForge',
+        url: 'https://pixelforge.pro',
+      },
+      {
         '@type': 'SoftwareApplication',
         name: 'PixelForge',
         applicationCategory: 'PhotographyApplication',
@@ -301,7 +306,7 @@ function HomePage() {
                 <div className="flex flex-col gap-3">
                   <div className="rounded-md bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 aspect-[4/3] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] relative overflow-hidden">
                     {heroPhotoSrc(0) && (
-                      <img src={heroPhotoSrc(0)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
+                      <img src={heroPhotoSrc(0)} alt={t('home.heroPhotoAlt')} className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)' }} />
                     <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
@@ -311,7 +316,7 @@ function HomePage() {
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-slate-700 via-slate-800 to-blue-950 aspect-square shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden">
                     {heroPhotoSrc(1) && (
-                      <img src={heroPhotoSrc(1)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
+                      <img src={heroPhotoSrc(1)} alt={t('home.heroPhotoAlt')} className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 70% 70%, rgba(99,102,241,0.4) 0%, transparent 50%)' }} />
                     <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
@@ -321,7 +326,7 @@ function HomePage() {
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-indigo-900 to-violet-950 aspect-[4/3] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden">
                     {heroPhotoSrc(2) && (
-                      <img src={heroPhotoSrc(2)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
+                      <img src={heroPhotoSrc(2)} alt={t('home.heroPhotoAlt')} className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute top-3 right-3 w-5 h-5 rounded-full border border-white/40 flex items-center justify-center">
                       <div className="w-2 h-2 rounded-full bg-indigo-400" />
@@ -332,7 +337,7 @@ function HomePage() {
                 <div className="flex flex-col gap-3 mt-8">
                   <div className="rounded-md bg-gradient-to-br from-violet-700 via-indigo-700 to-blue-800 aspect-square shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] relative overflow-hidden">
                     {heroPhotoSrc(3) && (
-                      <img src={heroPhotoSrc(3)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
+                      <img src={heroPhotoSrc(3)} alt={t('home.heroPhotoAlt')} className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(255,255,255,0.3) 0%, transparent 60%)' }} />
                     <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
@@ -342,7 +347,7 @@ function HomePage() {
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-blue-800 to-slate-900 aspect-[4/3] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative overflow-hidden">
                     {heroPhotoSrc(4) && (
-                      <img src={heroPhotoSrc(4)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
+                      <img src={heroPhotoSrc(4)} alt={t('home.heroPhotoAlt')} className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(59,130,246,0.5) 0%, transparent 50%)' }} />
                     <div className="absolute top-3 right-3">
@@ -351,7 +356,7 @@ function HomePage() {
                   </div>
                   <div className="rounded-md bg-gradient-to-br from-indigo-600 to-blue-700 aspect-square shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] relative overflow-hidden">
                     {heroPhotoSrc(5) && (
-                      <img src={heroPhotoSrc(5)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
+                      <img src={heroPhotoSrc(5)} alt={t('home.heroPhotoAlt')} className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.classList.add('hidden')} />
                     )}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
@@ -518,7 +523,7 @@ function HomePage() {
                   >
                     <OptimizedImage
                       src={src}
-                      alt=""
+                      alt={t('promotional.photoAlt')}
                       lqip={photo.lqip}
                       priority={index < 4}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

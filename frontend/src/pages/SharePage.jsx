@@ -8,6 +8,7 @@ import UpgradeModal from "../components/primitives/UpgradeModal";
 import OptimizedImage from "../components/primitives/OptimizedImage";
 import { useImageLoadingSet } from "../hooks/useImageLoading";
 import { getAccentButtonStyle } from "../utils/brandingUtils";
+import SEO from "../components/SEO";
 
 function SharePage() {
   const { shareId } = useParams();
@@ -449,6 +450,12 @@ function SharePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans">
+      <SEO
+        title={collection?.name || t('share.photos')}
+        description={t('seo.shareDescription', { name: collection?.name || '' })}
+        path={`/share/${shareId}`}
+        noindex
+      />
       {/* ── Hero Section with Blurred Cover ── */}
       <div className="relative overflow-hidden">
         {/* Blurred cover background */}
