@@ -8,6 +8,10 @@
   RewriteEngine On
   RewriteBase /
 
+  # Statiniai failai – atiduodam tiesiogiai
+  RewriteRule ^sitemap\.xml$ - [L]
+  RewriteRule ^robots\.txt$ - [L]
+
   # Jei failas ar direktorija egzistuoja – atiduodam
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
@@ -15,4 +19,9 @@
 
   # Visa kita – į React
   RewriteRule ^ index.html [L]
+</IfModule>
+
+# Teisingas Content-Type XML failams
+<IfModule mod_mime.c>
+  AddType application/xml .xml
 </IfModule>
