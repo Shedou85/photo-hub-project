@@ -154,6 +154,11 @@ function HomePage() {
         url: 'https://pixelforge.pro',
         logo: 'https://pixelforge.pro/logo.png',
         description: t('seo.homeDescription'),
+        sameAs: [
+          'https://www.instagram.com/pixelforgeapp/',
+          'https://x.com/PixelForgeApp',
+          'https://linkedin.com/in/marius-dainys-a129323b5',
+        ],
       },
       {
         '@type': 'WebSite',
