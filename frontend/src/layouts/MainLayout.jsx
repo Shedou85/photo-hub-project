@@ -131,7 +131,7 @@ const MainLayout = () => {
                   </div>
                   <div className="overflow-hidden">
                     <div className="text-white font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis">{user.name}</div>
-                    <span className="inline-block mt-0.5 bg-white/[0.06] rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/40">{isExpiredTrial ? t('plans.freePlanBadge') : user.plan?.replace('_', ' ')}</span>
+                    <span className="inline-block mt-0.5 bg-white/[0.06] rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/40">{isExpiredTrial ? t('plans.freePlanBadge') : t(`profile.planLabel.${user.plan}`)}</span>
                   </div>
                 </div>
               </div>

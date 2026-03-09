@@ -120,28 +120,38 @@ function HomePage() {
       name: t('home.plans.free'),
       price: t('home.plans.freePrice'),
       perMonth: null,
-      features: [t('home.plans.freeF1'), t('home.plans.freeF2'), t('home.plans.freeF3')],
+      features: [t('home.plans.freeF1'), t('home.plans.freeF2'), t('home.plans.freeF3'), t('home.plans.freeF4')],
       ctaLabel: t('home.plans.freeCta'),
       highlighted: false,
     },
     {
-      name: t('home.plans.standard'),
-      price: t('home.plans.standardPrice'),
+      name: t('home.plans.starter'),
+      price: t('home.plans.starterPrice'),
       perMonth: t('home.plans.perMonth'),
-      features: [t('home.plans.standardF1'), t('home.plans.standardF2'), t('home.plans.standardF3')],
-      ctaLabel: t('home.plans.standardCta'),
-      highlighted: true,
-      badge: t('home.plans.popular'),
-      blurred: true,
+      features: [t('home.plans.starterF1'), t('home.plans.starterF2'), t('home.plans.starterF3'), t('home.plans.starterF4')],
+      ctaLabel: t('home.plans.starterCta'),
+      highlighted: false,
+      blurred: false,
     },
     {
-      name: t('home.plans.pro'),
-      price: t('home.plans.proPrice'),
+      name: t('home.plans.professional'),
+      price: t('home.plans.professionalPrice'),
       perMonth: t('home.plans.perMonth'),
-      features: [t('home.plans.proF1'), t('home.plans.proF2'), t('home.plans.proF3')],
-      ctaLabel: t('home.plans.proCta'),
+      features: [t('home.plans.professionalF1'), t('home.plans.professionalF2'), t('home.plans.professionalF3'), t('home.plans.professionalF4')],
+      ctaLabel: t('home.plans.professionalCta'),
+      highlighted: true,
+      badge: t('home.plans.popular'),
+      blurred: false,
+    },
+    {
+      name: t('home.plans.business'),
+      price: t('home.plans.businessPrice'),
+      perMonth: t('home.plans.perMonth'),
+      features: [t('home.plans.businessF1'), t('home.plans.businessF2'), t('home.plans.businessF3'), t('home.plans.businessF4')],
+      ctaLabel: t('home.plans.businessCta'),
       highlighted: false,
-      blurred: true,
+      badge: t('home.plans.bestValue'),
+      blurred: false,
     },
   ];
 
@@ -171,9 +181,10 @@ function HomePage() {
         applicationCategory: 'PhotographyApplication',
         operatingSystem: 'Web',
         offers: [
-          { '@type': 'Offer', name: 'Free Trial', price: '0', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Standard', price: '15', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Pro', price: '29', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Starter', price: '9', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Professional', price: '19', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Business', price: '35', priceCurrency: 'USD' },
         ],
       },
     ],
@@ -556,7 +567,7 @@ function HomePage() {
               {t('home.plans.subtitle')}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
             {plans.map((plan) => (
               <PlanCard key={plan.name} {...plan} />
             ))}

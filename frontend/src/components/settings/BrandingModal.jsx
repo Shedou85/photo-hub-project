@@ -109,7 +109,7 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
       <div className="bg-surface-dark border border-white/10 rounded-[10px] shadow-xl w-full max-w-lg mx-4 px-6 py-5 max-h-[90vh] overflow-y-auto">
         <h3 className="text-base font-semibold text-white mb-1 flex items-center gap-2">
           {t('profile.branding.title')}
-          <span className="text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">PRO</span>
+          <span className="text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">Professional</span>
         </h3>
         <p className="text-sm text-white/40 mb-4">{t('profile.branding.subtitle')}</p>
 

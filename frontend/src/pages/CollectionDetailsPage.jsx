@@ -388,7 +388,7 @@ function CollectionDetailsPage() {
         {t("collection.backToCollections")}
       </Link>
 
-      {/* ── Collection Analytics (PRO) ── */}
+      {/* ── Collection Analytics (Business) ── */}
       <CollectionAnalytics collectionId={id} isPro={isPro} />
 
       {/* ── Collection Action Card ── */}
@@ -548,7 +548,7 @@ function CollectionDetailsPage() {
                     </svg>
                     {t('collection.copySelectedButton')}
                     {user?.plan !== 'PRO' && (
-                      <span className="ml-1 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full leading-none">PRO</span>
+                      <span className="ml-1 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full leading-none">Business</span>
                     )}
                   </Button>
                   {editedPhotos.length > 0 && (
@@ -723,7 +723,7 @@ function CollectionDetailsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                   </svg>
                   {t('collection.emailNotificationsOff')}
-                  <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">PRO</span>
+                  <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">Business</span>
                 </button>
               )
             )}
@@ -759,7 +759,7 @@ function CollectionDetailsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
                     {t('collection.archive')}
-                    <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">PRO</span>
+                    <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">Business</span>
                   </button>
                 )
               )}
@@ -1167,7 +1167,7 @@ function CollectionDetailsPage() {
                 </svg>
                 {t('collection.reorder')}
                 {!isPro && (
-                  <span className="ml-1 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">PRO</span>
+                  <span className="ml-1 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">Business</span>
                 )}
               </button>
             ) : (

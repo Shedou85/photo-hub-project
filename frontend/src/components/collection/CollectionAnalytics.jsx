@@ -254,14 +254,14 @@ export default function CollectionAnalytics({ collectionId, isPro }) {
           {t("collection.analytics.title")}
         </h2>
         <span className="text-[10px] font-bold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full">
-          PRO
+          Business
         </span>
       </div>
       <p className="text-[13px] text-white/40 font-medium -mt-3 mb-4">
         {t("collection.analytics.subtitle")}
       </p>
 
-      {/* PRO: full analytics */}
+      {/* Business: full analytics */}
       {isPro ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {loading
@@ -278,7 +278,7 @@ export default function CollectionAnalytics({ collectionId, isPro }) {
               ))}
         </div>
       ) : (
-        /* Non-PRO: blurred teaser with lock overlay */
+        /* Non-Business: blurred teaser with lock overlay */
         <div className="relative overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.08]">
           {/* Blurred placeholder cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 blur-[6px] select-none pointer-events-none">

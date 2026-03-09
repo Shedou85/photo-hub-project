@@ -169,29 +169,41 @@ const PaymentsPage = () => {
       ],
     },
     {
-      key: 'STANDARD',
-      name: t('home.plans.standard'),
-      price: t('home.plans.standardPrice'),
+      key: 'STARTER',
+      name: t('home.plans.starter'),
+      price: t('home.plans.starterPrice'),
       perMonth: t('home.plans.perMonth'),
       features: [
-        t('home.plans.standardF1'),
-        t('home.plans.standardF2'),
-        t('home.plans.standardF3'),
-        t('plans.standardF4'),
+        t('home.plans.starterF1'),
+        t('home.plans.starterF2'),
+        t('home.plans.starterF3'),
+        t('plans.starterF4'),
+      ],
+    },
+    {
+      key: 'STANDARD',
+      name: t('home.plans.professional'),
+      price: t('home.plans.professionalPrice'),
+      perMonth: t('home.plans.perMonth'),
+      features: [
+        t('home.plans.professionalF1'),
+        t('home.plans.professionalF2'),
+        t('home.plans.professionalF3'),
+        t('plans.professionalF4'),
       ],
       highlighted: true,
       badge: t('home.plans.popular'),
     },
     {
       key: 'PRO',
-      name: t('home.plans.pro'),
-      price: t('home.plans.proPrice'),
+      name: t('home.plans.business'),
+      price: t('home.plans.businessPrice'),
       perMonth: t('home.plans.perMonth'),
       features: [
-        t('home.plans.proF1'),
-        t('home.plans.proF2'),
-        t('home.plans.proF3'),
-        t('plans.proF4'),
+        t('home.plans.businessF1'),
+        t('home.plans.businessF2'),
+        t('home.plans.businessF3'),
+        t('plans.businessF4'),
       ],
     },
   ];
@@ -211,7 +223,7 @@ const PaymentsPage = () => {
           {t('payments.plansTitle')}
         </h2>
         <p className="mt-0 mb-4 text-sm text-white/50">{t('payments.plansSubtitle')}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {plans.map((plan) => (
             <PlanCard
               key={plan.key}
@@ -222,7 +234,7 @@ const PaymentsPage = () => {
               isCurrent={userPlan === plan.key}
               highlighted={plan.highlighted}
               badge={plan.badge}
-              blurred={plan.key !== 'FREE_TRIAL'}
+              blurred={false}
             />
           ))}
         </div>

@@ -236,7 +236,7 @@ function ProfilePage() {
           subtitle={t('profile.branding.subtitle')}
           buttonLabel={t('profile.branding.manageBtn')}
           accentBorder="border-t-violet-500/40"
-          badge="PRO"
+          badge="Professional"
           onClick={() => setActiveModal('branding')}
         />
       </div>

@@ -35,26 +35,41 @@
     "plans": {
       "title": "Simple, honest pricing",
       "subtitle": "Start for free. Upgrade when your business grows.",
-      "free": "Free Trial",
-      "freePrice": "Free",
-      "standard": "Standard",
-      "standardPrice": "$15",
-      "pro": "Pro",
-      "proPrice": "$29",
+      "free": "Free",
+      "freePrice": "$0",
+      "starter": "Starter",
+      "starterPrice": "$9",
+      "professional": "Professional",
+      "professionalPrice": "$19",
+      "business": "Business",
+      "businessPrice": "$35",
       "perMonth": "/ month",
+      "perMonthAnnual": "$7/mo billed annually",
+      "starterAnnual": "$7/mo billed annually",
+      "professionalAnnual": "$15/mo billed annually",
+      "businessAnnual": "$29/mo billed annually",
       "freeCta": "Start free",
-      "standardCta": "Get Standard",
-      "proCta": "Go Pro",
-      "freeF1": "20 active collections",
-      "freeF2": "500 photos per collection",
-      "freeF3": "30-day full access trial",
-      "standardF1": "20 active collections",
-      "standardF2": "500 photos per collection",
-      "standardF3": "Custom branding",
-      "proF1": "Unlimited collections",
-      "proF2": "Unlimited photos",
-      "proF3": "Priority support",
-      "popular": "Most popular"
+      "starterCta": "Get Starter",
+      "professionalCta": "Get Professional",
+      "businessCta": "Get Business",
+      "freeF1": "3 collections",
+      "freeF2": "50 photos per collection",
+      "freeF3": "Gallery sharing & preview",
+      "freeF4": "PixelForge branding",
+      "starterF1": "10 active collections",
+      "starterF2": "200 photos per collection",
+      "starterF3": "Client selections & delivery",
+      "starterF4": "ZIP downloads",
+      "professionalF1": "50 active collections",
+      "professionalF2": "1,000 photos per collection",
+      "professionalF3": "Custom branding & watermarks",
+      "professionalF4": "Gallery expiration control",
+      "businessF1": "Unlimited collections",
+      "businessF2": "Unlimited photos",
+      "businessF3": "Priority support",
+      "businessF4": "Photo reordering & all features",
+      "popular": "Most popular",
+      "bestValue": "Best value"
     },
     "why": {
       "title": "Why PixelForge?",
@@ -158,9 +173,9 @@
     "namePlaceholder": "Your full name",
     "errorPrefix": "Error:",
     "planLabel": {
-      "FREE_TRIAL": "Free Trial",
-      "STANDARD": "Standard",
-      "PRO": "Pro"
+      "FREE_TRIAL": "Free",
+      "STANDARD": "Professional",
+      "PRO": "Business"
     },
     "roleLabel": {
       "USER": "User",
@@ -211,7 +226,7 @@
       "logoDeleted": "Logo removed",
       "logoDeleteFailed": "Failed to remove logo",
       "proRequired": "Present galleries under your own brand",
-      "upgrade": "Upgrade to PRO"
+      "upgrade": "Upgrade to Professional"
     }
   },
   "collections": {
@@ -354,7 +369,7 @@
     "setSourceFolderHint": "Set the source folder path in Edit Collection to enable the copy script.",
     "sourceFolderRequired": "Set the source folder path first (Edit collection).",
     "copySelectedButton": "Copy Selected to Folder",
-    "copySelectedProOnly": "Automatic folder export is available in PRO plan",
+    "copySelectedProOnly": "Automatic folder export is available in Business plan",
     "copySelectedSuccess": "Copy script downloaded! Run it to copy {{count}} selected photos.",
     "noSelectedPhotos": "No photos have been selected by the client yet.",
     "draftPhase": "Draft Phase",
@@ -383,12 +398,12 @@
     "saveChanges": "Save changes",
     "archive": "Archive",
     "reorder": "Reorder",
-    "reorderProOnly": "Photo reordering is a PRO plan feature",
+    "reorderProOnly": "Photo reordering is a Business plan feature",
     "saveOrder": "Save order",
     "reorderSaved": "Photo order saved",
     "reorderError": "Failed to save photo order",
     "reorderFilterWarning": "Switch to \"All\" filter to reorder",
-    "archiveProOnly": "Archiving is a PRO plan feature",
+    "archiveProOnly": "Archiving is a Business plan feature",
     "archiveConfirm": "Archive this collection? It will be removed from your active list.",
     "archiveActive": "Active",
     "archiveArchived": "Archived",
@@ -457,7 +472,7 @@
     "emailNotificationsEnabled": "Email notifications enabled",
     "emailNotificationsDisabled": "Email notifications disabled",
     "emailNotificationsSaveError": "Failed to update notification settings",
-    "emailNotificationsProOnly": "Email notifications are available with PRO plan",
+    "emailNotificationsProOnly": "Email notifications are available with Professional plan",
     "emailNotificationsNoEmail": "Set client email to also notify them when photos are ready",
     "shareLinkSentByEmail": "Gallery link sent to client's email",
     "analytics": {
@@ -477,7 +492,7 @@
       "hoursAgo_other": "{{count}} hours ago",
       "daysAgo_one": "{{count}} day ago",
       "daysAgo_other": "{{count}} days ago",
-      "proRequired": "Collection Analytics is available in PRO plan.",
+      "proRequired": "Collection Analytics is available in Business plan.",
       "upgrade": "Upgrade"
     }
   },
@@ -519,7 +534,7 @@
     "labelSelected": "Selected",
     "labelFavorite": "Favorite",
     "labelRejected": "Rejected",
-    "proFeature": "This is a PRO feature",
+    "proFeature": "This is a Business feature",
     "selectionLimit": "{{current}} / {{limit}} selected",
     "selectionLimitReached": "Selection limit reached",
     "selectionLimitReachedToast": "You've reached the selection limit of {{limit}} photos"
@@ -530,7 +545,7 @@
     "photosUsed": "{{used}}/{{limit}} photos",
     "limitReachedCollections": "You've reached the collection limit on your plan.",
     "limitReachedPhotos": "You've reached the photo limit on your plan.",
-    "upgradeHint": "Upgrade to Standard or Pro for more.",
+    "upgradeHint": "Upgrade to Starter or Professional for more.",
     "upgradeLink": "View plans",
     "trialBadge": "Trial",
     "trialDaysLeft": "{{days}} days left in trial",
@@ -545,8 +560,9 @@
     "freeF2": "30 photos per collection",
     "freeF3": "Gallery preview only",
     "freeF4": "No client selection or download",
-    "standardF4": "Client selection & delivery",
-    "proF4": "Priority support & all features",
+    "starterF4": "Client selection & delivery",
+    "professionalF4": "Custom branding & watermarks",
+    "businessF4": "Priority support & all features",
     "trialExpiredModal": {
       "title": "Your trial has ended",
       "subtitle": "Your 30-day free trial has ended. Here's what changed:",
@@ -758,11 +774,11 @@
     "shareDescription": "Photo gallery: {{name}} — Select your favorite photos on PixelForge"
   },
   "upgrade": {
-    "title": "PRO Feature",
-    "description": "Color labels like Favorite and Rejected are available with the PRO plan. Upgrade to unlock advanced selection tools for your clients.",
-    "cta": "Upgrade to PRO",
+    "title": "Business Feature",
+    "description": "Color labels like Favorite and Rejected are available with the Business plan. Upgrade to unlock advanced selection tools for your clients.",
+    "cta": "Upgrade to Business",
     "dismiss": "Got it",
-    "clientTitle": "PRO Feature",
-    "clientDescription": "This label is available when the photographer has a PRO plan."
+    "clientTitle": "Business Feature",
+    "clientDescription": "This label is available when the photographer has a Business plan."
   }
 }

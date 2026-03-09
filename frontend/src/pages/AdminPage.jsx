@@ -118,7 +118,7 @@ const UserDetailModal = ({ user, onClose, t }) => {
         <div className="px-6 py-4 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 border-b border-white/[0.08]">
           <div>
             <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.users.columns.plan')}</p>
-            <p className="text-sm text-white/90 mt-0.5 font-medium">{user.plan}</p>
+            <p className="text-sm text-white/90 mt-0.5 font-medium">{t(`profile.planLabel.${user.plan}`)}</p>
           </div>
           <div>
             <p className="text-[11px] text-white/50 uppercase font-semibold tracking-wide">{t('admin.users.columns.status')}</p>
@@ -620,9 +620,9 @@ const AdminPage = () => {
                 onChange={(v) => setUsersFilters((f) => ({ ...f, plan: v, page: 1 }))}
                 options={[
                   { value: '', label: t('admin.users.allPlans') },
-                  { value: 'FREE_TRIAL', label: 'FREE_TRIAL' },
-                  { value: 'STANDARD', label: 'STANDARD' },
-                  { value: 'PRO', label: 'PRO' },
+                  { value: 'FREE_TRIAL', label: 'Free' },
+                  { value: 'STANDARD', label: 'Professional' },
+                  { value: 'PRO', label: 'Business' },
                 ]}
                 menuAlign="left"
                 minWidth="120px"
@@ -779,9 +779,9 @@ const AdminPage = () => {
                               disabled={isUpdating}
                               onChange={(v) => handleUserFieldChange(u.id, 'plan', v)}
                               options={[
-                                { value: 'FREE_TRIAL', label: 'FREE_TRIAL' },
-                                { value: 'STANDARD', label: 'STANDARD' },
-                                { value: 'PRO', label: 'PRO' },
+                                { value: 'FREE_TRIAL', label: 'Free' },
+                                { value: 'STANDARD', label: 'Professional' },
+                                { value: 'PRO', label: 'Business' },
                               ]}
                               size="sm"
                               menuAlign="left"
