@@ -41,6 +41,7 @@ function CollectionDetailsPage() {
     editedPhotos, fetchEditedPhotos,
     handleStartSelecting,
     handleArchive,
+    handleUnarchive,
     doDeleteCollection,
     handleSaveEdit: handleSaveEditHook,
   } = useCollectionData(id);
@@ -609,14 +610,39 @@ function CollectionDetailsPage() {
             )}
 
             {collection.status === 'ARCHIVED' && (
-              <div className="rounded-xl p-6 flex flex-col items-center text-center gap-3 bg-white/[0.03] border border-white/[0.06] mb-2">
+              <div className={`rounded-xl p-6 flex flex-col items-center text-center gap-3 mb-2 ${
+                collection.deleteAt ? 'bg-red-500/5 border border-red-500/15' : 'bg-white/[0.03] border border-white/[0.06]'
+              }`}>
                 <svg className="w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
                 <div>
                   <p className="text-white/60 font-bold text-lg m-0">{t('collection.status.ARCHIVED')}</p>
                   <p className="text-white/40 text-sm m-0 mt-1">{t('collection.nextStep.ARCHIVED')}</p>
+                  {collection.deleteAt && (
+                    <p className="text-red-400/80 text-sm m-0 mt-2 font-medium">
+                      {t('collection.deleteCountdown', {
+                        days: Math.max(0, Math.ceil((new Date(collection.deleteAt) - Date.now()) / 86_400_000))
+                      })}
+                    </p>
+                  )}
+                  {!collection.deleteAt && user?.plan !== 'FREE_TRIAL' && (
+                    <button
+                      onClick={handleUnarchive}
+                      className="mt-3 px-4 py-2 text-sm font-medium rounded-lg bg-white/[0.06] text-white/70 border border-white/10 hover:bg-white/[0.1] transition-colors"
+                    >
+                      {t('collection.unarchive')}
+                    </button>
+                  )}
                 </div>
+              </div>
+            )}
+
+            {collection.status === 'DOWNLOADED' && collection.autoArchiveAt && (
+              <div className="rounded-lg px-4 py-3 bg-amber-500/10 border border-amber-500/20 text-sm text-amber-400/90 mb-2">
+                {t('collection.autoArchiveCountdown', {
+                  days: Math.max(0, Math.ceil((new Date(collection.autoArchiveAt) - Date.now()) / 86_400_000))
+                })}
               </div>
             )}
           </div>
@@ -739,29 +765,26 @@ function CollectionDetailsPage() {
                 {t('collection.delete')}
               </button>
               {(collection?.status === 'DELIVERED' || collection?.status === 'DOWNLOADED') && (
-                user?.plan === 'PRO' ? (
-                  <button
-                    onClick={handleArchive}
-                    className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors bg-transparent border-none cursor-pointer"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                    {t('collection.archive')}
-                  </button>
-                ) : (
-                  <button
-                    disabled
-                    title={t('collection.archiveProOnly')}
-                    className="flex items-center gap-1.5 text-xs text-white/30 bg-transparent border-none cursor-not-allowed"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                    {t('collection.archive')}
-                    <span className="ml-0.5 px-1 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 leading-none">Business</span>
-                  </button>
-                )
+                <button
+                  onClick={handleArchive}
+                  className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  {t('collection.archive')}
+                </button>
+              )}
+              {collection?.status === 'ARCHIVED' && user?.plan !== 'FREE_TRIAL' && (
+                <button
+                  onClick={handleUnarchive}
+                  className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l6-6m0 0l6 6m-6-6v12a6 6 0 01-12 0v-3" />
+                  </svg>
+                  {t('collection.unarchive')}
+                </button>
               )}
             </div>
           </div>

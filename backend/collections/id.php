@@ -41,7 +41,7 @@ try {
     if ($method === 'GET') {
         if ($isAdmin) {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, autoArchiveAt, archivedAt, deleteAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ?
                 LIMIT 1
@@ -49,7 +49,7 @@ try {
             $stmt->execute([$collectionId]);
         } else {
             $stmt = $pdo->prepare("
-                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
+                SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, autoArchiveAt, archivedAt, deleteAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
                 FROM `Collection`
                 WHERE id = ? AND userId = ?
                 LIMIT 1
@@ -150,16 +150,51 @@ try {
                 $setParts[] = "`coverPhotoId` = NULL";
             }
 
-            // PRO-only: only PRO users can archive collections
+            // Archive: all users can archive, but plan-specific rules apply
             if ($data['status'] === 'ARCHIVED') {
                 $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
                 $userStmt->execute([$userId]);
                 $currentUser = $userStmt->fetch(PDO::FETCH_ASSOC);
-                if (!$currentUser || $currentUser['plan'] !== 'PRO') {
+
+                // STANDARD users: max 50 archived collections
+                if ($currentUser && $currentUser['plan'] === 'STANDARD') {
+                    $archCountStmt = $pdo->prepare("SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status = 'ARCHIVED'");
+                    $archCountStmt->execute([$userId]);
+                    if ((int)$archCountStmt->fetchColumn() >= 50) {
+                        http_response_code(403);
+                        echo json_encode(['error' => 'ARCHIVE_LIMIT_REACHED', 'limit' => 50]);
+                        exit;
+                    }
+                }
+
+                // Set archivedAt timestamp
+                $setParts[] = "`archivedAt` = ?";
+                $params[] = date('Y-m-d H:i:s.v');
+
+                // Clear autoArchiveAt (no longer relevant)
+                $setParts[] = "`autoArchiveAt` = NULL";
+
+                // FREE_TRIAL users: set deleteAt = 14 days from now
+                if ($currentUser && $currentUser['plan'] === 'FREE_TRIAL') {
+                    $setParts[] = "`deleteAt` = ?";
+                    $params[] = date('Y-m-d H:i:s', strtotime('+14 days'));
+                }
+            }
+
+            // Unarchive: only STANDARD and PRO users can restore from archive
+            if ($currentStatus === 'ARCHIVED' && in_array($data['status'], ['DOWNLOADED', 'DELIVERED'], true)) {
+                $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
+                $userStmt->execute([$userId]);
+                $currentUser = $userStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$currentUser || $currentUser['plan'] === 'FREE_TRIAL') {
                     http_response_code(403);
-                    echo json_encode(['error' => 'ARCHIVE_PRO_ONLY']);
+                    echo json_encode(['error' => 'UNARCHIVE_FREE_BLOCKED']);
                     exit;
                 }
+
+                // Clear archive-related timestamps
+                $setParts[] = "`archivedAt` = NULL";
+                $setParts[] = "`deleteAt` = NULL";
             }
 
             $setParts[] = "`status` = ?";
@@ -217,7 +252,7 @@ try {
             ->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
+            SELECT id, name, status, clientName, clientEmail, shareId, deliveryToken, coverPhotoId, originalsCleanupAt, autoArchiveAt, archivedAt, deleteAt, sourceFolder, lightroomPath, expiresAt, allowPromotionalUse, password, selectionLimit, emailNotifications, createdAt, updatedAt
             FROM `Collection`
             WHERE id = ? AND userId = ?
             LIMIT 1

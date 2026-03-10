@@ -57,12 +57,24 @@ export function useCollectionData(id) {
     if (!fetchError && data?.status === 'OK') {
       navigate('/collections');
       toast.success(t('collection.collectionArchived'));
-    } else if (data?.error === 'ARCHIVE_PRO_ONLY') {
-      toast.error(t('collection.archiveProOnly'));
+    } else if (data?.error === 'ARCHIVE_LIMIT_REACHED') {
+      toast.error(t('collection.archiveLimitReached', { limit: data.limit }));
     } else {
       toast.error(t('collection.archiveError'));
     }
   }, [id, navigate, t]);
+
+  const handleUnarchive = useCallback(async () => {
+    const { data, error: fetchError } = await api.patch(`/collections/${id}`, { status: 'DOWNLOADED' });
+    if (!fetchError && data?.status === 'OK') {
+      setCollection(data.collection);
+      toast.success(t('collection.collectionUnarchived'));
+    } else if (data?.error === 'UNARCHIVE_FREE_BLOCKED') {
+      toast.error(t('collection.unarchiveFreeBlocked'));
+    } else {
+      toast.error(t('collection.unarchiveError'));
+    }
+  }, [id, t]);
 
   const doDeleteCollection = useCallback(async () => {
     const { error: fetchError } = await api.delete(`/collections/${id}`);
@@ -98,9 +110,9 @@ export function useCollectionData(id) {
     fetchSelections();
   }, [fetchCollection, fetchSelections]);
 
-  // Fetch edited photos when REVIEWING, DELIVERED, or DOWNLOADED
+  // Fetch edited photos when REVIEWING, DELIVERED, DOWNLOADED, or ARCHIVED
   useEffect(() => {
-    if (collection && ['REVIEWING', 'DELIVERED', 'DOWNLOADED'].includes(collection.status)) {
+    if (collection && ['REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED'].includes(collection.status)) {
       fetchEditedPhotos();
     }
   }, [collection, fetchEditedPhotos]);
@@ -112,6 +124,7 @@ export function useCollectionData(id) {
     editedPhotos, setEditedPhotos, fetchEditedPhotos,
     handleStartSelecting,
     handleArchive,
+    handleUnarchive,
     doDeleteCollection,
     handleSaveEdit,
   };

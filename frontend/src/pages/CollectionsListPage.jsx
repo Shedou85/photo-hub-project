@@ -438,6 +438,7 @@ function CollectionsListPage() {
                 createdAt={collection.createdAt}
                 photoCount={collection.photoCount ?? 0}
                 status={collection.status}
+                deleteAt={collection.deleteAt}
                 coverImageUrl={collection.coverPhotoPath ? photoUrl(collection.coverPhotoPath) : null}
                 actions={
                   <button

@@ -66,7 +66,8 @@ try {
 
         $dataStmt = $pdo->prepare("
             SELECT c.id, c.name, c.status, c.clientName, c.clientEmail, c.shareId,
-                   c.coverPhotoId, c.createdAt, c.updatedAt,
+                   c.coverPhotoId, c.autoArchiveAt, c.archivedAt, c.deleteAt,
+                   c.createdAt, c.updatedAt,
                    CASE
                      WHEN c.status IN ('DELIVERED','DOWNLOADED','ARCHIVED') AND ep_cover.coverPath IS NOT NULL
                        THEN ep_cover.coverPath

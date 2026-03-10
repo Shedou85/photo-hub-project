@@ -90,6 +90,9 @@ CREATE TABLE `Collection` (
   `allowPromotionalUse` BOOLEAN NOT NULL DEFAULT false,
   `coverPhotoId` VARCHAR(191) NULL,
   `originalsCleanupAt` DATETIME(3) NULL,
+  `autoArchiveAt` DATETIME(3) NULL,
+  `archivedAt` DATETIME(3) NULL,
+  `deleteAt` DATETIME(3) NULL,
   `sourceFolder` VARCHAR(500) NULL,
   `lightroomPath` VARCHAR(500) NULL,
   PRIMARY KEY (`id`),
@@ -98,7 +101,9 @@ CREATE TABLE `Collection` (
   KEY `Collection_coverPhotoId_idx` (`coverPhotoId`),
   KEY `Collection_userId_idx` (`userId`),
   KEY `Collection_userId_status_idx` (`userId`, `status`),
-  KEY `Collection_expiresAt_idx` (`expiresAt`)
+  KEY `Collection_expiresAt_idx` (`expiresAt`),
+  KEY `Collection_autoArchiveAt_idx` (`autoArchiveAt`),
+  KEY `Collection_deleteAt_idx` (`deleteAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------

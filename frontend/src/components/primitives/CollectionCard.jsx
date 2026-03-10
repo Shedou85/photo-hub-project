@@ -9,6 +9,7 @@ function CollectionCard({
   createdAt,
   photoCount,
   status,
+  deleteAt,
   coverImageUrl,
   actions
 }) {
@@ -18,10 +19,19 @@ function CollectionCard({
     <div className="group relative bg-white/[0.04] border border-white/10 rounded-[10px] overflow-hidden transition-all duration-300 hover:border-indigo-500/30 hover:-translate-y-[2px]">
       {/* Status badge - only show for non-DRAFT */}
       {status !== 'DRAFT' && (
-        <div className="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-sm rounded-full">
-          <Badge status={status} showDot>
-            {t(`collections.status.${status}`)}
-          </Badge>
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+          {status === 'ARCHIVED' && deleteAt && (
+            <span className="bg-red-500/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full">
+              {t('collection.deleteCountdownShort', {
+                days: Math.max(0, Math.ceil((new Date(deleteAt) - Date.now()) / 86_400_000))
+              })}
+            </span>
+          )}
+          <span className="bg-black/60 backdrop-blur-sm rounded-full">
+            <Badge status={status} showDot>
+              {t(`collections.status.${status}`)}
+            </Badge>
+          </span>
         </div>
       )}
 

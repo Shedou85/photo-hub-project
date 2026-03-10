@@ -130,12 +130,34 @@ try {
 
     // Transition to DOWNLOADED status on first download (idempotent)
     if ($collection['status'] === 'DELIVERED') {
-        $updateStmt = $pdo->prepare("
-            UPDATE Collection
-            SET status = 'DOWNLOADED', updatedAt = NOW(3)
-            WHERE id = ? AND status = 'DELIVERED'
-        ");
-        $updateStmt->execute([$collectionId]);
+        // Determine auto-archive delay based on user's plan
+        $planStmt = $pdo->prepare("SELECT u.plan FROM `User` u JOIN `Collection` c ON c.userId = u.id WHERE c.id = ? LIMIT 1");
+        $planStmt->execute([$collectionId]);
+        $userPlan = $planStmt->fetchColumn();
+
+        $autoArchiveDays = match ($userPlan) {
+            'FREE_TRIAL' => 7,
+            'STANDARD'   => 30,
+            default       => null, // PRO: no auto-archive
+        };
+
+        if ($autoArchiveDays !== null) {
+            $autoArchiveAt = date('Y-m-d H:i:s', strtotime("+{$autoArchiveDays} days"));
+            $updateStmt = $pdo->prepare("
+                UPDATE Collection
+                SET status = 'DOWNLOADED', updatedAt = NOW(3), autoArchiveAt = ?
+                WHERE id = ? AND status = 'DELIVERED'
+            ");
+            $updateStmt->execute([$autoArchiveAt, $collectionId]);
+        } else {
+            $updateStmt = $pdo->prepare("
+                UPDATE Collection
+                SET status = 'DOWNLOADED', updatedAt = NOW(3)
+                WHERE id = ? AND status = 'DELIVERED'
+            ");
+            $updateStmt->execute([$collectionId]);
+        }
+
         if ($updateStmt->rowCount() > 0) {
             error_log("Collection {$collectionId} transitioned to DOWNLOADED status via individual download");
             try {
