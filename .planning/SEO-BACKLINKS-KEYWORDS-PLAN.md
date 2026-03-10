@@ -227,7 +227,7 @@ Google oficialiai ignoruoja `<meta name="keywords">` nuo 2009 m. NEREIKIA jų pr
 |---|---------|-------|----------|--------------|---------|
 | 1 | Google Search Console prijungimas | Išorinis | ⭐⭐⭐⭐⭐ | Žemas | ✅ Patvirtinta 2026-03-08 |
 | 2 | Sitemap pateikimas GSC | Išorinis | ⭐⭐⭐⭐ | Žemas | ✅ Pateiktas 2026-03-08 (teisingas URL be tašku) |
-| 3 | SaaS direktorijų registracija | Išorinis | ⭐⭐⭐⭐ | Žemas | ❌ Nepadaryta |
+| 3 | SaaS direktorijų registracija | Išorinis | ⭐⭐⭐⭐ | Žemas | ✅ AlternativeTo, SaaSHub, Product Hunt 2026-03-09 |
 | 4 | SharePage SEO + dinaminis OG | Kodas | ⭐⭐⭐⭐ | Vidutinis | ✅ Atlikta 2026-03-07 |
 | 5 | sitemap.xml lastmod | Kodas | ⭐⭐⭐ | Žemas | ✅ Atlikta 2026-03-07 |
 | 6 | SEO.jsx OG patobulinimai | Kodas | ⭐⭐⭐ | Žemas | ✅ Atlikta 2026-03-07 |
@@ -236,7 +236,7 @@ Google oficialiai ignoruoja `<meta name="keywords">` nuo 2009 m. NEREIKIA jų pr
 | 9 | Product Hunt launch | Išorinis | ⭐⭐⭐⭐⭐ | Vidutinis | ❌ Nepadaryta |
 | 10 | Prerendravimas | Kodas | ⭐⭐⭐⭐⭐ | Aukštas | ✅ Prerender.io + CF Worker 2026-03-08 |
 | 11 | Blog sekcija | Kodas + Turinys | ⭐⭐⭐⭐⭐ | Aukštas | ❌ Nepadaryta |
-| 12 | Socialinių tinklų profiliai | Išorinis | ⭐⭐⭐ | Žemas | ❌ Nepadaryta |
+| 12 | Socialinių tinklų profiliai | Išorinis | ⭐⭐⭐ | Žemas | ✅ Instagram, X, LinkedIn 2026-03-09 |
 
 ---
 
@@ -245,12 +245,12 @@ Google oficialiai ignoruoja `<meta name="keywords">` nuo 2009 m. NEREIKIA jų pr
 ### Prioritetas 1 — ASAP (nemokami backlinkai)
 
 - [x] **Google Search Console** — ✅ Patvirtinta 2026-03-08. Sitemap pateiktas.
-- [ ] **AlternativeTo** — https://alternativeto.net — Registruoti PixelForge kaip alternatyvą: Pixieset, ShootProof, Pic-Time, CloudSpot. Dofollow backlinkas.
-- [ ] **SaaSHub** — https://saashub.com — SaaS direktorija. Dofollow backlinkas.
-- [ ] **Product Hunt** — https://producthunt.com — Sukurti "upcoming" puslapį, vėliau oficialus launch. Dofollow backlinkas.
-- [ ] **LinkedIn** — https://linkedin.com/company/ — Company Page su nuoroda į pixelforge.pro.
-- [ ] **Twitter/X** — https://twitter.com — @pixelforge profilis, bio nuoroda.
-- [ ] **Instagram** — https://instagram.com — Fotografijos nišos auditorija, bio nuoroda.
+- [x] **AlternativeTo** — ✅ Registruota 2026-03-09.
+- [x] **SaaSHub** — ✅ Registruota 2026-03-09.
+- [x] **Product Hunt** — ✅ Registruota 2026-03-09.
+- [x] **LinkedIn** — ✅ https://linkedin.com/in/marius-dainys-a129323b5 (asmeninis; ateityje sukurti Company Page)
+- [x] **Twitter/X** — ✅ https://x.com/PixelForgeApp
+- [x] **Instagram** — ✅ https://www.instagram.com/pixelforgeapp/
 
 ### Prioritetas 2 — Per 1-3 mėnesius
 
@@ -261,7 +261,7 @@ Google oficialiai ignoruoja `<meta name="keywords">` nuo 2009 m. NEREIKIA jų pr
 - [ ] **BetaList** — https://betalist.com — Jei pozicionuojat kaip beta.
 - [ ] **Google Business Profile** — https://business.google.com — Jei tinka verslui.
 
-> **Kai sukursite socialinių tinklų profilius** — praneškit, ir aš pridėsiu `sameAs` masyvą į JSON-LD schemą HomePage'e.
+> ✅ Socialinių tinklų profiliai sukurti, `sameAs` pridėtas į JSON-LD schemą (commit 645d309).
 
 ---
 
@@ -314,11 +314,15 @@ Google oficialiai ignoruoja `<meta name="keywords">` nuo 2009 m. NEREIKIA jų pr
 8. ✅ Prerender.io + Cloudflare Worker — SPA prerendravimas botams veikia (2026-03-08)
 9. Senas sitemap su tašku gale (`sitemap.xml.`) sukėlė "Sitemap is HTML" klaidą — pateiktas naujas teisingas
 
-### ❌ Nepadaryta:
+### ✅ Atlikta 2026-03-09:
 - Direktorijų registracijos (AlternativeTo, SaaSHub, Product Hunt)
-- Socialinių tinklų profiliai (LinkedIn, Twitter, Instagram)
+- Socialinių tinklų profiliai (Instagram, X/Twitter, LinkedIn)
+- `sameAs` JSON-LD schema atnaujinta su socialiniais profiliais (commit 645d309)
+
+### ❌ Nepadaryta:
 - Blog sekcija (atskiras feature)
 - Guest posting
+- Prioritetas 2 direktorijos (G2, Capterra, GetApp, Crunchbase, BetaList)
 
 ---
 
