@@ -169,18 +169,6 @@ const PaymentsPage = () => {
       ],
     },
     {
-      key: 'STARTER',
-      name: t('home.plans.starter'),
-      price: t('home.plans.starterPrice'),
-      perMonth: t('home.plans.perMonth'),
-      features: [
-        t('home.plans.starterF1'),
-        t('home.plans.starterF2'),
-        t('home.plans.starterF3'),
-        t('plans.starterF4'),
-      ],
-    },
-    {
       key: 'STANDARD',
       name: t('home.plans.professional'),
       price: t('home.plans.professionalPrice'),
@@ -223,7 +211,7 @@ const PaymentsPage = () => {
           {t('payments.plansTitle')}
         </h2>
         <p className="mt-0 mb-4 text-sm text-white/50">{t('payments.plansSubtitle')}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map((plan) => (
             <PlanCard
               key={plan.key}

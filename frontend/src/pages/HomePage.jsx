@@ -125,15 +125,6 @@ function HomePage() {
       highlighted: false,
     },
     {
-      name: t('home.plans.starter'),
-      price: t('home.plans.starterPrice'),
-      perMonth: t('home.plans.perMonth'),
-      features: [t('home.plans.starterF1'), t('home.plans.starterF2'), t('home.plans.starterF3'), t('home.plans.starterF4')],
-      ctaLabel: t('home.plans.starterCta'),
-      highlighted: false,
-      blurred: false,
-    },
-    {
       name: t('home.plans.professional'),
       price: t('home.plans.professionalPrice'),
       perMonth: t('home.plans.perMonth'),
@@ -182,7 +173,6 @@ function HomePage() {
         operatingSystem: 'Web',
         offers: [
           { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Starter', price: '9', priceCurrency: 'USD' },
           { '@type': 'Offer', name: 'Professional', price: '19', priceCurrency: 'USD' },
           { '@type': 'Offer', name: 'Business', price: '35', priceCurrency: 'USD' },
         ],
@@ -567,7 +557,7 @@ function HomePage() {
               {t('home.plans.subtitle')}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
             {plans.map((plan) => (
               <PlanCard key={plan.name} {...plan} />
             ))}
