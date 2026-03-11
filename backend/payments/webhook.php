@@ -161,17 +161,9 @@ function handleInvoicePayment(PDO $pdo, object $invoice, string $status): void
         return;
     }
 
-    // Determine plan from subscription items
+    // Determine plan from subscription (most reliable source)
     $plan = null;
-    if (!empty($invoice->lines->data)) {
-        $priceId = $invoice->lines->data[0]->price->id ?? null;
-        if ($priceId) {
-            $plan = stripePriceToPlan($priceId);
-        }
-    }
-
-    // Fallback: use subscription price lookup if lines were empty
-    if (!$plan && $invoice->subscription) {
+    if ($invoice->subscription) {
         try {
             $stripe = getStripeClient();
             $sub = $stripe->subscriptions->retrieve($invoice->subscription);
@@ -184,9 +176,12 @@ function handleInvoicePayment(PDO $pdo, object $invoice, string $status): void
         }
     }
 
-    // Last fallback: user's current plan from DB
-    if (!$plan && $user['plan'] !== 'FREE_TRIAL') {
-        $plan = $user['plan'];
+    // Fallback: try invoice line items
+    if (!$plan && !empty($invoice->lines->data)) {
+        $priceId = $invoice->lines->data[0]->price->id ?? null;
+        if ($priceId) {
+            $plan = stripePriceToPlan($priceId);
+        }
     }
 
     $paymentId = 'pay_' . bin2hex(random_bytes(12));
