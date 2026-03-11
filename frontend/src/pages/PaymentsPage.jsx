@@ -118,14 +118,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
           ))}
         </ul>
 
-        {planKey === 'FREE_TRIAL' ? (
-          <button
-            disabled
-            className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/50 cursor-not-allowed"
-          >
-            {t('payments.currentPlan')}
-          </button>
-        ) : isUpgrade ? (
+        {isUpgrade ? (
           <button
             onClick={() => onCheckout(planKey)}
             disabled={isLoading}
@@ -134,12 +127,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
             {isLoading ? t('payments.loadingCheckout') : ctaLabel}
           </button>
         ) : (
-          <button
-            disabled
-            className="w-full py-2.5 rounded-[8px] text-sm font-semibold border border-white/10 text-white/50 cursor-not-allowed"
-          >
-            {t('payments.currentPlan')}
-          </button>
+          <div className="h-[42px]" />
         )}
       </div>
     </div>
