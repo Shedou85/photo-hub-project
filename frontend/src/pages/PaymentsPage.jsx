@@ -147,7 +147,7 @@ const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, bad
 };
 
 const PaymentsPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, refreshUser } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState(null);
@@ -264,11 +264,11 @@ const PaymentsPage = () => {
 
   const formatDate = (iso) => {
     if (!iso) return '';
-    return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString(i18n.language, { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
   const formatAmount = (cents, currency) => {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'usd' }).format(cents / 100);
+    return new Intl.NumberFormat(i18n.language, { style: 'currency', currency: currency || 'usd' }).format(cents / 100);
   };
 
   const statusBadge = (status) => {
