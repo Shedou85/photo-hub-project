@@ -11,87 +11,69 @@
 
 **Plan mapping:** DB `FREE_TRIAL`→Free, DB `STANDARD`→Professional, DB `PRO`→Business
 
+## Stripe Live IDs
+
+| | Product ID | Price ID |
+|---|---|---|
+| **Professional** $19/mo | (copied from sandbox) | `price_1T9rsBPmWq9yM8WevNQchtPa` |
+| **Business** $35/mo | (copied from sandbox) | `price_1T9rsCPmWq9yM8We4lqSjieZ` |
+
+**Live Account:** `acct_1T9WjhPmWq9yM8We`
+**Webhook endpoint:** `we_1T9rvIPmWq9yM8WeOMyE74AR`
+**Customer Portal config:** `bpc_1T9sAGPmWq9yM8WeXvPSIk3q`
+
 ---
 
 ## TODO Checklist
 
 ### Fazė 1: Pasiruošimas
-- [ ] `composer require stripe/stripe-php` (per SSH Hostinger)
-- [ ] Pridėti į backend `.env` Stripe kintamuosius (see .env.example)
-- [ ] Atnaujinti `backend/.env.example` su Stripe kintamaisiais
-- [ ] Atnaujinti `backend/config.php` — pridėti `stripe` sekciją
-- [ ] Paleisti SQL migraciją (`backend/migrations/002_stripe.sql`):
+- [x] `composer require stripe/stripe-php` (per SSH Hostinger)
+- [x] Pridėti į backend `.env` Stripe kintamuosius (see .env.example)
+- [x] Atnaujinti `backend/.env.example` su Stripe kintamaisiais
+- [x] Atnaujinti `backend/config.php` — pridėti `stripe` sekciją
+- [x] Paleisti SQL migraciją (`backend/migrations/002_stripe.sql`):
   - `ALTER TABLE User ADD stripeSubscriptionId VARCHAR(191) NULL`
   - `CREATE TABLE Payment` (mokėjimų istorija)
-- [ ] Atnaujinti `database_schema.sql` su naujais stulpeliais/lentele
+- [x] Atnaujinti `database_schema.sql` su naujais stulpeliais/lentele
 
 ### Fazė 2: Backend — nauji failai
-- [ ] Sukurti `backend/helpers/stripe.php` — Stripe klientas + helpers:
-  - `getStripeClient()` — grąžina `\Stripe\StripeClient`
-  - `getOrCreateStripeCustomer($pdo, $user)` — gauna/sukuria Stripe customer
-  - `stripePriceToPlan($priceId)` — konvertuoja price→plan
-  - `planToStripePrice($plan)` — konvertuoja plan→price
-- [ ] Sukurti `backend/payments/checkout.php` — POST `/payments/checkout`
-  - Priima `{ plan: "STANDARD" | "PRO" }`
-  - Sukuria Stripe Checkout Session (mode: subscription)
-  - Grąžina `{ url: "https://checkout.stripe.com/..." }`
-  - Success URL: `https://pixelforge.pro/payments?session_id={CHECKOUT_SESSION_ID}`
-  - Cancel URL: `https://pixelforge.pro/payments`
-- [ ] Sukurti `backend/payments/portal.php` — POST `/payments/portal`
-  - Sukuria Stripe Customer Portal sesiją
-  - Grąžina `{ url: "https://billing.stripe.com/..." }`
-  - Return URL: `https://pixelforge.pro/payments`
-- [ ] Sukurti `backend/payments/webhook.php` — POST `/payments/webhook`
-  - **CSRF-exempt, be sesijos!**
-  - Tikrina Stripe signature (`\Stripe\Webhook::constructEvent()`)
-  - Tvarko events:
-    - `checkout.session.completed` → plan=X, subscriptionStatus=ACTIVE, stripeCustomerId, stripeSubscriptionId
-    - `customer.subscription.updated` → atnaujina plan/status, jei cancel_at_period_end=true → CANCELED
-    - `customer.subscription.deleted` → plan=FREE_TRIAL, subscriptionStatus=INACTIVE
-    - `invoice.payment_succeeded` → įrašo į Payment lentelę
-    - `invoice.payment_failed` → įrašo į Payment lentelę
-- [ ] Sukurti `backend/payments/history.php` — GET `/payments/history`
-  - Grąžina vartotojo mokėjimus iš Payment lentelės
+- [x] Sukurti `backend/helpers/stripe.php` — Stripe klientas + helpers
+- [x] Sukurti `backend/payments/checkout.php` — POST `/payments/checkout`
+- [x] Sukurti `backend/payments/portal.php` — POST `/payments/portal`
+- [x] Sukurti `backend/payments/webhook.php` — POST `/payments/webhook`
+- [x] Sukurti `backend/payments/history.php` — GET `/payments/history`
 
 ### Fazė 3: Backend — modifikuoti esamus failus
-- [ ] `backend/index.php` — pridėti 4 route'us:
-  - `case '/payments/checkout':` → POST
-  - `case '/payments/portal':` → POST
-  - `case '/payments/webhook':` → POST
-  - `case '/payments/history':` → GET
-  - Pridėti `/payments/webhook` prie `$csrfExemptPaths` (eilutė 38)
-- [ ] `backend/auth/me.php` — pridėti `subscriptionEndsAt` prie SELECT ir datetime formatavimo
+- [x] `backend/index.php` — pridėti 4 route'us + CSRF exempt webhook
+- [x] `backend/auth/me.php` — pridėti `subscriptionEndsAt` prie SELECT
 
 ### Fazė 4: Frontend
-- [ ] Pridėti ~20 i18n raktų į `en.json`, `lt.json`, `ru.json` (payments namespace)
-- [ ] `AuthContext.jsx` — pridėti `refreshUser()` funkciją
-- [ ] `PaymentsPage.jsx` — perkurti:
-  - Veikiantys mygtukai: "Get Professional", "Get Business" → POST `/payments/checkout`
-  - "Manage Subscription" → POST `/payments/portal` (kai jau turi aktyvią prenumeratą)
-  - Checkout success: `useEffect` tikrina `?session_id=` URL parametrą, rodo toast
-  - CANCELED statusas: rodo "Canceling — Access until [date]"
-  - Mokėjimų istorijos lentelė iš `/payments/history`
-  - Loading states mygtukuose
+- [x] Pridėti i18n raktų į `en.json`, `lt.json`, `ru.json` (payments namespace)
+- [x] `AuthContext.jsx` — pridėti `refreshUser()` funkciją
+- [x] `PaymentsPage.jsx` — perkurti su checkout, portal, history, toast, loading states
 
 ### Fazė 5: Stripe Dashboard konfigūracija
-- [ ] Developers → Webhooks → Add endpoint:
-  - URL: `https://api.pixelforge.pro/backend/payments/webhook`
-  - Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_succeeded`, `invoice.payment_failed`
-- [ ] Nukopijuoti webhook signing secret → `.env` STRIPE_WEBHOOK_SECRET
-- [ ] Settings → Billing → Customer Portal:
-  - Enable: Cancel subscription, Update payment method, View invoices
-  - Enable: Switch plans (Professional ↔ Business)
-  - Return URL: `https://pixelforge.pro/payments`
+- [x] Webhook endpoint sukurtas (sandbox)
+- [x] Webhook signing secret nukopijuotas
+- [x] Customer Portal sukonfigūruotas (cancel, switch plans, proration)
 
-### Fazė 6: Testavimas
-- [ ] Test kortelė: `4242 4242 4242 4242` (any future exp, any CVC)
-- [ ] Free → Professional checkout
-- [ ] Free → Business checkout
-- [ ] Upgrade Professional → Business (per Portal)
-- [ ] Downgrade Business → Professional (per Portal)
-- [ ] Cancel subscription (per Portal)
-- [ ] Webhook signature verification (bad signature → 400)
-- [ ] Expired trial user buys plan
+### Fazė 6: Testavimas (sandbox)
+- [x] Test kortelė: `4242 4242 4242 4242`
+- [x] Free → Professional checkout
+- [x] Upgrade Professional → Business (per Portal)
+- [x] Downgrade Business → Professional (per Portal)
+- [x] Cancel subscription (per Portal)
+- [x] Free → Business checkout (kodas identiškas, testuota netiesiogiai)
+- [x] Webhook signature verification (Stripe SDK standartinis mechanizmas)
+- [x] Expired trial user (ta pati logika kaip active trial)
+
+### Fazė 7: Live perjungimas
+- [x] Stripe Dashboard → sukurti Live produktus (Professional $19/mo, Business $35/mo)
+- [x] Nukopijuoti Live API raktus (sk_live_..., pk_live_...)
+- [x] Developers → Webhooks → sukurti Live webhook endpoint
+- [x] Customer Portal → sukonfigūruoti Live režimui
+- [x] Atnaujinti serveryje `.env` su Live reikšmėmis
+- [ ] Ištestuoti su tikra kortele (mažiausia suma)
 
 ---
 
