@@ -5,7 +5,8 @@
         "vlucas/phpdotenv": "^5.5",
         "google/apiclient": "^2.16",
         "phpmailer/phpmailer": "^7.0",
-        "aws/aws-sdk-php": "^3.0"
+        "aws/aws-sdk-php": "^3.0",
+        "stripe/stripe-php": "^16.0"
     },
     "scripts": {
         "post-install-cmd": "Google\\Task\\Composer::cleanup",

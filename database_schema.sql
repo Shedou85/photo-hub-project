@@ -23,6 +23,7 @@ CREATE TABLE `User` (
   `subscriptionStatus` ENUM('FREE_TRIAL', 'ACTIVE', 'CANCELED', 'INACTIVE') NOT NULL DEFAULT 'FREE_TRIAL',
   `subscriptionEndsAt` DATETIME(3) NULL,
   `stripeCustomerId` VARCHAR(191) NULL,
+  `stripeSubscriptionId` VARCHAR(191) NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
   `bio` TEXT NULL,
@@ -40,6 +41,7 @@ CREATE TABLE `User` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `User_email_key` (`email`),
   UNIQUE KEY `User_stripeCustomerId_key` (`stripeCustomerId`),
+  UNIQUE KEY `User_stripeSubscriptionId_key` (`stripeSubscriptionId`),
   UNIQUE KEY `User_passwordResetToken_key` (`passwordResetToken`),
   KEY `User_emailVerificationToken_idx` (`emailVerificationToken`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -284,3 +286,26 @@ CREATE TABLE `AuditLog` (
 --
 ALTER TABLE `AuditLog`
   ADD CONSTRAINT `AuditLog_adminUserId_fkey` FOREIGN KEY (`adminUserId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `Payment`
+--
+
+CREATE TABLE `Payment` (
+  `id` VARCHAR(191) NOT NULL,
+  `userId` VARCHAR(191) NOT NULL,
+  `stripeInvoiceId` VARCHAR(191) NULL,
+  `stripeSubscriptionId` VARCHAR(191) NULL,
+  `amount` INT NOT NULL COMMENT 'Amount in cents',
+  `currency` VARCHAR(10) NOT NULL DEFAULT 'usd',
+  `status` ENUM('succeeded', 'failed', 'pending') NOT NULL,
+  `plan` ENUM('STANDARD', 'PRO') NULL,
+  `description` VARCHAR(500) NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `Payment_stripeInvoiceId_key` (`stripeInvoiceId`),
+  KEY `Payment_userId_idx` (`userId`),
+  KEY `Payment_createdAt_idx` (`createdAt`),
+  CONSTRAINT `Payment_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

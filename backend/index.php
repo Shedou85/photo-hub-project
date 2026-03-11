@@ -35,7 +35,7 @@ $requestUri = rtrim($requestUri, '/');
 // CSRF protection for state-changing requests
 require_once __DIR__ . '/helpers/csrf.php';
 if (in_array($requestMethod, ['POST', 'PATCH', 'PUT', 'DELETE'])) {
-    $csrfExemptPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/resend-verification', '/auth/google'];
+    $csrfExemptPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/resend-verification', '/auth/google', '/payments/webhook'];
     $isShareRoute = strpos($requestUri, '/share/') === 0;
     $isDeliverRoute = strpos($requestUri, '/deliver/') === 0;
 
@@ -261,6 +261,42 @@ switch ($requestUri) {
     case '/promotional':
         if ($requestMethod == 'GET') {
             require_once __DIR__ . '/promotional.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
+    case '/payments/checkout':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/payments/checkout.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
+    case '/payments/portal':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/payments/portal.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
+    case '/payments/webhook':
+        if ($requestMethod == 'POST') {
+            require_once __DIR__ . '/payments/webhook.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
+    case '/payments/history':
+        if ($requestMethod == 'GET') {
+            require_once __DIR__ . '/payments/history.php';
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);

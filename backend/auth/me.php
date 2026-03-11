@@ -15,7 +15,7 @@ try {
     $pdo = getDbConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified,
+        SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus, trialEndsAt, planDowngradedAt, subscriptionEndsAt, stripeCustomerId, collectionsCreatedCount, emailVerified,
                brandingLogoUrl, brandingColor,
                (password IS NOT NULL) AS hasPassword
         FROM `User`
@@ -56,7 +56,7 @@ try {
     }
 
     // Format datetime fields as ISO 8601 with timezone for correct frontend parsing
-    foreach (['createdAt', 'trialEndsAt', 'planDowngradedAt'] as $dtField) {
+    foreach (['createdAt', 'trialEndsAt', 'planDowngradedAt', 'subscriptionEndsAt'] as $dtField) {
         if (!empty($user[$dtField])) {
             $user[$dtField] = (new DateTime($user[$dtField]))->format('c');
         }

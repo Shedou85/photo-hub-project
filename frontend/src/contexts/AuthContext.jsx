@@ -51,6 +51,13 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
     }, []);
 
+    const refreshUser = useCallback(async () => {
+        const { data, status } = await api.get('/auth/me');
+        if (status === 200 && data?.status === 'OK' && data?.user) {
+            setUser(data.user);
+        }
+    }, []);
+
     const logout = useCallback(() => {
         setUser(null);
         setSessionExpired(false);
@@ -66,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     const isAuthenticated = user !== null;
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading, sessionExpired, clearSessionExpired }}>
+        <AuthContext.Provider value={{ user, login, logout, refreshUser, isAuthenticated, loading, sessionExpired, clearSessionExpired }}>
             {children}
         </AuthContext.Provider>
     );
