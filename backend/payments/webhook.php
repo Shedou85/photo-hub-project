@@ -170,6 +170,25 @@ function handleInvoicePayment(PDO $pdo, object $invoice, string $status): void
         }
     }
 
+    // Fallback: use subscription price lookup if lines were empty
+    if (!$plan && $invoice->subscription) {
+        try {
+            $stripe = getStripeClient();
+            $sub = $stripe->subscriptions->retrieve($invoice->subscription);
+            $priceId = $sub->items->data[0]->price->id ?? null;
+            if ($priceId) {
+                $plan = stripePriceToPlan($priceId);
+            }
+        } catch (Throwable $e) {
+            error_log('Invoice webhook: failed to retrieve subscription: ' . $e->getMessage());
+        }
+    }
+
+    // Last fallback: user's current plan from DB
+    if (!$plan && $user['plan'] !== 'FREE_TRIAL') {
+        $plan = $user['plan'];
+    }
+
     $paymentId = 'pay_' . bin2hex(random_bytes(12));
     $stmt = $pdo->prepare("
         INSERT INTO `Payment` (id, userId, stripeInvoiceId, stripeSubscriptionId, amount, currency, status, plan, description, createdAt)

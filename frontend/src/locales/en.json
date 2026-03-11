@@ -559,8 +559,8 @@
     "freeF2": "30 photos per collection",
     "freeF3": "Gallery preview only",
     "freeF4": "No client selection or download",
-    "professionalF4": "Custom branding & watermarks",
-    "businessF4": "Priority support & all features",
+    "professionalF4": "Gallery expiration control",
+    "businessF4": "Photo reordering & all features",
     "trialExpiredModal": {
       "title": "Your trial has ended",
       "subtitle": "Your 30-day free trial has ended. Here's what changed:",
