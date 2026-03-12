@@ -11,6 +11,7 @@ import CollectionsListPage from './pages/CollectionsListPage';
 import CollectionDetailsPage from './pages/CollectionDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import PaymentsPage from './pages/PaymentsPage';
+import FaqPage from './pages/FaqPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
@@ -90,6 +91,7 @@ function App() {
         <Route path="/collections" element={<CollectionsListPage />} />
         <Route path="/collection/:id" element={<CollectionDetailsPage />} />
         <Route path="/payments" element={<PaymentsPage />} />
+        <Route path="/faq" element={<FaqPage />} />
       </Route>
 
       <Route path="/admin" element={<AdminRoute><ResponsiveLayout /></AdminRoute>}>

@@ -1,6 +1,6 @@
 import { useState, useId, useRef, useCallback, useLayoutEffect } from "react";
 
-function Accordion({ title, children, defaultOpen = false }) {
+function Accordion({ title, children, defaultOpen = false, titleClassName }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const contentRef = useRef(null);
   const id = useId();
@@ -65,7 +65,7 @@ function Accordion({ title, children, defaultOpen = false }) {
           }
         }}
       >
-        <h2 className="mt-0 mb-0 text-sm font-bold text-white/70 uppercase tracking-[0.05em]">
+        <h2 className={titleClassName || "mt-0 mb-0 text-sm font-bold text-white/70 uppercase tracking-[0.05em]"}>
           {title}
         </h2>
         <svg

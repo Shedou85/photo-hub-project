@@ -6,6 +6,7 @@ import { photoUrl } from '../utils/photoUrl';
 import OptimizedImage from '../components/primitives/OptimizedImage';
 import SEO from '../components/SEO';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import Accordion from '../components/Accordion';
 
 const CHECK_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
@@ -560,6 +561,34 @@ function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
             {plans.map((plan) => (
               <PlanCard key={plan.name} {...plan} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────── */}
+      <section className="bg-surface-darker py-24 px-6 relative overflow-hidden">
+        <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full bg-indigo-600/[0.05] blur-[120px] pointer-events-none" />
+        <div className="relative max-w-3xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="lp-fade font-serif-display text-[clamp(32px,4vw,48px)] font-bold text-white mb-4 leading-tight">
+              {t('home.faq.title')}
+            </h2>
+            <p className="lp-fade lp-fade-d1 text-base text-white/60 max-w-md mx-auto">
+              {t('home.faq.subtitle')}
+            </p>
+          </div>
+          <div className="lp-fade lp-fade-d2">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <Accordion
+                key={n}
+                title={t(`home.faq.q${n}`)}
+                titleClassName="mt-0 mb-0 text-base font-medium text-white/90 normal-case tracking-normal"
+              >
+                <p className="text-sm text-white/60 leading-relaxed m-0">
+                  {t(`home.faq.a${n}`)}
+                </p>
+              </Accordion>
             ))}
           </div>
         </div>

@@ -9,7 +9,8 @@
     "admin": "Administravimas",
     "logout": "Atsijungti",
     "mainNavigation": "Pagrindinis meniu",
-    "contact": "pixelforge@pixelforge.pro"
+    "contact": "pixelforge@pixelforge.pro",
+    "faq": "DUK"
   },
   "home": {
     "navLogin": "Prisijungti",
@@ -73,6 +74,22 @@
       "w3Desc": "Klientas atsisiunčia visas galutines nuotraukas vienu paspaudimu kaip ZIP archyvą. Greitai ir paprastai.",
       "w4Title": "Jokių instaliacijų",
       "w4Desc": "Veikia naršyklėje. Jokių programų diegimo, jokių papildomų žingsnių — tiesiog prisijunkite ir dirbkite."
+    },
+    "faq": {
+      "title": "Dažniausiai užduodami klausimai",
+      "subtitle": "Viskas, ką reikia žinoti prieš pradedant.",
+      "q1": "Kas yra PixelForge?",
+      "a1": "PixelForge — tai nuotraukų pristatymo platforma, sukurta profesionaliems fotografams. Ji leidžia organizuoti nuotraukų kolekcijas, dalytis galerijomis su klientais, gauti jų pasirinkimus ir pristatyti galutinius redaguotus failus — visa tai vienoje vietoje.",
+      "q2": "Kaip veikia nuotraukų atranka?",
+      "a2": "Jūs įkeliate nuotraukas ir pasidalinate galerijos nuoroda su klientu. Klientas naršo galeriją, pažymi mėgstamiausias nuotraukas ir pateikia savo pasirinkimą. Tuomet jūs gaunate sąrašą ir galite pradėti redaguoti pasirinktas nuotraukas.",
+      "q3": "Ar mano nuotraukos saugios?",
+      "a3": "Taip. Visos nuotraukos saugomos Cloudflare R2 — saugioje ir patikimoje debesų saugykloje. Galerijos gali būti apsaugotos slaptažodžiu, o prieigą turi tik žmonės su nuoroda.",
+      "q4": "Kuo skiriasi planai?",
+      "a4": "Nemokamas planas leidžia išbandyti PixelForge su ribotu kolekcijų ir nuotraukų skaičiumi. Profesionalus planas suteikia daugiau talpos, individualų dizainą ir vandenženklių funkciją. Verslo planas atrakins neribotą kolekcijų skaičių, nuotraukų pertvarkymą ir prioritetinę pagalbą.",
+      "q5": "Ar galiu atšaukti prenumeratą?",
+      "a5": "Taip, galite atšaukti bet kada savo paskyros nustatymuose. Prieiga prie plano funkcijų išliks iki dabartinio atsiskaitymo laikotarpio pabaigos. Jokių ilgalaikių sutarčių ar paslėptų mokesčių.",
+      "q6": "Kaip klientai gauna nuotraukas?",
+      "a6": "Kai įkeliate galutinius redaguotus failus ir pažymite kolekciją kaip pristatytą, klientas gauna pristatymo nuorodą. Jis gali peržiūrėti ir atsisiųsti visas nuotraukas vienu paspaudimu kaip ZIP archyvą."
     },
     "heroPhotoAlt": "Profesionalaus nuotraukų pristatymo pavyzdys",
     "footer": {

@@ -9,7 +9,8 @@
     "admin": "Admin",
     "logout": "Sign out",
     "mainNavigation": "Main navigation",
-    "contact": "pixelforge@pixelforge.pro"
+    "contact": "pixelforge@pixelforge.pro",
+    "faq": "FAQ"
   },
   "home": {
     "navLogin": "Login",
@@ -73,6 +74,22 @@
       "w3Desc": "Your client downloads all final photos in one click as a ZIP archive. Fast and hassle-free.",
       "w4Title": "No Installation Required",
       "w4Desc": "Works in the browser. No software to install, no extra steps — just log in and start working."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know before getting started.",
+      "q1": "What is PixelForge?",
+      "a1": "PixelForge is a photo delivery platform built for professional photographers. It lets you organize photo collections, share galleries with clients, receive their selections, and deliver final edited photos — all from one place.",
+      "q2": "How does photo selection work?",
+      "a2": "You upload photos and share a gallery link with your client. They browse the gallery, mark their favorite photos, and submit their selection. You then receive the list and can start editing the chosen shots.",
+      "q3": "Are my photos secure?",
+      "a3": "Yes. All photos are stored on Cloudflare R2, a secure and reliable cloud storage service. Galleries can be password-protected, and only people with the link can access them.",
+      "q4": "What's the difference between the plans?",
+      "a4": "The Free plan lets you try PixelForge with limited collections and photos. Professional adds more capacity, custom branding, and watermarks. Business unlocks unlimited collections, photo reordering, and priority support.",
+      "q5": "Can I cancel my subscription?",
+      "a5": "Yes, you can cancel anytime from your account settings. You'll keep access to your plan features until the end of the current billing period. No long-term contracts or hidden fees.",
+      "q6": "How do clients receive their photos?",
+      "a6": "Once you upload the final edited photos and mark the collection as delivered, your client receives a delivery link. They can preview and download all photos as a single ZIP archive with one click."
     },
     "heroPhotoAlt": "Professional photo delivery example",
     "footer": {
