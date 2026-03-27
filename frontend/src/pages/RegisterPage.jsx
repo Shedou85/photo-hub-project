@@ -172,6 +172,7 @@ function RegisterPage() {
         title={t("seo.registerTitle")}
         description={t("seo.registerDescription")}
         path="/register"
+        noindex
       />
 
       {/* ── Fixed Nav ────────────────────────────────────────────── */}

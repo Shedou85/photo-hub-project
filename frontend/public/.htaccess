@@ -2,6 +2,14 @@
   RewriteEngine On
   RewriteBase /
 
+  # Redirect www to non-www (canonical domain)
+  RewriteCond %{HTTP_HOST} ^www\.pixelforge\.pro [NC]
+  RewriteRule ^(.*)$ https://pixelforge.pro/$1 [R=301,L]
+
+  # Redirect HTTP to HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://pixelforge.pro/$1 [R=301,L]
+
   # Static files — serve directly
   RewriteRule ^sitemap\.xml$ - [L]
   RewriteRule ^robots\.txt$ - [L]

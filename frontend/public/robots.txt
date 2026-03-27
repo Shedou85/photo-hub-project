@@ -8,5 +8,9 @@ Disallow: /admin
 Disallow: /verify-email
 Disallow: /reset-password
 Disallow: /forgot-password
+Disallow: /login
+Disallow: /register
+Disallow: /share/
+Disallow: /deliver/
 
 Sitemap: https://pixelforge.pro/sitemap.xml
