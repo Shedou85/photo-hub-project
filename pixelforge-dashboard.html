@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelForge — Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #09090f;
+      --surface:   #12121e;
+      --card:      #181828;
+      --border:    rgba(255,255,255,0.08);
+      --text:      #f0f0f8;
+      --muted:     #8888aa;
+      --accent:    #6c5ce7;
+      --accent2:   #a78bfa;
+      --green:     #00cba4;
+      --orange:    #f59e0b;
+      --red:       #ef4444;
+      --blue:      #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ──────────────────────────────── */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .login-overlay.hidden { display: none; }
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      width: 380px;
+      text-align: center;
+    }
+    .login-box .logo-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    .login-box h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .login-box .sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .login-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus { border-color: var(--accent); }
+    .login-input::placeholder { color: var(--muted); }
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+    .login-btn:hover { opacity: 0.9; }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-error {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 12px;
+      min-height: 18px;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+    .logo-sub  { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.2s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover   { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active  { background: rgba(108,92,231,0.15); color: var(--accent2); }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-section {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 16px 12px 6px;
+      opacity: 0.6;
+    }
+
+    /* ── MAIN ───────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: 32px 36px;
+      overflow-y: auto;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+    .page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .page-sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .badge-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(0,203,164,0.08);
+      border: 1px solid rgba(0,203,164,0.2);
+      color: var(--green);
+    }
+    .dot-live {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── KPI CARDS ──────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .kpi-card.purple::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .kpi-card.green::before  { background: linear-gradient(90deg, var(--green), #06d6a0); }
+    .kpi-card.orange::before { background: linear-gradient(90deg, var(--orange), #fbbf24); }
+    .kpi-card.blue::before   { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+
+    .kpi-icon  { font-size: 20px; margin-bottom: 10px; }
+    .kpi-label { font-size: 11px; color: var(--muted); letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 6px; }
+    .kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+    .kpi-sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* ── CHART CARDS ────────────────────────── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card, .full-chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .full-chart-card { margin-bottom: 24px; }
+    .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .chart-sub   { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+    .chart-wrap  { position: relative; height: 220px; }
+    .donut-wrap  { display: flex; align-items: center; justify-content: center; }
+    .donut-center {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .donut-center-num { font-size: 24px; font-weight: 800; }
+    .donut-center-lbl { font-size: 10px; color: var(--muted); }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+    .legend-dot  { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── TABLE CARDS ────────────────────────── */
+    .tables-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+    .user-avatar {
+      display: inline-flex;
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* ── BADGES ─────────────────────────────── */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+    }
+    .badge-free    { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .badge-std     { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+    .badge-pro     { background: rgba(108,92,231,0.2);   color: var(--accent2); }
+    .badge-draft   { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .badge-sel     { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+    .badge-rev     { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+    .badge-del     { background: rgba(0,203,164,0.12);   color: var(--green); }
+    .badge-down    { background: rgba(108,92,231,0.15);  color: var(--accent2); }
+    .badge-arch    { background: rgba(255,255,255,0.04); color: #555; }
+
+    /* ── AUDIT LOG ──────────────────────────── */
+    .audit-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+    .audit-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ── STATUS BAR ─────────────────────────── */
+    .status-bar-wrap { margin-top: 16px; }
+    .status-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      gap: 2px;
+      margin-bottom: 12px;
+    }
+    .status-seg { height: 100%; border-radius: 999px; transition: flex 0.5s ease; }
+
+    /* ── SCROLLBAR ──────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    /* ── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 1100px) {
+      .kpi-grid     { grid-template-columns: repeat(2, 1fr); }
+      .charts-row   { grid-template-columns: 1fr 1fr; }
+      .tables-row   { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar      { display: none; }
+      .main         { padding: 20px; }
+      .kpi-grid     { grid-template-columns: 1fr 1fr; }
+      .charts-row   { grid-template-columns: 1fr; }
+    }
+
+    /* ── USERS PAGE ─────────────────────────── */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .search-input {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: rgba(108,92,231,0.5); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 16px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active { color: var(--text); border-color: rgba(108,92,231,0.4); background: rgba(108,92,231,0.08); }
+
+    .full-table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .full-table-card table { font-size: 12.5px; }
+    .full-table-card thead th { padding-bottom: 14px; }
+    .full-table-card tbody td { padding: 12px 0; }
+
+    /* ── LOADING ────────────────────────────── */
+    .refresh-info {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .refresh-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="logo-icon">&#128248;</div>
+    <h2>PixelForge Admin</h2>
+    <div class="sub">Prisijunkite prie admin dashboard</div>
+    <input class="login-input" id="loginEmail" type="email" placeholder="El. paštas" />
+    <input class="login-input" id="loginPassword" type="password" placeholder="Slaptažodis" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Prisijungti</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout" id="appLayout" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">&#128248;</div>
+      <div>
+        <div class="logo-text">PixelForge</div>
+        <div class="logo-sub">Admin</div>
+      </div>
+    </div>
+
+    <button class="nav-item active" onclick="showPage('overview', this)">
+      <span class="nav-icon">&#11036;</span> Apžvalga
+    </button>
+    <button class="nav-item" onclick="showPage('users', this)">
+      <span class="nav-icon">&#128101;</span> Vartotojai
+    </button>
+    <button class="nav-item" onclick="showPage('collections', this)">
+      <span class="nav-icon">&#128450;</span> Kolekcijos
+    </button>
+    <button class="nav-item" onclick="showPage('audit', this)">
+      <span class="nav-icon">&#128203;</span> Audit Log
+    </button>
+
+    <div class="sidebar-section">Sistema</div>
+    <button class="nav-item" onclick="window.open('https://pixelforge.pro/admin','_blank')">
+      <span class="nav-icon">&#8599;</span> Admin Panelė
+    </button>
+    <button class="nav-item" onclick="doLogout()" style="margin-top:auto;color:var(--red)">
+      <span class="nav-icon">&#9211;</span> Atsijungti
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PAGE: OVERVIEW -->
+    <div id="page-overview" class="page active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Platformos Apžvalga</div>
+          <div class="page-sub">PixelForge — tikri duomenys iš API · <span id="lastUpdate">Kraunama...</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="refresh-info"><div class="refresh-dot"></div> Auto-refresh kas 5 min</div>
+          <div class="badge-live"><div class="dot-live"></div> Gyvas</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card purple">
+          <div class="kpi-icon">&#128101;</div>
+          <div class="kpi-label">Viso Vartotojų</div>
+          <div class="kpi-value" id="kpiTotalUsers">—</div>
+          <div class="kpi-sub" id="kpiUsersSub">Kraunama...</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-icon">&#128450;</div>
+          <div class="kpi-label">Viso Kolekcijų</div>
+          <div class="kpi-value" id="kpiTotalCollections">—</div>
+          <div class="kpi-sub" id="kpiCollectionsSub">Kraunama...</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-icon">&#11015;</div>
+          <div class="kpi-label">Parsisiuntimai</div>
+          <div class="kpi-value" id="kpiDownloads">—</div>
+          <div class="kpi-sub">Iš visų kolekcijų</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-icon">&#128248;</div>
+          <div class="kpi-label">Viso Nuotraukų</div>
+          <div class="kpi-value" id="kpiTotalPhotos">—</div>
+          <div class="kpi-sub">Visuose kolekcijose</div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Planų Pasiskirstymas</div>
+          <div class="chart-sub">Vartotojai pagal planą</div>
+          <div class="chart-wrap donut-wrap">
+            <canvas id="planChart"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-num" id="planCenterNum" style="color:var(--accent2)">—</div>
+              <div class="donut-center-lbl">iš viso</div>
+            </div>
+          </div>
+          <div class="legend" id="planLegend"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Kolekcijų Statusai</div>
+          <div class="chart-sub">Pasiskirstymas pagal būseną</div>
+          <div class="chart-wrap donut-wrap">
+            <canvas id="statusChart"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-num" id="statusCenterNum" style="color:var(--green)">—</div>
+              <div class="donut-center-lbl">kolekcijos</div>
+            </div>
+          </div>
+          <div class="legend" id="statusLegend"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Nauji Vartotojai</div>
+          <div class="chart-sub">Registracijos per laiką</div>
+          <div class="chart-wrap">
+            <canvas id="signupChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="full-chart-card">
+        <div class="chart-title">Kolekcijų Aktyvumas</div>
+        <div class="chart-sub">Sukurtų kolekcijų skaičius per laikotarpį</div>
+        <div class="chart-wrap">
+          <canvas id="collectionsChart"></canvas>
+        </div>
+      </div>
+
+      <div class="tables-row">
+        <div class="table-card">
+          <div class="chart-title" style="margin-bottom:4px">Aktyviausi Fotografai</div>
+          <div class="chart-sub">Pagal kolekcijų skaičių</div>
+          <table>
+            <thead><tr><th>Vartotojas</th><th>Planas</th><th>Kolekcijos</th><th>Nuotraukos</th></tr></thead>
+            <tbody id="topUsersBody"></tbody>
+          </table>
+        </div>
+        <div class="table-card">
+          <div class="chart-title" style="margin-bottom:4px">Kolekcijų Pipeline</div>
+          <div class="chart-sub">Kiek kolekcijų kiekviename etape</div>
+          <div class="status-bar-wrap" id="statusBars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: USERS -->
+    <div id="page-users" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Vartotojai</div>
+          <div class="page-sub" id="usersPageSub">Kraunama...</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input class="search-input" id="userSearch" placeholder="&#128269;  Ieškoti pagal vardą ar el. paštą..." oninput="filterUsers()" />
+        <button class="filter-btn active" onclick="filterByPlan('ALL',this)">Visi</button>
+        <button class="filter-btn" onclick="filterByPlan('FREE_TRIAL',this)">Free Trial</button>
+        <button class="filter-btn" onclick="filterByPlan('STANDARD',this)">Standard</button>
+        <button class="filter-btn" onclick="filterByPlan('PRO',this)">Pro</button>
+      </div>
+      <div class="full-table-card">
+        <table>
+          <thead><tr><th>Vartotojas</th><th>El. paštas</th><th>Planas</th><th>Kolekcijos</th><th>Nuotraukos</th><th>Registracija</th><th>Verifikuotas</th></tr></thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGE: COLLECTIONS -->
+    <div id="page-collections" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Kolekcijos</div>
+          <div class="page-sub" id="collectionsPageSub">Kraunama...</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input class="search-input" id="colSearch" placeholder="&#128269;  Ieškoti kolekcijų..." oninput="filterCollections()" />
+        <button class="filter-btn active" onclick="filterByStatus('ALL',this)">Visos</button>
+        <button class="filter-btn" onclick="filterByStatus('DRAFT',this)">Draft</button>
+        <button class="filter-btn" onclick="filterByStatus('REVIEWING',this)">Reviewing</button>
+        <button class="filter-btn" onclick="filterByStatus('DELIVERED',this)">Delivered</button>
+        <button class="filter-btn" onclick="filterByStatus('DOWNLOADED',this)">Downloaded</button>
+      </div>
+      <div class="full-table-card">
+        <table>
+          <thead><tr><th>Pavadinimas</th><th>Savininkas</th><th>Statusas</th><th>Nuotraukos</th><th>Sukurta</th></tr></thead>
+          <tbody id="collectionsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGE: AUDIT LOG -->
+    <div id="page-audit" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Audit Log</div>
+          <div class="page-sub" id="auditPageSub">Kraunama...</div>
+        </div>
+      </div>
+      <div class="full-table-card">
+        <table>
+          <thead><tr><th>Veiksmas</th><th>Tikslas</th><th>Administratorius</th><th>IP Adresas</th><th>Data</th></tr></thead>
+          <tbody id="auditTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+const API_BASE = 'https://pixelforge.pro/backend';
+const REFRESH_INTERVAL = 5 * 60 * 1000;
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let DATA = { stats: null, users: [], collections: [], auditLogs: [] };
+let chartInstances = {};
+let refreshTimer = null;
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+const PLAN_LABELS = { FREE_TRIAL: 'Free Trial', STANDARD: 'Standard', PRO: 'Pro' };
+const PLAN_COLORS = { FREE_TRIAL: '#4b5563', STANDARD: '#3b82f6', PRO: '#6c5ce7' };
+const STATUS_LABELS = { DRAFT:'Draft', SELECTING:'Selecting', REVIEWING:'Reviewing', DELIVERED:'Delivered', DOWNLOADED:'Downloaded', ARCHIVED:'Archived' };
+const STATUS_COLORS = { DRAFT:'#4b5563', SELECTING:'#f59e0b', REVIEWING:'#3b82f6', DELIVERED:'#00cba4', DOWNLOADED:'#a78bfa', ARCHIVED:'#374151' };
+const STATUS_BADGE  = { DRAFT:'badge-draft', SELECTING:'badge-sel', REVIEWING:'badge-rev', DELIVERED:'badge-del', DOWNLOADED:'badge-down', ARCHIVED:'badge-arch' };
+
+function planBadge(p) {
+  const cls = { FREE_TRIAL:'badge-free', STANDARD:'badge-std', PRO:'badge-pro' }[p] || 'badge-free';
+  return `<span class="badge ${cls}">${PLAN_LABELS[p]||p}</span>`;
+}
+function statusBadge(s) {
+  return `<span class="badge ${STATUS_BADGE[s]||'badge-draft'}">${STATUS_LABELS[s]||s}</span>`;
+}
+function avatar(name) {
+  const initials = (name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const colors = ['#6c5ce7','#00cba4','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
+  const color = colors[(name||'').charCodeAt(0) % colors.length];
+  return `<span class="user-avatar" style="background:linear-gradient(135deg,${color},${color}88)">${initials}</span>`;
+}
+function fmtDate(d) {
+  if (!d) return '\u2014';
+  return new Date(d).toLocaleDateString('lt-LT', { year:'numeric', month:'short', day:'numeric' });
+}
+function auditColor(a) {
+  if (a.includes('DELETED'))  return '#ef4444';
+  if (a.includes('PLAN'))     return '#f59e0b';
+  if (a.includes('SUSPEND'))  return '#f59e0b';
+  if (a.includes('ACTIV'))    return '#00cba4';
+  if (a.includes('ARCHIVED')) return '#6b7280';
+  return '#8888aa';
+}
+
+// ═══════════════════════════════════════════
+// API FETCH
+// ═══════════════════════════════════════════
+async function apiFetch(path, options = {}) {
+  const res = await fetch(API_BASE + path, { credentials: 'include', ...options });
+  if (res.status === 401) { showLoginOverlay(); throw new Error('Not authenticated'); }
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
+async function getCsrfToken() {
+  const data = await apiFetch('/csrf-token');
+  return data.csrfToken;
+}
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+function showLoginOverlay() {
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('appLayout').style.display = 'none';
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+}
+
+function showApp() {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appLayout').style.display = 'flex';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+
+  if (!email || !password) { errorEl.textContent = 'Įveskite el. paštą ir slaptažodį'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Jungiamasi...';
+  errorEl.textContent = '';
+
+  try {
+    const res = await fetch(API_BASE + '/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) { errorEl.textContent = data.error || 'Prisijungimas nepavyko'; btn.disabled = false; btn.textContent = 'Prisijungti'; return; }
+    if (data.user && data.user.role !== 'ADMIN') { errorEl.textContent = 'Tik administratoriai gali prisijungti'; btn.disabled = false; btn.textContent = 'Prisijungti'; return; }
+
+    showApp();
+    await loadAllData();
+    startAutoRefresh();
+  } catch (err) {
+    errorEl.textContent = 'Klaida jungiantis: ' + err.message;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Prisijungti';
+}
+
+async function doLogout() {
+  try {
+    const csrf = await getCsrfToken();
+    await fetch(API_BASE + '/logout', { method: 'POST', credentials: 'include', headers: { 'X-CSRF-Token': csrf } });
+  } catch(e) {}
+  showLoginOverlay();
+}
+
+async function checkAuth() {
+  try {
+    const data = await apiFetch('/auth/me');
+    if (data.user && data.user.role === 'ADMIN') {
+      showApp();
+      await loadAllData();
+      startAutoRefresh();
+      return;
+    }
+  } catch(e) {}
+  showLoginOverlay();
+}
+
+// ═══════════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════════
+async function loadAllData() {
+  try {
+    const [stats, usersData, collectionsData, auditData] = await Promise.all([
+      apiFetch('/admin/stats'),
+      apiFetch('/admin/users?limit=100'),
+      apiFetch('/admin/collections?limit=100'),
+      apiFetch('/admin/audit-log?limit=50')
+    ]);
+
+    DATA.stats = stats;
+    DATA.users = usersData.users || [];
+    DATA.collections = collectionsData.collections || [];
+    DATA.auditLogs = auditData.logs || [];
+
+    renderOverview();
+    renderUsersTable(DATA.users);
+    renderCollectionsTable(DATA.collections);
+    renderAuditTable();
+    updateSubtitles();
+
+    document.getElementById('lastUpdate').textContent =
+      'Atnaujinta ' + new Date().toLocaleTimeString('lt-LT', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  } catch(err) {
+    console.error('Data load failed:', err);
+  }
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(loadAllData, REFRESH_INTERVAL);
+}
+
+// ═══════════════════════════════════════════
+// PAGE NAV
+// ═══════════════════════════════════════════
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// RENDER: OVERVIEW
+// ═══════════════════════════════════════════
+Chart.defaults.color = '#8888aa';
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+const donutOpts = {
+  responsive: true, maintainAspectRatio: false, cutout: '72%',
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#181828', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1, padding: 10, titleColor: '#f0f0f8', bodyColor: '#8888aa' }}
+};
+
+function renderOverview() {
+  const s = DATA.stats;
+  if (!s) return;
+
+  document.getElementById('kpiTotalUsers').textContent = s.totalUsers;
+  document.getElementById('kpiUsersSub').textContent = `${s.activeUsers} aktyvūs · ${s.suspendedUsers} sustabdyti`;
+  document.getElementById('kpiTotalCollections').textContent = s.totalCollections;
+  const delivered = s.collectionsByStatus?.DELIVERED || 0;
+  const downloaded = s.collectionsByStatus?.DOWNLOADED || 0;
+  document.getElementById('kpiCollectionsSub').textContent = `${delivered} pristatytos · ${downloaded} parsisiųstos`;
+  document.getElementById('kpiDownloads').textContent = s.totalDownloads;
+  const totalPhotos = DATA.users.reduce((sum, u) => sum + (u.totalPhotos || 0), 0);
+  document.getElementById('kpiTotalPhotos').textContent = totalPhotos;
+
+  // Plan donut
+  const planData = s.planBreakdown || {};
+  if (chartInstances.plan) chartInstances.plan.destroy();
+  chartInstances.plan = new Chart(document.getElementById('planChart'), {
+    type: 'doughnut',
+    data: { labels: Object.keys(planData).map(k => PLAN_LABELS[k]||k), datasets: [{ data: Object.values(planData), backgroundColor: Object.keys(planData).map(k => PLAN_COLORS[k]||'#555'), borderWidth: 0, hoverOffset: 4 }] },
+    options: donutOpts
+  });
+  document.getElementById('planCenterNum').textContent = s.totalUsers;
+  const planLeg = document.getElementById('planLegend');
+  planLeg.innerHTML = '';
+  Object.entries(planData).forEach(([k,v]) => { planLeg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${PLAN_COLORS[k]}"></div>${PLAN_LABELS[k]||k}: <b style="color:#f0f0f8">${v}</b></div>`; });
+
+  // Status donut
+  const stData = s.collectionsByStatus || {};
+  if (chartInstances.status) chartInstances.status.destroy();
+  chartInstances.status = new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: { labels: Object.keys(stData).map(k => STATUS_LABELS[k]||k), datasets: [{ data: Object.values(stData), backgroundColor: Object.keys(stData).map(k => STATUS_COLORS[k]||'#555'), borderWidth: 0, hoverOffset: 4 }] },
+    options: donutOpts
+  });
+  document.getElementById('statusCenterNum').textContent = s.totalCollections;
+  const stLeg = document.getElementById('statusLegend');
+  stLeg.innerHTML = '';
+  Object.entries(stData).forEach(([k,v]) => { if (v > 0) stLeg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${STATUS_COLORS[k]}"></div>${STATUS_LABELS[k]}: <b style="color:#f0f0f8">${v}</b></div>`; });
+
+  // Signups bar
+  const signupsByDay = {};
+  DATA.users.forEach(u => { const day = (u.createdAt||'').slice(0,10); if (day) signupsByDay[day] = (signupsByDay[day]||0) + 1; });
+  const signupLabels = Object.keys(signupsByDay).sort();
+  if (chartInstances.signup) chartInstances.signup.destroy();
+  chartInstances.signup = new Chart(document.getElementById('signupChart'), {
+    type: 'bar',
+    data: { labels: signupLabels.map(d => new Date(d).toLocaleDateString('lt-LT', {month:'short',day:'numeric'})), datasets: [{ label: 'Nauji vartotojai', data: signupLabels.map(d => signupsByDay[d]), backgroundColor: 'rgba(108,92,231,0.6)', borderColor: '#6c5ce7', borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color:'rgba(255,255,255,0.04)' }, ticks: { font:{size:10} }}, y: { grid: { color:'rgba(255,255,255,0.04)' }, ticks: { stepSize:1, font:{size:10} }, beginAtZero:true } } }
+  });
+
+  // Collections line
+  const colsByDay = {};
+  DATA.collections.forEach(c => { const day = (c.createdAt||'').slice(0,10); if (day) colsByDay[day] = (colsByDay[day]||0) + 1; });
+  const colLabels = Object.keys(colsByDay).sort();
+  if (chartInstances.collections) chartInstances.collections.destroy();
+  chartInstances.collections = new Chart(document.getElementById('collectionsChart'), {
+    type: 'line',
+    data: { labels: colLabels.map(d => new Date(d).toLocaleDateString('lt-LT', {month:'short',day:'numeric'})), datasets: [{ label: 'Kolekcijos', data: colLabels.map(d => colsByDay[d]), fill: true, backgroundColor: 'rgba(0,203,164,0.08)', borderColor: '#00cba4', borderWidth: 2, pointBackgroundColor: '#00cba4', pointRadius: 4, pointHoverRadius: 6, tension: 0.4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color:'rgba(255,255,255,0.04)' }, ticks: { font:{size:10} }}, y: { grid: { color:'rgba(255,255,255,0.04)' }, ticks: { stepSize:1, font:{size:10} }, beginAtZero:true } } }
+  });
+
+  // Top users
+  const topUsers = [...DATA.users].sort((a,b) => (b.collectionsCreatedCount||0) - (a.collectionsCreatedCount||0)).slice(0,7);
+  const topBody = document.getElementById('topUsersBody');
+  topBody.innerHTML = '';
+  topUsers.forEach(u => { topBody.innerHTML += `<tr><td>${avatar(u.name||u.email)}<span style="vertical-align:middle">${u.name||u.email}</span></td><td>${planBadge(u.plan)}</td><td style="font-weight:700;color:var(--accent2)">${u.collectionsCreatedCount||0}</td><td style="color:var(--muted)">${u.totalPhotos||0}</td></tr>`; });
+
+  // Status pipeline
+  const statusBarsEl = document.getElementById('statusBars');
+  const total = Object.values(stData).reduce((a,b)=>a+b,0) || 1;
+  let barHtml = '<div class="status-bar">';
+  Object.entries(stData).forEach(([k,v]) => { if (v>0) barHtml += `<div class="status-seg" style="flex:${v};background:${STATUS_COLORS[k]};opacity:0.85" title="${STATUS_LABELS[k]}: ${v}"></div>`; });
+  barHtml += '</div>';
+  Object.entries(stData).forEach(([k,v]) => {
+    if(v>0) barHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div class="legend-item"><div class="legend-dot" style="background:${STATUS_COLORS[k]}"></div><span style="color:var(--text)">${STATUS_LABELS[k]}</span></div><div style="display:flex;align-items:center;gap:12px"><span style="font-weight:700;color:var(--text)">${v}</span><span style="font-size:11px;color:var(--muted);width:32px;text-align:right">${Math.round(v/total*100)}%</span></div></div>`;
+  });
+  statusBarsEl.innerHTML = barHtml;
+}
+
+// ═══════════════════════════════════════════
+// RENDER: USERS
+// ═══════════════════════════════════════════
+let currentPlanFilter = 'ALL';
+function renderUsersTable(users) {
+  const body = document.getElementById('usersTableBody');
+  body.innerHTML = '';
+  users.forEach(u => {
+    body.innerHTML += `<tr><td>${avatar(u.name||u.email)}<span style="vertical-align:middle;font-weight:500">${u.name||u.email}</span></td><td style="color:var(--muted)">${u.email}</td><td>${planBadge(u.plan)}</td><td style="font-weight:600;color:var(--accent2)">${u.collectionsCreatedCount||0}</td><td style="color:var(--muted)">${u.totalPhotos||0}</td><td style="color:var(--muted)">${fmtDate(u.createdAt)}</td><td>${u.emailVerified ? '<span style="color:var(--green)">&#10003;</span>' : '<span style="color:var(--muted)">\u2014</span>'}</td></tr>`;
+  });
+}
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  const filtered = DATA.users.filter(u => (currentPlanFilter === 'ALL' || u.plan === currentPlanFilter) && ((u.name||'').toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+  renderUsersTable(filtered);
+}
+function filterByPlan(plan, btn) {
+  currentPlanFilter = plan;
+  document.querySelectorAll('#page-users .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterUsers();
+}
+
+// ═══════════════════════════════════════════
+// RENDER: COLLECTIONS
+// ═══════════════════════════════════════════
+let currentStatusFilter = 'ALL';
+function renderCollectionsTable(cols) {
+  const body = document.getElementById('collectionsTableBody');
+  body.innerHTML = '';
+  cols.forEach(c => { body.innerHTML += `<tr><td style="font-weight:500">${c.name||'\u2014'}</td><td style="color:var(--muted)">${c.userName||c.userEmail||'\u2014'}</td><td>${statusBadge(c.status)}</td><td style="color:var(--muted)">${c.photoCount||0}</td><td style="color:var(--muted)">${fmtDate(c.createdAt)}</td></tr>`; });
+}
+function filterCollections() {
+  const q = document.getElementById('colSearch').value.toLowerCase();
+  const filtered = DATA.collections.filter(c => (currentStatusFilter === 'ALL' || c.status === currentStatusFilter) && ((c.name||'').toLowerCase().includes(q) || (c.userName||'').toLowerCase().includes(q)));
+  renderCollectionsTable(filtered);
+}
+function filterByStatus(status, btn) {
+  currentStatusFilter = status;
+  document.querySelectorAll('#page-collections .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCollections();
+}
+
+// ═══════════════════════════════════════════
+// RENDER: AUDIT
+// ═══════════════════════════════════════════
+function renderAuditTable() {
+  const auditBody = document.getElementById('auditTableBody');
+  auditBody.innerHTML = '';
+  DATA.auditLogs.forEach(l => {
+    const color = auditColor(l.action||'');
+    const label = (l.action||'').replace(/_/g,' ');
+    auditBody.innerHTML += `<tr><td><span class="audit-action"><span class="audit-dot" style="background:${color}"></span><span style="color:${color};font-weight:600">${label}</span></span></td><td style="color:var(--muted);font-size:11px">${l.targetEmail||l.targetEntityId||'\u2014'}</td><td>${avatar(l.adminName||'A')}<span style="vertical-align:middle;font-size:12px">${l.adminName||'\u2014'}</span></td><td style="color:var(--muted);font-size:11px;font-family:monospace">${l.ipAddress||'\u2014'}</td><td style="color:var(--muted)">${fmtDate(l.createdAt)}</td></tr>`;
+  });
+}
+
+// ═══════════════════════════════════════════
+// SUBTITLES
+// ═══════════════════════════════════════════
+function updateSubtitles() {
+  document.getElementById('usersPageSub').textContent = `Visi ${DATA.users.length} registruotų vartotojų`;
+  document.getElementById('collectionsPageSub').textContent = `Visos ${DATA.collections.length} platformos kolekcijos`;
+  document.getElementById('auditPageSub').textContent = `Paskutiniai ${DATA.auditLogs.length} administratoriaus veiksmų`;
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+checkAuth();
+</script>
+</body>
+</html>
