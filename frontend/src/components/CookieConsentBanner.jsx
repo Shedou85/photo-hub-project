@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { initGA, trackPageView } from '../lib/analytics';
+import { initMetaPixel } from '../lib/metaPixel';
 
 export default function CookieConsentBanner() {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export default function CookieConsentBanner() {
     try { localStorage.setItem('cookieConsent', 'accepted'); } catch { /* storage unavailable */ }
     initGA();
     trackPageView(window.location.pathname);
+    initMetaPixel();
     setVisible(false);
   }
 

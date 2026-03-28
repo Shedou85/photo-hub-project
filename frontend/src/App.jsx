@@ -25,6 +25,7 @@ import CookieConsentBanner from './components/CookieConsentBanner';
 import ErrorBoundary from './components/ErrorBoundary';
 import SessionExpiredModal from './components/SessionExpiredModal';
 import { initGA, trackPageView } from './lib/analytics';
+import { initMetaPixel } from './lib/metaPixel';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,11 +44,12 @@ function App() {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
 
-  // Fire GA on repeat visits (user already consented)
+  // Fire GA + Meta Pixel on repeat visits (user already consented)
   useEffect(() => {
     try {
       if (localStorage.getItem('cookieConsent') === 'accepted') {
         initGA();
+        initMetaPixel();
       }
     } catch { /* storage unavailable */ }
   }, []);
