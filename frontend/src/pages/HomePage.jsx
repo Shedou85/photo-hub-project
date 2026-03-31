@@ -167,6 +167,7 @@ function HomePage() {
         '@type': 'WebSite',
         name: 'PixelForge',
         url: 'https://pixelforge.pro',
+        description: t('seo.homeDescription'),
       },
       {
         '@type': 'SoftwareApplication',
@@ -175,8 +176,8 @@ function HomePage() {
         operatingSystem: 'Web',
         offers: [
           { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Professional', price: '19', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Business', price: '35', priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'Professional', price: '19', priceCurrency: 'USD', billingPeriod: 'P1M' },
+          { '@type': 'Offer', name: 'Business', price: '35', priceCurrency: 'USD', billingPeriod: 'P1M' },
         ],
       },
     ],
@@ -185,6 +186,7 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-surface-darker font-['Outfit',sans-serif]">
       <SEO
+        title={t('seo.homeTitle')}
         description={t('seo.homeDescription')}
         path="/"
       />
