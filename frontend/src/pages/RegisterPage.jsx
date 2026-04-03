@@ -18,8 +18,13 @@ function RegisterPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedPlan = searchParams.get('plan');
+  const prefillEmail = searchParams.get('email');
   const { login } = useAuth();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (prefillEmail && !email) setEmail(prefillEmail);
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

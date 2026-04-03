@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { photoUrl } from '../utils/photoUrl';
@@ -89,8 +89,10 @@ const WORKFLOW_STATUSES = [
 
 function HomePage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [promoPhotos, setPromoPhotos] = useState([]);
+  const [heroEmail, setHeroEmail] = useState('');
   const featuresRef = useRef(null);
 
   useEffect(() => {
@@ -299,22 +301,38 @@ function HomePage() {
             <p className="lp-fade lp-fade-d3 text-base text-white/50 leading-relaxed max-w-[420px] mb-10">
               {t('home.hero.subtext')}
             </p>
-            <div className="lp-fade lp-fade-d4 flex flex-wrap gap-3">
-              <Link
-                to="/register"
-                className="inline-flex items-center gap-2 py-3.5 px-7 rounded text-base font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_20px_rgba(99,102,241,0.4)]"
+            {/* Email signup form */}
+            <form
+              className="lp-fade lp-fade-d4 flex flex-col sm:flex-row gap-2.5 max-w-[460px]"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const email = heroEmail.trim();
+                navigate(email ? `/register?email=${encodeURIComponent(email)}` : '/register');
+              }}
+            >
+              <input
+                type="email"
+                value={heroEmail}
+                onChange={(e) => setHeroEmail(e.target.value)}
+                placeholder={t('home.hero.emailPlaceholder')}
+                className="flex-1 min-w-0 py-3 px-4 rounded text-sm text-white bg-white/[0.06] border border-white/[0.12] placeholder:text-white/25 focus:border-indigo-500/70 focus:bg-white/[0.08] focus:outline-none transition-all"
+              />
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center gap-2 py-3 px-6 rounded text-sm font-semibold text-white whitespace-nowrap bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_20px_rgba(99,102,241,0.4)]"
               >
                 {t('home.hero.cta')}
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </Link>
-              <a
-                href="#features"
-                onClick={scrollToFeatures}
-                className="inline-flex items-center gap-2 py-3.5 px-7 rounded text-base font-semibold text-white/70 no-underline border border-white/10 bg-white/[0.04] hover:bg-white/[0.09] hover:text-white transition-all duration-150"
-              >
-                {t('home.hero.ctaSecondary')}
-              </a>
-            </div>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+            </form>
+            <a
+              href="#features"
+              onClick={scrollToFeatures}
+              className="lp-fade lp-fade-d4 inline-flex items-center gap-2 mt-3 text-sm font-medium text-white/50 no-underline hover:text-white/70 transition-colors"
+            >
+              {t('home.hero.ctaSecondary')}
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </a>
 
             {/* Trust badges */}
             <div className="lp-fade lp-fade-d4 flex flex-wrap items-center gap-x-5 gap-y-2 mt-6">
