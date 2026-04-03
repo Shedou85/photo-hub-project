@@ -25,7 +25,11 @@
       "trustNoCreditCard": "No credit card required",
       "trustFreeTrial": "30-day free trial",
       "trustCancelAnytime": "Cancel anytime",
-      "socialProof": "Join photographers already using PixelForge"
+      "socialProof": "Join photographers already using PixelForge",
+      "ctaBannerReady": "Ready to get started?",
+      "ctaBannerBtn": "Sign up for free",
+      "ctaBannerPortfolio": "Create your first gallery and deliver photos like a pro.",
+      "ctaBannerFaq": "Still have questions? Try it free — no commitment required."
     },
     "features": {
       "title": "Everything you need to deliver",

@@ -25,7 +25,11 @@
       "trustNoCreditCard": "Nereikia kortelės",
       "trustFreeTrial": "30 dienų nemokamai",
       "trustCancelAnytime": "Atšaukykite bet kada",
-      "socialProof": "Prisijunkite prie fotografų, kurie jau naudoja PixelForge"
+      "socialProof": "Prisijunkite prie fotografų, kurie jau naudoja PixelForge",
+      "ctaBannerReady": "Pasiruošę pradėti?",
+      "ctaBannerBtn": "Registruotis nemokamai",
+      "ctaBannerPortfolio": "Sukurkite savo pirmą galeriją ir pristatykite nuotraukas profesionaliai.",
+      "ctaBannerFaq": "Vis dar turite klausimų? Išbandykite nemokamai — jokių įsipareigojimų."
     },
     "features": {
       "title": "Viskas, ko reikia pristatymui",

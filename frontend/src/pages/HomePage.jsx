@@ -444,6 +444,18 @@ function HomePage() {
             />
           </div>
         </div>
+
+          {/* CTA banner after features */}
+          <div className="mt-14 text-center">
+            <p className="text-lg font-semibold text-gray-900 mb-3">{t('home.hero.ctaBannerReady')}</p>
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 py-3 px-7 rounded text-sm font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
+            >
+              {t('home.hero.ctaBannerBtn')}
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </Link>
+          </div>
       </section>
 
       {/* ── Why PixelForge ───────────────────────────────────────── */}
@@ -564,6 +576,18 @@ function HomePage() {
                 );
               })}
             </div>
+
+            {/* CTA banner after portfolio */}
+            <div className="mt-14 text-center">
+              <p className="text-base text-white/50 mb-4">{t('home.hero.ctaBannerPortfolio')}</p>
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 py-3 px-7 rounded text-sm font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
+              >
+                {t('home.hero.ctaBannerBtn')}
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </Link>
+            </div>
           </div>
         </section>
       )}
@@ -614,6 +638,18 @@ function HomePage() {
                 </p>
               </Accordion>
             ))}
+          </div>
+
+          {/* CTA banner after FAQ */}
+          <div className="mt-14 text-center">
+            <p className="text-base text-white/50 mb-4">{t('home.hero.ctaBannerFaq')}</p>
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 py-3 px-7 rounded text-sm font-semibold text-white no-underline bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] hover:opacity-90 transition-opacity duration-150 shadow-[0_4px_16px_rgba(99,102,241,0.35)]"
+            >
+              {t('home.hero.ctaBannerBtn')}
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </Link>
           </div>
         </div>
       </section>
