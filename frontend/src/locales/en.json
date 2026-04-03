@@ -105,7 +105,20 @@
     "heroPhotoAlt": "Professional photo delivery example",
     "footer": {
       "tagline": "Professional photo delivery for modern photographers.",
-      "rights": "© 2025 PixelForge. All rights reserved."
+      "rights": "© 2025 PixelForge. All rights reserved.",
+      "product": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "company": "Company",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "getStarted": "Get Started",
+      "getStartedDesc": "Start your free trial today. No credit card required.",
+      "getStartedBtn": "Create Free Account",
+      "madeWith": "Made with",
+      "forPhotographers": "for photographers"
     }
   },
   "login": {

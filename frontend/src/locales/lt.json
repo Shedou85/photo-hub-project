@@ -105,7 +105,20 @@
     "heroPhotoAlt": "Profesionalaus nuotraukų pristatymo pavyzdys",
     "footer": {
       "tagline": "Profesionalus nuotraukų pristatymas moderniems fotografams.",
-      "rights": "© 2025 PixelForge. Visos teisės saugomos."
+      "rights": "© 2025 PixelForge. Visos teisės saugomos.",
+      "product": "Produktas",
+      "features": "Funkcijos",
+      "pricing": "Kainos",
+      "faq": "DUK",
+      "company": "Įmonė",
+      "contact": "Susisiekite",
+      "privacy": "Privatumo politika",
+      "terms": "Naudojimo sąlygos",
+      "getStarted": "Pradėkite",
+      "getStartedDesc": "Pradėkite nemokamą bandomąjį laikotarpį šiandien. Kredito kortelės nereikia.",
+      "getStartedBtn": "Sukurti nemokamą paskyrą",
+      "madeWith": "Sukurta su",
+      "forPhotographers": "fotografams"
     }
   },
   "login": {
