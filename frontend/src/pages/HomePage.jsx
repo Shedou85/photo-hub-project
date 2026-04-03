@@ -79,6 +79,14 @@ const MAX_PROMO_PHOTOS = 12;
 // Aspect ratio variants for visual variety in the portfolio grid
 const ASPECT_RATIOS = ['3/4', '1/1', '4/5', '3/2', '2/3'];
 
+// Workflow status badges for portfolio hover overlay
+const WORKFLOW_STATUSES = [
+  { label: 'DRAFT', color: 'bg-green-400' },
+  { label: 'SELECTING', color: 'bg-blue-400' },
+  { label: 'REVIEWING', color: 'bg-violet-400' },
+  { label: 'DELIVERED', color: 'bg-emerald-400' },
+];
+
 function HomePage() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
@@ -553,15 +561,19 @@ function HomePage() {
               <h2 className="lp-fade font-serif-display text-[clamp(32px,4vw,48px)] font-bold text-white mb-4 leading-tight">
                 {t('promotional.homeSectionTitle')}
               </h2>
+              <p className="lp-fade lp-fade-d1 text-base text-white/50 max-w-lg mx-auto">
+                {t('home.portfolio.subtitle')}
+              </p>
             </div>
             <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
               {promoPhotos.map((photo, index) => {
                 const src = photoUrl(photo.thumbnailPath || photo.storagePath);
+                const status = WORKFLOW_STATUSES[index % WORKFLOW_STATUSES.length];
                 return (
                   <div
                     key={photo.photoId}
                     data-promo-item
-                    className="overflow-hidden rounded-lg break-inside-avoid group"
+                    className="relative overflow-hidden rounded-lg break-inside-avoid group cursor-pointer"
                     style={{ aspectRatio: photo.aspectRatio }}
                   >
                     <OptimizedImage
@@ -572,6 +584,15 @@ function HomePage() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       containerClassName="w-full h-full"
                     />
+                    {/* Hover overlay with workflow status */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3 w-full">
+                        <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1 w-fit">
+                          <div className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
+                          <span className="text-[10px] text-white/90 font-medium tracking-wide">{status.label}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               })}

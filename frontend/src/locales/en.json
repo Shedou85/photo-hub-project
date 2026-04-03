@@ -31,6 +31,9 @@
       "ctaBannerPortfolio": "Create your first gallery and deliver photos like a pro.",
       "ctaBannerFaq": "Still have questions? Try it free — no commitment required."
     },
+    "portfolio": {
+      "subtitle": "Hover over photos to see the workflow in action."
+    },
     "features": {
       "title": "Everything you need to deliver",
       "subtitle": "From the first shot to final delivery — PixelForge handles the workflow.",
