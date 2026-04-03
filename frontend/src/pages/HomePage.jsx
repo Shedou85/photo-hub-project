@@ -756,8 +756,8 @@ function HomePage() {
               <h4 className="text-xs font-semibold text-white/60 uppercase tracking-[0.08em] mb-3">{t('home.footer.company')}</h4>
               <ul className="space-y-2 list-none p-0 m-0">
                 <li><a href="mailto:pixelforge@pixelforge.pro" className="text-[13px] text-white/40 hover:text-white/70 transition-colors no-underline">{t('home.footer.contact')}</a></li>
-                <li><span className="text-[13px] text-white/20 cursor-default">{t('home.footer.privacy')}</span></li>
-                <li><span className="text-[13px] text-white/20 cursor-default">{t('home.footer.terms')}</span></li>
+                <li><Link to="/privacy" className="text-[13px] text-white/40 hover:text-white/70 transition-colors no-underline">{t('home.footer.privacy')}</Link></li>
+                <li><Link to="/terms" className="text-[13px] text-white/40 hover:text-white/70 transition-colors no-underline">{t('home.footer.terms')}</Link></li>
               </ul>
             </div>
 

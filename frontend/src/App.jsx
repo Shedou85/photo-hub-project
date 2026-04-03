@@ -21,6 +21,8 @@ import AdminRoute from './components/AdminRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
 import CookieConsentBanner from './components/CookieConsentBanner';
 import ErrorBoundary from './components/ErrorBoundary';
 import SessionExpiredModal from './components/SessionExpiredModal';
@@ -87,6 +89,8 @@ function App() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/share/:shareId" element={<SharePage />} />
       <Route path="/deliver/:deliveryToken" element={<DeliveryPage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
 
       <Route element={<ProtectedRoute><ResponsiveLayout /></ProtectedRoute>}>
         <Route path="/profile" element={<ProfilePage />} />
