@@ -21,7 +21,11 @@
       "headline2": "geriausius darbus.",
       "subtext": "PixelForge suteikia profesionaliems fotografams paprastą būdą organizuoti, dalytis ir pristatyti nuotraukų kolekcijas klientams.",
       "cta": "Pradėti nemokamai",
-      "ctaSecondary": "Žiūrėti funkcijas"
+      "ctaSecondary": "Žiūrėti funkcijas",
+      "trustNoCreditCard": "Nereikia kortelės",
+      "trustFreeTrial": "30 dienų nemokamai",
+      "trustCancelAnytime": "Atšaukykite bet kada",
+      "socialProof": "Prisijunkite prie fotografų, kurie jau naudoja PixelForge"
     },
     "features": {
       "title": "Viskas, ko reikia pristatymui",

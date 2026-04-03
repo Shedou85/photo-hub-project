@@ -304,6 +304,27 @@ function HomePage() {
                 {t('home.hero.ctaSecondary')}
               </a>
             </div>
+
+            {/* Trust badges */}
+            <div className="lp-fade lp-fade-d4 flex flex-wrap items-center gap-x-5 gap-y-2 mt-6">
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-white/40">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1.5"/><path d="M5 8l2 2 4-4" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {t('home.hero.trustNoCreditCard')}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-white/40">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1.5"/><path d="M5 8l2 2 4-4" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {t('home.hero.trustFreeTrial')}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-white/40">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1.5"/><path d="M5 8l2 2 4-4" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {t('home.hero.trustCancelAnytime')}
+              </span>
+            </div>
+
+            {/* Social proof */}
+            <p className="lp-fade lp-fade-d4 text-[13px] text-white/30 mt-4">
+              {t('home.hero.socialProof')}
+            </p>
           </div>
 
           {/* Right: Decorative photo grid */}
