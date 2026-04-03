@@ -32,6 +32,14 @@
       "ctaBannerPortfolio": "Sukurkite savo pirmą galeriją ir pristatykite nuotraukas profesionaliai.",
       "ctaBannerFaq": "Vis dar turite klausimų? Išbandykite nemokamai — jokių įsipareigojimų."
     },
+    "demo": {
+      "eyebrow": "Pažiūrėkite kaip veikia",
+      "title": "Paprastas, galingas darbo procesas",
+      "subtitle": "Nuo įkėlimo iki pristatymo — valdykite visą nuotraukų darbo eigą vienoje gražioje sąsajoje.",
+      "step1": "Tvarkykite kolekcijas",
+      "step2": "Valdykite darbo eigą",
+      "step3": "Pristatykite klientams"
+    },
     "portfolio": {
       "subtitle": "Užveskite pelę ant nuotraukų ir pamatykite kaip veikia darbo eiga."
     },

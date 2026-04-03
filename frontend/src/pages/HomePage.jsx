@@ -7,6 +7,7 @@ import OptimizedImage from '../components/primitives/OptimizedImage';
 import SEO from '../components/SEO';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import Accordion from '../components/Accordion';
+import AppDemo from '../components/AppDemo';
 
 const CHECK_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
@@ -438,6 +439,28 @@ function HomePage() {
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
           <span className="text-[11px] text-white tracking-widest uppercase">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white to-transparent" />
+        </div>
+      </section>
+
+      {/* ── Platform Demo ────────────────────────────────────────── */}
+      <section className="relative bg-surface-darker py-20 px-6 overflow-hidden">
+        {/* Subtle top gradient for seamless transition */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-surface-darker to-transparent pointer-events-none" />
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="lp-fade text-sm font-medium text-indigo-400 uppercase tracking-[0.15em] mb-3">
+              {t('home.demo.eyebrow')}
+            </p>
+            <h2 className="lp-fade lp-fade-d1 font-serif-display text-[clamp(28px,4vw,42px)] font-bold text-white mb-4 leading-tight">
+              {t('home.demo.title')}
+            </h2>
+            <p className="lp-fade lp-fade-d2 text-base text-white/50 max-w-lg mx-auto">
+              {t('home.demo.subtitle')}
+            </p>
+          </div>
+          <div className="lp-fade lp-fade-d3">
+            <AppDemo />
+          </div>
         </div>
       </section>
 

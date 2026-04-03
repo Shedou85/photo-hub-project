@@ -32,6 +32,14 @@
       "ctaBannerPortfolio": "Create your first gallery and deliver photos like a pro.",
       "ctaBannerFaq": "Still have questions? Try it free — no commitment required."
     },
+    "demo": {
+      "eyebrow": "See it in action",
+      "title": "Simple, powerful workflow",
+      "subtitle": "From upload to delivery — manage your entire photo workflow in one beautiful interface.",
+      "step1": "Organize collections",
+      "step2": "Manage workflow",
+      "step3": "Deliver to clients"
+    },
     "portfolio": {
       "subtitle": "Hover over photos to see the workflow in action."
     },
