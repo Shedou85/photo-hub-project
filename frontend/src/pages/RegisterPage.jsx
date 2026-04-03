@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation, Trans } from "react-i18next";
 import SEO from "../components/SEO";
@@ -16,6 +16,8 @@ function RegisterPage() {
   const [scrolled, setScrolled] = useState(false);
   const googleCallbackRef = useRef(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedPlan = searchParams.get('plan');
   const { login } = useAuth();
   const { t } = useTranslation();
 
@@ -135,7 +137,7 @@ function RegisterPage() {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, ...(selectedPlan && { plan: selectedPlan }) }),
         }
       );
 
@@ -219,6 +221,17 @@ function RegisterPage() {
           <h1 className="font-serif-display text-2xl font-bold text-white mb-6 mt-0">
             {t("register.title")}
           </h1>
+
+          {selectedPlan && (
+            <div className="mb-5 flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-500/10 border border-indigo-500/20">
+              <svg className="w-4 h-4 text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm text-indigo-300">
+                {t('register.selectedPlan', { plan: selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1) })}
+              </span>
+            </div>
+          )}
 
           {verificationSent ? (
             <div className="text-center py-4">

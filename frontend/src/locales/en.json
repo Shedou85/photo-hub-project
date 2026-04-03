@@ -155,6 +155,7 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "passwordMismatch": "Passwords do not match",
     "emailExists": "An account with this email already exists.",
+    "selectedPlan": "Selected plan: {{plan}}",
     "emailExistsHint": "Already have an account?",
     "loginLink": "Login here",
     "success": "Account created successfully!",

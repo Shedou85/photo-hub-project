@@ -155,6 +155,7 @@
     "passwordTooShort": "Slaptažodis turi būti bent 8 simbolių",
     "passwordMismatch": "Slaptažodžiai nesutampa",
     "emailExists": "Paskyra su šiuo el. paštu jau egzistuoja.",
+    "selectedPlan": "Pasirinktas planas: {{plan}}",
     "emailExistsHint": "Jau turite paskyrą?",
     "loginLink": "Prisijunkite čia",
     "success": "Paskyra sėkmingai sukurta!",

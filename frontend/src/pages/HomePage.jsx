@@ -29,7 +29,7 @@ function FeatureCard({ icon, title, desc, delay }) {
   );
 }
 
-function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badge, blurred }) {
+function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badge, blurred, planSlug }) {
   return (
     <div
       className={`relative flex flex-col rounded-lg p-8 ${
@@ -60,7 +60,7 @@ function PlanCard({ name, price, perMonth, features, ctaLabel, highlighted, badg
           ))}
         </ul>
         <Link
-          to="/login"
+          to={`/register${planSlug ? `?plan=${planSlug}` : ''}`}
           className={`block text-center py-3 px-6 rounded text-sm font-semibold no-underline transition-all duration-150 ${
             highlighted
               ? 'bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white hover:opacity-90 shadow-[0_4px_16px_rgba(99,102,241,0.4)]'
@@ -132,6 +132,7 @@ function HomePage() {
       features: [t('home.plans.freeF1'), t('home.plans.freeF2'), t('home.plans.freeF3'), t('home.plans.freeF4')],
       ctaLabel: t('home.plans.freeCta'),
       highlighted: false,
+      planSlug: 'free',
     },
     {
       name: t('home.plans.professional'),
@@ -142,6 +143,7 @@ function HomePage() {
       highlighted: true,
       badge: t('home.plans.popular'),
       blurred: false,
+      planSlug: 'professional',
     },
     {
       name: t('home.plans.business'),
@@ -152,6 +154,7 @@ function HomePage() {
       highlighted: false,
       badge: t('home.plans.bestValue'),
       blurred: false,
+      planSlug: 'business',
     },
   ];
 

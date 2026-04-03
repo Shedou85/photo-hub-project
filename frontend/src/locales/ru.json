@@ -155,6 +155,7 @@
     "passwordTooShort": "Пароль должен быть не менее 8 символов",
     "passwordMismatch": "Пароли не совпадают",
     "emailExists": "Аккаунт с этой почтой уже существует.",
+    "selectedPlan": "Выбранный план: {{plan}}",
     "emailExistsHint": "Уже есть аккаунт?",
     "loginLink": "Войдите здесь",
     "success": "Аккаунт успешно создан!",
