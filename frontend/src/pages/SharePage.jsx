@@ -7,6 +7,7 @@ import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/Selectio
 import UpgradeModal from "../components/primitives/UpgradeModal";
 import OptimizedImage from "../components/primitives/OptimizedImage";
 import SharePhotoCard from "../components/collection/SharePhotoCard";
+import ShareLightbox from "../components/collection/ShareLightbox";
 import { useImageLoadingSet } from "../hooks/useImageLoading";
 import { getAccentButtonStyle } from "../utils/brandingUtils";
 import SEO from "../components/SEO";
@@ -34,6 +35,7 @@ function SharePage() {
   const [shareToken, setShareToken] = useState(null);
   const [scrollY, setScrollY] = useState(0);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [preferredColumnCount, setPreferredColumnCount] = useState(null); // null means auto
   const { handleImageLoad, isImageLoaded } = useImageLoadingSet();
   const preloadedRef = useRef(new Set());
 
@@ -49,12 +51,21 @@ function SharePage() {
     };
   }, []);
 
-  // Determine column count based on width
+  // Determine column count based on width and preference
   const columnCount = useMemo(() => {
+    if (windowWidth < 640) return 2; // Mobile always 2
+    
+    if (preferredColumnCount) {
+      // Respect preference but cap at 3 for tablets
+      if (windowWidth < 1024) return Math.min(preferredColumnCount, 3);
+      return preferredColumnCount;
+    }
+
+    // Auto defaults
     if (windowWidth >= 1024) return 4;
     if (windowWidth >= 768) return 3;
     return 2;
-  }, [windowWidth]);
+  }, [windowWidth, preferredColumnCount]);
 
   // Distribute photos into columns for a stable masonry feel
   const columns = useMemo(() => {
@@ -363,21 +374,39 @@ function SharePage() {
     fetchCollection();
   }, [shareId, collectionPassword]);
 
-  // ── Loading state (skeleton) ──
+  // ── Loading state (Advanced Masonry Skeleton) ──
   if (loading) {
+    const skeletonColumnCount = windowWidth >= 1024 ? 4 : windowWidth >= 768 ? 3 : 2;
     return (
       <div className="min-h-screen bg-slate-950 font-sans">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12">
           {/* Header skeleton */}
-          <div className="text-center mb-12 animate-pulse">
-            <div className="h-3 w-24 bg-white/[0.06] rounded mx-auto mb-5" />
-            <div className="h-10 w-72 bg-white/[0.06] rounded-lg mx-auto mb-3" />
-            <div className="h-4 w-32 bg-white/[0.03] rounded mx-auto" />
+          <div className="text-center mb-16 animate-pulse">
+            <div className="h-4 w-24 bg-white/[0.05] rounded-full mx-auto mb-6" />
+            <div className="h-16 w-3/4 max-w-lg bg-white/[0.05] rounded-2xl mx-auto mb-4" />
+            <div className="h-4 w-48 bg-white/[0.03] rounded-lg mx-auto" />
           </div>
-          {/* Grid skeleton */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-[4/5] rounded-lg bg-white/[0.06] animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+
+          {/* Masonry Grid Skeleton */}
+          <div className="flex gap-4 items-start max-w-7xl mx-auto">
+            {Array.from({ length: skeletonColumnCount }).map((_, colIdx) => (
+              <div key={colIdx} className="flex-1 flex flex-col gap-4">
+                {[...Array(colIdx % 2 === 0 ? 3 : 4)].map((_, i) => {
+                  // Varied heights for masonry feel
+                  const heights = ['aspect-[4/5]', 'aspect-[3/2]', 'aspect-[1/1]', 'aspect-[2/3]'];
+                  const heightClass = heights[(i + colIdx) % heights.length];
+                  
+                  return (
+                    <div 
+                      key={i} 
+                      className={`relative w-full ${heightClass} rounded-xl bg-white/[0.03] overflow-hidden border border-white/[0.05]`}
+                    >
+                      {/* Shimmer effect */}
+                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent" />
+                    </div>
+                  );
+                })}
+              </div>
             ))}
           </div>
         </div>
@@ -624,6 +653,33 @@ function SharePage() {
 
       {/* ── Photo Grid ── */}
       <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 ${canSelect && selectedCount > 0 ? 'pb-28' : 'pb-12'}`}>
+        
+        {/* Grid Density Controls */}
+        {photos.length > 0 && (
+          <div className="flex justify-end mb-8 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
+            <div className="flex items-center gap-1.5 p-1.5 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+              {[2, 3, 4].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setPreferredColumnCount(num)}
+                  className={`flex items-center justify-center w-11 h-10 rounded-xl transition-all duration-500 ${
+                    columnCount === num 
+                      ? 'bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]' 
+                      : 'text-white/20 hover:text-white/50 hover:bg-white/[0.05]'
+                  }`}
+                  title={`${num} ${t('common.columns', { defaultValue: 'Columns' })}`}
+                >
+                  <div className="flex gap-1">
+                    {Array.from({ length: num }).map((_, i) => (
+                      <div key={i} className={`w-[3px] h-3.5 rounded-full transition-colors duration-500 ${columnCount === num ? 'bg-indigo-400' : 'bg-current'}`} />
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {photos.length > 0 && (
           <div className="flex gap-4 items-start">
             {columns.map((columnPhotos, colIdx) => (
@@ -732,140 +788,22 @@ function SharePage() {
       )}
 
       {/* ── Lightbox ── */}
-      {lightboxIndex !== null && photos[lightboxIndex] && (
-        <div
-          className="fixed inset-0 z-50 bg-black"
-          onClick={() => setLightboxIndex(null)}
-        >
-          {/* Top gradient fade */}
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none" />
-
-          {/* Close button */}
-          <button
-            onClick={() => setLightboxIndex(null)}
-            aria-label={t("share.lightboxClose")}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all z-20"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Counter */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 text-xs text-white/30 font-medium tabular-nums">
-            {lightboxIndex + 1} / {photos.length}
-          </div>
-
-          {/* Selection toggle in lightbox */}
-          {canSelect && hasProFeatures && (
-            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5">
-              {[
-                { label: 'FAVORITE', icon: 'star', bg: 'bg-amber-500', shadow: 'shadow-amber-500/30' },
-                { label: 'SELECTED', icon: 'check', bg: 'bg-indigo-500', shadow: 'shadow-indigo-500/30' },
-                { label: 'REJECTED', icon: 'x', bg: 'bg-red-500', shadow: 'shadow-red-500/30' },
-              ].map(({ label, icon, bg, shadow }) => {
-                const isActive = photoLabels.get(photos[lightboxIndex].id) === label;
-                return (
-                  <button
-                    key={label}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLabel(photos[lightboxIndex].id, label);
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? `${bg} text-white shadow-lg ${shadow}`
-                        : 'bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white'
-                    }`}
-                  >
-                    {icon === 'star' && (
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    )}
-                    {icon === 'check' && (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                    {icon === 'x' && (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    )}
-                    {t(`share.label${label.charAt(0) + label.slice(1).toLowerCase()}`)}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          {canSelect && !hasProFeatures && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleSelection(photos[lightboxIndex].id);
-              }}
-              className={`absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                selectedPhotoIds.has(photos[lightboxIndex].id)
-                  ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                  : 'bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              {selectedPhotoIds.has(photos[lightboxIndex].id) ? t('share.selected') : t('share.select')}
-            </button>
-          )}
-
-          {/* Image */}
-          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-20">
-            <img
-              src={collection.watermarked
-                ? watermarkedPreviewUrl(shareId, photos[lightboxIndex].id, shareToken)
-                : photoUrl(photos[lightboxIndex].storagePath)}
-              alt={photos[lightboxIndex].filename}
-              className="max-w-full max-h-full object-contain rounded select-none animate-scale-in"
-              crossOrigin={collection.watermarked ? "use-credentials" : undefined}
-              onClick={(e) => e.stopPropagation()}
-              onContextMenu={(e) => e.preventDefault()}
-              draggable={false}
-            />
-          </div>
-
-          {/* Prev — full-height invisible hit area */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
-            }}
-            aria-label={t("share.lightboxPrev")}
-            className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 z-10 flex items-center justify-start pl-2 sm:pl-6 group/nav cursor-pointer"
-          >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all opacity-0 group-hover/nav:opacity-100">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-          </button>
-
-          {/* Next — full-height invisible hit area */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
-            }}
-            aria-label={t("share.lightboxNext")}
-            className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 z-10 flex items-center justify-end pr-2 sm:pr-6 group/nav cursor-pointer"
-          >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all opacity-0 group-hover/nav:opacity-100">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </button>
-        </div>
-      )}
+      <ShareLightbox
+        isOpen={lightboxIndex !== null}
+        currentIndex={lightboxIndex}
+        photos={photos}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={setLightboxIndex}
+        canSelect={canSelect}
+        hasProFeatures={hasProFeatures}
+        photoLabels={photoLabels}
+        onSetLabel={setLabel}
+        toggleSelection={toggleSelection}
+        selectedPhotoIds={selectedPhotoIds}
+        shareId={shareId}
+        shareToken={shareToken}
+        collectionWatermarked={collection?.watermarked}
+      />
 
       {/* ── Review Modal ── */}
       {showReviewModal && (

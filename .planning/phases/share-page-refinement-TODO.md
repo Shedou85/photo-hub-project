@@ -9,16 +9,16 @@ Status: 🟢 Not Started | 🟡 In Progress | ✅ Completed
 
 ## Phase 2: Grid & Layout 🟡
 - [x] **2.1. Masonry Grid:** Switch from a rigid grid to a Masonry layout to better handle mixed portrait/landscape photos. ✅
-- [ ] **2.2. Grid Density Toggle:** Add a control for the user to switch between different grid sizes (2, 3, or 4 columns). 🟡
+- [x] **2.2. Grid Density Toggle:** Add a control for the user to switch between different grid sizes (2, 3, or 4 columns). ✅
 
-## Phase 3: Interactions & Animations 🟢
-- [ ] **3.1. Tilt Effect:** Add a subtle 3D tilt effect to photo cards on hover.
-- [ ] **3.2. Selection Feedback:** Add "particle" or "glow" burst effects when a photo is favorited or selected.
-- [ ] **3.3. Advanced Skeletons:** Implement "shimmering" skeleton loaders that match the Masonry layout.
+## Phase 3: Interactions & Animations 🟡
+- [x] **3.1. Tilt Effect:** Add a subtle 3D tilt effect to photo cards on hover. ✅
+- [x] **3.2. Selection Feedback:** Add "particle" or "glow" burst effects when a photo is favorited or selected. ✅
+- [x] **3.3. Advanced Skeletons:** Implement "shimmering" skeleton loaders that match the Masonry layout. ✅
 
-## Phase 4: Lightbox & UX 🟢
-- [ ] **4.1. Thumbnail Strip:** Add a scrollable thumbnail preview at the bottom of the Lightbox.
-- [ ] **4.2. Mobile Gestures:** Enhance swipe gestures and "pinch-to-zoom" feel for mobile users.
+## Phase 4: Lightbox & UX 🟡
+- [ ] **4.1. Thumbnail Strip:** (Discarded - prioritized image size for better detail) ❌
+- [ ] **4.2. Mobile Gestures:** Enhance swipe gestures and "pinch-to-zoom" feel for mobile users. 🟡
 
 ## Phase 5: Final Polish 🟢
 - [ ] **5.1. Glassmorphism:** Audit and apply consistent glassmorphism (backdrop-blur) across all UI elements.
