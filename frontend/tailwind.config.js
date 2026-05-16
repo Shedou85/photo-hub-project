@@ -15,6 +15,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        'serif-display': ['"Playfair Display"', 'serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1.125rem' }],      // 12px / 18px

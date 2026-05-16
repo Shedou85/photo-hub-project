@@ -6,6 +6,7 @@ import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
 import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/SelectionBorder";
 import UpgradeModal from "../components/primitives/UpgradeModal";
 import OptimizedImage from "../components/primitives/OptimizedImage";
+import SharePhotoCard from "../components/collection/SharePhotoCard";
 import { useImageLoadingSet } from "../hooks/useImageLoading";
 import { getAccentButtonStyle } from "../utils/brandingUtils";
 import SEO from "../components/SEO";
@@ -31,8 +32,39 @@ function SharePage() {
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [collectionPassword, setCollectionPassword] = useState('');
   const [shareToken, setShareToken] = useState(null);
+  const [scrollY, setScrollY] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const { handleImageLoad, isImageLoaded } = useImageLoadingSet();
   const preloadedRef = useRef(new Set());
+
+  // Track scroll and window size
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Determine column count based on width
+  const columnCount = useMemo(() => {
+    if (windowWidth >= 1024) return 4;
+    if (windowWidth >= 768) return 3;
+    return 2;
+  }, [windowWidth]);
+
+  // Distribute photos into columns for a stable masonry feel
+  const columns = useMemo(() => {
+    if (!collection?.photos) return [];
+    const cols = Array.from({ length: columnCount }, () => []);
+    collection.photos.forEach((photo, idx) => {
+      cols[idx % columnCount].push(photo);
+    });
+    return cols;
+  }, [collection?.photos, columnCount]);
 
   const canSelect = collection?.status === 'SELECTING';
   const hasProFeatures = collection?.proFeatures ?? false;
@@ -456,236 +488,173 @@ function SharePage() {
         path={`/share/${shareId}`}
         noindex
       />
-      {/* ── Hero Section with Blurred Cover ── */}
-      <div className="relative overflow-hidden">
-        {/* Blurred cover background */}
+      {/* ── Hero Section with Parallax Cover ── */}
+      <div className="relative h-[65vh] sm:h-[85vh] overflow-hidden flex items-center justify-center">
+        {/* Parallax background wrapper */}
         {coverPhoto && (
-          <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 z-0 will-change-transform"
+            style={{ 
+              transform: `translateY(${scrollY * 0.4}px)`,
+            }}
+          >
             <img
               src={collection.watermarked && coverPhoto.watermarkedThumbnailPath
                 ? photoUrl(coverPhoto.watermarkedThumbnailPath)
                 : photoUrl(coverPhoto.thumbnailPath ?? coverPhoto.storagePath)}
               alt=""
-              className="w-full h-full object-cover blur-[40px] brightness-[0.3] scale-110"
+              className="w-full h-full object-cover scale-110 brightness-[0.45]"
               aria-hidden="true"
             />
           </div>
         )}
 
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/80 to-slate-950" />
+        {/* Refined gradient overlay for better text contrast and transition to grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(2,6,23,0.3)_100%)] z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-slate-950/40 to-slate-950 z-[2]" />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-10 sm:pb-14 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           {/* Photographer branding logo */}
           {branding?.logoUrl && (
-            <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0s', opacity: 0 }}>
+            <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '0s', opacity: 0 }}>
               <img
                 src={branding.logoUrl}
                 alt={branding.photographerName || ''}
-                className="h-10 sm:h-12 mx-auto object-contain opacity-80"
+                className="h-12 sm:h-16 mx-auto object-contain opacity-90 drop-shadow-2xl"
               />
             </div>
           )}
 
           {/* Client name eyebrow */}
-          <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-4 font-medium animate-fade-in-up" style={{ animationDelay: '0.05s', opacity: 0 }}>
-            {collection.clientName || 'Gallery'}
-          </p>
+          <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 mb-8 animate-fade-in-up shadow-2xl" style={{ animationDelay: '0.05s', opacity: 0 }}>
+            <p className="text-[10px] sm:text-[12px] uppercase tracking-[0.4em] text-white/80 font-bold">
+              {collection.clientName || 'Gallery'}
+            </p>
+          </div>
 
-          {/* Collection name */}
-          <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 animate-fade-in-up" style={{ animationDelay: '0.15s', opacity: 0 }}>
-            {collection.name}
+          {/* Collection name - Enhanced Typography with Gradient & Serif */}
+          <h1 className="font-serif-display text-6xl sm:text-8xl lg:text-9xl font-black mb-8 animate-fade-in-up drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] leading-[0.9] tracking-tight" style={{ animationDelay: '0.15s', opacity: 0 }}>
+            <span className="bg-[linear-gradient(180deg,#ffffff_30%,#a5b4fc_100%)] bg-clip-text text-transparent italic mr-2">
+              {collection.name.split(' ')[0]}
+            </span>
+            <span className="text-white block sm:inline mt-2 sm:mt-0">
+              {collection.name.split(' ').slice(1).join(' ')}
+            </span>
           </h1>
 
-          {/* Subtitle for clients */}
+          {/* Subtitle for clients - Light weight and better spacing */}
           {canSelect && (
-            <p className="text-sm sm:text-base text-white/40 mb-4 animate-fade-in-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
+            <p className="text-lg sm:text-xl text-white/50 mb-12 max-w-2xl mx-auto font-light leading-relaxed animate-fade-in-up tracking-wide" style={{ animationDelay: '0.25s', opacity: 0 }}>
               {t('share.heroSubtitle')}
             </p>
           )}
 
-          {/* Photo count */}
-          <p className="text-sm text-white/30 mb-6 animate-fade-in-up" style={{ animationDelay: '0.3s', opacity: 0 }}>
-            {t("share.photosCount", { count: photos.length })}
-          </p>
-
-          {/* Selection progress pill + bar */}
-          {canSelect && (selectedCount > 0 || selectionLimit !== null) && (
-            <div className="animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              {selectionLimit !== null ? (
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${
-                  isLimitReached
-                    ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
-                    : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
-                }`}>
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  {t('share.selectionLimit', { current: nonRejectedCount, limit: selectionLimit })}
-                </div>
-              ) : hasProFeatures ? (
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-sm font-medium mb-4">
-                  {labelCounts.FAVORITE > 0 && (
-                    <span className="flex items-center gap-1.5 text-amber-400">
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      {labelCounts.FAVORITE}
-                    </span>
-                  )}
-                  {labelCounts.SELECTED > 0 && (
-                    <span className="flex items-center gap-1.5 text-indigo-400">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {labelCounts.SELECTED}
-                    </span>
-                  )}
-                  {labelCounts.REJECTED > 0 && (
-                    <span className="flex items-center gap-1.5 text-red-400">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      {labelCounts.REJECTED}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium mb-4">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  {t('share.selectedCount', { count: selectedCount })}
-                </div>
-              )}
-              {/* Progress bar */}
-              <div className="flex justify-center">
-                <div className="w-48 h-[3px] bg-white/10 rounded-full overflow-hidden">
+          {/* Photo count and Selection progress */}
+          <div className="flex flex-col items-center gap-6 animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
+            {canSelect && (selectedCount > 0 || selectionLimit !== null) && (
+              <div className="flex flex-col items-center">
+                {selectionLimit !== null ? (
+                  <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold mb-4 backdrop-blur-md ${
+                    isLimitReached
+                      ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
+                      : 'bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.2)]'
+                  }`}>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {t('share.selectionLimit', { current: nonRejectedCount, limit: selectionLimit })}
+                  </div>
+                ) : hasProFeatures ? (
+                  <div className="inline-flex items-center gap-4 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm font-semibold mb-4 shadow-xl">
+                    {labelCounts.FAVORITE > 0 && (
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        {labelCounts.FAVORITE}
+                      </span>
+                    )}
+                    {labelCounts.SELECTED > 0 && (
+                      <span className="flex items-center gap-1.5 text-indigo-400">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {labelCounts.SELECTED}
+                      </span>
+                    )}
+                    {labelCounts.REJECTED > 0 && (
+                      <span className="flex items-center gap-1.5 text-red-400">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        {labelCounts.REJECTED}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-sm font-semibold mb-4 backdrop-blur-md shadow-lg">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {t('share.selectedCount', { count: selectedCount })}
+                  </div>
+                )}
+                {/* Progress bar */}
+                <div className="w-56 h-[4px] bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${!accentColor ? 'bg-gradient-to-r from-indigo-500 to-indigo-400' : ''}`}
-                    style={{ width: `${progressPercent}%`, ...(accentColor ? { background: accentColor } : {}) }}
+                    className={`h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(99,102,241,0.5)] ${!accentColor ? 'bg-gradient-to-r from-indigo-500 to-blue-400' : ''}`}
+                    style={{ width: `${progressPercent}%`, ...(accentColor ? { background: accentColor, boxShadow: `0 0 10px ${accentColor}80` } : {}) }}
                   />
                 </div>
               </div>
-            </div>
-          )}
+            )}
+            <p className="text-[12px] tracking-[0.2em] text-white/40 uppercase font-medium">
+              {t("share.photosCount", { count: photos.length })}
+            </p>
+          </div>
+        </div>
+
+        {/* Scroll indicator mouse icon */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 animate-bounce opacity-30">
+          <div className="w-5 h-8 border-2 border-white rounded-full flex justify-center pt-2">
+            <div className="w-1 h-1 bg-white rounded-full" />
+          </div>
         </div>
       </div>
 
       {/* ── Photo Grid ── */}
-      <div className={`max-w-5xl mx-auto px-4 sm:px-6 ${canSelect && selectedCount > 0 ? 'pb-28' : 'pb-12'}`}>
+      <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 ${canSelect && selectedCount > 0 ? 'pb-28' : 'pb-12'}`}>
         {photos.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {photos.map((photo, index) => {
-              const photoLabel = photoLabels.get(photo.id);
-              const isLabeled = !!photoLabel;
-              const glowClass = photoLabel ? (GLOW_CLASSES[photoLabel] || 'selection-glow') : '';
-              return (
-                <div
-                  key={photo.id}
-                  className={`photo-card-enter group relative aspect-[4/5] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                    isLabeled
-                      ? `${glowClass || 'selection-glow'} scale-[1.02]`
-                      : 'hover:scale-[1.03]'
-                  }`}
-                  style={{ animationDelay: `${Math.min(index * 60, 600)}ms` }}
-                  onClick={() => setLightboxIndex(index)}
-                >
-                  <OptimizedImage
-                    src={collection.watermarked && photo.watermarkedThumbnailPath
-                      ? photoUrl(photo.watermarkedThumbnailPath)
-                      : photoUrl(photo.thumbnailPath ?? photo.storagePath)}
-                    alt={photo.filename}
-                    lqip={photo.lqip}
-                    isLoaded={isImageLoaded(photo.id)}
-                    onLoad={() => handleImageLoad(photo.id)}
-                    priority={index < 6}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.08] select-none"
-                    containerClassName="w-full h-full"
-                    onContextMenu={(e) => e.preventDefault()}
-                    draggable={false}
-                  />
-
-                  {/* Bottom vignette on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  {/* Selected overlay border + animated trace */}
-                  {isLabeled && <SelectionBorder label={photoLabel} />}
-
-                  {/* Label buttons — vertical stack of 3 */}
-                  {canSelect && (() => {
-                    const isThisPhotoNonRejected = photoLabel === 'SELECTED' || photoLabel === 'FAVORITE';
-                    const limitBlocksNew = isLimitReached && !isThisPhotoNonRejected;
-                    return (
-                    <div className="absolute top-2 right-2 flex flex-col gap-1.5">
-                      {/* Favorite button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLabel(photo.id, 'FAVORITE');
-                        }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                          photoLabel === 'FAVORITE'
-                            ? 'bg-amber-500 shadow-lg shadow-amber-500/40'
-                            : !hasProFeatures || limitBlocksNew
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
-                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-amber-500/70'
-                        }`}
-                        title={limitBlocksNew ? t('share.selectionLimitReached') : undefined}
-                        aria-label={t('share.labelFavorite')}
-                      >
-                        <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </button>
-                      {/* Selected button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLabel(photo.id, 'SELECTED');
-                        }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                          photoLabel === 'SELECTED'
-                            ? `${!accentColor ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40' : 'shadow-lg'}`
-                            : limitBlocksNew
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
-                              : `bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 ${!accentColor ? 'hover:bg-indigo-500/70' : ''}`
-                        }`}
-                        style={photoLabel === 'SELECTED' && accentColor
-                          ? { backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}66` }
-                          : (photoLabel !== 'SELECTED' && accentColor ? { '--hover-bg': `${accentColor}b3` } : {})}
-                        title={limitBlocksNew ? t('share.selectionLimitReached') : undefined}
-                        aria-label={t('share.labelSelected')}
-                      >
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                      {/* Rejected button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLabel(photo.id, 'REJECTED');
-                        }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                          photoLabel === 'REJECTED'
-                            ? 'bg-red-500 shadow-lg shadow-red-500/40'
-                            : hasProFeatures
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-red-500/70'
-                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
-                        }`}
-                        aria-label={t('share.labelRejected')}
-                      >
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                    );
-                  })()}
-                </div>
-              );
-            })}
+          <div className="flex gap-4 items-start">
+            {columns.map((columnPhotos, colIdx) => (
+              <div key={colIdx} className="flex-1 flex flex-col gap-4">
+                {columnPhotos.map((photo) => {
+                  const photoLabel = photoLabels.get(photo.id);
+                  const isLabeled = !!photoLabel;
+                  const originalIndex = photos.findIndex(p => p.id === photo.id);
+                  
+                  return (
+                    <SharePhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      collection={collection}
+                      photoLabel={photoLabel}
+                      isLabeled={isLabeled}
+                      originalIndex={originalIndex}
+                      onOpenLightbox={setLightboxIndex}
+                      onSetLabel={setLabel}
+                      canSelect={canSelect}
+                      isLimitReached={isLimitReached}
+                      hasProFeatures={hasProFeatures}
+                      accentColor={accentColor}
+                      isImageLoaded={isImageLoaded(photo.id)}
+                      onImageLoad={() => handleImageLoad(photo.id)}
+                      requestsInFlight={requestsInFlight}
+                    />
+                  );
+                })}
+              </div>
+            ))}
           </div>
         )}
 
