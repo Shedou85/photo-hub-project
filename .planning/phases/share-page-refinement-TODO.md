@@ -16,10 +16,10 @@ Status: 🟢 Not Started | 🟡 In Progress | ✅ Completed
 - [x] **3.2. Selection Feedback:** Add "particle" or "glow" burst effects when a photo is favorited or selected. ✅
 - [x] **3.3. Advanced Skeletons:** Implement "shimmering" skeleton loaders that match the Masonry layout. ✅
 
-## Phase 4: Lightbox & UX 🟡
+## Phase 4: Lightbox & UX ✅
 - [ ] **4.1. Thumbnail Strip:** (Discarded - prioritized image size for better detail) ❌
-- [ ] **4.2. Mobile Gestures:** Enhance swipe gestures and "pinch-to-zoom" feel for mobile users. 🟡
+- [x] **4.2. Mobile Gestures:** Enhance swipe gestures and "pinch-to-zoom" feel for mobile users. ✅
 
-## Phase 5: Final Polish 🟢
-- [ ] **5.1. Glassmorphism:** Audit and apply consistent glassmorphism (backdrop-blur) across all UI elements.
+## Phase 5: Final Polish 🟡
+- [ ] **5.1. Glassmorphism:** Audit and apply consistent glassmorphism (backdrop-blur) across all UI elements. 🟡
 - [ ] **5.2. Performance Optimization:** Ensure smooth 60fps animations even with many high-res photos.

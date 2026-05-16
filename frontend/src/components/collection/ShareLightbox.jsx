@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { photoUrl, watermarkedPreviewUrl } from '../../utils/photoUrl';
+import { useSwipe } from '../../hooks/useSwipe';
 
 const ShareLightbox = ({
   isOpen,
@@ -21,8 +22,15 @@ const ShareLightbox = ({
   const { t } = useTranslation();
   const thumbnailsRef = useRef(null);
   const activeThumbRef = useRef(null);
+  
+  // Mobile Gestures
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: () => onNavigate(currentIndex < photos.length - 1 ? currentIndex + 1 : 0),
+    onSwipeRight: () => onNavigate(currentIndex > 0 ? currentIndex - 1 : photos.length - 1),
+    onSwipeDown: onClose
+  });
 
-  // Scroll active thumbnail into view
+  // Scroll active thumbnail into view (if we had thumbnails, keeping for stability/future)
   useEffect(() => {
     if (activeThumbRef.current && thumbnailsRef.current) {
       activeThumbRef.current.scrollIntoView({
@@ -39,8 +47,9 @@ const ShareLightbox = ({
 
   return (
     <div
-      className="fixed inset-0 z-[70] bg-black/98 backdrop-blur-md flex flex-col overflow-hidden"
+      className="fixed inset-0 z-[70] bg-black/98 backdrop-blur-md flex flex-col overflow-hidden touch-none"
       onClick={onClose}
+      {...swipeHandlers}
     >
       {/* Top gradient fade */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none" />
