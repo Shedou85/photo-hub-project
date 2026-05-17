@@ -5,6 +5,9 @@ import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 
+// UNLIMITED_ACCESS: kai true — plan kortelės slepiamos, rodomas nemokamo prieigos pranešimas.
+const UNLIMITED_ACCESS = true;
+
 const CheckIcon = () => (
   <svg
     className="w-4 h-4 text-blue-500 flex-shrink-0"
@@ -320,25 +323,37 @@ const PaymentsPage = () => {
           {t('payments.plansTitle')}
         </h2>
         <p className="mt-0 mb-4 text-sm text-white/50">{t('payments.plansSubtitle')}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.key}
-              planKey={plan.key}
-              name={plan.name}
-              price={plan.price}
-              perMonth={plan.perMonth}
-              features={plan.features}
-              isCurrent={userPlan === plan.key}
-              highlighted={plan.highlighted}
-              badge={plan.badge}
-              userPlan={userPlan}
-              subscriptionStatus={subscriptionStatus}
-              onCheckout={handleCheckout}
-              loadingPlan={loadingPlan}
-            />
-          ))}
-        </div>
+        {UNLIMITED_ACCESS ? (
+          <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl px-6 py-8 flex flex-col items-center text-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-1">
+              <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-white font-semibold text-base m-0">Visos funkcijos prieinamos nemokamai</p>
+            <p className="text-white/50 text-sm m-0">Šiuo metu visi naudotojai gali naudotis visomis platformos funkcijomis be jokių apribojimų.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {plans.map((plan) => (
+              <PlanCard
+                key={plan.key}
+                planKey={plan.key}
+                name={plan.name}
+                price={plan.price}
+                perMonth={plan.perMonth}
+                features={plan.features}
+                isCurrent={userPlan === plan.key}
+                highlighted={plan.highlighted}
+                badge={plan.badge}
+                userPlan={userPlan}
+                subscriptionStatus={subscriptionStatus}
+                onCheckout={handleCheckout}
+                loadingPlan={loadingPlan}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Payment History Card */}

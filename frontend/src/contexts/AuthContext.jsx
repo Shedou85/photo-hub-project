@@ -1,6 +1,10 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { api, resetCsrfToken, setOnUnauthorized } from '../lib/api';
 
+// UNLIMITED_ACCESS: kai true — visi naudotojai matomi kaip PRO, visi plan tikrinimai išjungti.
+// Pakeiskite į false kai norėsite įjungti subscription logiką.
+const UNLIMITED_ACCESS = true;
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -34,7 +38,10 @@ export const AuthProvider = ({ children }) => {
 
             if (!cancelled) {
                 if (status === 200 && data?.status === 'OK' && data?.user) {
-                    setUser(data.user);
+                    const userData = UNLIMITED_ACCESS
+                        ? { ...data.user, plan: 'PRO', subscriptionStatus: 'ACTIVE' }
+                        : data.user;
+                    setUser(userData);
                 } else {
                     setUser(null);
                 }
@@ -48,13 +55,19 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = useCallback((userData) => {
-        setUser(userData);
+        const finalUser = UNLIMITED_ACCESS
+            ? { ...userData, plan: 'PRO', subscriptionStatus: 'ACTIVE' }
+            : userData;
+        setUser(finalUser);
     }, []);
 
     const refreshUser = useCallback(async () => {
         const { data, status } = await api.get('/auth/me');
         if (status === 200 && data?.status === 'OK' && data?.user) {
-            setUser(data.user);
+            const userData = UNLIMITED_ACCESS
+                ? { ...data.user, plan: 'PRO', subscriptionStatus: 'ACTIVE' }
+                : data.user;
+            setUser(userData);
         }
     }, []);
 

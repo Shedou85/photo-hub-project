@@ -146,37 +146,51 @@ try {
         $subStatus = $userData['subscriptionStatus'];
         $totalCreated = (int)$userData['collectionsCreatedCount'];
 
-        // Auto-downgrade expired trial if not yet marked (skip admins)
-        if ($userPlan === 'FREE_TRIAL' && ($_SESSION['role'] ?? '') !== 'ADMIN') {
-            // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
-            if ($userData['trialEndsAt'] === null) {
-                $backfillDate = new DateTime($userData['createdAt']);
-                $backfillDate->modify('+30 days');
-                $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
-                $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
-                    ->execute([$backfillStr, $userId]);
-                $userData['trialEndsAt'] = $backfillStr;
-            }
-            if ($subStatus !== 'INACTIVE') {
-                $trialEnd = new DateTime($userData['trialEndsAt']);
-                if (new DateTime() >= $trialEnd) {
-                    $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
-                        ->execute([date('Y-m-d H:i:s.v'), $userId]);
-                    $subStatus = 'INACTIVE';
+        if (!UNLIMITED_ACCESS) {
+            // Auto-downgrade expired trial if not yet marked (skip admins)
+            if ($userPlan === 'FREE_TRIAL' && ($_SESSION['role'] ?? '') !== 'ADMIN') {
+                // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
+                if ($userData['trialEndsAt'] === null) {
+                    $backfillDate = new DateTime($userData['createdAt']);
+                    $backfillDate->modify('+30 days');
+                    $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
+                    $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
+                        ->execute([$backfillStr, $userId]);
+                    $userData['trialEndsAt'] = $backfillStr;
+                }
+                if ($subStatus !== 'INACTIVE') {
+                    $trialEnd = new DateTime($userData['trialEndsAt']);
+                    if (new DateTime() >= $trialEnd) {
+                        $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                            ->execute([date('Y-m-d H:i:s.v'), $userId]);
+                        $subStatus = 'INACTIVE';
+                    }
                 }
             }
-        }
 
-        if ($userPlan === 'FREE_TRIAL') {
-            if ($subStatus === 'INACTIVE') {
-                // Expired trial: cumulative limit of 5 total collections ever created
-                if ($totalCreated >= 5) {
-                    http_response_code(403);
-                    echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 5, 'type' => 'cumulative']);
-                    exit;
+            if ($userPlan === 'FREE_TRIAL') {
+                if ($subStatus === 'INACTIVE') {
+                    // Expired trial: cumulative limit of 5 total collections ever created
+                    if ($totalCreated >= 5) {
+                        http_response_code(403);
+                        echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 5, 'type' => 'cumulative']);
+                        exit;
+                    }
+                } else {
+                    // Active trial: STANDARD-level limit of 20 active collections
+                    $countStmt = $pdo->prepare(
+                        "SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status != 'ARCHIVED'"
+                    );
+                    $countStmt->execute([$userId]);
+                    $activeCount = (int)$countStmt->fetchColumn();
+
+                    if ($activeCount >= 20) {
+                        http_response_code(403);
+                        echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 20]);
+                        exit;
+                    }
                 }
-            } else {
-                // Active trial: STANDARD-level limit of 20 active collections
+            } elseif ($userPlan === 'STANDARD') {
                 $countStmt = $pdo->prepare(
                     "SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status != 'ARCHIVED'"
                 );
@@ -189,20 +203,8 @@ try {
                     exit;
                 }
             }
-        } elseif ($userPlan === 'STANDARD') {
-            $countStmt = $pdo->prepare(
-                "SELECT COUNT(*) FROM `Collection` WHERE userId = ? AND status != 'ARCHIVED'"
-            );
-            $countStmt->execute([$userId]);
-            $activeCount = (int)$countStmt->fetchColumn();
-
-            if ($activeCount >= 20) {
-                http_response_code(403);
-                echo json_encode(['error' => 'COLLECTION_LIMIT_REACHED', 'limit' => 20]);
-                exit;
-            }
+            // PRO plan: no limits
         }
-        // PRO plan: no limits
 
         // Generate CUID for the new collection
         $collectionId = generateCuid();

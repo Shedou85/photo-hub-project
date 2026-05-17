@@ -35,7 +35,7 @@ try {
     $user['hasPassword'] = (bool) $user['hasPassword'];
 
     // Auto-downgrade expired trial users (skip admins)
-    if ($user && $user['plan'] === 'FREE_TRIAL' && $user['role'] !== 'ADMIN') {
+    if (!UNLIMITED_ACCESS && $user && $user['plan'] === 'FREE_TRIAL' && $user['role'] !== 'ADMIN') {
         // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
         if ($user['trialEndsAt'] === null) {
             $backfillDate = new DateTime($user['createdAt']);

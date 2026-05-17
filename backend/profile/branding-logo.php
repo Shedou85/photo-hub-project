@@ -21,7 +21,7 @@ try {
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user || $user['plan'] !== 'PRO') {
+    if (!UNLIMITED_ACCESS && (!$user || $user['plan'] !== 'PRO')) {
         http_response_code(403);
         echo json_encode(["error" => "PRO plan required"]);
         exit;

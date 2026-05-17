@@ -84,43 +84,45 @@ try {
         $userPlan = $planData['plan'];
         $subStatus = $planData['subscriptionStatus'];
 
-        // Auto-downgrade expired trial if not yet marked (skip admins)
-        if ($userPlan === 'FREE_TRIAL' && ($_SESSION['role'] ?? '') !== 'ADMIN') {
-            // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
-            if ($planData['trialEndsAt'] === null) {
-                $backfillDate = new DateTime($planData['createdAt']);
-                $backfillDate->modify('+30 days');
-                $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
-                $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
-                    ->execute([$backfillStr, $planData['uid']]);
-                $planData['trialEndsAt'] = $backfillStr;
-            }
-            if ($subStatus !== 'INACTIVE') {
-                $trialEnd = new DateTime($planData['trialEndsAt']);
-                if (new DateTime() >= $trialEnd) {
-                    $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
-                        ->execute([date('Y-m-d H:i:s.v'), $planData['uid']]);
-                    $subStatus = 'INACTIVE';
+        if (!UNLIMITED_ACCESS) {
+            // Auto-downgrade expired trial if not yet marked (skip admins)
+            if ($userPlan === 'FREE_TRIAL' && ($_SESSION['role'] ?? '') !== 'ADMIN') {
+                // Backfill trialEndsAt if NULL (legacy/Google OAuth accounts)
+                if ($planData['trialEndsAt'] === null) {
+                    $backfillDate = new DateTime($planData['createdAt']);
+                    $backfillDate->modify('+30 days');
+                    $backfillStr = $backfillDate->format('Y-m-d H:i:s.v');
+                    $pdo->prepare("UPDATE `User` SET trialEndsAt = ? WHERE id = ? AND trialEndsAt IS NULL")
+                        ->execute([$backfillStr, $planData['uid']]);
+                    $planData['trialEndsAt'] = $backfillStr;
+                }
+                if ($subStatus !== 'INACTIVE') {
+                    $trialEnd = new DateTime($planData['trialEndsAt']);
+                    if (new DateTime() >= $trialEnd) {
+                        $pdo->prepare("UPDATE `User` SET subscriptionStatus = 'INACTIVE', planDowngradedAt = ? WHERE id = ? AND plan = 'FREE_TRIAL'")
+                            ->execute([date('Y-m-d H:i:s.v'), $planData['uid']]);
+                        $subStatus = 'INACTIVE';
+                    }
                 }
             }
-        }
 
-        $photoLimit = null; // null = unlimited
-        if ($userPlan === 'FREE_TRIAL' && $subStatus === 'INACTIVE') {
-            $photoLimit = 30;
-        } elseif ($userPlan === 'FREE_TRIAL' || $userPlan === 'STANDARD') {
-            $photoLimit = 500;
-        }
+            $photoLimit = null; // null = unlimited
+            if ($userPlan === 'FREE_TRIAL' && $subStatus === 'INACTIVE') {
+                $photoLimit = 30;
+            } elseif ($userPlan === 'FREE_TRIAL' || $userPlan === 'STANDARD') {
+                $photoLimit = 500;
+            }
 
-        if ($photoLimit !== null) {
-            $photoCountStmt = $pdo->prepare("SELECT COUNT(*) FROM `Photo` WHERE collectionId = ?");
-            $photoCountStmt->execute([$collectionId]);
-            $photoCount = (int)$photoCountStmt->fetchColumn();
+            if ($photoLimit !== null) {
+                $photoCountStmt = $pdo->prepare("SELECT COUNT(*) FROM `Photo` WHERE collectionId = ?");
+                $photoCountStmt->execute([$collectionId]);
+                $photoCount = (int)$photoCountStmt->fetchColumn();
 
-            if ($photoCount >= $photoLimit) {
-                http_response_code(403);
-                echo json_encode(['error' => 'PHOTO_LIMIT_REACHED', 'limit' => $photoLimit]);
-                exit;
+                if ($photoCount >= $photoLimit) {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'PHOTO_LIMIT_REACHED', 'limit' => $photoLimit]);
+                    exit;
+                }
             }
         }
 

@@ -119,7 +119,7 @@ try {
         }
 
         // PRO gate for non-SELECTED labels
-        if ($label !== 'SELECTED') {
+        if (!UNLIMITED_ACCESS && $label !== 'SELECTED') {
             if (!$ownerData || $ownerData['plan'] !== 'PRO') {
                 http_response_code(403);
                 echo json_encode(['error' => 'LABEL_PRO_ONLY']);

@@ -1,6 +1,10 @@
 <?php
 // backend/api/index.php
 
+// UNLIMITED_ACCESS: kai true — visi plan tikrinimai išjungti, visi naudotojai gauna PRO funkcijas.
+// Pakeiskite į false kai norėsite įjungti subscription logiką.
+define('UNLIMITED_ACCESS', true);
+
 require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/utils.php';

@@ -49,7 +49,7 @@ try {
     }
 
     // Plan gate: only PRO users (or admins) can reorder
-    if (!$isAdmin) {
+    if (!UNLIMITED_ACCESS && !$isAdmin) {
         $planStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
         $planStmt->execute([$userId]);
         $userData = $planStmt->fetch(PDO::FETCH_ASSOC);

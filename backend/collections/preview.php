@@ -144,7 +144,7 @@ try {
     // -------------------------------------------------------------------------
     // Plan gate — feature is PRO-only.
     // -------------------------------------------------------------------------
-    if ($collection['plan'] !== 'PRO') {
+    if (!UNLIMITED_ACCESS && $collection['plan'] !== 'PRO') {
         previewError(403, 'Feature not available.');
     }
 

@@ -26,6 +26,7 @@ Thumbs.db
 
 cookies.txt
 DB_OPTIMIZATION_TODO.txt
+unlimited-access-mode.txt
 
 # DB credentials — keep real config off git
 backend/config.php

@@ -9,6 +9,7 @@ import { api } from '../lib/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const MS_PER_DAY = 86_400_000;
+const UNLIMITED_ACCESS = true;
 
 /**
  * Mobile layout shell with bottom tab navigation.
@@ -32,8 +33,8 @@ const MobileLayout = () => {
   const daysLeft = user?.trialEndsAt
     ? Math.max(0, Math.ceil((new Date(user.trialEndsAt) - new Date()) / MS_PER_DAY))
     : null;
-  const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL' && daysLeft !== null;
-  const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
+  const isActiveTrial = !UNLIMITED_ACCESS && user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL' && daysLeft !== null;
+  const isExpiredTrial = !UNLIMITED_ACCESS && user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
 
   const handleLogout = async () => {
     await api.post('/logout');

@@ -8,6 +8,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import TrialExpiredModal from '../components/primitives/TrialExpiredModal';
 
 const SIDEBAR_WIDTH = 256;
+const UNLIMITED_ACCESS = true;
 const MS_PER_DAY = 86_400_000;
 
 const NAV_ITEMS = () => [
@@ -82,8 +83,8 @@ const MainLayout = () => {
   const daysLeft = user?.trialEndsAt
     ? Math.max(0, Math.ceil((new Date(user.trialEndsAt) - new Date()) / MS_PER_DAY))
     : null;
-  const isActiveTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL' && daysLeft !== null;
-  const isExpiredTrial = user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
+  const isActiveTrial = !UNLIMITED_ACCESS && user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'FREE_TRIAL' && daysLeft !== null;
+  const isExpiredTrial = !UNLIMITED_ACCESS && user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE';
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-darker">

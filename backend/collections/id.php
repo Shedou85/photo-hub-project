@@ -222,7 +222,7 @@ try {
         }
 
         if (array_key_exists('emailNotifications', $data)) {
-            if ($data['emailNotifications']) {
+            if (!UNLIMITED_ACCESS && $data['emailNotifications']) {
                 // PRO gate: only PRO users can enable
                 $userStmt = $pdo->prepare("SELECT plan FROM `User` WHERE id = ? LIMIT 1");
                 $userStmt->execute([$userId]);
