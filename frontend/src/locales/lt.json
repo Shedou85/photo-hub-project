@@ -917,5 +917,23 @@
     "dismiss": "Supratau",
     "clientTitle": "Verslo funkcija",
     "clientDescription": "Ši žymė prieinama, kai fotografas turi Verslo planą."
+  },
+  "feedback": {
+    "navLabel": "Klaidos / Pasiūlymai",
+    "modalTitle": "Pranešti apie klaidą arba pasiūlyti funkciją",
+    "typeBug": "Klaida (Bug)",
+    "typeFeature": "Pasiūlymas",
+    "subjectLabel": "Tema",
+    "subjectPlaceholder": "Trumpai apibūdinkite...",
+    "descriptionLabel": "Aprašymas",
+    "descriptionPlaceholder": "Kuo detaliau aprašykite...",
+    "submit": "Siųsti",
+    "submitting": "Siunčiama...",
+    "successTitle": "Ačiū!",
+    "successMessage": "Gavome jūsų pranešimą ir netrukus jį peržiūrėsime.",
+    "errorMessage": "Nepavyko išsiųsti. Bandykite dar kartą.",
+    "typeRequired": "Pasirinkite tipą",
+    "subjectRequired": "Tema yra privaloma",
+    "descriptionRequired": "Aprašymas yra privalomas"
   }
 }

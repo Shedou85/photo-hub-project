@@ -917,5 +917,23 @@
     "dismiss": "Понятно",
     "clientTitle": "Функция Бизнес",
     "clientDescription": "Эта метка доступна, когда у фотографа план Бизнес."
+  },
+  "feedback": {
+    "navLabel": "Ошибки / Предложения",
+    "modalTitle": "Сообщить об ошибке или предложить функцию",
+    "typeBug": "Сообщение об ошибке",
+    "typeFeature": "Предложение",
+    "subjectLabel": "Тема",
+    "subjectPlaceholder": "Кратко опишите проблему...",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Опишите как можно подробнее...",
+    "submit": "Отправить",
+    "submitting": "Отправка...",
+    "successTitle": "Спасибо!",
+    "successMessage": "Мы получили ваш отчёт и скоро его рассмотрим.",
+    "errorMessage": "Не удалось отправить. Попробуйте ещё раз.",
+    "typeRequired": "Выберите тип",
+    "subjectRequired": "Тема обязательна",
+    "descriptionRequired": "Описание обязательно"
   }
 }

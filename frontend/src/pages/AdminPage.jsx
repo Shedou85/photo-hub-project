@@ -289,6 +289,10 @@ const AdminPage = () => {
   const [auditLogsLoading, setAuditLogsLoading] = useState(false);
   const [auditFilters, setAuditFilters] = useState({ action: '', from: '', to: '', page: 1, limit: 20 });
 
+  const [feedbackReports, setFeedbackReports] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackUpdating, setFeedbackUpdating] = useState(null);
+
   // Cleanup timers on unmount
   useEffect(() => {
     return () => clearTimeout(searchTimer.current);
@@ -355,6 +359,25 @@ const AdminPage = () => {
       fetchAuditLogs();
     }
   }, [activeTab, fetchAuditLogs]);
+
+  useEffect(() => {
+    if (activeTab === 'feedback') {
+      setFeedbackLoading(true);
+      api.get('/admin/feedback').then(({ data }) => {
+        if (data?.reports) setFeedbackReports(data.reports);
+        setFeedbackLoading(false);
+      });
+    }
+  }, [activeTab]);
+
+  const handleFeedbackStatus = async (id, status) => {
+    setFeedbackUpdating(id);
+    const { error } = await api.patch(`/admin/feedback/${id}`, { status });
+    if (!error) {
+      setFeedbackReports((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
+    }
+    setFeedbackUpdating(null);
+  };
 
   // ---------- User handlers ----------
   const handleUserFieldChange = async (userId, field, value) => {
@@ -485,6 +508,7 @@ const AdminPage = () => {
     { key: 'stats', label: t('admin.tabs.stats') },
     { key: 'users', label: t('admin.tabs.users') },
     { key: 'audit-log', label: t('admin.tabs.auditLog') },
+    { key: 'feedback', label: t('feedback.navLabel') },
   ];
 
   // ---------- Render ----------
@@ -979,6 +1003,78 @@ const AdminPage = () => {
                 >
                   {t('admin.pagination.next')}
                 </button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ===== Feedback Tab ===== */}
+      {activeTab === 'feedback' && (
+        <section>
+          <div className="bg-white/[0.04] border border-white/10 rounded-lg shadow-xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.08]">
+              <h2 className="text-sm font-bold text-white/70 uppercase tracking-[0.05em] m-0">{t('feedback.navLabel')}</h2>
+            </div>
+            {feedbackLoading ? (
+              <div className="px-6 py-10 text-center text-white/40 text-sm">...</div>
+            ) : feedbackReports.length === 0 ? (
+              <div className="px-6 py-10 text-center text-white/40 text-sm">Nėra pranešimų.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="text-left px-6 py-3 text-white/50 font-medium">Data</th>
+                      <th className="text-left px-6 py-3 text-white/50 font-medium">Naudotojas</th>
+                      <th className="text-left px-6 py-3 text-white/50 font-medium">Tipas</th>
+                      <th className="text-left px-6 py-3 text-white/50 font-medium">Tema</th>
+                      <th className="text-left px-6 py-3 text-white/50 font-medium">Statusas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {feedbackReports.map((r) => (
+                      <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] group">
+                        <td className="px-6 py-3 text-white/50 whitespace-nowrap">
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-3 text-white/70">
+                          <div>{r.userName || '—'}</div>
+                          <div className="text-white/40 text-xs">{r.userEmail}</div>
+                        </td>
+                        <td className="px-6 py-3 whitespace-nowrap">
+                          {r.type === 'BUG' ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/15 text-red-300">🐛 {t('feedback.typeBug')}</span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/15 text-indigo-300">💡 {t('feedback.typeFeature')}</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-3 text-white/80 max-w-[260px]">
+                          <div className="font-medium truncate">{r.subject}</div>
+                          <div className="text-white/40 text-xs mt-0.5 line-clamp-2">{r.description}</div>
+                        </td>
+                        <td className="px-6 py-3">
+                          <select
+                            value={r.status}
+                            disabled={feedbackUpdating === r.id}
+                            onChange={(e) => handleFeedbackStatus(r.id, e.target.value)}
+                            className={`text-xs font-semibold rounded-full px-2 py-1 border cursor-pointer bg-transparent disabled:opacity-60 ${
+                              r.status === 'OPEN'
+                                ? 'text-yellow-300 border-yellow-500/30 bg-yellow-500/10'
+                                : r.status === 'IN_PROGRESS'
+                                ? 'text-blue-300 border-blue-500/30 bg-blue-500/10'
+                                : 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10'
+                            }`}
+                          >
+                            <option value="OPEN" className="bg-surface-dark text-white">OPEN</option>
+                            <option value="IN_PROGRESS" className="bg-surface-dark text-white">IN PROGRESS</option>
+                            <option value="RESOLVED" className="bg-surface-dark text-white">RESOLVED</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

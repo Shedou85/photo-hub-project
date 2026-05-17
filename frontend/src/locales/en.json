@@ -902,5 +902,23 @@
     "dismiss": "Got it",
     "clientTitle": "Business Feature",
     "clientDescription": "This label is available when the photographer has a Business plan."
+  },
+  "feedback": {
+    "navLabel": "Bug / Suggestions",
+    "modalTitle": "Report a bug or suggest a feature",
+    "typeBug": "Bug report",
+    "typeFeature": "Feature request",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Briefly describe the issue...",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Provide as much detail as possible...",
+    "submit": "Send",
+    "submitting": "Sending...",
+    "successTitle": "Thank you!",
+    "successMessage": "We received your report and will review it soon.",
+    "errorMessage": "Failed to send. Please try again.",
+    "typeRequired": "Please select a type",
+    "subjectRequired": "Subject is required",
+    "descriptionRequired": "Description is required"
   }
 }

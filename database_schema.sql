@@ -309,3 +309,22 @@ CREATE TABLE `Payment` (
   KEY `Payment_createdAt_idx` (`createdAt`),
   CONSTRAINT `Payment_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `FeedbackReport`
+--
+
+CREATE TABLE `FeedbackReport` (
+  `id`          VARCHAR(191) NOT NULL,
+  `userId`      VARCHAR(191) NOT NULL,
+  `type`        ENUM('BUG', 'FEATURE') NOT NULL,
+  `subject`     VARCHAR(255) NOT NULL,
+  `description` TEXT NOT NULL,
+  `status`      ENUM('OPEN', 'IN_PROGRESS', 'RESOLVED') NOT NULL DEFAULT 'OPEN',
+  `createdAt`   DATETIME(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FeedbackReport_userId` (`userId`),
+  KEY `FeedbackReport_createdAt` (`createdAt`),
+  CONSTRAINT `FK_FeedbackReport_User` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

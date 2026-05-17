@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import FeedbackModal from './primitives/FeedbackModal';
 
 /**
  * Mobile bottom tab navigation bar.
@@ -24,6 +25,7 @@ const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const navItems = [
     {
@@ -81,7 +83,20 @@ const BottomNavigation = () => {
     });
   }
 
+  allNavItems.push({
+    label: t('feedback.navLabel'),
+    onClick: () => setFeedbackOpen(true),
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+  });
+
   return (
+    <>
     <nav
       role="navigation"
       aria-label={t('nav.mainNavigation')}
@@ -89,7 +104,19 @@ const BottomNavigation = () => {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-center justify-around">
-        {allNavItems.map(({ to, label, icon }) => {
+        {allNavItems.map(({ to, label, icon, onClick }) => {
+          if (onClick) {
+            return (
+              <button
+                key={label}
+                onClick={onClick}
+                className="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[56px] px-3 py-2 rounded-lg transition-all duration-200 text-white/50 hover:bg-white/[0.05] bg-transparent border-none cursor-pointer"
+              >
+                {icon}
+                <span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span>
+              </button>
+            );
+          }
           const isActive = location.pathname === to;
           return (
             <Link
@@ -111,6 +138,8 @@ const BottomNavigation = () => {
         })}
       </div>
     </nav>
+    {feedbackOpen && <FeedbackModal onClose={() => setFeedbackOpen(false)} />}
+    </>
   );
 };
 

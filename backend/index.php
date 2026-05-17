@@ -307,6 +307,15 @@ switch ($requestUri) {
         }
         break;
 
+    case '/feedback':
+        if ($requestMethod === 'POST') {
+            require_once __DIR__ . '/feedback/submit.php';
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+        }
+        break;
+
     default:
         // Handle /share/ routes (public endpoints)
         if (strpos($requestUri, '/share/') === 0) {
@@ -403,6 +412,9 @@ switch ($requestUri) {
                     break;
                 case 'cleanup-originals':
                     require_once __DIR__ . '/admin/cleanup.php';
+                    break;
+                case 'feedback':
+                    require_once __DIR__ . '/admin/feedback.php';
                     break;
                 default:
                     http_response_code(404);

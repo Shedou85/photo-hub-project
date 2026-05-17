@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import TrialExpiredModal from '../components/primitives/TrialExpiredModal';
+import FeedbackModal from '../components/primitives/FeedbackModal';
 
 const SIDEBAR_WIDTH = 256;
 const UNLIMITED_ACCESS = true;
@@ -60,6 +61,8 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+
   const handleLogout = async () => {
     await api.post('/logout');
     flushSync(() => logout());
@@ -79,6 +82,18 @@ const MainLayout = () => {
       ),
     });
   }
+
+  items.push({
+    key: 'feedback.navLabel',
+    onClick: () => setFeedbackOpen(true),
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+  });
 
   const daysLeft = user?.trialEndsAt
     ? Math.max(0, Math.ceil((new Date(user.trialEndsAt) - new Date()) / MS_PER_DAY))
@@ -173,7 +188,19 @@ const MainLayout = () => {
 
           {/* Nav links */}
           <nav className="px-3 py-3 flex-1 space-y-1">
-            {items.map(({ to, key, icon }) => {
+            {items.map(({ to, key, icon, onClick }) => {
+              if (onClick) {
+                return (
+                  <button
+                    key={key}
+                    onClick={onClick}
+                    className="group w-full flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm border-l-2 border-transparent text-sidebar-text bg-transparent font-normal transition-all duration-200 hover:bg-white/[0.04] hover:text-white/80 text-left"
+                  >
+                    <span className="transition-transform duration-200 group-hover:scale-105">{icon}</span>
+                    {t(key)}
+                  </button>
+                );
+              }
               const active = location.pathname === to;
               return (
                 <Link
@@ -243,6 +270,8 @@ const MainLayout = () => {
       {isExpiredTrial && user?.role !== 'ADMIN' && (
         <TrialExpiredModal user={user} />
       )}
+
+      {feedbackOpen && <FeedbackModal onClose={() => setFeedbackOpen(false)} />}
     </div>
   );
 };
