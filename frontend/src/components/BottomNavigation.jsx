@@ -18,6 +18,8 @@ import { useAuth } from '../contexts/AuthContext';
  * @example
  * <BottomNavigation />
  */
+const UNLIMITED_ACCESS = true;
+
 const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
@@ -66,7 +68,7 @@ const BottomNavigation = () => {
     },
   ];
 
-  const allNavItems = [...navItems];
+  const allNavItems = navItems.filter(item => !UNLIMITED_ACCESS || item.to !== '/payments');
   if (user?.role === 'ADMIN') {
     allNavItems.push({
       to: '/admin',

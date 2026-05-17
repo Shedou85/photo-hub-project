@@ -66,7 +66,7 @@ const MainLayout = () => {
     navigate('/');
   };
 
-  const items = NAV_ITEMS();
+  const items = NAV_ITEMS().filter(item => !UNLIMITED_ACCESS || item.to !== '/payments');
 
   if (user?.role === 'ADMIN') {
     items.push({
