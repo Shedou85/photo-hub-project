@@ -292,6 +292,7 @@ const AdminPage = () => {
   const [feedbackReports, setFeedbackReports] = useState([]);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackUpdating, setFeedbackUpdating] = useState(null);
+  const [feedbackDetail, setFeedbackDetail] = useState(null);
 
   // Cleanup timers on unmount
   useEffect(() => {
@@ -1034,7 +1035,11 @@ const AdminPage = () => {
                   </thead>
                   <tbody>
                     {feedbackReports.map((r) => (
-                      <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] group">
+                      <tr
+                        key={r.id}
+                        onClick={() => setFeedbackDetail(r)}
+                        className="border-b border-white/[0.04] hover:bg-white/[0.04] cursor-pointer group"
+                      >
                         <td className="px-6 py-3 text-white/50 whitespace-nowrap">
                           {new Date(r.createdAt).toLocaleDateString()}
                         </td>
@@ -1053,7 +1058,7 @@ const AdminPage = () => {
                           <div className="font-medium truncate">{r.subject}</div>
                           <div className="text-white/40 text-xs mt-0.5 line-clamp-2">{r.description}</div>
                         </td>
-                        <td className="px-6 py-3">
+                        <td className="px-6 py-3" onClick={(e) => e.stopPropagation()}>
                           <select
                             value={r.status}
                             disabled={feedbackUpdating === r.id}
@@ -1079,6 +1084,77 @@ const AdminPage = () => {
             )}
           </div>
         </section>
+      )}
+
+      {/* ===== Feedback Detail Modal ===== */}
+      {feedbackDetail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+          onClick={() => setFeedbackDetail(null)}
+        >
+          <div
+            className="bg-surface-dark border border-white/10 rounded-[10px] shadow-xl w-full max-w-lg flex flex-col max-h-[80vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/[0.08] shrink-0">
+              <div className="flex items-center gap-3">
+                {feedbackDetail.type === 'BUG' ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/15 text-red-300">🐛 {t('feedback.typeBug')}</span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/15 text-indigo-300">💡 {t('feedback.typeFeature')}</span>
+                )}
+                <span className="text-white/40 text-xs">{feedbackDetail.userName || feedbackDetail.userEmail}</span>
+              </div>
+              <button
+                onClick={() => setFeedbackDetail(null)}
+                className="text-white/40 hover:text-white/70 transition-colors"
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 flex flex-col gap-4 overflow-y-auto flex-1">
+              <div>
+                <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-1">{t('feedback.subjectLabel')}</p>
+                <p className="text-white font-semibold text-sm m-0">{feedbackDetail.subject}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-1">{t('feedback.descriptionLabel')}</p>
+                <p className="text-white/80 text-sm whitespace-pre-wrap m-0">{feedbackDetail.description}</p>
+              </div>
+              <div className="text-xs text-white/30">{new Date(feedbackDetail.createdAt).toLocaleString()}</div>
+            </div>
+
+            {/* Footer — status */}
+            <div className="px-6 py-4 border-t border-white/[0.08] shrink-0 flex items-center justify-between gap-4">
+              <span className="text-xs text-white/40 uppercase tracking-wider">Status</span>
+              <select
+                value={feedbackDetail.status}
+                disabled={feedbackUpdating === feedbackDetail.id}
+                onChange={(e) => {
+                  handleFeedbackStatus(feedbackDetail.id, e.target.value);
+                  setFeedbackDetail((prev) => ({ ...prev, status: e.target.value }));
+                }}
+                className={`text-xs font-semibold rounded-full px-3 py-1.5 border cursor-pointer bg-transparent disabled:opacity-60 ${
+                  feedbackDetail.status === 'OPEN'
+                    ? 'text-yellow-300 border-yellow-500/30 bg-yellow-500/10'
+                    : feedbackDetail.status === 'IN_PROGRESS'
+                    ? 'text-blue-300 border-blue-500/30 bg-blue-500/10'
+                    : 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10'
+                }`}
+              >
+                <option value="OPEN" className="bg-surface-dark text-white">OPEN</option>
+                <option value="IN_PROGRESS" className="bg-surface-dark text-white">IN PROGRESS</option>
+                <option value="RESOLVED" className="bg-surface-dark text-white">RESOLVED</option>
+              </select>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ===== User Detail Modal ===== */}
