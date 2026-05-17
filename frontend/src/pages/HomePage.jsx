@@ -9,6 +9,8 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import Accordion from '../components/Accordion';
 import AppDemo from '../components/AppDemo';
 
+const UNLIMITED_ACCESS = true;
+
 const CHECK_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
     <circle cx="8" cy="8" r="8" fill="rgba(99,102,241,0.18)" />
@@ -658,6 +660,7 @@ function HomePage() {
       )}
 
       {/* ── Plans ────────────────────────────────────────────────── */}
+      {!UNLIMITED_ACCESS && (
       <section id="plans" className="bg-surface-darker py-24 px-6 relative overflow-hidden">
         {/* Ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-600/[0.07] blur-[100px] pointer-events-none" />
@@ -678,6 +681,7 @@ function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── FAQ ──────────────────────────────────────────────────── */}
       <section className="bg-surface-darker py-24 px-6 relative overflow-hidden">
