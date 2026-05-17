@@ -88,13 +88,15 @@ const FeedbackModal = ({ onClose }) => {
 
               {/* Type selector */}
               <div className="flex flex-col gap-1.5">
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => { setType('BUG'); setErrors((e) => ({ ...e, type: undefined })); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
                       type === 'BUG'
                         ? 'bg-red-500/15 border-red-500/40 text-red-300'
+                        : errors.type
+                        ? 'bg-white/[0.04] border-red-500/40 text-white/50 hover:bg-white/[0.07]'
                         : 'bg-white/[0.04] border-white/10 text-white/50 hover:bg-white/[0.07]'
                     }`}
                   >
@@ -106,13 +108,17 @@ const FeedbackModal = ({ onClose }) => {
                     className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
                       type === 'FEATURE'
                         ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                        : errors.type
+                        ? 'bg-white/[0.04] border-red-500/40 text-white/50 hover:bg-white/[0.07]'
                         : 'bg-white/[0.04] border-white/10 text-white/50 hover:bg-white/[0.07]'
                     }`}
                   >
                     <span>💡</span> {t('feedback.typeFeature')}
                   </button>
+                  {errors.type && (
+                    <span className="text-red-400 text-xs whitespace-nowrap shrink-0">{errors.type}</span>
+                  )}
                 </div>
-                {errors.type && <p className="text-red-400 text-xs m-0">{errors.type}</p>}
               </div>
 
               {/* Subject */}

@@ -1125,7 +1125,7 @@ const AdminPage = () => {
               </div>
               <div>
                 <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-1">{t('feedback.descriptionLabel')}</p>
-                <p className="text-white/80 text-sm whitespace-pre-wrap m-0">{feedbackDetail.description}</p>
+                <p className="text-white/80 text-sm whitespace-pre-wrap break-words m-0">{feedbackDetail.description}</p>
               </div>
               <div className="text-xs text-white/30">{new Date(feedbackDetail.createdAt).toLocaleString()}</div>
             </div>
