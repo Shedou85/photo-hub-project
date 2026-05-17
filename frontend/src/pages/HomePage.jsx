@@ -343,14 +343,18 @@ function HomePage() {
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1.5"/><path d="M5 8l2 2 4-4" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 {t('home.hero.trustNoCreditCard')}
               </span>
+              {!UNLIMITED_ACCESS && (
               <span className="inline-flex items-center gap-1.5 text-[13px] text-white/40">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1.5"/><path d="M5 8l2 2 4-4" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 {t('home.hero.trustFreeTrial')}
               </span>
+              )}
+              {!UNLIMITED_ACCESS && (
               <span className="inline-flex items-center gap-1.5 text-[13px] text-white/40">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1.5"/><path d="M5 8l2 2 4-4" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 {t('home.hero.trustCancelAnytime')}
               </span>
+              )}
             </div>
 
             {/* Social proof */}
