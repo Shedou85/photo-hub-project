@@ -8,6 +8,8 @@ import EditProfileModal from "../components/settings/EditProfileModal";
 import SecurityModal from "../components/settings/SecurityModal";
 import BrandingModal from "../components/settings/BrandingModal";
 
+const UNLIMITED_ACCESS = true;
+
 // --- Helper: derive initials from a display name ---
 function getInitials(name) {
   if (!name) return "?";
@@ -174,12 +176,14 @@ function ProfilePage() {
               day: "numeric",
             })}
           />
+          {!UNLIMITED_ACCESS && (
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
               {t('profile.plan')}
             </span>
             <Badge variant="plan">{user?.plan === 'FREE_TRIAL' && user?.subscriptionStatus === 'INACTIVE' ? t('plans.freePlanBadge') : t(`profile.planLabel.${user.plan}`, user.plan)}</Badge>
           </div>
+          )}
           {user.role === 'ADMIN' && (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold tracking-[0.06em] uppercase text-white/50">
