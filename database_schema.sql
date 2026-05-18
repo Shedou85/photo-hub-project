@@ -15,6 +15,8 @@ CREATE TABLE `User` (
   `emailVerified` BOOLEAN NOT NULL DEFAULT false,
   `password` VARCHAR(191) NULL,
   `name` VARCHAR(191) NULL,
+  `username` VARCHAR(50) NULL,
+  `isProfilePublic` BOOLEAN NOT NULL DEFAULT false,
   `country` VARCHAR(191) NULL,
   `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
   `status` ENUM('ACTIVE', 'SUSPENDED') NOT NULL DEFAULT 'ACTIVE',
@@ -27,6 +29,9 @@ CREATE TABLE `User` (
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
   `bio` TEXT NULL,
+  `profileTagline` VARCHAR(160) NULL,
+  `specialties` VARCHAR(255) NULL,
+  `location` VARCHAR(120) NULL,
   `emailNotifications` BOOLEAN NOT NULL DEFAULT true,
   `passwordResetExpires` DATETIME(3) NULL,
   `passwordResetToken` VARCHAR(191) NULL,
@@ -34,16 +39,19 @@ CREATE TABLE `User` (
   `emailVerificationTokenExpires` DATETIME(3) NULL,
   `profileImageUrl` VARCHAR(191) NULL,
   `websiteUrl` VARCHAR(191) NULL,
+  `instagramUrl` VARCHAR(191) NULL,
   `brandingLogoUrl` VARCHAR(191) NULL,
   `brandingColor` VARCHAR(20) NULL,
   `plan` ENUM('FREE_TRIAL', 'STANDARD', 'PRO') NOT NULL DEFAULT 'FREE_TRIAL',
   `collectionsCreatedCount` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `User_email_key` (`email`),
+  UNIQUE KEY `User_username_key` (`username`),
   UNIQUE KEY `User_stripeCustomerId_key` (`stripeCustomerId`),
   UNIQUE KEY `User_stripeSubscriptionId_key` (`stripeSubscriptionId`),
   UNIQUE KEY `User_passwordResetToken_key` (`passwordResetToken`),
-  KEY `User_emailVerificationToken_idx` (`emailVerificationToken`)
+  KEY `User_emailVerificationToken_idx` (`emailVerificationToken`),
+  KEY `User_username_idx` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -90,6 +98,8 @@ CREATE TABLE `Collection` (
   `emailNotifications` BOOLEAN NOT NULL DEFAULT false,
   `status` ENUM('DRAFT', 'SELECTING', 'REVIEWING', 'DELIVERED', 'DOWNLOADED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
   `allowPromotionalUse` BOOLEAN NOT NULL DEFAULT false,
+  `isPublicPortfolio` BOOLEAN NOT NULL DEFAULT false,
+  `portfolioOrder` INT NULL,
   `coverPhotoId` VARCHAR(191) NULL,
   `originalsCleanupAt` DATETIME(3) NULL,
   `autoArchiveAt` DATETIME(3) NULL,
@@ -103,6 +113,7 @@ CREATE TABLE `Collection` (
   KEY `Collection_coverPhotoId_idx` (`coverPhotoId`),
   KEY `Collection_userId_idx` (`userId`),
   KEY `Collection_userId_status_idx` (`userId`, `status`),
+  KEY `Collection_userId_portfolio_idx` (`userId`, `isPublicPortfolio`),
   KEY `Collection_expiresAt_idx` (`expiresAt`),
   KEY `Collection_autoArchiveAt_idx` (`autoArchiveAt`),
   KEY `Collection_deleteAt_idx` (`deleteAt`)
