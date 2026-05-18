@@ -12,6 +12,8 @@ import { useImageLoadingSet } from "../hooks/useImageLoading";
 import { getAccentButtonStyle } from "../utils/brandingUtils";
 import SEO from "../components/SEO";
 
+const UNLIMITED_ACCESS = true;
+
 function SharePage() {
   const { shareId } = useParams();
   const { t } = useTranslation();
@@ -98,7 +100,7 @@ function SharePage() {
     if (requestsInFlight.has(photoId)) return;
 
     // PRO gate for non-SELECTED labels
-    if (label !== 'SELECTED' && !hasProFeatures) {
+    if (!UNLIMITED_ACCESS && label !== 'SELECTED' && !hasProFeatures) {
       if (!upgradeShownThisSession) {
         setShowUpgradeModal(true);
         setUpgradeShownThisSession(true);

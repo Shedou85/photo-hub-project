@@ -201,14 +201,14 @@ if ($requestMethod === 'PATCH') {
         $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
 
         // Expose PRO features flag for label system
-        $collection['proFeatures'] = ($ownerPlan === 'PRO');
+        $collection['proFeatures'] = UNLIMITED_ACCESS || ($ownerPlan === 'PRO');
 
         // Determine if watermarks should be applied (PRO plan + SELECTING status)
-        $isWatermarked = ($ownerPlan === 'PRO' && $collection['status'] === 'SELECTING');
+        $isWatermarked = (UNLIMITED_ACCESS || $ownerPlan === 'PRO') && $collection['status'] === 'SELECTING';
         $collection['watermarked'] = $isWatermarked;
 
         // Add branding data for PRO users
-        $collection['branding'] = ($ownerPlan === 'PRO') ? [
+        $collection['branding'] = (UNLIMITED_ACCESS || $ownerPlan === 'PRO') ? [
             'logoUrl' => !empty($ownerData['brandingLogoUrl']) ? r2GetUrl($ownerData['brandingLogoUrl']) : null,
             'accentColor' => $ownerData['brandingColor'] ?? null,
             'photographerName' => $ownerData['ownerName'] ?? null,
