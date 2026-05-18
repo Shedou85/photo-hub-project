@@ -464,6 +464,17 @@ switch ($requestUri) {
             break;
         }
 
+        // Handle /u/{username} — public photographer profile (GET only, no auth)
+        if (preg_match('#^/u/[^/]+$#', $requestUri)) {
+            if ($requestMethod === 'GET') {
+                require_once __DIR__ . '/profile/public.php';
+            } else {
+                http_response_code(405);
+                echo json_encode(['error' => 'Method Not Allowed']);
+            }
+            break;
+        }
+
         http_response_code(404);
         echo json_encode(['error' => 'Endpoint Not Found']);
         break;
