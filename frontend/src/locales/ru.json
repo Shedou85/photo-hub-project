@@ -337,8 +337,8 @@
     "searchPlaceholder": "Поиск коллекций...",
     "sortNewest": "Сначала новые",
     "sortOldest": "Сначала старые",
-    "sortNameAsc": "Название А\u2013Я",
-    "sortNameDesc": "Название Я\u2013А",
+    "sortNameAsc": "Название А–Я",
+    "sortNameDesc": "Название Я–А",
     "sortStatus": "Статус",
     "noSearchResults": "Коллекций не найдено",
     "clearSearch": "Очистить поиск",
@@ -346,7 +346,7 @@
       "prev": "Назад",
       "next": "Вперёд",
       "page": "Страница {{page}} из {{totalPages}}",
-      "showing": "Показано {{from}}\u2013{{to}} из {{total}}"
+      "showing": "Показано {{from}}–{{to}} из {{total}}"
     }
   },
   "collection": {
@@ -735,7 +735,7 @@
     "userDetail": {
       "title": "Данные пользователя",
       "collections": "Коллекции",
-      "openCollection": "Открыть \u2192",
+      "openCollection": "Открыть →",
       "deleteCollection": "Удалить",
       "deleteCollectionConfirm": "Удалить эту коллекцию со всеми фотографиями?",
       "deleteCollectionSuccess": "Коллекция удалена",
@@ -948,5 +948,16 @@
     "typeRequired": "Выберите тип",
     "subjectRequired": "Тема обязательна",
     "descriptionRequired": "Описание обязательно"
+  },
+  "publicProfile": {
+    "notFound": "Профиль не найден",
+    "notFoundDesc": "Этот профиль является приватным или не существует.",
+    "backHome": "На главную",
+    "portfolio": "Портфолио",
+    "photos": "фото",
+    "noPortfolio": "Портфолио пока пуст.",
+    "poweredBy": "Создано на PixelForge",
+    "seoSuffix": "Фотограф",
+    "seoDefault": "Профиль фотографа — PixelForge"
   }
 }

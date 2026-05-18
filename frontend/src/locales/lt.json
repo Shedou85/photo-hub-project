@@ -337,8 +337,8 @@
     "searchPlaceholder": "Ieškoti kolekcijų...",
     "sortNewest": "Naujausios pirma",
     "sortOldest": "Seniausios pirma",
-    "sortNameAsc": "Pavadinimas A\u2013Ž",
-    "sortNameDesc": "Pavadinimas Ž\u2013A",
+    "sortNameAsc": "Pavadinimas A–Ž",
+    "sortNameDesc": "Pavadinimas Ž–A",
     "sortStatus": "Būsena",
     "noSearchResults": "Kolekcijų nerasta",
     "clearSearch": "Išvalyti paiešką",
@@ -346,7 +346,7 @@
       "prev": "Ankstesnis",
       "next": "Kitas",
       "page": "Puslapis {{page}} iš {{totalPages}}",
-      "showing": "Rodoma {{from}}\u2013{{to}} iš {{total}}"
+      "showing": "Rodoma {{from}}–{{to}} iš {{total}}"
     }
   },
   "collection": {
@@ -735,7 +735,7 @@
     "userDetail": {
       "title": "Vartotojo duomenys",
       "collections": "Kolekcijos",
-      "openCollection": "Atidaryti \u2192",
+      "openCollection": "Atidaryti →",
       "deleteCollection": "Trinti",
       "deleteCollectionConfirm": "Trinti šią kolekciją ir visas jos nuotraukas?",
       "deleteCollectionSuccess": "Kolekcija ištrinta",
@@ -948,5 +948,16 @@
     "typeRequired": "Pasirinkite tipą",
     "subjectRequired": "Tema yra privaloma",
     "descriptionRequired": "Aprašymas yra privalomas"
+  },
+  "publicProfile": {
+    "notFound": "Profilis nerastas",
+    "notFoundDesc": "Šis profilis yra privatus arba neegzistuoja.",
+    "backHome": "Grįžti į pradžią",
+    "portfolio": "Portfolio",
+    "photos": "nuotraukos",
+    "noPortfolio": "Kol kas nėra portfolio kolekcijų.",
+    "poweredBy": "Sukurta su PixelForge",
+    "seoSuffix": "Fotografas",
+    "seoDefault": "Fotografo profilis — PixelForge"
   }
 }

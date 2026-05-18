@@ -21,6 +21,7 @@ import AdminRoute from './components/AdminRoute';
 import ResponsiveLayout from './layouts/ResponsiveLayout';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
+import PublicProfilePage from './pages/PublicProfilePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 import CookieConsentBanner from './components/CookieConsentBanner';
@@ -103,6 +104,8 @@ function App() {
       <Route path="/admin" element={<AdminRoute><ResponsiveLayout /></AdminRoute>}>
         <Route index element={<AdminPage />} />
       </Route>
+      {/* /:username MUST be last — catch-all for public photographer profiles */}
+      <Route path="/:username" element={<PublicProfilePage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
     </ErrorBoundary>
