@@ -26,7 +26,7 @@ const CheckIcon = () => (
   </svg>
 );
 
-const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, badge, planKey, userPlan, subscriptionStatus, onCheckout, loadingPlan }) => {
+const PlanCard = ({ name, price, perMonth, features, isCurrent, highlighted, badge, planKey, userPlan, subscriptionStatus: _subscriptionStatus, onCheckout, loadingPlan }) => {
   const { t } = useTranslation();
 
   const isUpgrade = (planKey === 'STANDARD' && userPlan === 'FREE_TRIAL') ||
@@ -187,7 +187,7 @@ const PaymentsPage = () => {
 
   const handleCheckout = async (plan) => {
     setLoadingPlan(plan);
-    const { data, error } = await api.post('/payments/checkout', { plan });
+    const { data } = await api.post('/payments/checkout', { plan });
     if (data?.url) {
       window.location.href = data.url;
     } else {

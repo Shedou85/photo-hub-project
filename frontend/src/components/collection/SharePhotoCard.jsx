@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import { memo, useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import OptimizedImage from '../primitives/OptimizedImage';
 import SelectionBorder from '../primitives/SelectionBorder';
@@ -9,7 +9,7 @@ const SharePhotoCard = memo(({
   collection,
   photoLabel,
   isLabeled,
-  index,
+  index: _index,
   originalIndex,
   onOpenLightbox,
   onSetLabel,
@@ -19,7 +19,7 @@ const SharePhotoCard = memo(({
   accentColor,
   isImageLoaded,
   onImageLoad,
-  requestsInFlight
+  requestsInFlight: _requestsInFlight
 }) => {
   const { t } = useTranslation();
   const cardRef = useRef(null);
@@ -44,13 +44,13 @@ const SharePhotoCard = memo(({
   });
 
   // Sync src if collection/photo changes
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentSrc(watermarkedSrc || regularSrc);
     setHasFallbackTriggered(false);
   }, [watermarkedSrc, regularSrc]);
 
   // Trigger burst animation on label change
-  React.useEffect(() => {
+  useEffect(() => {
     if (photoLabel !== lastLabelRef.current && photoLabel !== null) {
       setShowBurst(true);
       const timer = setTimeout(() => setShowBurst(false), 600);
@@ -229,5 +229,7 @@ const SharePhotoCard = memo(({
     </div>
   );
 });
+
+SharePhotoCard.displayName = 'SharePhotoCard';
 
 export default SharePhotoCard;

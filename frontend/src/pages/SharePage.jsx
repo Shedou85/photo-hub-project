@@ -3,9 +3,8 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
-import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/SelectionBorder";
+import SelectionBorder from "../components/primitives/SelectionBorder";
 import UpgradeModal from "../components/primitives/UpgradeModal";
-import OptimizedImage from "../components/primitives/OptimizedImage";
 import SharePhotoCard from "../components/collection/SharePhotoCard";
 import ShareLightbox from "../components/collection/ShareLightbox";
 import { useImageLoadingSet } from "../hooks/useImageLoading";
@@ -378,7 +377,7 @@ function SharePage() {
     };
 
     fetchCollection();
-  }, [shareId, collectionPassword]);
+  }, [shareId, collectionPassword]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Loading state (Advanced Masonry Skeleton) ──
   if (loading) {

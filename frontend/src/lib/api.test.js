@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { api, apiRequest, resetCsrfToken } from './api';
+import { api, resetCsrfToken } from './api';
 
 describe('api client', () => {
   beforeEach(() => {
