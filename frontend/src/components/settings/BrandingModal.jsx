@@ -8,6 +8,9 @@ import { getAccentButtonStyle } from '../../utils/brandingUtils';
 function BrandingModal({ user, isPro, onClose, onSave }) {
   const { t } = useTranslation();
   const [brandingColor, setBrandingColor] = useState(user?.brandingColor || '#6366f1');
+  const [logoHeight, setLogoHeight] = useState(user?.brandingSettings?.logoHeight || 60);
+  const [logoPosition, setLogoPosition] = useState(user?.brandingSettings?.logoPosition || 'center');
+  const [fontFamily, setFontFamily] = useState(user?.brandingSettings?.fontFamily || 'sans');
   const [brandingLoading, setBrandingLoading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoDragOver, setLogoDragOver] = useState(false);
@@ -64,9 +67,19 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
     });
   }, [onSave, t]);
 
-  const handleBrandingColorSave = useCallback(() => {
+  const handleBrandingSave = useCallback(() => {
     setBrandingLoading(true);
-    const savePromise = api.patch('/profile/me', { brandingColor })
+    const brandingSettings = {
+      ...(user?.brandingSettings || {}),
+      logoHeight,
+      logoPosition,
+      fontFamily,
+    };
+
+    const savePromise = api.patch('/profile/me', { 
+      brandingColor,
+      brandingSettings
+    })
       .then(({ data, error }) => {
         if (error) throw new Error(error);
         if (data?.user) onSave(data.user);
@@ -74,16 +87,23 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
       .finally(() => setBrandingLoading(false));
 
     toast.promise(savePromise, {
-      loading: t('profile.branding.savingColor'),
-      success: t('profile.branding.colorSaved'),
-      error: (err) => `${t('profile.branding.colorSaveFailed')}: ${err.message}`,
+      loading: t('profile.branding.savingSettings'),
+      success: t('profile.branding.settingsSaved'),
+      error: (err) => `${t('profile.branding.saveFailed')}: ${err.message}`,
     });
-  }, [brandingColor, onSave, t]);
+  }, [brandingColor, logoHeight, logoPosition, fontFamily, user?.brandingSettings, onSave, t]);
 
-  const handleBrandingColorReset = useCallback(() => {
+  const handleBrandingReset = useCallback(() => {
     setBrandingLoading(true);
     setBrandingColor('#6366f1');
-    const savePromise = api.patch('/profile/me', { brandingColor: null })
+    setLogoHeight(60);
+    setLogoPosition('center');
+    setFontFamily('sans');
+
+    const savePromise = api.patch('/profile/me', { 
+      brandingColor: null,
+      brandingSettings: null
+    })
       .then(({ data, error }) => {
         if (error) throw new Error(error);
         if (data?.user) onSave(data.user);
@@ -91,13 +111,19 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
       .finally(() => setBrandingLoading(false));
 
     toast.promise(savePromise, {
-      loading: t('profile.branding.savingColor'),
-      success: t('profile.branding.colorReset'),
-      error: (err) => `${t('profile.branding.colorSaveFailed')}: ${err.message}`,
+      loading: t('profile.branding.savingSettings'),
+      success: t('profile.branding.settingsReset'),
+      error: (err) => `${t('profile.branding.saveFailed')}: ${err.message}`,
     });
   }, [onSave, t]);
 
   const loading = brandingLoading || logoUploading;
+
+  const fontOptions = [
+    { id: 'sans', name: t('profile.branding.fontModern'), class: 'font-sans' },
+    { id: 'serif-display', name: t('profile.branding.fontClassic'), class: 'font-serif-display' },
+    { id: 'mono', name: t('profile.branding.fontMinimal'), class: 'font-mono' },
+  ];
 
   return (
     <div
@@ -115,61 +141,131 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
 
         {isPro ? (
           <div className="space-y-6">
-            {/* Logo uploader */}
+            {/* Logo Section */}
             <div>
               <label className="block mb-2 text-sm font-semibold text-white/60">
                 {t('profile.branding.logo')}
               </label>
-              <p className="text-[13px] text-white/40 mb-3">{t('profile.branding.logoDesc')}</p>
-
+              
               {user.brandingLogoUrl ? (
-                <div className="flex items-center gap-4">
-                  <div className="relative w-[120px] h-[60px] bg-white/[0.06] border border-white/[0.12] rounded-lg flex items-center justify-center overflow-hidden">
-                    <img
-                      src={`${import.meta.env.VITE_MEDIA_BASE_URL}/${user.brandingLogoUrl}`}
-                      alt="Brand logo"
-                      className="max-w-full max-h-full object-contain"
-                    />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-[120px] h-[60px] bg-white/[0.06] border border-white/[0.12] rounded-lg flex items-center justify-center overflow-hidden">
+                      <img
+                        src={`${import.meta.env.VITE_MEDIA_BASE_URL}/${user.brandingLogoUrl}`}
+                        alt="Brand logo"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleLogoDelete}
+                      className="py-1.5 px-3 text-xs font-semibold rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
+                    >
+                      {t('profile.branding.removeLogo')}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleLogoDelete}
-                    className="py-1.5 px-3 text-xs font-semibold rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
-                  >
-                    {t('profile.branding.removeLogo')}
-                  </button>
+
+                  {/* Logo Customization Controls */}
+                  <div className="grid grid-cols-2 gap-4 bg-white/[0.03] p-4 rounded-xl border border-white/[0.06]">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-white/40 mb-2">
+                        {t('profile.branding.logoHeight', { height: logoHeight })}
+                      </label>
+                      <input
+                        type="range"
+                        min="24"
+                        max="120"
+                        value={logoHeight}
+                        onChange={(e) => setLogoHeight(parseInt(e.target.value))}
+                        className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-white/40 mb-2">
+                        {t('profile.branding.logoPosition')}
+                      </label>
+                      <div className="flex bg-white/10 p-1 rounded-lg">
+                        {[
+                          { id: 'left', label: t('profile.branding.logoPositionLeft') },
+                          { id: 'center', label: t('profile.branding.logoPositionCenter') },
+                          { id: 'right', label: t('profile.branding.logoPositionRight') },
+                        ].map(({ id, label }) => (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => setLogoPosition(id)}
+                            className={`flex-1 py-1 text-[10px] font-bold rounded transition-all ${
+                              logoPosition === id
+                                ? 'bg-indigo-500 text-white shadow-lg'
+                                : 'text-white/40 hover:text-white/60'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div
-                  onDragOver={(e) => { e.preventDefault(); setLogoDragOver(true); }}
-                  onDragLeave={() => setLogoDragOver(false)}
-                  onDrop={handleLogoDrop}
-                  onClick={() => logoInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                    logoDragOver
-                      ? 'border-indigo-500 bg-indigo-500/10'
-                      : 'border-white/[0.15] bg-white/[0.02] hover:border-white/[0.25] hover:bg-white/[0.04]'
-                  }`}
-                >
-                  <input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={(e) => handleLogoUpload(e.target.files?.[0])}
-                  />
-                  <svg className="w-8 h-8 mx-auto mb-2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                  </svg>
-                  <p className="text-sm text-white/50 font-medium">
-                    {logoDragOver ? t('profile.branding.dropLogo') : t('profile.branding.dragOrClick')}
-                  </p>
-                  <p className="text-xs text-white/30 mt-1">{t('profile.branding.logoFormats')}</p>
-                  {logoUploading && (
-                    <div className="mt-2 w-6 h-6 mx-auto border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-                  )}
-                </div>
+                <>
+                  <p className="text-[13px] text-white/40 mb-3">{t('profile.branding.logoDesc')}</p>
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setLogoDragOver(true); }}
+                    onDragLeave={() => setLogoDragOver(false)}
+                    onDrop={handleLogoDrop}
+                    onClick={() => logoInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                      logoDragOver
+                        ? 'border-indigo-500 bg-indigo-500/10'
+                        : 'border-white/[0.15] bg-white/[0.02] hover:border-white/[0.25] hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => handleLogoUpload(e.target.files?.[0])}
+                    />
+                    <svg className="w-8 h-8 mx-auto mb-2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <p className="text-sm text-white/50 font-medium">
+                      {logoDragOver ? t('profile.branding.dropLogo') : t('profile.branding.dragOrClick')}
+                    </p>
+                    <p className="text-xs text-white/30 mt-1">{t('profile.branding.logoFormats')}</p>
+                    {logoUploading && (
+                      <div className="mt-2 w-6 h-6 mx-auto border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                    )}
+                  </div>
+                </>
               )}
+            </div>
+
+            {/* Typography Section */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-white/60">
+                {t('profile.branding.typography')}
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {fontOptions.map((font) => (
+                  <button
+                    key={font.id}
+                    type="button"
+                    onClick={() => setFontFamily(font.id)}
+                    className={`py-3 px-2 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
+                      fontFamily === font.id
+                        ? 'border-indigo-500 bg-indigo-500/10 text-white'
+                        : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:border-white/20 hover:text-white/60'
+                    }`}
+                  >
+                    <span className={`text-xl ${font.class}`}>Aa</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{font.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Accent color picker */}
@@ -177,7 +273,6 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
               <label className="block mb-2 text-sm font-semibold text-white/60">
                 {t('profile.branding.accentColor')}
               </label>
-              <p className="text-[13px] text-white/40 mb-3">{t('profile.branding.accentColorDesc')}</p>
               <div className="flex items-center gap-3 mb-4">
                 <input
                   type="color"
@@ -200,19 +295,26 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
               {/* Live preview */}
               <div className="mb-4">
                 <p className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-2">{t('profile.branding.preview')}</p>
-                <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-4">
-                  <div className="flex flex-col items-center gap-3">
+                <div className="bg-slate-950 border border-white/[0.08] rounded-xl overflow-hidden">
+                  <div className={`p-4 flex flex-col gap-3 ${
+                    logoPosition === 'left' ? 'items-start' : logoPosition === 'right' ? 'items-end' : 'items-center'
+                  }`}>
                     {user.brandingLogoUrl && (
                       <img
                         src={`${import.meta.env.VITE_MEDIA_BASE_URL}/${user.brandingLogoUrl}`}
                         alt="Preview"
-                        className="h-8 object-contain opacity-80"
+                        style={{ height: `${logoHeight * 0.6}px` }} // Scaled for preview
+                        className="object-contain opacity-80"
                       />
                     )}
-                    <div className="text-sm text-white/60 font-medium">Gallery Name</div>
+                    <div className={`text-xs text-white/60 font-medium ${
+                      fontFamily === 'serif-display' ? 'font-serif-display' : fontFamily === 'mono' ? 'font-mono' : 'font-sans'
+                    }`}>
+                      Gallery Name
+                    </div>
                     <button
                       type="button"
-                      className="py-2 px-5 text-xs font-semibold rounded-lg text-white transition-all"
+                      className="py-1.5 px-4 text-[10px] font-bold rounded-lg text-white transition-all"
                       style={getAccentButtonStyle(brandingColor)}
                     >
                       Submit Selections
@@ -225,7 +327,7 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={handleBrandingColorSave}
+                  onClick={handleBrandingSave}
                   disabled={brandingLoading}
                   className={`py-2 px-5 text-sm font-semibold rounded-lg border-none transition-opacity duration-150 ${
                     brandingLoading
@@ -237,7 +339,7 @@ function BrandingModal({ user, isPro, onClose, onSave }) {
                 </button>
                 <button
                   type="button"
-                  onClick={handleBrandingColorReset}
+                  onClick={handleBrandingReset}
                   disabled={brandingLoading}
                   className="py-2 px-4 text-sm font-semibold rounded-lg bg-white/[0.06] text-white/60 border border-white/10 hover:bg-white/[0.1] transition-colors disabled:opacity-50"
                 >

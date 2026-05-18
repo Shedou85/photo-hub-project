@@ -65,6 +65,17 @@ try {
         $params[] = $brandingColor;
     }
 
+    if (array_key_exists('brandingSettings', $data)) {
+        $brandingSettings = $data['brandingSettings'];
+        if ($brandingSettings !== null && !is_array($brandingSettings)) {
+            http_response_code(400);
+            echo json_encode(["error" => "brandingSettings must be an object"]);
+            exit;
+        }
+        $setParts[] = "brandingSettings = ?";
+        $params[] = $brandingSettings !== null ? json_encode($brandingSettings) : null;
+    }
+
     if (array_key_exists('newPassword', $data)) {
         $newPassword = $data['newPassword'];
 
@@ -110,7 +121,7 @@ try {
     $stmt = $pdo->prepare("
         SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus,
                trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified,
-               brandingLogoUrl, brandingColor,
+               brandingLogoUrl, brandingColor, brandingSettings,
                (password IS NOT NULL) AS hasPassword
         FROM `User`
         WHERE id = ?
@@ -120,6 +131,12 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($user) {
         $user['hasPassword'] = (bool) $user['hasPassword'];
+        if (!empty($user['brandingSettings'])) {
+            $decoded = json_decode($user['brandingSettings'], true);
+            $user['brandingSettings'] = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+        } else {
+            $user['brandingSettings'] = null;
+        }
     }
 
     // Format datetime fields as ISO 8601 with timezone for correct frontend parsing

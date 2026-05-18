@@ -195,7 +195,7 @@ if ($requestMethod === 'PATCH') {
         $collection['selectionLimit'] = $collection['selectionLimit'] !== null ? (int) $collection['selectionLimit'] : null;
 
         // Query the collection owner's plan and branding data
-        $ownerStmt = $pdo->prepare("SELECT plan, brandingLogoUrl, brandingColor, name AS ownerName FROM `User` WHERE id = ? LIMIT 1");
+        $ownerStmt = $pdo->prepare("SELECT plan, brandingLogoUrl, brandingColor, brandingSettings, name AS ownerName FROM `User` WHERE id = ? LIMIT 1");
         $ownerStmt->execute([$collectionUserId]);
         $ownerData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
         $ownerPlan = $ownerData['plan'] ?? 'FREE_TRIAL';
@@ -212,6 +212,7 @@ if ($requestMethod === 'PATCH') {
             'logoUrl' => !empty($ownerData['brandingLogoUrl']) ? r2GetUrl($ownerData['brandingLogoUrl']) : null,
             'accentColor' => $ownerData['brandingColor'] ?? null,
             'photographerName' => $ownerData['ownerName'] ?? null,
+            'settings' => !empty($ownerData['brandingSettings']) ? json_decode($ownerData['brandingSettings'], true) : null,
         ] : null;
 
         // Query photos for this collection

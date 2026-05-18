@@ -550,25 +550,44 @@ function SharePage() {
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           {/* Photographer branding logo */}
           {branding?.logoUrl && (
-            <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '0s', opacity: 0 }}>
+            <div 
+              className={`mb-8 animate-fade-in-up flex ${
+                branding.settings?.logoPosition === 'left' ? 'justify-start' : 
+                branding.settings?.logoPosition === 'right' ? 'justify-end' : 
+                'justify-center'
+              }`} 
+              style={{ animationDelay: '0s', opacity: 0 }}
+            >
               <img
                 src={branding.logoUrl}
                 alt={branding.photographerName || ''}
-                className="h-12 sm:h-16 mx-auto object-contain opacity-90 drop-shadow-2xl"
+                style={{ height: `${branding.settings?.logoHeight || 60}px` }}
+                className="object-contain opacity-90 drop-shadow-2xl"
               />
             </div>
           )}
 
           {/* Client name eyebrow */}
-          <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 mb-8 animate-fade-in-up shadow-2xl" style={{ animationDelay: '0.05s', opacity: 0 }}>
+          <div className={`inline-block px-4 py-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 mb-8 animate-fade-in-up shadow-2xl ${
+            branding?.settings?.fontFamily === 'mono' ? 'font-mono' : 'font-sans'
+          }`} style={{ animationDelay: '0.05s', opacity: 0 }}>
             <p className="text-[10px] sm:text-[12px] uppercase tracking-[0.4em] text-white/80 font-bold">
               {collection.clientName || 'Gallery'}
             </p>
           </div>
 
           {/* Collection name - Enhanced Typography with Gradient & Serif */}
-          <h1 className="font-serif-display text-6xl sm:text-8xl lg:text-9xl font-black mb-8 animate-fade-in-up drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] leading-[0.9] tracking-tight" style={{ animationDelay: '0.15s', opacity: 0 }}>
-            <span className="bg-[linear-gradient(180deg,#ffffff_30%,#a5b4fc_100%)] bg-clip-text text-transparent italic mr-2">
+          <h1 
+            className={`text-6xl sm:text-8xl lg:text-9xl font-black mb-8 animate-fade-in-up drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] leading-[0.9] tracking-tight ${
+              branding?.settings?.fontFamily === 'serif-display' ? 'font-serif-display' : 
+              branding?.settings?.fontFamily === 'mono' ? 'font-mono uppercase' : 
+              'font-sans'
+            }`} 
+            style={{ animationDelay: '0.15s', opacity: 0 }}
+          >
+            <span className={`bg-[linear-gradient(180deg,#ffffff_30%,#a5b4fc_100%)] bg-clip-text text-transparent mr-2 ${
+              branding?.settings?.fontFamily === 'serif-display' ? 'italic' : ''
+            }`}>
               {collection.name.split(' ')[0]}
             </span>
             <span className="text-white block sm:inline mt-2 sm:mt-0">

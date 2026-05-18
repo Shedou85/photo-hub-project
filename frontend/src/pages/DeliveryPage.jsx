@@ -297,22 +297,42 @@ function DeliveryPage() {
 
           {/* Photographer branding logo */}
           {branding?.logoUrl && (
-            <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0.05s', opacity: 0 }}>
+            <div 
+              className={`mb-5 animate-fade-in-up flex ${
+                branding.settings?.logoPosition === 'left' ? 'justify-start' : 
+                branding.settings?.logoPosition === 'right' ? 'justify-end' : 
+                'justify-center'
+              }`} 
+              style={{ animationDelay: '0.05s', opacity: 0 }}
+            >
               <img
                 src={branding.logoUrl}
                 alt={branding.photographerName || ''}
-                className="h-10 sm:h-12 mx-auto object-contain opacity-80"
+                style={{ height: `${(branding.settings?.logoHeight || 60) * 0.8}px` }} // Slightly smaller on delivery page by default
+                className="object-contain opacity-80"
               />
             </div>
           )}
 
           {/* Hero title */}
-          <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 animate-fade-in-up" style={{ animationDelay: '0.1s', opacity: 0 }}>
+          <h1 
+            className={`text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 animate-fade-in-up ${
+              branding?.settings?.fontFamily === 'serif-display' ? 'font-serif-display italic' : 
+              branding?.settings?.fontFamily === 'mono' ? 'font-mono uppercase' : 
+              'font-sans'
+            }`} 
+            style={{ animationDelay: '0.1s', opacity: 0 }}
+          >
             {t('delivery.heroTitle')}
           </h1>
 
           {/* Collection name as subtitle */}
-          <p className="text-lg sm:text-xl text-white/50 mb-2 animate-fade-in-up" style={{ animationDelay: '0.2s', opacity: 0 }}>
+          <p 
+            className={`text-lg sm:text-xl text-white/50 mb-2 animate-fade-in-up ${
+              branding?.settings?.fontFamily === 'mono' ? 'font-mono' : 'font-sans'
+            }`} 
+            style={{ animationDelay: '0.2s', opacity: 0 }}
+          >
             {collection.name}
           </p>
 
