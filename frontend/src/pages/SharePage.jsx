@@ -6,6 +6,8 @@ import { photoUrl, watermarkedPreviewUrl } from "../utils/photoUrl";
 import SelectionBorder, { GLOW_CLASSES } from "../components/primitives/SelectionBorder";
 import UpgradeModal from "../components/primitives/UpgradeModal";
 import OptimizedImage from "../components/primitives/OptimizedImage";
+import SharePhotoCard from "../components/collection/SharePhotoCard";
+import ShareLightbox from "../components/collection/ShareLightbox";
 import { useImageLoadingSet } from "../hooks/useImageLoading";
 import { getAccentButtonStyle } from "../utils/brandingUtils";
 import SEO from "../components/SEO";
@@ -31,8 +33,49 @@ function SharePage() {
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [collectionPassword, setCollectionPassword] = useState('');
   const [shareToken, setShareToken] = useState(null);
+  const [scrollY, setScrollY] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [preferredColumnCount, setPreferredColumnCount] = useState(null); // null means auto
   const { handleImageLoad, isImageLoaded } = useImageLoadingSet();
   const preloadedRef = useRef(new Set());
+
+  // Track scroll and window size
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Determine column count based on width and preference
+  const columnCount = useMemo(() => {
+    if (windowWidth < 640) return 2; // Mobile always 2
+    
+    if (preferredColumnCount) {
+      // Respect preference but cap at 3 for tablets
+      if (windowWidth < 1024) return Math.min(preferredColumnCount, 3);
+      return preferredColumnCount;
+    }
+
+    // Auto defaults
+    if (windowWidth >= 1024) return 4;
+    if (windowWidth >= 768) return 3;
+    return 2;
+  }, [windowWidth, preferredColumnCount]);
+
+  // Distribute photos into columns for a stable masonry feel
+  const columns = useMemo(() => {
+    if (!collection?.photos) return [];
+    const cols = Array.from({ length: columnCount }, () => []);
+    collection.photos.forEach((photo, idx) => {
+      cols[idx % columnCount].push(photo);
+    });
+    return cols;
+  }, [collection?.photos, columnCount]);
 
   const canSelect = collection?.status === 'SELECTING';
   const hasProFeatures = collection?.proFeatures ?? false;
@@ -331,21 +374,39 @@ function SharePage() {
     fetchCollection();
   }, [shareId, collectionPassword]);
 
-  // ── Loading state (skeleton) ──
+  // ── Loading state (Advanced Masonry Skeleton) ──
   if (loading) {
+    const skeletonColumnCount = windowWidth >= 1024 ? 4 : windowWidth >= 768 ? 3 : 2;
     return (
       <div className="min-h-screen bg-slate-950 font-sans">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12">
           {/* Header skeleton */}
-          <div className="text-center mb-12 animate-pulse">
-            <div className="h-3 w-24 bg-white/[0.06] rounded mx-auto mb-5" />
-            <div className="h-10 w-72 bg-white/[0.06] rounded-lg mx-auto mb-3" />
-            <div className="h-4 w-32 bg-white/[0.03] rounded mx-auto" />
+          <div className="text-center mb-16 animate-pulse">
+            <div className="h-4 w-24 bg-white/[0.05] rounded-full mx-auto mb-6" />
+            <div className="h-16 w-3/4 max-w-lg bg-white/[0.05] rounded-2xl mx-auto mb-4" />
+            <div className="h-4 w-48 bg-white/[0.03] rounded-lg mx-auto" />
           </div>
-          {/* Grid skeleton */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-[4/5] rounded-lg bg-white/[0.06] animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+
+          {/* Masonry Grid Skeleton */}
+          <div className="flex gap-4 items-start max-w-7xl mx-auto">
+            {Array.from({ length: skeletonColumnCount }).map((_, colIdx) => (
+              <div key={colIdx} className="flex-1 flex flex-col gap-4">
+                {[...Array(colIdx % 2 === 0 ? 3 : 4)].map((_, i) => {
+                  // Varied heights for masonry feel
+                  const heights = ['aspect-[4/5]', 'aspect-[3/2]', 'aspect-[1/1]', 'aspect-[2/3]'];
+                  const heightClass = heights[(i + colIdx) % heights.length];
+                  
+                  return (
+                    <div 
+                      key={i} 
+                      className={`relative w-full ${heightClass} rounded-xl bg-white/[0.03] overflow-hidden border border-white/[0.05]`}
+                    >
+                      {/* Shimmer effect */}
+                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent" />
+                    </div>
+                  );
+                })}
+              </div>
             ))}
           </div>
         </div>
@@ -456,236 +517,200 @@ function SharePage() {
         path={`/share/${shareId}`}
         noindex
       />
-      {/* ── Hero Section with Blurred Cover ── */}
-      <div className="relative overflow-hidden">
-        {/* Blurred cover background */}
+      {/* ── Hero Section with Parallax Cover ── */}
+      <div className="relative h-[65vh] sm:h-[85vh] overflow-hidden flex items-center justify-center">
+        {/* Parallax background wrapper */}
         {coverPhoto && (
-          <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 z-0 will-change-transform"
+            style={{ 
+              transform: `translateY(${scrollY * 0.4}px)`,
+            }}
+          >
             <img
               src={collection.watermarked && coverPhoto.watermarkedThumbnailPath
                 ? photoUrl(coverPhoto.watermarkedThumbnailPath)
                 : photoUrl(coverPhoto.thumbnailPath ?? coverPhoto.storagePath)}
               alt=""
-              className="w-full h-full object-cover blur-[40px] brightness-[0.3] scale-110"
+              className="w-full h-full object-cover scale-110 brightness-[0.45]"
               aria-hidden="true"
             />
           </div>
         )}
 
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/80 to-slate-950" />
+        {/* Refined gradient overlay for better text contrast and transition to grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(2,6,23,0.3)_100%)] z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-slate-950/40 to-slate-950 z-[2]" />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-10 sm:pb-14 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           {/* Photographer branding logo */}
           {branding?.logoUrl && (
-            <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0s', opacity: 0 }}>
+            <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '0s', opacity: 0 }}>
               <img
                 src={branding.logoUrl}
                 alt={branding.photographerName || ''}
-                className="h-10 sm:h-12 mx-auto object-contain opacity-80"
+                className="h-12 sm:h-16 mx-auto object-contain opacity-90 drop-shadow-2xl"
               />
             </div>
           )}
 
           {/* Client name eyebrow */}
-          <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-4 font-medium animate-fade-in-up" style={{ animationDelay: '0.05s', opacity: 0 }}>
-            {collection.clientName || 'Gallery'}
-          </p>
+          <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 mb-8 animate-fade-in-up shadow-2xl" style={{ animationDelay: '0.05s', opacity: 0 }}>
+            <p className="text-[10px] sm:text-[12px] uppercase tracking-[0.4em] text-white/80 font-bold">
+              {collection.clientName || 'Gallery'}
+            </p>
+          </div>
 
-          {/* Collection name */}
-          <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 animate-fade-in-up" style={{ animationDelay: '0.15s', opacity: 0 }}>
-            {collection.name}
+          {/* Collection name - Enhanced Typography with Gradient & Serif */}
+          <h1 className="font-serif-display text-6xl sm:text-8xl lg:text-9xl font-black mb-8 animate-fade-in-up drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] leading-[0.9] tracking-tight" style={{ animationDelay: '0.15s', opacity: 0 }}>
+            <span className="bg-[linear-gradient(180deg,#ffffff_30%,#a5b4fc_100%)] bg-clip-text text-transparent italic mr-2">
+              {collection.name.split(' ')[0]}
+            </span>
+            <span className="text-white block sm:inline mt-2 sm:mt-0">
+              {collection.name.split(' ').slice(1).join(' ')}
+            </span>
           </h1>
 
-          {/* Subtitle for clients */}
+          {/* Subtitle for clients - Light weight and better spacing */}
           {canSelect && (
-            <p className="text-sm sm:text-base text-white/40 mb-4 animate-fade-in-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
+            <p className="text-lg sm:text-xl text-white/50 mb-12 max-w-2xl mx-auto font-light leading-relaxed animate-fade-in-up tracking-wide" style={{ animationDelay: '0.25s', opacity: 0 }}>
               {t('share.heroSubtitle')}
             </p>
           )}
 
-          {/* Photo count */}
-          <p className="text-sm text-white/30 mb-6 animate-fade-in-up" style={{ animationDelay: '0.3s', opacity: 0 }}>
-            {t("share.photosCount", { count: photos.length })}
-          </p>
-
-          {/* Selection progress pill + bar */}
-          {canSelect && (selectedCount > 0 || selectionLimit !== null) && (
-            <div className="animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              {selectionLimit !== null ? (
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${
-                  isLimitReached
-                    ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
-                    : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
-                }`}>
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  {t('share.selectionLimit', { current: nonRejectedCount, limit: selectionLimit })}
-                </div>
-              ) : hasProFeatures ? (
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-sm font-medium mb-4">
-                  {labelCounts.FAVORITE > 0 && (
-                    <span className="flex items-center gap-1.5 text-amber-400">
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      {labelCounts.FAVORITE}
-                    </span>
-                  )}
-                  {labelCounts.SELECTED > 0 && (
-                    <span className="flex items-center gap-1.5 text-indigo-400">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {labelCounts.SELECTED}
-                    </span>
-                  )}
-                  {labelCounts.REJECTED > 0 && (
-                    <span className="flex items-center gap-1.5 text-red-400">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      {labelCounts.REJECTED}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium mb-4">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  {t('share.selectedCount', { count: selectedCount })}
-                </div>
-              )}
-              {/* Progress bar */}
-              <div className="flex justify-center">
-                <div className="w-48 h-[3px] bg-white/10 rounded-full overflow-hidden">
+          {/* Photo count and Selection progress */}
+          <div className="flex flex-col items-center gap-6 animate-fade-in-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
+            {canSelect && (selectedCount > 0 || selectionLimit !== null) && (
+              <div className="flex flex-col items-center">
+                {selectionLimit !== null ? (
+                  <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold mb-4 backdrop-blur-md ${
+                    isLimitReached
+                      ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
+                      : 'bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.2)]'
+                  }`}>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {t('share.selectionLimit', { current: nonRejectedCount, limit: selectionLimit })}
+                  </div>
+                ) : hasProFeatures ? (
+                  <div className="inline-flex items-center gap-4 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm font-semibold mb-4 shadow-xl">
+                    {labelCounts.FAVORITE > 0 && (
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        {labelCounts.FAVORITE}
+                      </span>
+                    )}
+                    {labelCounts.SELECTED > 0 && (
+                      <span className="flex items-center gap-1.5 text-indigo-400">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {labelCounts.SELECTED}
+                      </span>
+                    )}
+                    {labelCounts.REJECTED > 0 && (
+                      <span className="flex items-center gap-1.5 text-red-400">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        {labelCounts.REJECTED}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-sm font-semibold mb-4 backdrop-blur-md shadow-lg">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {t('share.selectedCount', { count: selectedCount })}
+                  </div>
+                )}
+                {/* Progress bar */}
+                <div className="w-56 h-[4px] bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${!accentColor ? 'bg-gradient-to-r from-indigo-500 to-indigo-400' : ''}`}
-                    style={{ width: `${progressPercent}%`, ...(accentColor ? { background: accentColor } : {}) }}
+                    className={`h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(99,102,241,0.5)] ${!accentColor ? 'bg-gradient-to-r from-indigo-500 to-blue-400' : ''}`}
+                    style={{ width: `${progressPercent}%`, ...(accentColor ? { background: accentColor, boxShadow: `0 0 10px ${accentColor}80` } : {}) }}
                   />
                 </div>
               </div>
-            </div>
-          )}
+            )}
+            <p className="text-[12px] tracking-[0.2em] text-white/40 uppercase font-medium">
+              {t("share.photosCount", { count: photos.length })}
+            </p>
+          </div>
+        </div>
+
+        {/* Scroll indicator mouse icon */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 animate-bounce opacity-30">
+          <div className="w-5 h-8 border-2 border-white rounded-full flex justify-center pt-2">
+            <div className="w-1 h-1 bg-white rounded-full" />
+          </div>
         </div>
       </div>
 
       {/* ── Photo Grid ── */}
-      <div className={`max-w-5xl mx-auto px-4 sm:px-6 ${canSelect && selectedCount > 0 ? 'pb-28' : 'pb-12'}`}>
+      <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 ${canSelect && selectedCount > 0 ? 'pb-28' : 'pb-12'}`}>
+        
+        {/* Grid Density Controls */}
         {photos.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {photos.map((photo, index) => {
-              const photoLabel = photoLabels.get(photo.id);
-              const isLabeled = !!photoLabel;
-              const glowClass = photoLabel ? (GLOW_CLASSES[photoLabel] || 'selection-glow') : '';
-              return (
-                <div
-                  key={photo.id}
-                  className={`photo-card-enter group relative aspect-[4/5] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                    isLabeled
-                      ? `${glowClass || 'selection-glow'} scale-[1.02]`
-                      : 'hover:scale-[1.03]'
+          <div className="flex justify-end mb-8 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
+            <div className="flex items-center gap-1.5 p-1.5 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+              {[2, 3, 4].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setPreferredColumnCount(num)}
+                  className={`flex items-center justify-center w-11 h-10 rounded-xl transition-all duration-500 ${
+                    columnCount === num 
+                      ? 'bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]' 
+                      : 'text-white/20 hover:text-white/50 hover:bg-white/[0.05]'
                   }`}
-                  style={{ animationDelay: `${Math.min(index * 60, 600)}ms` }}
-                  onClick={() => setLightboxIndex(index)}
+                  title={`${num} ${t('common.columns', { defaultValue: 'Columns' })}`}
                 >
-                  <OptimizedImage
-                    src={collection.watermarked && photo.watermarkedThumbnailPath
-                      ? photoUrl(photo.watermarkedThumbnailPath)
-                      : photoUrl(photo.thumbnailPath ?? photo.storagePath)}
-                    alt={photo.filename}
-                    lqip={photo.lqip}
-                    isLoaded={isImageLoaded(photo.id)}
-                    onLoad={() => handleImageLoad(photo.id)}
-                    priority={index < 6}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.08] select-none"
-                    containerClassName="w-full h-full"
-                    onContextMenu={(e) => e.preventDefault()}
-                    draggable={false}
-                  />
+                  <div className="flex gap-1">
+                    {Array.from({ length: num }).map((_, i) => (
+                      <div key={i} className={`w-[3px] h-3.5 rounded-full transition-colors duration-500 ${columnCount === num ? 'bg-indigo-400' : 'bg-current'}`} />
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-                  {/* Bottom vignette on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  {/* Selected overlay border + animated trace */}
-                  {isLabeled && <SelectionBorder label={photoLabel} />}
-
-                  {/* Label buttons — vertical stack of 3 */}
-                  {canSelect && (() => {
-                    const isThisPhotoNonRejected = photoLabel === 'SELECTED' || photoLabel === 'FAVORITE';
-                    const limitBlocksNew = isLimitReached && !isThisPhotoNonRejected;
-                    return (
-                    <div className="absolute top-2 right-2 flex flex-col gap-1.5">
-                      {/* Favorite button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLabel(photo.id, 'FAVORITE');
-                        }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                          photoLabel === 'FAVORITE'
-                            ? 'bg-amber-500 shadow-lg shadow-amber-500/40'
-                            : !hasProFeatures || limitBlocksNew
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
-                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-amber-500/70'
-                        }`}
-                        title={limitBlocksNew ? t('share.selectionLimitReached') : undefined}
-                        aria-label={t('share.labelFavorite')}
-                      >
-                        <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </button>
-                      {/* Selected button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLabel(photo.id, 'SELECTED');
-                        }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                          photoLabel === 'SELECTED'
-                            ? `${!accentColor ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40' : 'shadow-lg'}`
-                            : limitBlocksNew
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
-                              : `bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 ${!accentColor ? 'hover:bg-indigo-500/70' : ''}`
-                        }`}
-                        style={photoLabel === 'SELECTED' && accentColor
-                          ? { backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}66` }
-                          : (photoLabel !== 'SELECTED' && accentColor ? { '--hover-bg': `${accentColor}b3` } : {})}
-                        title={limitBlocksNew ? t('share.selectionLimitReached') : undefined}
-                        aria-label={t('share.labelSelected')}
-                      >
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                      {/* Rejected button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLabel(photo.id, 'REJECTED');
-                        }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-                          photoLabel === 'REJECTED'
-                            ? 'bg-red-500 shadow-lg shadow-red-500/40'
-                            : hasProFeatures
-                              ? 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-red-500/70'
-                              : 'bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-40 cursor-not-allowed'
-                        }`}
-                        aria-label={t('share.labelRejected')}
-                      >
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                    );
-                  })()}
-                </div>
-              );
-            })}
+        {photos.length > 0 && (
+          <div className="flex gap-4 items-start">
+            {columns.map((columnPhotos, colIdx) => (
+              <div key={colIdx} className="flex-1 flex flex-col gap-4">
+                {columnPhotos.map((photo) => {
+                  const photoLabel = photoLabels.get(photo.id);
+                  const isLabeled = !!photoLabel;
+                  const originalIndex = photos.findIndex(p => p.id === photo.id);
+                  
+                  return (
+                    <SharePhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      collection={collection}
+                      photoLabel={photoLabel}
+                      isLabeled={isLabeled}
+                      originalIndex={originalIndex}
+                      onOpenLightbox={setLightboxIndex}
+                      onSetLabel={setLabel}
+                      canSelect={canSelect}
+                      isLimitReached={isLimitReached}
+                      hasProFeatures={hasProFeatures}
+                      accentColor={accentColor}
+                      isImageLoaded={isImageLoaded(photo.id)}
+                      onImageLoad={() => handleImageLoad(photo.id)}
+                      requestsInFlight={requestsInFlight}
+                    />
+                  );
+                })}
+              </div>
+            ))}
           </div>
         )}
 
@@ -763,140 +788,22 @@ function SharePage() {
       )}
 
       {/* ── Lightbox ── */}
-      {lightboxIndex !== null && photos[lightboxIndex] && (
-        <div
-          className="fixed inset-0 z-50 bg-black"
-          onClick={() => setLightboxIndex(null)}
-        >
-          {/* Top gradient fade */}
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none" />
-
-          {/* Close button */}
-          <button
-            onClick={() => setLightboxIndex(null)}
-            aria-label={t("share.lightboxClose")}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all z-20"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Counter */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 text-xs text-white/30 font-medium tabular-nums">
-            {lightboxIndex + 1} / {photos.length}
-          </div>
-
-          {/* Selection toggle in lightbox */}
-          {canSelect && hasProFeatures && (
-            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5">
-              {[
-                { label: 'FAVORITE', icon: 'star', bg: 'bg-amber-500', shadow: 'shadow-amber-500/30' },
-                { label: 'SELECTED', icon: 'check', bg: 'bg-indigo-500', shadow: 'shadow-indigo-500/30' },
-                { label: 'REJECTED', icon: 'x', bg: 'bg-red-500', shadow: 'shadow-red-500/30' },
-              ].map(({ label, icon, bg, shadow }) => {
-                const isActive = photoLabels.get(photos[lightboxIndex].id) === label;
-                return (
-                  <button
-                    key={label}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLabel(photos[lightboxIndex].id, label);
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? `${bg} text-white shadow-lg ${shadow}`
-                        : 'bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white'
-                    }`}
-                  >
-                    {icon === 'star' && (
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    )}
-                    {icon === 'check' && (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                    {icon === 'x' && (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    )}
-                    {t(`share.label${label.charAt(0) + label.slice(1).toLowerCase()}`)}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          {canSelect && !hasProFeatures && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleSelection(photos[lightboxIndex].id);
-              }}
-              className={`absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                selectedPhotoIds.has(photos[lightboxIndex].id)
-                  ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                  : 'bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              {selectedPhotoIds.has(photos[lightboxIndex].id) ? t('share.selected') : t('share.select')}
-            </button>
-          )}
-
-          {/* Image */}
-          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-20">
-            <img
-              src={collection.watermarked
-                ? watermarkedPreviewUrl(shareId, photos[lightboxIndex].id, shareToken)
-                : photoUrl(photos[lightboxIndex].storagePath)}
-              alt={photos[lightboxIndex].filename}
-              className="max-w-full max-h-full object-contain rounded select-none animate-scale-in"
-              crossOrigin={collection.watermarked ? "use-credentials" : undefined}
-              onClick={(e) => e.stopPropagation()}
-              onContextMenu={(e) => e.preventDefault()}
-              draggable={false}
-            />
-          </div>
-
-          {/* Prev — full-height invisible hit area */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
-            }}
-            aria-label={t("share.lightboxPrev")}
-            className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 z-10 flex items-center justify-start pl-2 sm:pl-6 group/nav cursor-pointer"
-          >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all opacity-0 group-hover/nav:opacity-100">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-          </button>
-
-          {/* Next — full-height invisible hit area */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
-            }}
-            aria-label={t("share.lightboxNext")}
-            className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 z-10 flex items-center justify-end pr-2 sm:pr-6 group/nav cursor-pointer"
-          >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all opacity-0 group-hover/nav:opacity-100">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </button>
-        </div>
-      )}
+      <ShareLightbox
+        isOpen={lightboxIndex !== null}
+        currentIndex={lightboxIndex}
+        photos={photos}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={setLightboxIndex}
+        canSelect={canSelect}
+        hasProFeatures={hasProFeatures}
+        photoLabels={photoLabels}
+        onSetLabel={setLabel}
+        toggleSelection={toggleSelection}
+        selectedPhotoIds={selectedPhotoIds}
+        shareId={shareId}
+        shareToken={shareToken}
+        collectionWatermarked={collection?.watermarked}
+      />
 
       {/* ── Review Modal ── */}
       {showReviewModal && (
