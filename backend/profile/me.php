@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../helpers/session.php';
+require_once __DIR__ . '/../helpers/username.php';
 
 header('Content-Type: application/json');
 
@@ -76,6 +77,119 @@ try {
         $params[] = $brandingSettings !== null ? json_encode($brandingSettings) : null;
     }
 
+    if (array_key_exists('profileTagline', $data)) {
+        $profileTagline = $data['profileTagline'];
+        if ($profileTagline !== null && mb_strlen($profileTagline) > 160) {
+            http_response_code(400);
+            echo json_encode(["error" => "Profile tagline must be 160 characters or less"]);
+            exit;
+        }
+        $setParts[] = "profileTagline = ?";
+        $params[] = $profileTagline;
+    }
+
+    if (array_key_exists('specialties', $data)) {
+        $specialties = $data['specialties'];
+        if ($specialties !== null && mb_strlen($specialties) > 255) {
+            http_response_code(400);
+            echo json_encode(["error" => "Specialties must be 255 characters or less"]);
+            exit;
+        }
+        $setParts[] = "specialties = ?";
+        $params[] = $specialties;
+    }
+
+    if (array_key_exists('location', $data)) {
+        $location = $data['location'];
+        if ($location !== null && mb_strlen($location) > 120) {
+            http_response_code(400);
+            echo json_encode(["error" => "Location must be 120 characters or less"]);
+            exit;
+        }
+        $setParts[] = "location = ?";
+        $params[] = $location;
+    }
+
+    if (array_key_exists('instagramUrl', $data)) {
+        $instagramUrl = $data['instagramUrl'];
+        if ($instagramUrl !== null) {
+            if (mb_strlen($instagramUrl) > 191) {
+                http_response_code(400);
+                echo json_encode(["error" => "Instagram URL must be 191 characters or less"]);
+                exit;
+            }
+            if (!preg_match('#^https?://(www\.)?instagram\.com/#', $instagramUrl)) {
+                http_response_code(400);
+                echo json_encode(["error" => "Instagram URL must start with https://instagram.com/"]);
+                exit;
+            }
+        }
+        $setParts[] = "instagramUrl = ?";
+        $params[] = $instagramUrl;
+    }
+
+    if (array_key_exists('isProfilePublic', $data)) {
+        $isProfilePublic = (bool) $data['isProfilePublic'];
+
+        if ($isProfilePublic) {
+            // Fetch current user name + username to check/auto-generate
+            $checkStmt = $pdo->prepare("SELECT name, username FROM `User` WHERE id = ? LIMIT 1");
+            $checkStmt->execute([$_SESSION['user_id']]);
+            $currentUser = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            // If no username yet — auto-generate one
+            if (empty($currentUser['username'])) {
+                if (empty($currentUser['name'])) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Please set your name before publishing your profile"]);
+                    exit;
+                }
+                $generated = generateUniqueUsername($pdo, $currentUser['name'], $_SESSION['user_id']);
+                if ($generated === null) {
+                    http_response_code(500);
+                    echo json_encode(["error" => "Could not generate a unique username. Please set one manually."]);
+                    exit;
+                }
+                $setParts[] = "username = ?";
+                $params[] = $generated;
+            }
+        }
+
+        $setParts[] = "isProfilePublic = ?";
+        $params[] = $isProfilePublic ? 1 : 0;
+    }
+
+    if (array_key_exists('username', $data)) {
+        $newUsername = trim((string) $data['username']);
+
+        if (empty($newUsername)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Username cannot be empty"]);
+            exit;
+        }
+
+        if (!isUsernameValid($newUsername)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Username must be 3–50 characters, only lowercase letters, numbers and hyphens, no leading/trailing hyphens"]);
+            exit;
+        }
+
+        if (isUsernameReserved($newUsername)) {
+            http_response_code(400);
+            echo json_encode(["error" => "This username is not available"]);
+            exit;
+        }
+
+        if (!isUsernameAvailable($pdo, $newUsername, $_SESSION['user_id'])) {
+            http_response_code(409);
+            echo json_encode(["error" => "This username is already taken"]);
+            exit;
+        }
+
+        $setParts[] = "username = ?";
+        $params[] = $newUsername;
+    }
+
     if (array_key_exists('newPassword', $data)) {
         $newPassword = $data['newPassword'];
 
@@ -122,6 +236,8 @@ try {
         SELECT id, name, email, bio, createdAt, plan, role, subscriptionStatus,
                trialEndsAt, planDowngradedAt, collectionsCreatedCount, emailVerified,
                brandingLogoUrl, brandingColor, brandingSettings,
+               username, isProfilePublic, profileTagline, specialties, location,
+               websiteUrl, instagramUrl, profileImageUrl,
                (password IS NOT NULL) AS hasPassword
         FROM `User`
         WHERE id = ?
@@ -131,6 +247,7 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($user) {
         $user['hasPassword'] = (bool) $user['hasPassword'];
+        $user['isProfilePublic'] = (bool) $user['isProfilePublic'];
         if (!empty($user['brandingSettings'])) {
             $decoded = json_decode($user['brandingSettings'], true);
             $user['brandingSettings'] = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
