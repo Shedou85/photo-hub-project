@@ -80,7 +80,7 @@ function SharePage() {
   }, [collection?.photos, columnCount]);
 
   const canSelect = collection?.status === 'SELECTING';
-  const hasProFeatures = collection?.proFeatures ?? false;
+  const hasProFeatures = UNLIMITED_ACCESS || (collection?.proFeatures ?? false);
   const branding = collection?.branding ?? null;
   const accentColor = branding?.accentColor || null;
   const selectedPhotoIds = useMemo(() => new Set(photoLabels.keys()), [photoLabels]);
@@ -358,6 +358,10 @@ function SharePage() {
 
           setPasswordRequired(false);
           setPasswordSubmitting(false);
+          if (UNLIMITED_ACCESS) {
+            coll.proFeatures = true;
+            if (coll.status === 'SELECTING') coll.watermarked = true;
+          }
           setCollection(coll);
           const initialLabels = new Map(
             (coll.selections || []).map(s => [s.photoId, s.label || 'SELECTED'])
